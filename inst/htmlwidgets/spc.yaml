@@ -1,0 +1,7 @@
+
+dependencies:
+  - name: PBISPC
+    version: 1.4.4.21
+    src: htmlwidgets/lib/PBISPC-1.4.4.21
+    script:
+      - PBISPC-1.4.4.21.js
