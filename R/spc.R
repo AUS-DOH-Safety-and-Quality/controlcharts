@@ -55,34 +55,15 @@ renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
   htmlwidgets::shinyRenderWidget(expr, spcOutput, env, quoted = TRUE)
 }
 
-#' @rdname spc-limits
+#' Calculate control limits
+#'
+#' @name spc-limits
 #' @export
-spc_limits <- function(keys, numerators, width = NULL, height = NULL, elementId = NULL) {
-  code1 <- 'var options_update = {
-    dataViews: [
-        {
-            categorical: {
-                categories: [{
-                    source: { roles: {"key": true}},
-                    values: ["A", "B", "C"]
-                }],
-                values: [
-                    {
-                        source: { roles: {"numerators": true}},
-                        values: [1, 2, 3]
-                    }
-                ]
-            }
-        }
-    ] ,
-    viewport: {
-        "width":500,
-        "height":500
-    },
-    type: 2,
-    headless:true
-};'
-spc_ctx$source(code = code1)
-spc_ctx$source(code = 'visual.update(options_update);')
-spc_ctx$get('visual.viewModel.controlLimits')
+spc_limits <- function(keys = NULL, numerators = NULL, denominators = NULL, rebaseline_groupings = NULL, xbar_sds = NULL, width = NULL, height = NULL) {
+  spc_categories <- list(values_entry('key', keys))
+  spc_values <- list(values_entry('numerators', numerators),
+                      values_entry('denominators', denominators))
+
+  spc_ctx$call("update_visual", spc_categories, spc_values, width, height, TRUE)
+  spc_ctx$get('visual.viewModel.plotPoints')
 }

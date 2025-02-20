@@ -5,3 +5,8 @@ dependencies:
     src: htmlwidgets/lib/PBISPC-1.4.4.21
     script:
       - PBISPC-1.4.4.21.js
+  - name: utils
+    version: 1.0.0
+    src: htmlwidgets/lib/utils
+    script:
+      - utils.js

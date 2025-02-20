@@ -1,40 +1,9 @@
 HTMLWidgets.widget({
-
   name: 'spc',
-
   type: 'output',
-
   factory: function(el, width, height) {
 
-    var options_constructor = {
-      element: el,
-      host: {
-          createSelectionManager: () => ({
-              registerOnSelectCallback: () => {},
-              getSelectionIds: () => []
-          }),
-          createSelectionIdBuilder: () => ({
-              withCategory: () => ({ createSelectionId: () => {} })
-          }),
-          tooltipService: {
-              show: () => {},
-              hide: () => {}
-          },
-          eventService: {
-              renderingStarted: () => {},
-              renderingFailed: () => {},
-              renderingFinished: () => {}
-          },
-          colorPalette: {
-              isHighContrast: false,
-              foreground: { value: "black" },
-              background: { value: "white" },
-              foregroundSelected: { value: "black" },
-              hyperlink: { value: "blue" }
-          }
-      }
-  };
-
+  var options_constructor = make_constructor(el);
   var options_update = {
     dataViews: [
         {
