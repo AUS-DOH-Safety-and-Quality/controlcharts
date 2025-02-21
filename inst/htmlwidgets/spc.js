@@ -4,6 +4,11 @@ HTMLWidgets.widget({
   factory: function(el, width, height) {
 
   var options_constructor = make_constructor(el);
+  var visual = new spc.Visual(options_constructor);
+  visual.svg
+        .append("g")
+        .classed("tooltip", true);
+
   var options_update = {
     dataViews: [
         {
@@ -28,7 +33,6 @@ HTMLWidgets.widget({
     type: 2
 };
 
-var visual = new spc.Visual(options_constructor);
     return {
 
       renderValue: function(x) {

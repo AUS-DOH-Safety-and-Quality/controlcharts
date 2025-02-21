@@ -65,5 +65,5 @@ spc_limits <- function(keys = NULL, numerators = NULL, denominators = NULL, reba
                       values_entry('denominators', denominators))
 
   spc_ctx$call("update_visual", spc_categories, spc_values, width, height, TRUE)
-  spc_ctx$get('visual.viewModel.plotPoints')
+  spc_ctx$get('visual.viewModel.controlLimits')
 }
