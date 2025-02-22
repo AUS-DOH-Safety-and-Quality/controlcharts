@@ -1026,9 +1026,16 @@
   }
 
   function* numbers(values, valueof) {
-    {
+    if (valueof === undefined) {
       for (let value of values) {
         if (value != null && (value = +value) >= value) {
+          yield value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
           yield value;
         }
       }
@@ -1183,9 +1190,17 @@
 
   function max(values, valueof) {
     let max;
-    {
+    if (valueof === undefined) {
       for (const value of values) {
         if (value != null
+            && (max < value || (max === undefined && value >= value))) {
+          max = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
             && (max < value || (max === undefined && value >= value))) {
           max = value;
         }
@@ -1196,9 +1211,17 @@
 
   function min(values, valueof) {
     let min;
-    {
+    if (valueof === undefined) {
       for (const value of values) {
         if (value != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
             && (min > value || (min === undefined && value >= value))) {
           min = value;
         }
@@ -1283,7 +1306,7 @@
   }
 
   function quantile(values, p, valueof) {
-    values = Float64Array.from(numbers(values));
+    values = Float64Array.from(numbers(values, valueof));
     if (!(n = values.length) || isNaN(p = +p)) return;
     if (p <= 0 || n < 2) return min(values);
     if (p >= 1) return max(values);
@@ -1298,9 +1321,16 @@
   function mean(values, valueof) {
     let count = 0;
     let sum = 0;
-    {
+    if (valueof === undefined) {
       for (let value of values) {
         if (value != null && (value = +value) >= value) {
+          ++count, sum += value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
           ++count, sum += value;
         }
       }
@@ -1309,7 +1339,7 @@
   }
 
   function median(values, valueof) {
-    return quantile(values, 0.5);
+    return quantile(values, 0.5, valueof);
   }
 
   function leastIndex(values, compare = ascending) {
@@ -1331,9 +1361,16 @@
 
   function sum(values, valueof) {
     let sum = 0;
-    {
+    if (valueof === undefined) {
       for (let value of values) {
         if (value = +value) {
+          sum += value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if (value = +valueof(value, ++index, values)) {
           sum += value;
         }
       }
@@ -3350,23 +3387,421 @@
     symbolTriangle: triangle
   });
 
-  function addContextMenu(selection, visualObj) {
-      if (!(visualObj.viewModel.plotProperties.displayPlot
-          || visualObj.viewModel.inputSettings.settings.summary_table.show_table
-          || visualObj.viewModel.showGrouped)) {
-          selection.on("contextmenu", () => { return; });
-          return;
+  const textOptions = {
+      font: {
+          default: "'Arial', sans-serif",
+          valid: [
+              "'Arial', sans-serif",
+              "Arial",
+              "'Arial Black'",
+              "'Arial Unicode MS'",
+              "Calibri",
+              "Cambria",
+              "'Cambria Math'",
+              "Candara",
+              "'Comic Sans MS'",
+              "Consolas",
+              "Constantia",
+              "Corbel",
+              "'Courier New'",
+              "wf_standard-font, helvetica, arial, sans-serif",
+              "wf_standard-font_light, helvetica, arial, sans-serif",
+              "Georgia",
+              "'Lucida Sans Unicode'",
+              "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+              "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
+              "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
+              "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
+              "Symbol",
+              "Tahoma",
+              "'Times New Roman'",
+              "'Trebuchet MS'",
+              "Verdana",
+              "Wingdings"
+          ]
+      },
+      size: {
+          default: 10,
+          valid: { numberRange: { min: 0, max: 100 } }
+      },
+      weight: {
+          default: "normal",
+          valid: ["normal", "bold", "bolder", "lighter"]
+      },
+      text_transform: {
+          default: "uppercase",
+          valid: ["uppercase", "lowercase", "capitalize", "none"]
+      },
+      text_overflow: {
+          default: "ellipsis",
+          valid: ["ellipsis", "clip", "none"]
+      },
+      text_align: {
+          default: "center",
+          valid: ["center", "left", "right"]
       }
-      selection.on('contextmenu', (event) => {
-          const eventTarget = event.target;
-          const dataPoint = (select(eventTarget).datum());
-          visualObj.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {}, {
-              x: event.clientX,
-              y: event.clientY
-          });
-          event.preventDefault();
-      });
-  }
+  };
+  const lineOptions = {
+      type: {
+          valid: ["10 0", "10 10", "2 5"]
+      },
+      width: {
+          valid: { numberRange: { min: 0, max: 100 } }
+      }
+  };
+  const iconOptions = {
+      location: {
+          default: "Top Right",
+          valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"]
+      },
+      scaling: {
+          default: 1,
+          valid: { numberRange: { min: 0 } }
+      }
+  };
+  const colourOptions = {
+      improvement: { default: "#00B0F0" },
+      deterioration: { default: "#E46C0A" },
+      neutral_low: { default: "#490092" },
+      neutral_high: { default: "#490092" },
+      limits: { default: "#6495ED" },
+      standard: { default: "#000000" }
+  };
+  const borderOptions = {
+      width: {
+          default: 1,
+          valid: { numberRange: { min: 0 } }
+      },
+      style: {
+          default: "solid",
+          valid: ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"]
+      },
+      colour: {
+          default: "#000000"
+      }
+  };
+  const labelOptions = {
+      limits: { default: "beside", valid: ["outside", "inside", "above", "below", "beside"] },
+      standard: { default: "beside", valid: ["above", "below", "beside"] }
+  };
+
+  const defaultSettings = {
+      canvas: {
+          show_errors: { default: true },
+          lower_padding: { default: 10 },
+          upper_padding: { default: 10 },
+          left_padding: { default: 10 },
+          right_padding: { default: 10 }
+      },
+      spc: {
+          chart_type: { default: "i", valid: ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"] },
+          outliers_in_limits: { default: false },
+          multiplier: { default: 1, valid: { numberRange: { min: 0 } } },
+          sig_figs: { default: 2, valid: { numberRange: { min: 0, max: 20 } } },
+          perc_labels: { default: "Automatic", valid: ["Automatic", "Yes", "No"] },
+          split_on_click: { default: false },
+          num_points_subset: { default: null },
+          subset_points_from: { default: "Start", valid: ["Start", "End"] },
+          ttip_show_numerator: { default: true },
+          ttip_label_numerator: { default: "Numerator" },
+          ttip_show_denominator: { default: true },
+          ttip_label_denominator: { default: "Denominator" },
+          ttip_show_value: { default: true },
+          ttip_label_value: { default: "Automatic" },
+          ll_truncate: { default: null },
+          ul_truncate: { default: null }
+      },
+      outliers: {
+          process_flag_type: { default: "both", valid: ["both", "improvement", "deterioration"] },
+          improvement_direction: { default: "increase", valid: ["increase", "neutral", "decrease"] },
+          astronomical: { default: false },
+          astronomical_limit: { default: "3 Sigma", valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"] },
+          ast_colour_improvement: colourOptions.improvement,
+          ast_colour_deterioration: colourOptions.deterioration,
+          ast_colour_neutral_low: colourOptions.neutral_low,
+          ast_colour_neutral_high: colourOptions.neutral_high,
+          shift: { default: false },
+          shift_n: { default: 7, valid: { numberRange: { min: 1 } } },
+          shift_colour_improvement: colourOptions.improvement,
+          shift_colour_deterioration: colourOptions.deterioration,
+          shift_colour_neutral_low: colourOptions.neutral_low,
+          shift_colour_neutral_high: colourOptions.neutral_high,
+          trend: { default: false },
+          trend_n: { default: 5, valid: { numberRange: { min: 1 } } },
+          trend_colour_improvement: colourOptions.improvement,
+          trend_colour_deterioration: colourOptions.deterioration,
+          trend_colour_neutral_low: colourOptions.neutral_low,
+          trend_colour_neutral_high: colourOptions.neutral_high,
+          two_in_three: { default: false },
+          two_in_three_highlight_series: { default: false },
+          two_in_three_limit: { default: "2 Sigma", valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"] },
+          twointhree_colour_improvement: colourOptions.improvement,
+          twointhree_colour_deterioration: colourOptions.deterioration,
+          twointhree_colour_neutral_low: colourOptions.neutral_low,
+          twointhree_colour_neutral_high: colourOptions.neutral_high
+      },
+      nhs_icons: {
+          flag_last_point: { default: true },
+          show_variation_icons: { default: false },
+          variation_icons_locations: iconOptions.location,
+          variation_icons_scaling: iconOptions.scaling,
+          show_assurance_icons: { default: false },
+          assurance_icons_locations: iconOptions.location,
+          assurance_icons_scaling: iconOptions.scaling
+      },
+      scatter: {
+          size: { default: 2.5, valid: { numberRange: { min: 0, max: 100 } } },
+          colour: colourOptions.standard,
+          opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } }
+      },
+      lines: {
+          show_99: { default: true },
+          show_95: { default: true },
+          show_68: { default: false },
+          show_main: { default: true },
+          show_target: { default: true },
+          show_alt_target: { default: false },
+          show_specification: { default: false },
+          width_99: { default: 2, valid: lineOptions.width.valid },
+          width_95: { default: 2, valid: lineOptions.width.valid },
+          width_68: { default: 2, valid: lineOptions.width.valid },
+          width_main: { default: 1, valid: lineOptions.width.valid },
+          width_target: { default: 1.5, valid: lineOptions.width.valid },
+          width_alt_target: { default: 1.5, valid: lineOptions.width.valid },
+          width_specification: { default: 2, valid: lineOptions.width.valid },
+          type_99: { default: "10 10", valid: lineOptions.type.valid },
+          type_95: { default: "2 5", valid: lineOptions.type.valid },
+          type_68: { default: "2 5", valid: lineOptions.type.valid },
+          type_main: { default: "10 0", valid: lineOptions.type.valid },
+          type_target: { default: "10 0", valid: lineOptions.type.valid },
+          type_alt_target: { default: "10 0", valid: lineOptions.type.valid },
+          type_specification: { default: "10 10", valid: lineOptions.type.valid },
+          colour_99: colourOptions.limits,
+          colour_95: colourOptions.limits,
+          colour_68: colourOptions.limits,
+          colour_main: colourOptions.standard,
+          colour_target: colourOptions.standard,
+          colour_alt_target: colourOptions.standard,
+          colour_specification: colourOptions.limits,
+          ttip_show_99: { default: true },
+          ttip_show_95: { default: false },
+          ttip_show_68: { default: false },
+          ttip_show_target: { default: true },
+          ttip_show_alt_target: { default: true },
+          ttip_show_specification: { default: true },
+          ttip_label_99: { default: "99% Limit" },
+          ttip_label_99_prefix_lower: { default: "Lower " },
+          ttip_label_99_prefix_upper: { default: "Upper " },
+          ttip_label_95: { default: "95% Limit" },
+          ttip_label_95_prefix_lower: { default: "Lower " },
+          ttip_label_95_prefix_upper: { default: "Upper " },
+          ttip_label_68: { default: "68% Limit" },
+          ttip_label_68_prefix_lower: { default: "Lower " },
+          ttip_label_68_prefix_upper: { default: "Upper " },
+          ttip_label_target: { default: "Centerline" },
+          ttip_label_alt_target: { default: "Alt. Target" },
+          ttip_label_specification: { default: "Specification Limit" },
+          ttip_label_specification_prefix_lower: { default: "Lower " },
+          ttip_label_specification_prefix_upper: { default: "Upper " },
+          alt_target: { default: null },
+          specification_upper: { default: null },
+          specification_lower: { default: null },
+          multiplier_alt_target: { default: false },
+          multiplier_specification: { default: false },
+          plot_label_show_99: { default: false },
+          plot_label_show_95: { default: false },
+          plot_label_show_68: { default: false },
+          plot_label_show_main: { default: false },
+          plot_label_show_target: { default: false },
+          plot_label_show_alt_target: { default: false },
+          plot_label_show_specification: { default: false },
+          plot_label_position_99: labelOptions.limits,
+          plot_label_position_95: labelOptions.limits,
+          plot_label_position_68: labelOptions.limits,
+          plot_label_position_main: labelOptions.standard,
+          plot_label_position_target: labelOptions.standard,
+          plot_label_position_alt_target: labelOptions.standard,
+          plot_label_position_specification: labelOptions.limits,
+          plot_label_vpad_99: { default: 0 },
+          plot_label_vpad_95: { default: 0 },
+          plot_label_vpad_68: { default: 0 },
+          plot_label_vpad_main: { default: 0 },
+          plot_label_vpad_target: { default: 0 },
+          plot_label_vpad_alt_target: { default: 0 },
+          plot_label_vpad_specification: { default: 0 },
+          plot_label_hpad_99: { default: 10 },
+          plot_label_hpad_95: { default: 10 },
+          plot_label_hpad_68: { default: 10 },
+          plot_label_hpad_main: { default: 10 },
+          plot_label_hpad_target: { default: 10 },
+          plot_label_hpad_alt_target: { default: 10 },
+          plot_label_hpad_specification: { default: 10 },
+          plot_label_font_99: textOptions.font,
+          plot_label_font_95: textOptions.font,
+          plot_label_font_68: textOptions.font,
+          plot_label_font_main: textOptions.font,
+          plot_label_font_target: textOptions.font,
+          plot_label_font_alt_target: textOptions.font,
+          plot_label_font_specification: textOptions.font,
+          plot_label_size_99: textOptions.size,
+          plot_label_size_95: textOptions.size,
+          plot_label_size_68: textOptions.size,
+          plot_label_size_main: textOptions.size,
+          plot_label_size_target: textOptions.size,
+          plot_label_size_alt_target: textOptions.size,
+          plot_label_size_specification: textOptions.size,
+          plot_label_colour_99: colourOptions.standard,
+          plot_label_colour_95: colourOptions.standard,
+          plot_label_colour_68: colourOptions.standard,
+          plot_label_colour_main: colourOptions.standard,
+          plot_label_colour_target: colourOptions.standard,
+          plot_label_colour_alt_target: colourOptions.standard,
+          plot_label_colour_specification: colourOptions.standard,
+          plot_label_prefix_99: { default: "" },
+          plot_label_prefix_95: { default: "" },
+          plot_label_prefix_68: { default: "" },
+          plot_label_prefix_main: { default: "" },
+          plot_label_prefix_target: { default: "" },
+          plot_label_prefix_alt_target: { default: "" },
+          plot_label_prefix_specification: { default: "" }
+      },
+      x_axis: {
+          xlimit_colour: colourOptions.standard,
+          xlimit_ticks: { default: true },
+          xlimit_tick_font: textOptions.font,
+          xlimit_tick_size: textOptions.size,
+          xlimit_tick_colour: colourOptions.standard,
+          xlimit_tick_rotation: { default: -35, valid: { numberRange: { min: -360, max: 360 } } },
+          xlimit_tick_count: { default: 10, valid: { numberRange: { min: 0, max: 100 } } },
+          xlimit_label: { default: null },
+          xlimit_label_font: textOptions.font,
+          xlimit_label_size: textOptions.size,
+          xlimit_label_colour: colourOptions.standard,
+          xlimit_l: { default: null },
+          xlimit_u: { default: null }
+      },
+      y_axis: {
+          ylimit_colour: colourOptions.standard,
+          ylimit_ticks: { default: true },
+          ylimit_tick_font: textOptions.font,
+          ylimit_tick_size: textOptions.size,
+          ylimit_tick_colour: colourOptions.standard,
+          ylimit_tick_rotation: { default: 0, valid: { numberRange: { min: -360, max: 360 } } },
+          ylimit_tick_count: { default: 10, valid: { numberRange: { min: 0, max: 100 } } },
+          ylimit_label: { default: null },
+          ylimit_label_font: textOptions.font,
+          ylimit_label_size: textOptions.size,
+          ylimit_label_colour: colourOptions.standard,
+          ylimit_l: { default: null },
+          ylimit_u: { default: null },
+          limit_multiplier: { default: 1.5, valid: { numberRange: { min: 0 } } },
+          ylimit_sig_figs: { default: null }
+      },
+      dates: {
+          date_format_day: { default: "DD", valid: ["DD", "Thurs DD", "Thursday DD", "(blank)"] },
+          date_format_month: { default: "MM", valid: ["MM", "Mon", "Month", "(blank)"] },
+          date_format_year: { default: "YYYY", valid: ["YYYY", "YY", "(blank)"] },
+          date_format_delim: { default: "/", valid: ["/", "-", " "] },
+          date_format_locale: { default: "en-GB", valid: ["en-GB", "en-US"] }
+      },
+      summary_table: {
+          show_table: { default: false },
+          table_text_overflow: textOptions.text_overflow,
+          table_opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          table_opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          table_variation_filter: { default: "all", valid: ["all", "common", "special", "improvement", "deterioration", "neutral"] },
+          table_assurance_filter: { default: "all", valid: ["all", "any", "pass", "fail", "inconsistent"] },
+          table_outer_border_style: borderOptions.style,
+          table_outer_border_width: borderOptions.width,
+          table_outer_border_colour: borderOptions.colour,
+          table_outer_border_top: { default: true },
+          table_outer_border_bottom: { default: true },
+          table_outer_border_left: { default: true },
+          table_outer_border_right: { default: true },
+          table_header_font: textOptions.font,
+          table_header_font_weight: textOptions.weight,
+          table_header_text_transform: textOptions.text_transform,
+          table_header_text_align: textOptions.text_align,
+          table_header_text_padding: { default: 1, valid: { numberRange: { min: 0, max: 100 } } },
+          table_header_size: textOptions.size,
+          table_header_colour: colourOptions.standard,
+          table_header_bg_colour: { default: "#D3D3D3" },
+          table_header_border_style: borderOptions.style,
+          table_header_border_width: borderOptions.width,
+          table_header_border_colour: borderOptions.colour,
+          table_header_border_bottom: { default: true },
+          table_header_border_inner: { default: true },
+          table_body_font: textOptions.font,
+          table_body_font_weight: textOptions.weight,
+          table_body_text_transform: textOptions.text_transform,
+          table_body_text_align: textOptions.text_align,
+          table_body_text_padding: { default: 1, valid: { numberRange: { min: 0, max: 100 } } },
+          table_body_size: textOptions.size,
+          table_body_colour: colourOptions.standard,
+          table_body_bg_colour: { default: "#FFFFFF" },
+          table_body_border_style: borderOptions.style,
+          table_body_border_width: borderOptions.width,
+          table_body_border_colour: borderOptions.colour,
+          table_body_border_top_bottom: { default: true },
+          table_body_border_left_right: { default: true }
+      },
+      download_options: {
+          show_button: { default: false }
+      },
+      labels: {
+          show_labels: { default: true },
+          label_position: { default: "top", valid: ["top", "bottom"] },
+          label_y_offset: { default: 20 },
+          label_line_offset: { default: 5 },
+          label_angle_offset: { default: 0, valid: { numberRange: { min: -90, max: 90 } } },
+          label_font: textOptions.font,
+          label_size: textOptions.size,
+          label_colour: colourOptions.standard,
+          label_line_colour: colourOptions.standard,
+          label_line_width: { default: 1, valid: lineOptions.width.valid },
+          label_line_type: { default: "10 0", valid: lineOptions.type.valid },
+          label_line_max_length: { default: 1000, valid: { numberRange: { min: 0, max: 10000 } } },
+          label_marker_show: { default: true },
+          label_marker_offset: { default: 5 },
+          label_marker_size: { default: 3, valid: { numberRange: { min: 0, max: 100 } } },
+          label_marker_colour: colourOptions.standard,
+          label_marker_outline_colour: colourOptions.standard
+      }
+  };
+  const settingsPaneGroupings = {
+      outliers: {
+          "General": ["process_flag_type", "improvement_direction"],
+          "Astronomical Points": ["astronomical", "astronomical_limit", "ast_colour_improvement", "ast_colour_deterioration", "ast_colour_neutral_low", "ast_colour_neutral_high"],
+          "Shifts": ["shift", "shift_n", "shift_colour_improvement", "shift_colour_deterioration", "shift_colour_neutral_low", "shift_colour_neutral_high"],
+          "Trends": ["trend", "trend_n", "trend_colour_improvement", "trend_colour_deterioration", "trend_colour_neutral_low", "trend_colour_neutral_high"],
+          "Two-In-Three": ["two_in_three", "two_in_three_highlight_series", "two_in_three_limit", "twointhree_colour_improvement", "twointhree_colour_deterioration", "twointhree_colour_neutral_low", "twointhree_colour_neutral_high"]
+      },
+      lines: {
+          "Main": ["show_main", "width_main", "type_main", "colour_main", "plot_label_show_main", "plot_label_position_main", "plot_label_vpad_main", "plot_label_hpad_main", "plot_label_font_main", "plot_label_size_main", "plot_label_colour_main", "plot_label_prefix_main"],
+          "Target": ["show_target", "width_target", "type_target", "colour_target", "ttip_show_target", "ttip_label_target", "plot_label_show_target", "plot_label_position_target", "plot_label_vpad_target", "plot_label_hpad_target", "plot_label_font_target", "plot_label_size_target", "plot_label_colour_target", "plot_label_prefix_target"],
+          "Alt. Target": ["show_alt_target", "alt_target", "multiplier_alt_target", "width_alt_target", "type_alt_target", "colour_alt_target", "ttip_show_alt_target", "ttip_label_alt_target", "plot_label_show_alt_target", "plot_label_position_alt_target", "plot_label_vpad_alt_target", "plot_label_hpad_alt_target", "plot_label_font_alt_target", "plot_label_size_alt_target", "plot_label_colour_alt_target", "plot_label_prefix_alt_target"],
+          "68% Limits": ["show_68", "width_68", "type_68", "colour_68", "ttip_show_68", "ttip_label_68", "ttip_label_68_prefix_lower", "ttip_label_68_prefix_upper", "plot_label_show_68", "plot_label_position_68", "plot_label_vpad_68", "plot_label_hpad_68", "plot_label_font_68", "plot_label_size_68", "plot_label_colour_68", "plot_label_prefix_68"],
+          "95% Limits": ["show_95", "width_95", "type_95", "colour_95", "ttip_show_95", "ttip_label_95", "ttip_label_95_prefix_lower", "ttip_label_95_prefix_upper", "plot_label_show_95", "plot_label_position_95", "plot_label_vpad_95", "plot_label_hpad_95", "plot_label_font_95", "plot_label_size_95", "plot_label_colour_95", "plot_label_prefix_95"],
+          "99% Limits": ["show_99", "width_99", "type_99", "colour_99", "ttip_show_99", "ttip_label_99", "ttip_label_99_prefix_lower", "ttip_label_99_prefix_upper", "plot_label_show_99", "plot_label_position_99", "plot_label_vpad_99", "plot_label_hpad_99", "plot_label_font_99", "plot_label_size_99", "plot_label_colour_99", "plot_label_prefix_99"],
+          "Specification Limits": ["show_specification", "specification_upper", "specification_lower", "multiplier_specification", "width_specification", "type_specification", "colour_specification", "ttip_show_specification", "ttip_label_specification", "ttip_label_specification_prefix_lower", "ttip_label_specification_prefix_upper", "plot_label_show_specification", "plot_label_position_specification", "plot_label_vpad_specification", "plot_label_hpad_specification", "plot_label_font_specification", "plot_label_size_specification", "plot_label_colour_specification", "plot_label_prefix_specification"]
+      },
+      x_axis: {
+          "Axis": ["xlimit_colour", "xlimit_l", "xlimit_u"],
+          "Ticks": ["xlimit_ticks", "xlimit_tick_count", "xlimit_tick_font", "xlimit_tick_size", "xlimit_tick_colour", "xlimit_tick_rotation"],
+          "Label": ["xlimit_label", "xlimit_label_font", "xlimit_label_size", "xlimit_label_colour"]
+      },
+      y_axis: {
+          "Axis": ["ylimit_colour", "limit_multiplier", "ylimit_sig_figs", "ylimit_l", "ylimit_u"],
+          "Ticks": ["ylimit_ticks", "ylimit_tick_count", "ylimit_tick_font", "ylimit_tick_size", "ylimit_tick_colour", "ylimit_tick_rotation"],
+          "Label": ["ylimit_label", "ylimit_label_font", "ylimit_label_size", "ylimit_label_colour"]
+      },
+      summary_table: {
+          "General": ["show_table", "table_variation_filter", "table_assurance_filter", "table_text_overflow", "table_opacity", "table_opacity_unselected", "table_outer_border_style", "table_outer_border_width", "table_outer_border_colour", "table_outer_border_top", "table_outer_border_bottom", "table_outer_border_left", "table_outer_border_right"],
+          "Header": ["table_header_font", "table_header_size", "table_header_text_align", "table_header_font_weight", "table_header_text_transform", "table_header_text_padding", "table_header_colour", "table_header_bg_colour", "table_header_border_style", "table_header_border_width", "table_header_border_colour", "table_header_border_bottom", "table_header_border_inner"],
+          "Body": ["table_body_font", "table_body_size", "table_body_text_align", "table_body_font_weight", "table_body_text_transform", "table_body_text_padding", "table_body_colour", "table_body_bg_colour", "table_body_border_style", "table_body_border_width", "table_body_border_colour", "table_body_border_top_bottom", "table_body_border_left_right"]
+      }
+  };
 
   function assuranceIconToDraw(controlLimits, inputSettings, derivedSettings) {
       var _a;
@@ -15075,422 +15510,6 @@
       return x.map((d, idx, arr) => (idx > 0) ? d - arr[idx - 1] : null);
   }
 
-  const textOptions = {
-      font: {
-          default: "'Arial', sans-serif",
-          valid: [
-              "'Arial', sans-serif",
-              "Arial",
-              "'Arial Black'",
-              "'Arial Unicode MS'",
-              "Calibri",
-              "Cambria",
-              "'Cambria Math'",
-              "Candara",
-              "'Comic Sans MS'",
-              "Consolas",
-              "Constantia",
-              "Corbel",
-              "'Courier New'",
-              "wf_standard-font, helvetica, arial, sans-serif",
-              "wf_standard-font_light, helvetica, arial, sans-serif",
-              "Georgia",
-              "'Lucida Sans Unicode'",
-              "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
-              "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
-              "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
-              "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
-              "Symbol",
-              "Tahoma",
-              "'Times New Roman'",
-              "'Trebuchet MS'",
-              "Verdana",
-              "Wingdings"
-          ]
-      },
-      size: {
-          default: 10,
-          valid: { numberRange: { min: 0, max: 100 } }
-      },
-      weight: {
-          default: "normal",
-          valid: ["normal", "bold", "bolder", "lighter"]
-      },
-      text_transform: {
-          default: "uppercase",
-          valid: ["uppercase", "lowercase", "capitalize", "none"]
-      },
-      text_overflow: {
-          default: "ellipsis",
-          valid: ["ellipsis", "clip", "none"]
-      },
-      text_align: {
-          default: "center",
-          valid: ["center", "left", "right"]
-      }
-  };
-  const lineOptions = {
-      type: {
-          valid: ["10 0", "10 10", "2 5"]
-      },
-      width: {
-          valid: { numberRange: { min: 0, max: 100 } }
-      }
-  };
-  const iconOptions = {
-      location: {
-          default: "Top Right",
-          valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"]
-      },
-      scaling: {
-          default: 1,
-          valid: { numberRange: { min: 0 } }
-      }
-  };
-  const colourOptions = {
-      improvement: { default: "#00B0F0" },
-      deterioration: { default: "#E46C0A" },
-      neutral_low: { default: "#490092" },
-      neutral_high: { default: "#490092" },
-      limits: { default: "#6495ED" },
-      standard: { default: "#000000" }
-  };
-  const borderOptions = {
-      width: {
-          default: 1,
-          valid: { numberRange: { min: 0 } }
-      },
-      style: {
-          default: "solid",
-          valid: ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"]
-      },
-      colour: {
-          default: "#000000"
-      }
-  };
-  const labelOptions = {
-      limits: { default: "beside", valid: ["outside", "inside", "above", "below", "beside"] },
-      standard: { default: "beside", valid: ["above", "below", "beside"] }
-  };
-
-  const defaultSettings = {
-      canvas: {
-          show_errors: { default: true },
-          lower_padding: { default: 10 },
-          upper_padding: { default: 10 },
-          left_padding: { default: 10 },
-          right_padding: { default: 10 }
-      },
-      spc: {
-          chart_type: { default: "i", valid: ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"] },
-          outliers_in_limits: { default: false },
-          multiplier: { default: 1, valid: { numberRange: { min: 0 } } },
-          sig_figs: { default: 2, valid: { numberRange: { min: 0, max: 20 } } },
-          perc_labels: { default: "Automatic", valid: ["Automatic", "Yes", "No"] },
-          split_on_click: { default: false },
-          num_points_subset: { default: null },
-          subset_points_from: { default: "Start", valid: ["Start", "End"] },
-          ttip_show_numerator: { default: true },
-          ttip_label_numerator: { default: "Numerator" },
-          ttip_show_denominator: { default: true },
-          ttip_label_denominator: { default: "Denominator" },
-          ttip_show_value: { default: true },
-          ttip_label_value: { default: "Automatic" },
-          ll_truncate: { default: null },
-          ul_truncate: { default: null }
-      },
-      outliers: {
-          process_flag_type: { default: "both", valid: ["both", "improvement", "deterioration"] },
-          improvement_direction: { default: "increase", valid: ["increase", "neutral", "decrease"] },
-          astronomical: { default: false },
-          astronomical_limit: { default: "3 Sigma", valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"] },
-          ast_colour_improvement: colourOptions.improvement,
-          ast_colour_deterioration: colourOptions.deterioration,
-          ast_colour_neutral_low: colourOptions.neutral_low,
-          ast_colour_neutral_high: colourOptions.neutral_high,
-          shift: { default: false },
-          shift_n: { default: 7, valid: { numberRange: { min: 1 } } },
-          shift_colour_improvement: colourOptions.improvement,
-          shift_colour_deterioration: colourOptions.deterioration,
-          shift_colour_neutral_low: colourOptions.neutral_low,
-          shift_colour_neutral_high: colourOptions.neutral_high,
-          trend: { default: false },
-          trend_n: { default: 5, valid: { numberRange: { min: 1 } } },
-          trend_colour_improvement: colourOptions.improvement,
-          trend_colour_deterioration: colourOptions.deterioration,
-          trend_colour_neutral_low: colourOptions.neutral_low,
-          trend_colour_neutral_high: colourOptions.neutral_high,
-          two_in_three: { default: false },
-          two_in_three_highlight_series: { default: false },
-          two_in_three_limit: { default: "2 Sigma", valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"] },
-          twointhree_colour_improvement: colourOptions.improvement,
-          twointhree_colour_deterioration: colourOptions.deterioration,
-          twointhree_colour_neutral_low: colourOptions.neutral_low,
-          twointhree_colour_neutral_high: colourOptions.neutral_high
-      },
-      nhs_icons: {
-          flag_last_point: { default: true },
-          show_variation_icons: { default: false },
-          variation_icons_locations: iconOptions.location,
-          variation_icons_scaling: iconOptions.scaling,
-          show_assurance_icons: { default: false },
-          assurance_icons_locations: iconOptions.location,
-          assurance_icons_scaling: iconOptions.scaling
-      },
-      scatter: {
-          size: { default: 2.5, valid: { numberRange: { min: 0, max: 100 } } },
-          colour: colourOptions.standard,
-          opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
-          opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } }
-      },
-      lines: {
-          show_99: { default: true },
-          show_95: { default: true },
-          show_68: { default: false },
-          show_main: { default: true },
-          show_target: { default: true },
-          show_alt_target: { default: false },
-          show_specification: { default: false },
-          width_99: { default: 2, valid: lineOptions.width.valid },
-          width_95: { default: 2, valid: lineOptions.width.valid },
-          width_68: { default: 2, valid: lineOptions.width.valid },
-          width_main: { default: 1, valid: lineOptions.width.valid },
-          width_target: { default: 1.5, valid: lineOptions.width.valid },
-          width_alt_target: { default: 1.5, valid: lineOptions.width.valid },
-          width_specification: { default: 2, valid: lineOptions.width.valid },
-          type_99: { default: "10 10", valid: lineOptions.type.valid },
-          type_95: { default: "2 5", valid: lineOptions.type.valid },
-          type_68: { default: "2 5", valid: lineOptions.type.valid },
-          type_main: { default: "10 0", valid: lineOptions.type.valid },
-          type_target: { default: "10 0", valid: lineOptions.type.valid },
-          type_alt_target: { default: "10 0", valid: lineOptions.type.valid },
-          type_specification: { default: "10 10", valid: lineOptions.type.valid },
-          colour_99: colourOptions.limits,
-          colour_95: colourOptions.limits,
-          colour_68: colourOptions.limits,
-          colour_main: colourOptions.standard,
-          colour_target: colourOptions.standard,
-          colour_alt_target: colourOptions.standard,
-          colour_specification: colourOptions.limits,
-          ttip_show_99: { default: true },
-          ttip_show_95: { default: false },
-          ttip_show_68: { default: false },
-          ttip_show_target: { default: true },
-          ttip_show_alt_target: { default: true },
-          ttip_show_specification: { default: true },
-          ttip_label_99: { default: "99% Limit" },
-          ttip_label_99_prefix_lower: { default: "Lower " },
-          ttip_label_99_prefix_upper: { default: "Upper " },
-          ttip_label_95: { default: "95% Limit" },
-          ttip_label_95_prefix_lower: { default: "Lower " },
-          ttip_label_95_prefix_upper: { default: "Upper " },
-          ttip_label_68: { default: "68% Limit" },
-          ttip_label_68_prefix_lower: { default: "Lower " },
-          ttip_label_68_prefix_upper: { default: "Upper " },
-          ttip_label_target: { default: "Centerline" },
-          ttip_label_alt_target: { default: "Alt. Target" },
-          ttip_label_specification: { default: "Specification Limit" },
-          ttip_label_specification_prefix_lower: { default: "Lower " },
-          ttip_label_specification_prefix_upper: { default: "Upper " },
-          alt_target: { default: null },
-          specification_upper: { default: null },
-          specification_lower: { default: null },
-          multiplier_alt_target: { default: false },
-          multiplier_specification: { default: false },
-          plot_label_show_99: { default: false },
-          plot_label_show_95: { default: false },
-          plot_label_show_68: { default: false },
-          plot_label_show_main: { default: false },
-          plot_label_show_target: { default: false },
-          plot_label_show_alt_target: { default: false },
-          plot_label_show_specification: { default: false },
-          plot_label_position_99: labelOptions.limits,
-          plot_label_position_95: labelOptions.limits,
-          plot_label_position_68: labelOptions.limits,
-          plot_label_position_main: labelOptions.standard,
-          plot_label_position_target: labelOptions.standard,
-          plot_label_position_alt_target: labelOptions.standard,
-          plot_label_position_specification: labelOptions.limits,
-          plot_label_vpad_99: { default: 0 },
-          plot_label_vpad_95: { default: 0 },
-          plot_label_vpad_68: { default: 0 },
-          plot_label_vpad_main: { default: 0 },
-          plot_label_vpad_target: { default: 0 },
-          plot_label_vpad_alt_target: { default: 0 },
-          plot_label_vpad_specification: { default: 0 },
-          plot_label_hpad_99: { default: 10 },
-          plot_label_hpad_95: { default: 10 },
-          plot_label_hpad_68: { default: 10 },
-          plot_label_hpad_main: { default: 10 },
-          plot_label_hpad_target: { default: 10 },
-          plot_label_hpad_alt_target: { default: 10 },
-          plot_label_hpad_specification: { default: 10 },
-          plot_label_font_99: textOptions.font,
-          plot_label_font_95: textOptions.font,
-          plot_label_font_68: textOptions.font,
-          plot_label_font_main: textOptions.font,
-          plot_label_font_target: textOptions.font,
-          plot_label_font_alt_target: textOptions.font,
-          plot_label_font_specification: textOptions.font,
-          plot_label_size_99: textOptions.size,
-          plot_label_size_95: textOptions.size,
-          plot_label_size_68: textOptions.size,
-          plot_label_size_main: textOptions.size,
-          plot_label_size_target: textOptions.size,
-          plot_label_size_alt_target: textOptions.size,
-          plot_label_size_specification: textOptions.size,
-          plot_label_colour_99: colourOptions.standard,
-          plot_label_colour_95: colourOptions.standard,
-          plot_label_colour_68: colourOptions.standard,
-          plot_label_colour_main: colourOptions.standard,
-          plot_label_colour_target: colourOptions.standard,
-          plot_label_colour_alt_target: colourOptions.standard,
-          plot_label_colour_specification: colourOptions.standard,
-          plot_label_prefix_99: { default: "" },
-          plot_label_prefix_95: { default: "" },
-          plot_label_prefix_68: { default: "" },
-          plot_label_prefix_main: { default: "" },
-          plot_label_prefix_target: { default: "" },
-          plot_label_prefix_alt_target: { default: "" },
-          plot_label_prefix_specification: { default: "" }
-      },
-      x_axis: {
-          xlimit_colour: colourOptions.standard,
-          xlimit_ticks: { default: true },
-          xlimit_tick_font: textOptions.font,
-          xlimit_tick_size: textOptions.size,
-          xlimit_tick_colour: colourOptions.standard,
-          xlimit_tick_rotation: { default: -35, valid: { numberRange: { min: -360, max: 360 } } },
-          xlimit_tick_count: { default: 10, valid: { numberRange: { min: 0, max: 100 } } },
-          xlimit_label: { default: null },
-          xlimit_label_font: textOptions.font,
-          xlimit_label_size: textOptions.size,
-          xlimit_label_colour: colourOptions.standard,
-          xlimit_l: { default: null },
-          xlimit_u: { default: null }
-      },
-      y_axis: {
-          ylimit_colour: colourOptions.standard,
-          ylimit_ticks: { default: true },
-          ylimit_tick_font: textOptions.font,
-          ylimit_tick_size: textOptions.size,
-          ylimit_tick_colour: colourOptions.standard,
-          ylimit_tick_rotation: { default: 0, valid: { numberRange: { min: -360, max: 360 } } },
-          ylimit_tick_count: { default: 10, valid: { numberRange: { min: 0, max: 100 } } },
-          ylimit_label: { default: null },
-          ylimit_label_font: textOptions.font,
-          ylimit_label_size: textOptions.size,
-          ylimit_label_colour: colourOptions.standard,
-          ylimit_l: { default: null },
-          ylimit_u: { default: null },
-          limit_multiplier: { default: 1.5, valid: { numberRange: { min: 0 } } },
-          ylimit_sig_figs: { default: null }
-      },
-      dates: {
-          date_format_day: { default: "DD", valid: ["DD", "Thurs DD", "Thursday DD", "(blank)"] },
-          date_format_month: { default: "MM", valid: ["MM", "Mon", "Month", "(blank)"] },
-          date_format_year: { default: "YYYY", valid: ["YYYY", "YY", "(blank)"] },
-          date_format_delim: { default: "/", valid: ["/", "-", " "] },
-          date_format_locale: { default: "en-GB", valid: ["en-GB", "en-US"] }
-      },
-      summary_table: {
-          show_table: { default: false },
-          table_text_overflow: textOptions.text_overflow,
-          table_opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
-          table_opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
-          table_variation_filter: { default: "all", valid: ["all", "common", "special", "improvement", "deterioration", "neutral"] },
-          table_assurance_filter: { default: "all", valid: ["all", "any", "pass", "fail", "inconsistent"] },
-          table_outer_border_style: borderOptions.style,
-          table_outer_border_width: borderOptions.width,
-          table_outer_border_colour: borderOptions.colour,
-          table_outer_border_top: { default: true },
-          table_outer_border_bottom: { default: true },
-          table_outer_border_left: { default: true },
-          table_outer_border_right: { default: true },
-          table_header_font: textOptions.font,
-          table_header_font_weight: textOptions.weight,
-          table_header_text_transform: textOptions.text_transform,
-          table_header_text_align: textOptions.text_align,
-          table_header_text_padding: { default: 1, valid: { numberRange: { min: 0, max: 100 } } },
-          table_header_size: textOptions.size,
-          table_header_colour: colourOptions.standard,
-          table_header_bg_colour: { default: "#D3D3D3" },
-          table_header_border_style: borderOptions.style,
-          table_header_border_width: borderOptions.width,
-          table_header_border_colour: borderOptions.colour,
-          table_header_border_bottom: { default: true },
-          table_header_border_inner: { default: true },
-          table_body_font: textOptions.font,
-          table_body_font_weight: textOptions.weight,
-          table_body_text_transform: textOptions.text_transform,
-          table_body_text_align: textOptions.text_align,
-          table_body_text_padding: { default: 1, valid: { numberRange: { min: 0, max: 100 } } },
-          table_body_size: textOptions.size,
-          table_body_colour: colourOptions.standard,
-          table_body_bg_colour: { default: "#FFFFFF" },
-          table_body_border_style: borderOptions.style,
-          table_body_border_width: borderOptions.width,
-          table_body_border_colour: borderOptions.colour,
-          table_body_border_top_bottom: { default: true },
-          table_body_border_left_right: { default: true }
-      },
-      download_options: {
-          show_button: { default: false }
-      },
-      labels: {
-          show_labels: { default: true },
-          label_position: { default: "top", valid: ["top", "bottom"] },
-          label_y_offset: { default: 20 },
-          label_line_offset: { default: 5 },
-          label_angle_offset: { default: 0, valid: { numberRange: { min: -90, max: 90 } } },
-          label_font: textOptions.font,
-          label_size: textOptions.size,
-          label_colour: colourOptions.standard,
-          label_line_colour: colourOptions.standard,
-          label_line_width: { default: 1, valid: lineOptions.width.valid },
-          label_line_type: { default: "10 0", valid: lineOptions.type.valid },
-          label_line_max_length: { default: 1000, valid: { numberRange: { min: 0, max: 10000 } } },
-          label_marker_show: { default: true },
-          label_marker_offset: { default: 5 },
-          label_marker_size: { default: 3, valid: { numberRange: { min: 0, max: 100 } } },
-          label_marker_colour: colourOptions.standard,
-          label_marker_outline_colour: colourOptions.standard
-      }
-  };
-  const settingsPaneGroupings = {
-      outliers: {
-          "General": ["process_flag_type", "improvement_direction"],
-          "Astronomical Points": ["astronomical", "astronomical_limit", "ast_colour_improvement", "ast_colour_deterioration", "ast_colour_neutral_low", "ast_colour_neutral_high"],
-          "Shifts": ["shift", "shift_n", "shift_colour_improvement", "shift_colour_deterioration", "shift_colour_neutral_low", "shift_colour_neutral_high"],
-          "Trends": ["trend", "trend_n", "trend_colour_improvement", "trend_colour_deterioration", "trend_colour_neutral_low", "trend_colour_neutral_high"],
-          "Two-In-Three": ["two_in_three", "two_in_three_highlight_series", "two_in_three_limit", "twointhree_colour_improvement", "twointhree_colour_deterioration", "twointhree_colour_neutral_low", "twointhree_colour_neutral_high"]
-      },
-      lines: {
-          "Main": ["show_main", "width_main", "type_main", "colour_main", "plot_label_show_main", "plot_label_position_main", "plot_label_vpad_main", "plot_label_hpad_main", "plot_label_font_main", "plot_label_size_main", "plot_label_colour_main", "plot_label_prefix_main"],
-          "Target": ["show_target", "width_target", "type_target", "colour_target", "ttip_show_target", "ttip_label_target", "plot_label_show_target", "plot_label_position_target", "plot_label_vpad_target", "plot_label_hpad_target", "plot_label_font_target", "plot_label_size_target", "plot_label_colour_target", "plot_label_prefix_target"],
-          "Alt. Target": ["show_alt_target", "alt_target", "multiplier_alt_target", "width_alt_target", "type_alt_target", "colour_alt_target", "ttip_show_alt_target", "ttip_label_alt_target", "plot_label_show_alt_target", "plot_label_position_alt_target", "plot_label_vpad_alt_target", "plot_label_hpad_alt_target", "plot_label_font_alt_target", "plot_label_size_alt_target", "plot_label_colour_alt_target", "plot_label_prefix_alt_target"],
-          "68% Limits": ["show_68", "width_68", "type_68", "colour_68", "ttip_show_68", "ttip_label_68", "ttip_label_68_prefix_lower", "ttip_label_68_prefix_upper", "plot_label_show_68", "plot_label_position_68", "plot_label_vpad_68", "plot_label_hpad_68", "plot_label_font_68", "plot_label_size_68", "plot_label_colour_68", "plot_label_prefix_68"],
-          "95% Limits": ["show_95", "width_95", "type_95", "colour_95", "ttip_show_95", "ttip_label_95", "ttip_label_95_prefix_lower", "ttip_label_95_prefix_upper", "plot_label_show_95", "plot_label_position_95", "plot_label_vpad_95", "plot_label_hpad_95", "plot_label_font_95", "plot_label_size_95", "plot_label_colour_95", "plot_label_prefix_95"],
-          "99% Limits": ["show_99", "width_99", "type_99", "colour_99", "ttip_show_99", "ttip_label_99", "ttip_label_99_prefix_lower", "ttip_label_99_prefix_upper", "plot_label_show_99", "plot_label_position_99", "plot_label_vpad_99", "plot_label_hpad_99", "plot_label_font_99", "plot_label_size_99", "plot_label_colour_99", "plot_label_prefix_99"],
-          "Specification Limits": ["show_specification", "specification_upper", "specification_lower", "multiplier_specification", "width_specification", "type_specification", "colour_specification", "ttip_show_specification", "ttip_label_specification", "ttip_label_specification_prefix_lower", "ttip_label_specification_prefix_upper", "plot_label_show_specification", "plot_label_position_specification", "plot_label_vpad_specification", "plot_label_hpad_specification", "plot_label_font_specification", "plot_label_size_specification", "plot_label_colour_specification", "plot_label_prefix_specification"]
-      },
-      x_axis: {
-          "Axis": ["xlimit_colour", "xlimit_l", "xlimit_u"],
-          "Ticks": ["xlimit_ticks", "xlimit_tick_count", "xlimit_tick_font", "xlimit_tick_size", "xlimit_tick_colour", "xlimit_tick_rotation"],
-          "Label": ["xlimit_label", "xlimit_label_font", "xlimit_label_size", "xlimit_label_colour"]
-      },
-      y_axis: {
-          "Axis": ["ylimit_colour", "limit_multiplier", "ylimit_sig_figs", "ylimit_l", "ylimit_u"],
-          "Ticks": ["ylimit_ticks", "ylimit_tick_count", "ylimit_tick_font", "ylimit_tick_size", "ylimit_tick_colour", "ylimit_tick_rotation"],
-          "Label": ["ylimit_label", "ylimit_label_font", "ylimit_label_size", "ylimit_label_colour"]
-      },
-      summary_table: {
-          "General": ["show_table", "table_variation_filter", "table_assurance_filter", "table_text_overflow", "table_opacity", "table_opacity_unselected", "table_outer_border_style", "table_outer_border_width", "table_outer_border_colour", "table_outer_border_top", "table_outer_border_bottom", "table_outer_border_left", "table_outer_border_right"],
-          "Header": ["table_header_font", "table_header_size", "table_header_text_align", "table_header_font_weight", "table_header_text_transform", "table_header_text_padding", "table_header_colour", "table_header_bg_colour", "table_header_border_style", "table_header_border_width", "table_header_border_colour", "table_header_border_bottom", "table_header_border_inner"],
-          "Body": ["table_body_font", "table_body_size", "table_body_text_align", "table_body_font_weight", "table_body_text_transform", "table_body_text_padding", "table_body_colour", "table_body_bg_colour", "table_body_border_style", "table_body_border_width", "table_body_border_colour", "table_body_border_top_bottom", "table_body_border_left_right"]
-      }
-  };
-
   function rep(x, n) {
       return Array(n).fill(x);
   }
@@ -15768,6 +15787,15 @@
       }
   }
 
+  function first(y) {
+      if (Array.isArray(y)) {
+          return y[0];
+      }
+      else {
+          return y;
+      }
+  }
+
   const lineNameMap = {
       "ll99": "99",
       "ll95": "95",
@@ -15785,6 +15813,15 @@
       const mapName = group.includes("line") ? lineNameMap[type] : type;
       const settingName = aesthetic + "_" + mapName;
       return inputSettings[group][settingName];
+  }
+
+  function repIfScalar(x, n) {
+      if (Array.isArray(x)) {
+          return x;
+      }
+      else {
+          return rep(x, n);
+      }
   }
 
   const truncate = broadcastBinary((val, limits) => {
@@ -16836,1528 +16873,6 @@
 
   function seq(start, end) {
       return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  }
-
-  function drawDots(selection, visualObj) {
-      selection
-          .select(".dotsgroup")
-          .selectAll("circle")
-          .data(visualObj.viewModel.plotPoints)
-          .join("circle")
-          .filter((d) => !isNullOrUndefined(d.value))
-          .attr("cy", (d) => visualObj.viewModel.plotProperties.yScale(d.value))
-          .attr("cx", (d) => visualObj.viewModel.plotProperties.xScale(d.x))
-          .attr("r", (d) => d.aesthetics.size)
-          .style("fill", (d) => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
-          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper)) ? d.aesthetics.colour : "#FFFFFF";
-      })
-          .on("click", (event, d) => {
-          if (visualObj.host.hostCapabilities.allowInteractions) {
-              if (visualObj.viewModel.inputSettings.settings.spc.split_on_click) {
-                  const xIndex = visualObj.viewModel.splitIndexes.indexOf(d.x);
-                  if (xIndex > -1) {
-                      visualObj.viewModel.splitIndexes.splice(xIndex, 1);
-                  }
-                  else {
-                      visualObj.viewModel.splitIndexes.push(d.x);
-                  }
-                  visualObj.host.persistProperties({
-                      replace: [{
-                              objectName: "split_indexes_storage",
-                              selector: undefined,
-                              properties: { split_indexes: JSON.stringify(visualObj.viewModel.splitIndexes) }
-                          }]
-                  });
-              }
-              else {
-                  visualObj.selectionManager
-                      .select(d.identity, (event.ctrlKey || event.metaKey))
-                      .then(() => {
-                      visualObj.updateHighlighting();
-                  });
-              }
-              event.stopPropagation();
-          }
-      })
-          .on("mouseover", (event, d) => {
-          const x = event.pageX;
-          const y = event.pageY;
-          visualObj.host.tooltipService.show({
-              dataItems: d.tooltip,
-              identities: [d.identity],
-              coordinates: [x, y],
-              isTouchEvent: false
-          });
-      })
-          .on("mouseout", () => {
-          visualObj.host.tooltipService.hide({
-              immediately: true,
-              isTouchEvent: false
-          });
-      });
-      selection.on('click', () => {
-          visualObj.selectionManager.clear();
-          visualObj.updateHighlighting();
-      });
-  }
-
-  function commonCause(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M106.903 196.084 144.607 228.433 138.766 235.241 101.062 202.892Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M146.159 218.909 179.921 159.846 187.708 164.298 153.946 223.361Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M198.708 154.94 239.365 214.134 231.971 219.212 191.314 160.019Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M238.825 216.117 285.383 198.784 288.512 207.19 241.954 224.523Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M76.5001 195C76.5001 183.678 85.6782 174.5 97.0001 174.5 108.322 174.5 117.5 183.678 117.5 195 117.5 206.322 108.322 215.5 97.0001 215.5 85.6782 215.5 76.5001 206.322 76.5001 195Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M123.5 233C123.5 221.678 132.678 212.5 144 212.5 155.322 212.5 164.5 221.678 164.5 233 164.5 244.322 155.322 253.5 144 253.5 132.678 253.5 123.5 244.322 123.5 233Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M170.5 153.5C170.5 141.902 179.902 132.5 191.5 132.5 203.098 132.5 212.5 141.902 212.5 153.5 212.5 165.098 203.098 174.5 191.5 174.5 179.902 174.5 170.5 165.098 170.5 153.5Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M217.5 221.5C217.5 209.902 226.902 200.5 238.5 200.5 250.098 200.5 259.5 209.902 259.5 221.5 259.5 233.098 250.098 242.5 238.5 242.5 226.902 242.5 217.5 233.098 217.5 221.5Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M265.5 206.5C265.5 194.902 274.678 185.5 286 185.5 297.322 185.5 306.5 194.902 306.5 206.5 306.5 218.098 297.322 227.5 286 227.5 274.678 227.5 265.5 218.098 265.5 206.5Z")
-          .attr("stroke", "#A6A6A6")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#A6A6A6")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function concernHigh(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 17.47 328.36)");
-      selection.append("path")
-          .attr("d", "M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 38 340)");
-      selection.append("text")
-          .attr("fill", "#E46C0A")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(106.228 172)")
-          .text("H");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)");
-      selection.append("path")
-          .attr("d", "M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 76.5001 231.5)");
-      selection.append("path")
-          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 123.5 249.5)");
-      selection.append("path")
-          .attr("d", "M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 170.5 231.5)");
-      selection.append("path")
-          .attr("d", "M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#E46C0A")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 217.5 185.5)");
-      selection.append("path")
-          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#E46C0A")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 265.5 200.5)");
-  }
-
-  function concernLow(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("text")
-          .attr("fill", "#E46C0A")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(106.228 292)")
-          .text("L");
-      selection.append("path")
-          .attr("d", "M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#E46C0A")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z")
-          .attr("stroke", "#E46C0A")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#E46C0A")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function improvementHigh(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 17.47 328.36)");
-      selection.append("path")
-          .attr("d", "M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 38 340)");
-      selection.append("text")
-          .attr("fill", "#00B0F0")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(106.228 172)")
-          .text("H");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)");
-      selection.append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "49.6797")
-          .attr("height", "8.97008")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("transform", "matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)");
-      selection.append("path")
-          .attr("d", "M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 76.5001 231.5)");
-      selection.append("path")
-          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 123.5 249.5)");
-      selection.append("path")
-          .attr("d", "M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 170.5 231.5)");
-      selection.append("path")
-          .attr("d", "M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#00B0F0")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 217.5 185.5)");
-      selection.append("path")
-          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#00B0F0")
-          .attr("fill-rule", "evenodd")
-          .attr("transform", "matrix(1 0 0 -1 265.5 200.5)");
-  }
-
-  function improvementLow(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("text")
-          .attr("fill", "#00B0F0")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(106.228 292)")
-          .text("L");
-      selection.append("path")
-          .attr("d", "M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#7F7F7F")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#00B0F0")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z")
-          .attr("stroke", "#00B0F0")
-          .attr("stroke-width", "2.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#00B0F0")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function neutralHigh(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#490092")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#490092")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M103.652 242.245 180.02 165.878 151.735 137.593 258.273 119.68 240.359 226.217 212.075 197.933 135.708 274.3Z")
-          .attr("fill", "#490092")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function neutralLow(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#490092")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#490092")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M135.708 103.652 212.075 180.02 240.359 151.735 258.273 258.273 151.735 240.359 180.02 212.075 103.652 135.708Z")
-          .attr("fill", "#490092")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function consistentFail(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#FF6600")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#FF6600")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("text")
-          .attr("fill", "#FF6600")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(155.851 158)")
-          .text("F");
-      selection.append("path")
-          .attr("d", "M38.5001 185.5 340.862 185.5")
-          .attr("stroke", "#FF6600")
-          .attr("stroke-width", "8.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("stroke-dasharray", "26 8.66667")
-          .attr("fill", "none")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "10.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "none")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function consistentPass(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
-          .attr("stroke", "#0072C6")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
-          .attr("stroke", "#0072C6")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("text")
-          .attr("fill", "#0072C6")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(155.851 158)")
-          .text("P");
-      selection.append("path")
-          .attr("d", "M55.5001 257.5 323.847 257.5")
-          .attr("stroke", "#0072C6")
-          .attr("stroke-width", "8.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("stroke-dasharray", "26 8.66667")
-          .attr("fill", "none")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "10.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "none")
-          .attr("fill-rule", "evenodd");
-  }
-
-  function inconsistent(selection) {
-      selection.append("g")
-          .attr("clip-path", "url(#clip2)")
-          .append("g")
-          .attr("clip-path", "url(#clip3)")
-          .attr("filter", "url(#fx0)")
-          .attr("transform", "translate(16 25)")
-          .append("g")
-          .attr("clip-path", "url(#clip4)")
-          .append("path")
-          .attr("d", "M17.47 173.345C17.47 87.1637 87.1031 17.3 173 17.3 258.897 17.3 328.53 87.1637 328.53 173.345 328.53 259.526 258.897 329.39 173 329.39 87.1031 329.39 17.47 259.526 17.47 173.345Z")
-          .attr("stroke", "#BFBFBF")
-          .attr("stroke-width", "21")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M38 189.5C38 105.829 105.605 38 189 38 272.395 38 340 105.829 340 189.5 340 273.171 272.395 341 189 341 105.605 341 38 273.171 38 189.5Z")
-          .attr("stroke", "#BFBFBF")
-          .attr("stroke-width", "20")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "#FFFFFF")
-          .attr("fill-rule", "evenodd");
-      selection.append("text")
-          .attr("fill", "#7F7F7F")
-          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
-          .attr("font-weight", "700")
-          .attr("font-size", "117")
-          .attr("transform", "translate(155.851 158)")
-          .text("?");
-      selection.append("path")
-          .attr("d", "M38.5001 222.5 340.862 222.5")
-          .attr("stroke", "#BFBFBF")
-          .attr("stroke-width", "8.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("stroke-dasharray", "26 8.66667")
-          .attr("fill", "none")
-          .attr("fill-rule", "evenodd");
-      selection.append("path")
-          .attr("d", "M72.5001 239.762C89.0456 219.168 107.725 201.801 129.638 201.507 152.134 202.459 176.57 239.689 192.563 242.313 206.31 245.118 205.897 218.733 212.814 217.659 217.563 216.414 220.151 239.182 233.066 241.463 248.557 244.786 291.62 235.385 302.5 237.212")
-          .attr("stroke", "#7F7F7F")
-          .attr("stroke-width", "10.66667")
-          .attr("stroke-miterlimit", "8")
-          .attr("fill", "none")
-          .attr("fill-rule", "evenodd");
-  }
-
-  var nhsIcons = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    commonCause: commonCause,
-    concernHigh: concernHigh,
-    concernLow: concernLow,
-    consistentFail: consistentFail,
-    consistentPass: consistentPass,
-    improvementHigh: improvementHigh,
-    improvementLow: improvementLow,
-    inconsistent: inconsistent,
-    neutralHigh: neutralHigh,
-    neutralLow: neutralLow
-  });
-
-  function iconTransformSpec(svg_width, svg_height, location, scaling, count) {
-      const scaling_factor = (0.08 * (svg_height / 378)) * scaling;
-      const icon_x = location.includes("Right")
-          ? (svg_width / scaling_factor) - (378 + (count * 378))
-          : location.includes("Centre") ? (svg_width / scaling_factor) / 2 - 189
-              : (count * 378);
-      const icon_y = location.includes("Bottom")
-          ? (svg_height / scaling_factor) - 378
-          : location.includes("Centre") ? (svg_height / scaling_factor) / 2 - 189
-              : 0;
-      return `scale(${scaling_factor}) translate(${icon_x}, ${icon_y})`;
-  }
-  function initialiseIconSVG(selection, icon_name, transform_spec) {
-      const icon_group = selection.append('g')
-          .classed("icongroup", true);
-      if (transform_spec) {
-          icon_group.attr("transform", transform_spec);
-      }
-      const icon_defs = icon_group.append("defs");
-      const icon_defs_filter = icon_defs.append("filter")
-          .attr("id", "fx0")
-          .attr("x", "-10%")
-          .attr("y", "-10%")
-          .attr("width", "120%")
-          .attr("height", "120%")
-          .attr("filterUnits", "userSpaceOnUse")
-          .attr("userSpaceOnUse", "userSpaceOnUse");
-      const icon_comptrans = icon_defs_filter.append("feComponentTransfer")
-          .attr("color-interpolation-filters", "sRGB");
-      icon_comptrans.append("feFuncR")
-          .attr("type", "discrete")
-          .attr("tableValues", "0 0");
-      icon_comptrans.append("feFuncG")
-          .attr("type", "discrete")
-          .attr("tableValues", "0 0");
-      icon_comptrans.append("feFuncB")
-          .attr("type", "discrete")
-          .attr("tableValues", "0 0");
-      icon_comptrans.append("feFuncA")
-          .attr("type", "linear")
-          .attr("slope", "0.4")
-          .attr("intercept", "0");
-      icon_defs_filter.append("feGaussianBlur")
-          .attr("stdDeviation", "1.77778 1.77778");
-      icon_defs.append("clipPath")
-          .attr("id", "clip1")
-          .append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "378")
-          .attr("height", "378");
-      icon_defs.append("clipPath")
-          .attr("id", "clip2")
-          .append("path")
-          .attr("d", "M189 38C105.605 38 38 105.605 38 189 38 272.395 105.605 340 189 340 272.395 340 340 272.395 340 189 340 105.605 272.395 38 189 38ZM5.63264e-06 5.63264e-06 378 5.63264e-06 378 378 5.63264e-06 378Z")
-          .attr("fill-rule", "evenodd")
-          .attr("clip-rule", "evenodd");
-      icon_defs.append("clipPath")
-          .attr("id", "clip3")
-          .append("rect")
-          .attr("x", "-2")
-          .attr("y", "-2")
-          .attr("width", "346")
-          .attr("height", "346");
-      icon_group.append("g")
-          .classed(icon_name, true)
-          .attr("clip-path", "url(#clip1)")
-          .append("rect")
-          .attr("x", "0")
-          .attr("y", "0")
-          .attr("width", "378")
-          .attr("height", "378")
-          .attr("fill", "#FFFFFF");
-  }
-
-  function drawIcons(selection, visualObj) {
-      selection.selectAll(".icongroup").remove();
-      if (!(visualObj.viewModel.plotProperties.displayPlot)) {
-          return;
-      }
-      const nhsIconSettings = visualObj.viewModel.inputSettings.settings.nhs_icons;
-      const draw_variation = nhsIconSettings.show_variation_icons;
-      const variation_location = nhsIconSettings.variation_icons_locations;
-      const svg_width = visualObj.viewModel.svgWidth;
-      const svg_height = visualObj.viewModel.svgHeight;
-      let numVariationIcons = 0;
-      if (draw_variation) {
-          const variation_scaling = nhsIconSettings.variation_icons_scaling;
-          const variationIconsPresent = variationIconsToDraw(visualObj.viewModel.outliers, visualObj.viewModel.inputSettings.settings);
-          variationIconsPresent.forEach((icon, idx) => {
-              selection
-                  .call(initialiseIconSVG, icon, iconTransformSpec(svg_width, svg_height, variation_location, variation_scaling, idx))
-                  .selectAll(`.${icon}`)
-                  .call(nhsIcons[icon]);
-          });
-          numVariationIcons = variationIconsPresent.length;
-      }
-      const draw_assurance = nhsIconSettings.show_assurance_icons;
-      if (draw_assurance) {
-          const assurance_location = nhsIconSettings.assurance_icons_locations;
-          const assurance_scaling = nhsIconSettings.assurance_icons_scaling;
-          const assuranceIconPresent = assuranceIconToDraw(visualObj.viewModel.controlLimits, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
-          if (assuranceIconPresent === "none") {
-              return;
-          }
-          const currIconCount = (numVariationIcons > 0 && variation_location === assurance_location)
-              ? numVariationIcons
-              : 0;
-          selection
-              .call(initialiseIconSVG, assuranceIconPresent, iconTransformSpec(svg_width, svg_height, assurance_location, assurance_scaling, currIconCount))
-              .selectAll(`.${assuranceIconPresent}`)
-              .call(nhsIcons[assuranceIconPresent]);
-      }
-  }
-
-  function drawLines(selection, visualObj) {
-      selection
-          .select(".linesgroup")
-          .selectAll("path")
-          .data(visualObj.viewModel.groupedLines)
-          .join("path")
-          .attr("d", d => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
-          return line()
-              .x(d => visualObj.viewModel.plotProperties.xScale(d.x))
-              .y(d => visualObj.viewModel.plotProperties.yScale(d.line_value))
-              .defined(d => {
-              return !isNullOrUndefined(d.line_value)
-                  && between(d.line_value, ylower, yupper)
-                  && between(d.x, xlower, xupper);
-          })(d[1]);
-      })
-          .attr("fill", "none")
-          .attr("stroke", d => {
-          return visualObj.viewModel.colourPalette.isHighContrast
-              ? visualObj.viewModel.colourPalette.foregroundColour
-              : getAesthetic(d[0], "lines", "colour", visualObj.viewModel.inputSettings.settings);
-      })
-          .attr("stroke-width", d => getAesthetic(d[0], "lines", "width", visualObj.viewModel.inputSettings.settings))
-          .attr("stroke-dasharray", d => getAesthetic(d[0], "lines", "type", visualObj.viewModel.inputSettings.settings));
-  }
-
-  function drawTooltipLine(selection, visualObj) {
-      const plotProperties = visualObj.viewModel.plotProperties;
-      const xAxisLine = selection
-          .select(".ttip-line-x")
-          .attr("x1", 0)
-          .attr("x2", 0)
-          .attr("y1", plotProperties.yAxis.end_padding)
-          .attr("y2", visualObj.viewModel.svgHeight - plotProperties.yAxis.start_padding)
-          .attr("stroke-width", "1px")
-          .attr("stroke", "black")
-          .style("stroke-opacity", 0);
-      const yAxisLine = selection
-          .select(".ttip-line-y")
-          .attr("x1", plotProperties.xAxis.start_padding)
-          .attr("x2", visualObj.viewModel.svgWidth - plotProperties.xAxis.end_padding)
-          .attr("y1", 0)
-          .attr("y2", 0)
-          .attr("stroke-width", "1px")
-          .attr("stroke", "black")
-          .style("stroke-opacity", 0);
-      selection.on("mousemove", (event) => {
-          if (!plotProperties.displayPlot) {
-              return;
-          }
-          const plotPoints = visualObj.viewModel.plotPoints;
-          const xValue = plotProperties.xScale.invert(event.pageX);
-          const xRange = plotPoints.map(d => d.x).map(d => Math.abs(d - xValue));
-          const nearestDenominator = leastIndex(xRange, (a, b) => a - b);
-          const x_coord = plotProperties.xScale(plotPoints[nearestDenominator].x);
-          const y_coord = plotProperties.yScale(plotPoints[nearestDenominator].value);
-          visualObj.host.tooltipService.show({
-              dataItems: plotPoints[nearestDenominator].tooltip,
-              identities: [plotPoints[nearestDenominator].identity],
-              coordinates: [x_coord, y_coord],
-              isTouchEvent: false
-          });
-          xAxisLine.style("stroke-opacity", 0.4)
-              .attr("x1", x_coord)
-              .attr("x2", x_coord);
-          yAxisLine.style("stroke-opacity", 0.4)
-              .attr("y1", y_coord)
-              .attr("y2", y_coord);
-      })
-          .on("mouseleave", () => {
-          if (!plotProperties.displayPlot) {
-              return;
-          }
-          visualObj.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
-          xAxisLine.style("stroke-opacity", 0);
-          yAxisLine.style("stroke-opacity", 0);
-      });
-  }
-
-  function drawXAxis(selection, visualObj) {
-      const xAxisProperties = visualObj.viewModel.plotProperties.xAxis;
-      const xAxis = axisBottom(visualObj.viewModel.plotProperties.xScale);
-      if (xAxisProperties.ticks) {
-          if (xAxisProperties.tick_count) {
-              xAxis.ticks(xAxisProperties.tick_count);
-          }
-          if (visualObj.viewModel.tickLabels) {
-              xAxis.tickFormat(axisX => {
-                  const targetKey = visualObj.viewModel.tickLabels.filter(d => d.x == axisX);
-                  return targetKey.length > 0 ? targetKey[0].label : "";
-              });
-          }
-      }
-      else {
-          xAxis.tickValues([]);
-      }
-      const plotHeight = visualObj.viewModel.svgHeight;
-      const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
-      const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
-      const xAxisGroup = selection.select(".xaxisgroup");
-      xAxisGroup
-          .call(xAxis)
-          .attr("color", displayPlot ? xAxisProperties.colour : "#FFFFFF")
-          .attr("transform", `translate(0, ${xAxisHeight})`)
-          .selectAll(".tick text")
-          .style("text-anchor", xAxisProperties.tick_rotation < 0.0 ? "end" : "start")
-          .attr("dx", xAxisProperties.tick_rotation < 0.0 ? "-.8em" : ".8em")
-          .attr("dy", xAxisProperties.tick_rotation < 0.0 ? "-.15em" : ".15em")
-          .attr("transform", "rotate(" + xAxisProperties.tick_rotation + ")")
-          .style("font-size", xAxisProperties.tick_size)
-          .style("font-family", xAxisProperties.tick_font)
-          .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
-      const xAxisNode = selection.selectAll(".xaxisgroup").node();
-      if (!xAxisNode) {
-          selection.select(".xaxislabel")
-              .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
-          return;
-      }
-      const xAxisCoordinates = xAxisNode.getBoundingClientRect();
-      const bottomMidpoint = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
-      selection.select(".xaxislabel")
-          .attr("x", visualObj.viewModel.svgWidth / 2)
-          .attr("y", bottomMidpoint)
-          .style("text-anchor", "middle")
-          .text(xAxisProperties.label)
-          .style("font-size", xAxisProperties.label_size)
-          .style("font-family", xAxisProperties.label_font)
-          .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
-  }
-
-  function drawYAxis(selection, visualObj) {
-      const yAxisProperties = visualObj.viewModel.plotProperties.yAxis;
-      const yAxis = axisLeft(visualObj.viewModel.plotProperties.yScale);
-      const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs;
-      const sig_figs = isNullOrUndefined(yaxis_sig_figs) ? visualObj.viewModel.inputSettings.settings.spc.sig_figs : yaxis_sig_figs;
-      const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
-      if (yAxisProperties.ticks) {
-          if (yAxisProperties.tick_count) {
-              yAxis.ticks(yAxisProperties.tick_count);
-          }
-          if (visualObj.viewModel.inputData) {
-              yAxis.tickFormat((d) => {
-                  return visualObj.viewModel.inputSettings.derivedSettings.percentLabels
-                      ? d.toFixed(sig_figs) + "%"
-                      : d.toFixed(sig_figs);
-              });
-          }
-      }
-      else {
-          yAxis.tickValues([]);
-      }
-      const yAxisGroup = selection.select(".yaxisgroup");
-      yAxisGroup
-          .call(yAxis)
-          .attr("color", displayPlot ? yAxisProperties.colour : "#FFFFFF")
-          .attr("transform", `translate(${visualObj.viewModel.plotProperties.xAxis.start_padding}, 0)`)
-          .selectAll(".tick text")
-          .style("text-anchor", "right")
-          .attr("transform", `rotate(${yAxisProperties.tick_rotation})`)
-          .style("font-size", yAxisProperties.tick_size)
-          .style("font-family", yAxisProperties.tick_font)
-          .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      const yAxisNode = selection.selectAll(".yaxisgroup").node();
-      if (!yAxisNode) {
-          selection.select(".yaxislabel")
-              .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
-          return;
-      }
-      const yAxisCoordinates = yAxisNode.getBoundingClientRect();
-      const leftMidpoint = yAxisCoordinates.x * 0.7;
-      const y = visualObj.viewModel.svgHeight / 2;
-      selection.select(".yaxislabel")
-          .attr("x", leftMidpoint)
-          .attr("y", y)
-          .attr("transform", `rotate(-90, ${leftMidpoint}, ${y})`)
-          .text(yAxisProperties.label)
-          .style("text-anchor", "middle")
-          .style("font-size", yAxisProperties.label_size)
-          .style("font-family", yAxisProperties.label_font)
-          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
-  }
-
-  function initialiseSVG(selection, removeAll = false) {
-      if (removeAll) {
-          selection.selectChildren().remove();
-      }
-      selection.append('line').classed("ttip-line-x", true);
-      selection.append('line').classed("ttip-line-y", true);
-      selection.append('g').classed("xaxisgroup", true);
-      selection.append('text').classed("xaxislabel", true);
-      selection.append('g').classed("yaxisgroup", true);
-      selection.append('text').classed("yaxislabel", true);
-      selection.append('g').classed("linesgroup", true);
-      selection.append('g').classed("dotsgroup", true);
-  }
-
-  function drawErrors(selection, options, message, type = null) {
-      selection.call(initialiseSVG, true);
-      const errMessageSVG = selection.append("g").classed("errormessage", true);
-      if (type) {
-          const preamble = {
-              "internal": "Internal Error! Please file a bug report with the following text:",
-              "settings": "Invalid settings provided for all observations! First error:"
-          };
-          errMessageSVG.append('text')
-              .attr("x", options.viewport.width / 2)
-              .attr("y", options.viewport.height / 3)
-              .style("text-anchor", "middle")
-              .text(preamble[type])
-              .style("font-size", "10px");
-      }
-      errMessageSVG.append('text')
-          .attr("x", options.viewport.width / 2)
-          .attr("y", options.viewport.height / 2)
-          .style("text-anchor", "middle")
-          .text(message)
-          .style("font-size", "10px");
-  }
-
-  function drawTableHeaders(selection, cols, tableSettings, maxWidth) {
-      const tableHeaders = selection.select(".table-header")
-          .selectAll("th")
-          .data(cols)
-          .join("th");
-      tableHeaders.selectAll("text")
-          .data(d => [d.label])
-          .join("text")
-          .text(d => d)
-          .style("font-size", `${tableSettings.table_header_size}px`)
-          .style("font-family", tableSettings.table_header_font)
-          .style("color", tableSettings.table_header_colour);
-      tableHeaders.style("padding", `${tableSettings.table_header_text_padding}px`)
-          .style("background-color", tableSettings.table_header_bg_colour)
-          .style("font-weight", tableSettings.table_header_font_weight)
-          .style("text-transform", tableSettings.table_header_text_transform)
-          .style("text-align", tableSettings.table_header_text_align)
-          .style("border-width", `${tableSettings.table_header_border_width}px`)
-          .style("border-style", tableSettings.table_header_border_style)
-          .style("border-color", tableSettings.table_header_border_colour)
-          .style("border-top", "inherit");
-      if (!tableSettings.table_header_border_bottom) {
-          tableHeaders.style("border-bottom", "none");
-      }
-      if (!tableSettings.table_header_border_inner) {
-          tableHeaders.style("border-left", "none")
-              .style("border-right", "none");
-      }
-      if (tableSettings.table_text_overflow !== "none") {
-          tableHeaders.style("overflow", "hidden")
-              .style("max-width", `${maxWidth}px`)
-              .style("text-overflow", tableSettings.table_text_overflow);
-      }
-      else {
-          tableHeaders.style("overflow", "auto")
-              .style("max-width", "none");
-      }
-  }
-  function drawTableRows(selection, visualObj, plotPoints, tableSettings, maxWidth) {
-      const tableRows = selection
-          .select(".table-body")
-          .selectAll('tr')
-          .data(plotPoints)
-          .join('tr')
-          .on("click", (event, d) => {
-          if (visualObj.host.hostCapabilities.allowInteractions) {
-              const alreadySel = identitySelected(d.identity, visualObj.selectionManager);
-              visualObj.selectionManager
-                  .select(d.identity, alreadySel || event.ctrlKey || event.metaKey)
-                  .then(() => visualObj.updateHighlighting());
-              event.stopPropagation();
-          }
-      })
-          .on("mouseover", (event) => {
-          select(event.target).select(function () {
-              return this.closest("td");
-          }).style("background-color", "lightgray");
-      })
-          .on("mouseout", (event) => {
-          var _a, _b;
-          let currentTD = select(event.target).select(function () {
-              return this.closest("td");
-          });
-          let rowData = select(currentTD.node().parentNode).datum();
-          currentTD.style("background-color", (_b = (_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"]) !== null && _b !== void 0 ? _b : "inherit");
-      });
-      if (tableSettings.table_text_overflow !== "none") {
-          tableRows.style("overflow", "hidden")
-              .style("max-width", `${maxWidth}px`)
-              .style("text-overflow", tableSettings.table_text_overflow);
-      }
-      else {
-          tableRows.style("overflow", "auto")
-              .style("max-width", "none");
-      }
-  }
-  function drawOuterBorder(selection, tableSettings) {
-      selection.select(".table-group")
-          .style("border-width", `${tableSettings.table_outer_border_width}px`)
-          .style("border-style", tableSettings.table_outer_border_style)
-          .style("border-color", tableSettings.table_outer_border_colour);
-      ["top", "right", "bottom", "left"].forEach((side) => {
-          if (!tableSettings[`table_outer_border_${side}`]) {
-              selection.select(".table-group").style(`border-${side}`, "none");
-          }
-      });
-      selection.selectAll("th:first-child")
-          .style("border-left", "inherit");
-      selection.selectAll("th:last-child")
-          .style("border-right", "inherit");
-      selection.selectAll("td:first-child")
-          .style("border-left", "inherit");
-      selection.selectAll("td:last-child")
-          .style("border-right", "inherit");
-      selection.selectAll("tr:first-child")
-          .selectAll("td")
-          .style("border-top", "inherit");
-      selection.selectAll("tr:last-child")
-          .selectAll("td")
-          .style("border-bottom", "inherit");
-  }
-  function drawTableCells(selection, cols, inputSettings, showGrouped) {
-      const tableCells = selection.select(".table-body")
-          .selectAll('tr')
-          .selectAll('td')
-          .data((d) => cols.map(col => {
-          return { column: col.name, value: d.table_row[col.name] };
-      }))
-          .join('td');
-      const draw_icons = inputSettings.nhs_icons.show_variation_icons || inputSettings.nhs_icons.show_assurance_icons;
-      const thisSelDims = tableCells.node().getBoundingClientRect();
-      tableCells.each(function (d) {
-          var _a;
-          const currNode = select(this);
-          const parentNode = select(currNode.property("parentNode"));
-          const rowData = parentNode.datum();
-          if (showGrouped && draw_icons && (d.column === "variation" || d.column === "assurance")) {
-              const scaling = inputSettings.nhs_icons[`${d.column}_icons_scaling`];
-              currNode
-                  .append("svg")
-                  .attr("width", `${thisSelDims.width * 0.5 * scaling}px`)
-                  .attr("viewBox", "0 0 378 378")
-                  .classed("rowsvg", true)
-                  .call(initialiseIconSVG, d.value)
-                  .selectAll(".icongroup")
-                  .selectAll(`.${d.value}`)
-                  .call(nhsIcons[d.value]);
-          }
-          else {
-              const value = typeof d.value === "number"
-                  ? d.value.toFixed(inputSettings.spc.sig_figs)
-                  : d.value;
-              currNode.text(value).classed("cell-text", true);
-          }
-          const tableAesthetics = ((_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"])
-              ? rowData.aesthetics
-              : inputSettings.summary_table;
-          currNode.style("background-color", tableAesthetics.table_body_bg_colour)
-              .style("font-weight", tableAesthetics.table_body_font_weight)
-              .style("text-transform", tableAesthetics.table_body_text_transform)
-              .style("text-align", tableAesthetics.table_body_text_align)
-              .style("font-size", `${tableAesthetics.table_body_size}px`)
-              .style("font-family", tableAesthetics.table_body_font)
-              .style("color", tableAesthetics.table_body_colour)
-              .style("border-width", `${tableAesthetics.table_body_border_width}px`)
-              .style("border-style", tableAesthetics.table_body_border_style)
-              .style("border-color", tableAesthetics.table_body_border_colour)
-              .style("padding", `${tableAesthetics.table_body_text_padding}px`)
-              .style("opacity", "inherit");
-          if (!tableAesthetics.table_body_border_left_right) {
-              currNode.style("border-left", "none")
-                  .style("border-right", "none");
-          }
-          if (!tableAesthetics.table_body_border_top_bottom) {
-              currNode.style("border-top", "none")
-                  .style("border-bottom", "none");
-          }
-      });
-  }
-  function drawSummaryTable(selection, visualObj) {
-      selection.selectAll(".rowsvg").remove();
-      selection.selectAll(".cell-text").remove();
-      let plotPoints;
-      let cols;
-      if (visualObj.viewModel.showGrouped) {
-          plotPoints = visualObj.viewModel.plotPointsGrouped;
-          cols = visualObj.viewModel.tableColumnsGrouped;
-      }
-      else {
-          plotPoints = visualObj.viewModel.plotPoints;
-          cols = visualObj.viewModel.tableColumns;
-      }
-      const maxWidth = visualObj.viewModel.svgWidth / cols.length;
-      const tableSettings = visualObj.viewModel.inputSettings.settings.summary_table;
-      selection.call(drawTableHeaders, cols, tableSettings, maxWidth)
-          .call(drawTableRows, visualObj, plotPoints, tableSettings, maxWidth);
-      if (plotPoints.length > 0) {
-          selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.showGrouped);
-      }
-      selection.call(drawOuterBorder, tableSettings);
-      selection.on('click', () => {
-          visualObj.selectionManager.clear();
-          visualObj.updateHighlighting();
-      });
-  }
-
-  function drawDownloadButton(selection, visualObj) {
-      if (!(visualObj.viewModel.inputSettings.settings.download_options.show_button)) {
-          selection.select(".download-btn-group").remove();
-          return;
-      }
-      if (selection.select(".download-btn-group").empty()) {
-          selection.append("text").classed("download-btn-group", true);
-      }
-      const table_rows = visualObj.viewModel.plotPoints.map(d => d.table_row);
-      const csv_rows = new Array();
-      csv_rows.push(Object.keys(table_rows[0]).join(","));
-      table_rows.forEach(row => {
-          csv_rows.push(Object.values(row).join(","));
-      });
-      selection.select(".download-btn-group")
-          .attr("x", visualObj.viewModel.svgWidth - 50)
-          .attr("y", visualObj.viewModel.svgHeight - 5)
-          .text("Download")
-          .style("font-size", "10px")
-          .style("text-decoration", "underline")
-          .on("click", () => {
-          visualObj.host.downloadService
-              .exportVisualsContent(csv_rows.join("\n"), "chartdata.csv", "csv", "csv file");
-      });
-  }
-
-  const labelFormatting = function (selection, visualObj) {
-      const allData = selection.data();
-      const initialLabelXY = allData.map(d => {
-          var _a, _b;
-          const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
-          const plotHeight = visualObj.viewModel.svgHeight;
-          const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
-          const label_position = d.label.aesthetics.label_position;
-          let y_offset = d.label.aesthetics.label_y_offset;
-          const label_initial = label_position === "top" ? (0 + y_offset) : (xAxisHeight - y_offset);
-          const y = visualObj.viewModel.plotProperties.yScale(d.value);
-          let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
-          const x_val = visualObj.viewModel.plotProperties.xScale(d.x);
-          const y_val = visualObj.viewModel.plotProperties.yScale(d.value);
-          const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
-          side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
-          let line_offset = d.label.aesthetics.label_line_offset;
-          line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
-          let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
-          marker_offset = label_position === "top" ? -marker_offset : marker_offset;
-          return { x: x_val + side_length * Math.cos(theta * Math.PI / 180),
-              y: y_val + side_length * Math.sin(theta * Math.PI / 180),
-              theta: theta,
-              line_offset: line_offset,
-              marker_offset: marker_offset
-          };
-      });
-      selection.select("text")
-          .text(d => d.label.text_value)
-          .attr("x", (_, i) => initialLabelXY[i].x)
-          .attr("y", (_, i) => initialLabelXY[i].y)
-          .style("text-anchor", "middle")
-          .style("font-size", d => `${d.label.aesthetics.label_size}px`)
-          .style("font-family", d => d.label.aesthetics.label_font)
-          .style("fill", d => d.label.aesthetics.label_colour);
-      selection.select("line")
-          .attr("x1", (_, i) => initialLabelXY[i].x)
-          .attr("y1", (_, i) => initialLabelXY[i].y + initialLabelXY[i].line_offset)
-          .attr("x2", (d, i) => {
-          const marker_offset = initialLabelXY[i].marker_offset;
-          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          return visualObj.viewModel.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
-      })
-          .attr("y2", (d, i) => {
-          const marker_offset = initialLabelXY[i].marker_offset;
-          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          return visualObj.viewModel.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
-      })
-          .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
-          .style("stroke-width", d => { var _a; return ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "" ? 0 : visualObj.viewModel.inputSettings.settings.labels.label_line_width; })
-          .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings.labels.label_line_type);
-      selection.select("path")
-          .attr("d", d => {
-          var _a;
-          const show_marker = d.label.aesthetics.label_marker_show && ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") !== "";
-          const marker_size = show_marker ? Math.pow(d.label.aesthetics.label_marker_size, 2) : 0;
-          return Symbol$1().type(triangle).size(marker_size)();
-      })
-          .attr("transform", (d, i) => {
-          const marker_offset = initialLabelXY[i].marker_offset;
-          const x = visualObj.viewModel.plotProperties.xScale(d.x);
-          const y = visualObj.viewModel.plotProperties.yScale(d.value);
-          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
-          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
-          return `translate(${x + x_offset}, ${y + y_offset}) rotate(${angle + (d.label.aesthetics.label_position === "top" ? 90 : 270)})`;
-      })
-          .style("fill", d => d.label.aesthetics.label_marker_colour)
-          .style("stroke", d => d.label.aesthetics.label_marker_outline_colour);
-  };
-  function drawLabels(selection, visualObj) {
-      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels) {
-          selection.select(".text-labels").remove();
-          return;
-      }
-      if (selection.select(".text-labels").empty()) {
-          selection.append("g").classed("text-labels", true);
-      }
-      const dragFun = drag().on("drag", function (e) {
-          const d = e.subject;
-          const x_val = visualObj.viewModel.plotProperties.xScale(d.x);
-          const y_val = visualObj.viewModel.plotProperties.yScale(d.value);
-          const angle = Math.atan2(e.sourceEvent.y - y_val, e.sourceEvent.x - x_val) * 180 / Math.PI;
-          const distance = Math.sqrt(Math.pow(e.sourceEvent.y - y_val, 2) + Math.pow(e.sourceEvent.x - x_val, 2));
-          const marker_offset = 10;
-          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
-          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
-          e.subject.label.angle = angle;
-          e.subject.label.distance = distance;
-          select(this)
-              .select("text")
-              .attr("x", e.sourceEvent.x)
-              .attr("y", e.sourceEvent.y);
-          let line_offset = d.label.aesthetics.label_line_offset;
-          line_offset = d.label.aesthetics.label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
-          select(this)
-              .select("line")
-              .attr("x1", e.sourceEvent.x)
-              .attr("y1", e.sourceEvent.y + line_offset)
-              .attr("x2", x_val + x_offset)
-              .attr("y2", y_val + y_offset);
-          select(this)
-              .select("path")
-              .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
-      });
-      selection.select(".text-labels")
-          .selectAll(".text-group-inner")
-          .data(visualObj.viewModel.plotPoints)
-          .join((enter) => {
-          let grp = enter.append("g").classed("text-group-inner", true);
-          grp.append("text");
-          grp.append("line");
-          grp.append("path");
-          grp.call(labelFormatting, visualObj)
-              .call(dragFun);
-          return grp;
-      }, (update) => {
-          update.call(labelFormatting, visualObj);
-          return update;
-      });
-  }
-
-  const positionOffsetMap = {
-      "above": -1,
-      "below": 1,
-      "beside": -1
-  };
-  const outsideMap = {
-      "ll99": "below",
-      "ll95": "below",
-      "ll68": "below",
-      "ul68": "above",
-      "ul95": "above",
-      "ul99": "above",
-      "speclimits_lower": "below",
-      "speclimits_upper": "above"
-  };
-  const insideMap = {
-      "ll99": "above",
-      "ll95": "above",
-      "ll68": "above",
-      "ul68": "below",
-      "ul95": "below",
-      "ul99": "below",
-      "speclimits_lower": "above",
-      "speclimits_upper": "below"
-  };
-  function drawLineLabels(selection, visualObj) {
-      const lineSettings = visualObj.viewModel.inputSettings.settings.lines;
-      const formatValue = valueFormatter(visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
-      selection
-          .select(".linesgroup")
-          .selectAll("text")
-          .data(visualObj.viewModel.groupedLines)
-          .join("text")
-          .text(d => {
-          return lineSettings[`plot_label_show_${lineNameMap[d[0]]}`]
-              ? lineSettings[`plot_label_prefix_${lineNameMap[d[0]]}`] + formatValue(d[1][d[1].length - 1].line_value, "value")
-              : "";
-      })
-          .attr("x", d => visualObj.viewModel.plotProperties.xScale(d[1][d[1].length - 1].x))
-          .attr("y", d => visualObj.viewModel.plotProperties.yScale(d[1][d[1].length - 1].line_value))
-          .attr("fill", d => lineSettings[`plot_label_colour_${lineNameMap[d[0]]}`])
-          .attr("font-size", d => `${lineSettings[`plot_label_size_${lineNameMap[d[0]]}`]}px`)
-          .attr("font-family", d => lineSettings[`plot_label_font_${lineNameMap[d[0]]}`])
-          .attr("text-anchor", d => lineSettings[`plot_label_position_${lineNameMap[d[0]]}`] === "beside" ? "start" : "end")
-          .attr("dx", d => {
-          const offset = (lineSettings[`plot_label_position_${lineNameMap[d[0]]}`] === "beside" ? 1 : -1) * lineSettings[`plot_label_hpad_${lineNameMap[d[0]]}`];
-          return `${offset}px`;
-      })
-          .attr("dy", function (d) {
-          const bounds = select(this).node().getBoundingClientRect();
-          let position = lineSettings[`plot_label_position_${lineNameMap[d[0]]}`];
-          let vpadding = lineSettings[`plot_label_vpad_${lineNameMap[d[0]]}`];
-          if (["outside", "inside"].includes(position)) {
-              position = position === "outside" ? outsideMap[d[0]] : insideMap[d[0]];
-          }
-          const heightMap = {
-              "above": -lineSettings[`width_${lineNameMap[d[0]]}`],
-              "below": lineSettings[`plot_label_size_${lineNameMap[d[0]]}`],
-              "beside": bounds.height / 4
-          };
-          return `${positionOffsetMap[position] * vpadding + heightMap[position]}px`;
-      });
   }
 
   class plotPropertiesClass {
@@ -23915,6 +22430,1546 @@
           });
           return outliers;
       }
+  }
+
+  function addContextMenu(selection, visualObj) {
+      if (!(visualObj.viewModel.plotProperties.displayPlot
+          || visualObj.viewModel.inputSettings.settings.summary_table.show_table
+          || visualObj.viewModel.showGrouped)) {
+          selection.on("contextmenu", () => { return; });
+          return;
+      }
+      selection.on('contextmenu', (event) => {
+          const eventTarget = event.target;
+          const dataPoint = (select(eventTarget).datum());
+          visualObj.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {}, {
+              x: event.clientX,
+              y: event.clientY
+          });
+          event.preventDefault();
+      });
+  }
+
+  function drawDots(selection, visualObj) {
+      selection
+          .select(".dotsgroup")
+          .selectAll("circle")
+          .data(visualObj.viewModel.plotPoints)
+          .join("circle")
+          .filter((d) => !isNullOrUndefined(d.value))
+          .attr("cy", (d) => visualObj.viewModel.plotProperties.yScale(d.value))
+          .attr("cx", (d) => visualObj.viewModel.plotProperties.xScale(d.x))
+          .attr("r", (d) => d.aesthetics.size)
+          .style("fill", (d) => {
+          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
+          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
+          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
+          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
+          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper)) ? d.aesthetics.colour : "#FFFFFF";
+      })
+          .on("click", (event, d) => {
+          if (visualObj.host.hostCapabilities.allowInteractions) {
+              if (visualObj.viewModel.inputSettings.settings.spc.split_on_click) {
+                  const xIndex = visualObj.viewModel.splitIndexes.indexOf(d.x);
+                  if (xIndex > -1) {
+                      visualObj.viewModel.splitIndexes.splice(xIndex, 1);
+                  }
+                  else {
+                      visualObj.viewModel.splitIndexes.push(d.x);
+                  }
+                  visualObj.host.persistProperties({
+                      replace: [{
+                              objectName: "split_indexes_storage",
+                              selector: undefined,
+                              properties: { split_indexes: JSON.stringify(visualObj.viewModel.splitIndexes) }
+                          }]
+                  });
+              }
+              else {
+                  visualObj.selectionManager
+                      .select(d.identity, (event.ctrlKey || event.metaKey))
+                      .then(() => {
+                      visualObj.updateHighlighting();
+                  });
+              }
+              event.stopPropagation();
+          }
+      })
+          .on("mouseover", (event, d) => {
+          const x = event.pageX;
+          const y = event.pageY;
+          visualObj.host.tooltipService.show({
+              dataItems: d.tooltip,
+              identities: [d.identity],
+              coordinates: [x, y],
+              isTouchEvent: false
+          });
+      })
+          .on("mouseout", () => {
+          visualObj.host.tooltipService.hide({
+              immediately: true,
+              isTouchEvent: false
+          });
+      });
+      selection.on('click', () => {
+          visualObj.selectionManager.clear();
+          visualObj.updateHighlighting();
+      });
+  }
+
+  function commonCause(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M106.903 196.084 144.607 228.433 138.766 235.241 101.062 202.892Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M146.159 218.909 179.921 159.846 187.708 164.298 153.946 223.361Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M198.708 154.94 239.365 214.134 231.971 219.212 191.314 160.019Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M238.825 216.117 285.383 198.784 288.512 207.19 241.954 224.523Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M76.5001 195C76.5001 183.678 85.6782 174.5 97.0001 174.5 108.322 174.5 117.5 183.678 117.5 195 117.5 206.322 108.322 215.5 97.0001 215.5 85.6782 215.5 76.5001 206.322 76.5001 195Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M123.5 233C123.5 221.678 132.678 212.5 144 212.5 155.322 212.5 164.5 221.678 164.5 233 164.5 244.322 155.322 253.5 144 253.5 132.678 253.5 123.5 244.322 123.5 233Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M170.5 153.5C170.5 141.902 179.902 132.5 191.5 132.5 203.098 132.5 212.5 141.902 212.5 153.5 212.5 165.098 203.098 174.5 191.5 174.5 179.902 174.5 170.5 165.098 170.5 153.5Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M217.5 221.5C217.5 209.902 226.902 200.5 238.5 200.5 250.098 200.5 259.5 209.902 259.5 221.5 259.5 233.098 250.098 242.5 238.5 242.5 226.902 242.5 217.5 233.098 217.5 221.5Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M265.5 206.5C265.5 194.902 274.678 185.5 286 185.5 297.322 185.5 306.5 194.902 306.5 206.5 306.5 218.098 297.322 227.5 286 227.5 274.678 227.5 265.5 218.098 265.5 206.5Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function concernHigh(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 17.47 328.36)");
+      selection.append("path")
+          .attr("d", "M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 38 340)");
+      selection.append("text")
+          .attr("fill", "#E46C0A")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(106.228 172)")
+          .text("H");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 76.5001 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 123.5 249.5)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 170.5 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 217.5 185.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 265.5 200.5)");
+  }
+
+  function concernLow(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#E46C0A")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(106.228 292)")
+          .text("L");
+      selection.append("path")
+          .attr("d", "M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function improvementHigh(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 17.47 328.36)");
+      selection.append("path")
+          .attr("d", "M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 38 340)");
+      selection.append("text")
+          .attr("fill", "#00B0F0")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(106.228 172)")
+          .text("H");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 76.5001 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 123.5 249.5)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 170.5 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 217.5 185.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 265.5 200.5)");
+  }
+
+  function improvementLow(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#00B0F0")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(106.228 292)")
+          .text("L");
+      selection.append("path")
+          .attr("d", "M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function neutralHigh(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M103.652 242.245 180.02 165.878 151.735 137.593 258.273 119.68 240.359 226.217 212.075 197.933 135.708 274.3Z")
+          .attr("fill", "#490092")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function neutralLow(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M135.708 103.652 212.075 180.02 240.359 151.735 258.273 258.273 151.735 240.359 180.02 212.075 103.652 135.708Z")
+          .attr("fill", "#490092")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function consistentFail(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#FF6600")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#FF6600")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#FF6600")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(155.851 158)")
+          .text("F");
+      selection.append("path")
+          .attr("d", "M38.5001 185.5 340.862 185.5")
+          .attr("stroke", "#FF6600")
+          .attr("stroke-width", "8.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("stroke-dasharray", "26 8.66667")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "10.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function consistentPass(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#0072C6")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#0072C6")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#0072C6")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(155.851 158)")
+          .text("P");
+      selection.append("path")
+          .attr("d", "M55.5001 257.5 323.847 257.5")
+          .attr("stroke", "#0072C6")
+          .attr("stroke-width", "8.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("stroke-dasharray", "26 8.66667")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "10.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function inconsistent(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 173.345C17.47 87.1637 87.1031 17.3 173 17.3 258.897 17.3 328.53 87.1637 328.53 173.345 328.53 259.526 258.897 329.39 173 329.39 87.1031 329.39 17.47 259.526 17.47 173.345Z")
+          .attr("stroke", "#BFBFBF")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189.5C38 105.829 105.605 38 189 38 272.395 38 340 105.829 340 189.5 340 273.171 272.395 341 189 341 105.605 341 38 273.171 38 189.5Z")
+          .attr("stroke", "#BFBFBF")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#7F7F7F")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "117")
+          .attr("transform", "translate(155.851 158)")
+          .text("?");
+      selection.append("path")
+          .attr("d", "M38.5001 222.5 340.862 222.5")
+          .attr("stroke", "#BFBFBF")
+          .attr("stroke-width", "8.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("stroke-dasharray", "26 8.66667")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M72.5001 239.762C89.0456 219.168 107.725 201.801 129.638 201.507 152.134 202.459 176.57 239.689 192.563 242.313 206.31 245.118 205.897 218.733 212.814 217.659 217.563 216.414 220.151 239.182 233.066 241.463 248.557 244.786 291.62 235.385 302.5 237.212")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "10.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+  }
+
+  var nhsIcons = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    commonCause: commonCause,
+    concernHigh: concernHigh,
+    concernLow: concernLow,
+    consistentFail: consistentFail,
+    consistentPass: consistentPass,
+    improvementHigh: improvementHigh,
+    improvementLow: improvementLow,
+    inconsistent: inconsistent,
+    neutralHigh: neutralHigh,
+    neutralLow: neutralLow
+  });
+
+  function iconTransformSpec(svg_width, svg_height, location, scaling, count) {
+      const scaling_factor = (0.08 * (svg_height / 378)) * scaling;
+      const icon_x = location.includes("Right")
+          ? (svg_width / scaling_factor) - (378 + (count * 378))
+          : location.includes("Centre") ? (svg_width / scaling_factor) / 2 - 189
+              : (count * 378);
+      const icon_y = location.includes("Bottom")
+          ? (svg_height / scaling_factor) - 378
+          : location.includes("Centre") ? (svg_height / scaling_factor) / 2 - 189
+              : 0;
+      return `scale(${scaling_factor}) translate(${icon_x}, ${icon_y})`;
+  }
+  function initialiseIconSVG(selection, icon_name, transform_spec) {
+      const icon_group = selection.append('g')
+          .classed("icongroup", true);
+      if (transform_spec) {
+          icon_group.attr("transform", transform_spec);
+      }
+      const icon_defs = icon_group.append("defs");
+      const icon_defs_filter = icon_defs.append("filter")
+          .attr("id", "fx0")
+          .attr("x", "-10%")
+          .attr("y", "-10%")
+          .attr("width", "120%")
+          .attr("height", "120%")
+          .attr("filterUnits", "userSpaceOnUse")
+          .attr("userSpaceOnUse", "userSpaceOnUse");
+      const icon_comptrans = icon_defs_filter.append("feComponentTransfer")
+          .attr("color-interpolation-filters", "sRGB");
+      icon_comptrans.append("feFuncR")
+          .attr("type", "discrete")
+          .attr("tableValues", "0 0");
+      icon_comptrans.append("feFuncG")
+          .attr("type", "discrete")
+          .attr("tableValues", "0 0");
+      icon_comptrans.append("feFuncB")
+          .attr("type", "discrete")
+          .attr("tableValues", "0 0");
+      icon_comptrans.append("feFuncA")
+          .attr("type", "linear")
+          .attr("slope", "0.4")
+          .attr("intercept", "0");
+      icon_defs_filter.append("feGaussianBlur")
+          .attr("stdDeviation", "1.77778 1.77778");
+      icon_defs.append("clipPath")
+          .attr("id", "clip1")
+          .append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "378")
+          .attr("height", "378");
+      icon_defs.append("clipPath")
+          .attr("id", "clip2")
+          .append("path")
+          .attr("d", "M189 38C105.605 38 38 105.605 38 189 38 272.395 105.605 340 189 340 272.395 340 340 272.395 340 189 340 105.605 272.395 38 189 38ZM5.63264e-06 5.63264e-06 378 5.63264e-06 378 378 5.63264e-06 378Z")
+          .attr("fill-rule", "evenodd")
+          .attr("clip-rule", "evenodd");
+      icon_defs.append("clipPath")
+          .attr("id", "clip3")
+          .append("rect")
+          .attr("x", "-2")
+          .attr("y", "-2")
+          .attr("width", "346")
+          .attr("height", "346");
+      icon_group.append("g")
+          .classed(icon_name, true)
+          .attr("clip-path", "url(#clip1)")
+          .append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "378")
+          .attr("height", "378")
+          .attr("fill", "#FFFFFF");
+  }
+
+  function drawIcons(selection, visualObj) {
+      selection.selectAll(".icongroup").remove();
+      if (!(visualObj.viewModel.plotProperties.displayPlot)) {
+          return;
+      }
+      const nhsIconSettings = visualObj.viewModel.inputSettings.settings.nhs_icons;
+      const draw_variation = nhsIconSettings.show_variation_icons;
+      const variation_location = nhsIconSettings.variation_icons_locations;
+      const svg_width = visualObj.viewModel.svgWidth;
+      const svg_height = visualObj.viewModel.svgHeight;
+      let numVariationIcons = 0;
+      if (draw_variation) {
+          const variation_scaling = nhsIconSettings.variation_icons_scaling;
+          const variationIconsPresent = variationIconsToDraw(visualObj.viewModel.outliers, visualObj.viewModel.inputSettings.settings);
+          variationIconsPresent.forEach((icon, idx) => {
+              selection
+                  .call(initialiseIconSVG, icon, iconTransformSpec(svg_width, svg_height, variation_location, variation_scaling, idx))
+                  .selectAll(`.${icon}`)
+                  .call(nhsIcons[icon]);
+          });
+          numVariationIcons = variationIconsPresent.length;
+      }
+      const draw_assurance = nhsIconSettings.show_assurance_icons;
+      if (draw_assurance) {
+          const assurance_location = nhsIconSettings.assurance_icons_locations;
+          const assurance_scaling = nhsIconSettings.assurance_icons_scaling;
+          const assuranceIconPresent = assuranceIconToDraw(visualObj.viewModel.controlLimits, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
+          if (assuranceIconPresent === "none") {
+              return;
+          }
+          const currIconCount = (numVariationIcons > 0 && variation_location === assurance_location)
+              ? numVariationIcons
+              : 0;
+          selection
+              .call(initialiseIconSVG, assuranceIconPresent, iconTransformSpec(svg_width, svg_height, assurance_location, assurance_scaling, currIconCount))
+              .selectAll(`.${assuranceIconPresent}`)
+              .call(nhsIcons[assuranceIconPresent]);
+      }
+  }
+
+  function drawLines(selection, visualObj) {
+      selection
+          .select(".linesgroup")
+          .selectAll("path")
+          .data(visualObj.viewModel.groupedLines)
+          .join("path")
+          .attr("d", d => {
+          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
+          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
+          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
+          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
+          return line()
+              .x(d => visualObj.viewModel.plotProperties.xScale(d.x))
+              .y(d => visualObj.viewModel.plotProperties.yScale(d.line_value))
+              .defined(d => {
+              return !isNullOrUndefined(d.line_value)
+                  && between(d.line_value, ylower, yupper)
+                  && between(d.x, xlower, xupper);
+          })(d[1]);
+      })
+          .attr("fill", "none")
+          .attr("stroke", d => {
+          return visualObj.viewModel.colourPalette.isHighContrast
+              ? visualObj.viewModel.colourPalette.foregroundColour
+              : getAesthetic(d[0], "lines", "colour", visualObj.viewModel.inputSettings.settings);
+      })
+          .attr("stroke-width", d => getAesthetic(d[0], "lines", "width", visualObj.viewModel.inputSettings.settings))
+          .attr("stroke-dasharray", d => getAesthetic(d[0], "lines", "type", visualObj.viewModel.inputSettings.settings));
+  }
+
+  function drawTooltipLine(selection, visualObj) {
+      const plotProperties = visualObj.viewModel.plotProperties;
+      const xAxisLine = selection
+          .select(".ttip-line-x")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y1", plotProperties.yAxis.end_padding)
+          .attr("y2", visualObj.viewModel.svgHeight - plotProperties.yAxis.start_padding)
+          .attr("stroke-width", "1px")
+          .attr("stroke", "black")
+          .style("stroke-opacity", 0);
+      const yAxisLine = selection
+          .select(".ttip-line-y")
+          .attr("x1", plotProperties.xAxis.start_padding)
+          .attr("x2", visualObj.viewModel.svgWidth - plotProperties.xAxis.end_padding)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke-width", "1px")
+          .attr("stroke", "black")
+          .style("stroke-opacity", 0);
+      selection.on("mousemove", (event) => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
+          const plotPoints = visualObj.viewModel.plotPoints;
+          const xValue = plotProperties.xScale.invert(event.pageX);
+          const xRange = plotPoints.map(d => d.x).map(d => Math.abs(d - xValue));
+          const nearestDenominator = leastIndex(xRange, (a, b) => a - b);
+          const x_coord = plotProperties.xScale(plotPoints[nearestDenominator].x);
+          const y_coord = plotProperties.yScale(plotPoints[nearestDenominator].value);
+          visualObj.host.tooltipService.show({
+              dataItems: plotPoints[nearestDenominator].tooltip,
+              identities: [plotPoints[nearestDenominator].identity],
+              coordinates: [x_coord, y_coord],
+              isTouchEvent: false
+          });
+          xAxisLine.style("stroke-opacity", 0.4)
+              .attr("x1", x_coord)
+              .attr("x2", x_coord);
+          yAxisLine.style("stroke-opacity", 0.4)
+              .attr("y1", y_coord)
+              .attr("y2", y_coord);
+      })
+          .on("mouseleave", () => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
+          visualObj.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
+          xAxisLine.style("stroke-opacity", 0);
+          yAxisLine.style("stroke-opacity", 0);
+      });
+  }
+
+  function drawXAxis(selection, visualObj) {
+      const xAxisProperties = visualObj.viewModel.plotProperties.xAxis;
+      const xAxis = axisBottom(visualObj.viewModel.plotProperties.xScale);
+      if (xAxisProperties.ticks) {
+          if (xAxisProperties.tick_count) {
+              xAxis.ticks(xAxisProperties.tick_count);
+          }
+          if (visualObj.viewModel.tickLabels) {
+              xAxis.tickFormat(axisX => {
+                  const targetKey = visualObj.viewModel.tickLabels.filter(d => d.x == axisX);
+                  return targetKey.length > 0 ? targetKey[0].label : "";
+              });
+          }
+      }
+      else {
+          xAxis.tickValues([]);
+      }
+      const plotHeight = visualObj.viewModel.svgHeight;
+      const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
+      const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
+      const xAxisGroup = selection.select(".xaxisgroup");
+      xAxisGroup
+          .call(xAxis)
+          .attr("color", displayPlot ? xAxisProperties.colour : "#FFFFFF")
+          .attr("transform", `translate(0, ${xAxisHeight})`)
+          .selectAll(".tick text")
+          .style("text-anchor", xAxisProperties.tick_rotation < 0.0 ? "end" : "start")
+          .attr("dx", xAxisProperties.tick_rotation < 0.0 ? "-.8em" : ".8em")
+          .attr("dy", xAxisProperties.tick_rotation < 0.0 ? "-.15em" : ".15em")
+          .attr("transform", "rotate(" + xAxisProperties.tick_rotation + ")")
+          .style("font-size", xAxisProperties.tick_size)
+          .style("font-family", xAxisProperties.tick_font)
+          .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
+      const xAxisNode = selection.selectAll(".xaxisgroup").node();
+      if (!xAxisNode) {
+          selection.select(".xaxislabel")
+              .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
+          return;
+      }
+      const xAxisCoordinates = xAxisNode.getBoundingClientRect();
+      const bottomMidpoint = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
+      selection.select(".xaxislabel")
+          .attr("x", visualObj.viewModel.svgWidth / 2)
+          .attr("y", bottomMidpoint)
+          .style("text-anchor", "middle")
+          .text(xAxisProperties.label)
+          .style("font-size", xAxisProperties.label_size)
+          .style("font-family", xAxisProperties.label_font)
+          .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
+  }
+
+  function drawYAxis(selection, visualObj) {
+      const yAxisProperties = visualObj.viewModel.plotProperties.yAxis;
+      const yAxis = axisLeft(visualObj.viewModel.plotProperties.yScale);
+      const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs;
+      const sig_figs = isNullOrUndefined(yaxis_sig_figs) ? visualObj.viewModel.inputSettings.settings.spc.sig_figs : yaxis_sig_figs;
+      const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
+      if (yAxisProperties.ticks) {
+          if (yAxisProperties.tick_count) {
+              yAxis.ticks(yAxisProperties.tick_count);
+          }
+          if (visualObj.viewModel.inputData) {
+              yAxis.tickFormat((d) => {
+                  return visualObj.viewModel.inputSettings.derivedSettings.percentLabels
+                      ? d.toFixed(sig_figs) + "%"
+                      : d.toFixed(sig_figs);
+              });
+          }
+      }
+      else {
+          yAxis.tickValues([]);
+      }
+      const yAxisGroup = selection.select(".yaxisgroup");
+      yAxisGroup
+          .call(yAxis)
+          .attr("color", displayPlot ? yAxisProperties.colour : "#FFFFFF")
+          .attr("transform", `translate(${visualObj.viewModel.plotProperties.xAxis.start_padding}, 0)`)
+          .selectAll(".tick text")
+          .style("text-anchor", "right")
+          .attr("transform", `rotate(${yAxisProperties.tick_rotation})`)
+          .style("font-size", yAxisProperties.tick_size)
+          .style("font-family", yAxisProperties.tick_font)
+          .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
+      const yAxisNode = selection.selectAll(".yaxisgroup").node();
+      if (!yAxisNode) {
+          selection.select(".yaxislabel")
+              .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+          return;
+      }
+      const yAxisCoordinates = yAxisNode.getBoundingClientRect();
+      const leftMidpoint = yAxisCoordinates.x * 0.7;
+      const y = visualObj.viewModel.svgHeight / 2;
+      selection.select(".yaxislabel")
+          .attr("x", leftMidpoint)
+          .attr("y", y)
+          .attr("transform", `rotate(-90, ${leftMidpoint}, ${y})`)
+          .text(yAxisProperties.label)
+          .style("text-anchor", "middle")
+          .style("font-size", yAxisProperties.label_size)
+          .style("font-family", yAxisProperties.label_font)
+          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+  }
+
+  function initialiseSVG(selection, removeAll = false) {
+      if (removeAll) {
+          selection.selectChildren().remove();
+      }
+      selection.append('line').classed("ttip-line-x", true);
+      selection.append('line').classed("ttip-line-y", true);
+      selection.append('g').classed("xaxisgroup", true);
+      selection.append('text').classed("xaxislabel", true);
+      selection.append('g').classed("yaxisgroup", true);
+      selection.append('text').classed("yaxislabel", true);
+      selection.append('g').classed("linesgroup", true);
+      selection.append('g').classed("dotsgroup", true);
+  }
+
+  function drawErrors(selection, options, message, type = null) {
+      selection.call(initialiseSVG, true);
+      const errMessageSVG = selection.append("g").classed("errormessage", true);
+      if (type) {
+          const preamble = {
+              "internal": "Internal Error! Please file a bug report with the following text:",
+              "settings": "Invalid settings provided for all observations! First error:"
+          };
+          errMessageSVG.append('text')
+              .attr("x", options.viewport.width / 2)
+              .attr("y", options.viewport.height / 3)
+              .style("text-anchor", "middle")
+              .text(preamble[type])
+              .style("font-size", "10px");
+      }
+      errMessageSVG.append('text')
+          .attr("x", options.viewport.width / 2)
+          .attr("y", options.viewport.height / 2)
+          .style("text-anchor", "middle")
+          .text(message)
+          .style("font-size", "10px");
+  }
+
+  function drawTableHeaders(selection, cols, tableSettings, maxWidth) {
+      const tableHeaders = selection.select(".table-header")
+          .selectAll("th")
+          .data(cols)
+          .join("th");
+      tableHeaders.selectAll("text")
+          .data(d => [d.label])
+          .join("text")
+          .text(d => d)
+          .style("font-size", `${tableSettings.table_header_size}px`)
+          .style("font-family", tableSettings.table_header_font)
+          .style("color", tableSettings.table_header_colour);
+      tableHeaders.style("padding", `${tableSettings.table_header_text_padding}px`)
+          .style("background-color", tableSettings.table_header_bg_colour)
+          .style("font-weight", tableSettings.table_header_font_weight)
+          .style("text-transform", tableSettings.table_header_text_transform)
+          .style("text-align", tableSettings.table_header_text_align)
+          .style("border-width", `${tableSettings.table_header_border_width}px`)
+          .style("border-style", tableSettings.table_header_border_style)
+          .style("border-color", tableSettings.table_header_border_colour)
+          .style("border-top", "inherit");
+      if (!tableSettings.table_header_border_bottom) {
+          tableHeaders.style("border-bottom", "none");
+      }
+      if (!tableSettings.table_header_border_inner) {
+          tableHeaders.style("border-left", "none")
+              .style("border-right", "none");
+      }
+      if (tableSettings.table_text_overflow !== "none") {
+          tableHeaders.style("overflow", "hidden")
+              .style("max-width", `${maxWidth}px`)
+              .style("text-overflow", tableSettings.table_text_overflow);
+      }
+      else {
+          tableHeaders.style("overflow", "auto")
+              .style("max-width", "none");
+      }
+  }
+  function drawTableRows(selection, visualObj, plotPoints, tableSettings, maxWidth) {
+      const tableRows = selection
+          .select(".table-body")
+          .selectAll('tr')
+          .data(plotPoints)
+          .join('tr')
+          .on("click", (event, d) => {
+          if (visualObj.host.hostCapabilities.allowInteractions) {
+              const alreadySel = identitySelected(d.identity, visualObj.selectionManager);
+              visualObj.selectionManager
+                  .select(d.identity, alreadySel || event.ctrlKey || event.metaKey)
+                  .then(() => visualObj.updateHighlighting());
+              event.stopPropagation();
+          }
+      })
+          .on("mouseover", (event) => {
+          select(event.target).select(function () {
+              return this.closest("td");
+          }).style("background-color", "lightgray");
+      })
+          .on("mouseout", (event) => {
+          var _a, _b;
+          let currentTD = select(event.target).select(function () {
+              return this.closest("td");
+          });
+          let rowData = select(currentTD.node().parentNode).datum();
+          currentTD.style("background-color", (_b = (_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"]) !== null && _b !== void 0 ? _b : "inherit");
+      });
+      if (tableSettings.table_text_overflow !== "none") {
+          tableRows.style("overflow", "hidden")
+              .style("max-width", `${maxWidth}px`)
+              .style("text-overflow", tableSettings.table_text_overflow);
+      }
+      else {
+          tableRows.style("overflow", "auto")
+              .style("max-width", "none");
+      }
+  }
+  function drawOuterBorder(selection, tableSettings) {
+      selection.select(".table-group")
+          .style("border-width", `${tableSettings.table_outer_border_width}px`)
+          .style("border-style", tableSettings.table_outer_border_style)
+          .style("border-color", tableSettings.table_outer_border_colour);
+      ["top", "right", "bottom", "left"].forEach((side) => {
+          if (!tableSettings[`table_outer_border_${side}`]) {
+              selection.select(".table-group").style(`border-${side}`, "none");
+          }
+      });
+      selection.selectAll("th:first-child")
+          .style("border-left", "inherit");
+      selection.selectAll("th:last-child")
+          .style("border-right", "inherit");
+      selection.selectAll("td:first-child")
+          .style("border-left", "inherit");
+      selection.selectAll("td:last-child")
+          .style("border-right", "inherit");
+      selection.selectAll("tr:first-child")
+          .selectAll("td")
+          .style("border-top", "inherit");
+      selection.selectAll("tr:last-child")
+          .selectAll("td")
+          .style("border-bottom", "inherit");
+  }
+  function drawTableCells(selection, cols, inputSettings, showGrouped) {
+      const tableCells = selection.select(".table-body")
+          .selectAll('tr')
+          .selectAll('td')
+          .data((d) => cols.map(col => {
+          return { column: col.name, value: d.table_row[col.name] };
+      }))
+          .join('td');
+      const draw_icons = inputSettings.nhs_icons.show_variation_icons || inputSettings.nhs_icons.show_assurance_icons;
+      const thisSelDims = tableCells.node().getBoundingClientRect();
+      tableCells.each(function (d) {
+          var _a;
+          const currNode = select(this);
+          const parentNode = select(currNode.property("parentNode"));
+          const rowData = parentNode.datum();
+          if (showGrouped && draw_icons && (d.column === "variation" || d.column === "assurance")) {
+              const scaling = inputSettings.nhs_icons[`${d.column}_icons_scaling`];
+              currNode
+                  .append("svg")
+                  .attr("width", `${thisSelDims.width * 0.5 * scaling}px`)
+                  .attr("viewBox", "0 0 378 378")
+                  .classed("rowsvg", true)
+                  .call(initialiseIconSVG, d.value)
+                  .selectAll(".icongroup")
+                  .selectAll(`.${d.value}`)
+                  .call(nhsIcons[d.value]);
+          }
+          else {
+              const value = typeof d.value === "number"
+                  ? d.value.toFixed(inputSettings.spc.sig_figs)
+                  : d.value;
+              currNode.text(value).classed("cell-text", true);
+          }
+          const tableAesthetics = ((_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"])
+              ? rowData.aesthetics
+              : inputSettings.summary_table;
+          currNode.style("background-color", tableAesthetics.table_body_bg_colour)
+              .style("font-weight", tableAesthetics.table_body_font_weight)
+              .style("text-transform", tableAesthetics.table_body_text_transform)
+              .style("text-align", tableAesthetics.table_body_text_align)
+              .style("font-size", `${tableAesthetics.table_body_size}px`)
+              .style("font-family", tableAesthetics.table_body_font)
+              .style("color", tableAesthetics.table_body_colour)
+              .style("border-width", `${tableAesthetics.table_body_border_width}px`)
+              .style("border-style", tableAesthetics.table_body_border_style)
+              .style("border-color", tableAesthetics.table_body_border_colour)
+              .style("padding", `${tableAesthetics.table_body_text_padding}px`)
+              .style("opacity", "inherit");
+          if (!tableAesthetics.table_body_border_left_right) {
+              currNode.style("border-left", "none")
+                  .style("border-right", "none");
+          }
+          if (!tableAesthetics.table_body_border_top_bottom) {
+              currNode.style("border-top", "none")
+                  .style("border-bottom", "none");
+          }
+      });
+  }
+  function drawSummaryTable(selection, visualObj) {
+      selection.selectAll(".rowsvg").remove();
+      selection.selectAll(".cell-text").remove();
+      let plotPoints;
+      let cols;
+      if (visualObj.viewModel.showGrouped) {
+          plotPoints = visualObj.viewModel.plotPointsGrouped;
+          cols = visualObj.viewModel.tableColumnsGrouped;
+      }
+      else {
+          plotPoints = visualObj.viewModel.plotPoints;
+          cols = visualObj.viewModel.tableColumns;
+      }
+      const maxWidth = visualObj.viewModel.svgWidth / cols.length;
+      const tableSettings = visualObj.viewModel.inputSettings.settings.summary_table;
+      selection.call(drawTableHeaders, cols, tableSettings, maxWidth)
+          .call(drawTableRows, visualObj, plotPoints, tableSettings, maxWidth);
+      if (plotPoints.length > 0) {
+          selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.showGrouped);
+      }
+      selection.call(drawOuterBorder, tableSettings);
+      selection.on('click', () => {
+          visualObj.selectionManager.clear();
+          visualObj.updateHighlighting();
+      });
+  }
+
+  function drawDownloadButton(selection, visualObj) {
+      if (!(visualObj.viewModel.inputSettings.settings.download_options.show_button)) {
+          selection.select(".download-btn-group").remove();
+          return;
+      }
+      if (selection.select(".download-btn-group").empty()) {
+          selection.append("text").classed("download-btn-group", true);
+      }
+      const table_rows = visualObj.viewModel.plotPoints.map(d => d.table_row);
+      const csv_rows = new Array();
+      csv_rows.push(Object.keys(table_rows[0]).join(","));
+      table_rows.forEach(row => {
+          csv_rows.push(Object.values(row).join(","));
+      });
+      selection.select(".download-btn-group")
+          .attr("x", visualObj.viewModel.svgWidth - 50)
+          .attr("y", visualObj.viewModel.svgHeight - 5)
+          .text("Download")
+          .style("font-size", "10px")
+          .style("text-decoration", "underline")
+          .on("click", () => {
+          visualObj.host.downloadService
+              .exportVisualsContent(csv_rows.join("\n"), "chartdata.csv", "csv", "csv file");
+      });
+  }
+
+  const labelFormatting = function (selection, visualObj) {
+      const allData = selection.data();
+      const initialLabelXY = allData.map(d => {
+          var _a, _b;
+          const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
+          const plotHeight = visualObj.viewModel.svgHeight;
+          const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
+          const label_position = d.label.aesthetics.label_position;
+          let y_offset = d.label.aesthetics.label_y_offset;
+          const label_initial = label_position === "top" ? (0 + y_offset) : (xAxisHeight - y_offset);
+          const y = visualObj.viewModel.plotProperties.yScale(d.value);
+          let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
+          const x_val = visualObj.viewModel.plotProperties.xScale(d.x);
+          const y_val = visualObj.viewModel.plotProperties.yScale(d.value);
+          const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
+          side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
+          let line_offset = d.label.aesthetics.label_line_offset;
+          line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
+          let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
+          marker_offset = label_position === "top" ? -marker_offset : marker_offset;
+          return { x: x_val + side_length * Math.cos(theta * Math.PI / 180),
+              y: y_val + side_length * Math.sin(theta * Math.PI / 180),
+              theta: theta,
+              line_offset: line_offset,
+              marker_offset: marker_offset
+          };
+      });
+      selection.select("text")
+          .text(d => d.label.text_value)
+          .attr("x", (_, i) => initialLabelXY[i].x)
+          .attr("y", (_, i) => initialLabelXY[i].y)
+          .style("text-anchor", "middle")
+          .style("font-size", d => `${d.label.aesthetics.label_size}px`)
+          .style("font-family", d => d.label.aesthetics.label_font)
+          .style("fill", d => d.label.aesthetics.label_colour);
+      selection.select("line")
+          .attr("x1", (_, i) => initialLabelXY[i].x)
+          .attr("y1", (_, i) => initialLabelXY[i].y + initialLabelXY[i].line_offset)
+          .attr("x2", (d, i) => {
+          const marker_offset = initialLabelXY[i].marker_offset;
+          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
+          return visualObj.viewModel.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
+      })
+          .attr("y2", (d, i) => {
+          const marker_offset = initialLabelXY[i].marker_offset;
+          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
+          return visualObj.viewModel.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
+      })
+          .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
+          .style("stroke-width", d => { var _a; return ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "" ? 0 : visualObj.viewModel.inputSettings.settings.labels.label_line_width; })
+          .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings.labels.label_line_type);
+      selection.select("path")
+          .attr("d", d => {
+          var _a;
+          const show_marker = d.label.aesthetics.label_marker_show && ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") !== "";
+          const marker_size = show_marker ? Math.pow(d.label.aesthetics.label_marker_size, 2) : 0;
+          return Symbol$1().type(triangle).size(marker_size)();
+      })
+          .attr("transform", (d, i) => {
+          const marker_offset = initialLabelXY[i].marker_offset;
+          const x = visualObj.viewModel.plotProperties.xScale(d.x);
+          const y = visualObj.viewModel.plotProperties.yScale(d.value);
+          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
+          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
+          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
+          return `translate(${x + x_offset}, ${y + y_offset}) rotate(${angle + (d.label.aesthetics.label_position === "top" ? 90 : 270)})`;
+      })
+          .style("fill", d => d.label.aesthetics.label_marker_colour)
+          .style("stroke", d => d.label.aesthetics.label_marker_outline_colour);
+  };
+  function drawLabels(selection, visualObj) {
+      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels) {
+          selection.select(".text-labels").remove();
+          return;
+      }
+      if (selection.select(".text-labels").empty()) {
+          selection.append("g").classed("text-labels", true);
+      }
+      const dragFun = drag().on("drag", function (e) {
+          const d = e.subject;
+          const x_val = visualObj.viewModel.plotProperties.xScale(d.x);
+          const y_val = visualObj.viewModel.plotProperties.yScale(d.value);
+          const angle = Math.atan2(e.sourceEvent.y - y_val, e.sourceEvent.x - x_val) * 180 / Math.PI;
+          const distance = Math.sqrt(Math.pow(e.sourceEvent.y - y_val, 2) + Math.pow(e.sourceEvent.x - x_val, 2));
+          const marker_offset = 10;
+          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
+          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
+          e.subject.label.angle = angle;
+          e.subject.label.distance = distance;
+          select(this)
+              .select("text")
+              .attr("x", e.sourceEvent.x)
+              .attr("y", e.sourceEvent.y);
+          let line_offset = d.label.aesthetics.label_line_offset;
+          line_offset = d.label.aesthetics.label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
+          select(this)
+              .select("line")
+              .attr("x1", e.sourceEvent.x)
+              .attr("y1", e.sourceEvent.y + line_offset)
+              .attr("x2", x_val + x_offset)
+              .attr("y2", y_val + y_offset);
+          select(this)
+              .select("path")
+              .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
+      });
+      selection.select(".text-labels")
+          .selectAll(".text-group-inner")
+          .data(visualObj.viewModel.plotPoints)
+          .join((enter) => {
+          let grp = enter.append("g").classed("text-group-inner", true);
+          grp.append("text");
+          grp.append("line");
+          grp.append("path");
+          grp.call(labelFormatting, visualObj)
+              .call(dragFun);
+          return grp;
+      }, (update) => {
+          update.call(labelFormatting, visualObj);
+          return update;
+      });
+  }
+
+  const positionOffsetMap = {
+      "above": -1,
+      "below": 1,
+      "beside": -1
+  };
+  const outsideMap = {
+      "ll99": "below",
+      "ll95": "below",
+      "ll68": "below",
+      "ul68": "above",
+      "ul95": "above",
+      "ul99": "above",
+      "speclimits_lower": "below",
+      "speclimits_upper": "above"
+  };
+  const insideMap = {
+      "ll99": "above",
+      "ll95": "above",
+      "ll68": "above",
+      "ul68": "below",
+      "ul95": "below",
+      "ul99": "below",
+      "speclimits_lower": "above",
+      "speclimits_upper": "below"
+  };
+  function drawLineLabels(selection, visualObj) {
+      const lineSettings = visualObj.viewModel.inputSettings.settings.lines;
+      const formatValue = valueFormatter(visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
+      selection
+          .select(".linesgroup")
+          .selectAll("text")
+          .data(visualObj.viewModel.groupedLines)
+          .join("text")
+          .text(d => {
+          return lineSettings[`plot_label_show_${lineNameMap[d[0]]}`]
+              ? lineSettings[`plot_label_prefix_${lineNameMap[d[0]]}`] + formatValue(d[1][d[1].length - 1].line_value, "value")
+              : "";
+      })
+          .attr("x", d => visualObj.viewModel.plotProperties.xScale(d[1][d[1].length - 1].x))
+          .attr("y", d => visualObj.viewModel.plotProperties.yScale(d[1][d[1].length - 1].line_value))
+          .attr("fill", d => lineSettings[`plot_label_colour_${lineNameMap[d[0]]}`])
+          .attr("font-size", d => `${lineSettings[`plot_label_size_${lineNameMap[d[0]]}`]}px`)
+          .attr("font-family", d => lineSettings[`plot_label_font_${lineNameMap[d[0]]}`])
+          .attr("text-anchor", d => lineSettings[`plot_label_position_${lineNameMap[d[0]]}`] === "beside" ? "start" : "end")
+          .attr("dx", d => {
+          const offset = (lineSettings[`plot_label_position_${lineNameMap[d[0]]}`] === "beside" ? 1 : -1) * lineSettings[`plot_label_hpad_${lineNameMap[d[0]]}`];
+          return `${offset}px`;
+      })
+          .attr("dy", function (d) {
+          const bounds = select(this).node().getBoundingClientRect();
+          let position = lineSettings[`plot_label_position_${lineNameMap[d[0]]}`];
+          let vpadding = lineSettings[`plot_label_vpad_${lineNameMap[d[0]]}`];
+          if (["outside", "inside"].includes(position)) {
+              position = position === "outside" ? outsideMap[d[0]] : insideMap[d[0]];
+          }
+          const heightMap = {
+              "above": -lineSettings[`width_${lineNameMap[d[0]]}`],
+              "below": lineSettings[`plot_label_size_${lineNameMap[d[0]]}`],
+              "beside": bounds.height / 4
+          };
+          return `${positionOffsetMap[position] * vpadding + heightMap[position]}px`;
+      });
   }
 
   class Visual {
@@ -36745,7 +36800,96 @@
   setPrototypeOf(Document, Document$1).prototype = Document$1.prototype;
 
   exports.Visual = Visual;
+  exports.a3 = a3;
+  exports.abs = abs;
+  exports.add = add$1;
+  exports.addContextMenu = addContextMenu;
+  exports.assuranceIconToDraw = assuranceIconToDraw;
+  exports.astronomical = astronomical;
+  exports.b3 = b3;
+  exports.b4 = b4;
+  exports.between = between;
+  exports.borderOptions = borderOptions;
+  exports.broadcastBinary = broadcastBinary;
+  exports.broadcastUnary = broadcastUnary;
+  exports.buildTooltip = buildTooltip;
+  exports.c = cLimits;
+  exports.c4 = c4;
+  exports.c5 = c5;
+  exports.checkFlagDirection = checkFlagDirection;
+  exports.colourOptions = colourOptions;
   exports.d3 = index$1;
+  exports.dateSettingsToFormatOptions = dateSettingsToFormatOptions;
+  exports.defaultSettings = defaultSettings;
+  exports.derivedSettingsClass = derivedSettingsClass;
+  exports.diff = diff;
+  exports.divide = divide;
+  exports.drawDots = drawDots;
+  exports.drawDownloadButton = drawDownloadButton;
+  exports.drawErrors = drawErrors;
+  exports.drawIcons = drawIcons;
+  exports.drawLineLabels = drawLineLabels;
+  exports.drawLines = drawLines;
+  exports.drawSummaryTable = drawSummaryTable;
+  exports.drawTooltipLine = drawTooltipLine;
+  exports.drawValueLabels = drawLabels;
+  exports.drawXAxis = drawXAxis;
+  exports.drawYAxis = drawYAxis;
+  exports.exp = exp;
+  exports.extractConditionalFormatting = extractConditionalFormatting;
+  exports.extractDataColumn = extractDataColumn;
+  exports.extractInputData = extractInputData;
+  exports.extractValues = extractValues;
+  exports.first = first;
+  exports.formatPrimitiveValue = formatPrimitiveValue;
+  exports.g = gLimits;
+  exports.getAesthetic = getAesthetic;
+  exports.i = iLimits;
+  exports.i_m = imLimits$1;
+  exports.i_mm = imLimits;
+  exports.iconOptions = iconOptions;
+  exports.identitySelected = identitySelected;
+  exports.initialiseSVG = initialiseSVG;
+  exports.isNullOrUndefined = isNullOrUndefined;
+  exports.labelOptions = labelOptions;
+  exports.lgamma = lgamma;
+  exports.lineOptions = lineOptions;
+  exports.max = max;
+  exports.mean = mean;
+  exports.median = median;
+  exports.min = min;
+  exports.mr = mrLimits;
+  exports.multiply = multiply;
+  exports.p = pLimits;
   exports.parseHTML = parseHTML;
+  exports.parseInputDates = parseInputDates;
+  exports.plotPropertiesClass = plotPropertiesClass;
+  exports.pow = pow;
+  exports.pp = pprimeLimits;
+  exports.r = runLimits;
+  exports.rep = rep;
+  exports.repIfScalar = repIfScalar;
+  exports.run = runLimits;
+  exports.s = sLimits;
+  exports.seq = seq;
+  exports.settingsClass = settingsClass;
+  exports.shift = shift;
+  exports.sqrt = sqrt;
+  exports.square = square;
+  exports.subtract = subtract;
+  exports.sum = sum;
+  exports.t = tLimits;
+  exports.textOptions = textOptions;
+  exports.trend = trend;
+  exports.truncate = truncate;
+  exports.twoInThree = twoInThree;
+  exports.u = uLimits;
+  exports.up = uprimeLimits;
+  exports.validateDataView = validateDataView;
+  exports.validateInputData = validateInputData;
+  exports.valueFormatter = valueFormatter;
+  exports.variationIconsToDraw = variationIconsToDraw;
+  exports.viewModelClass = viewModelClass;
+  exports.xbar = xbarLimits;
 
 }));

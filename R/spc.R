@@ -67,3 +67,8 @@ spc_limits <- function(keys = NULL, numerators = NULL, denominators = NULL, reba
   spc_ctx$call("update_visual", spc_categories, spc_values, width, height, TRUE)
   spc_ctx$get('visual.viewModel.controlLimits')
 }
+
+spc_default_settings <- function() {
+  # Defaults loaded from JS as part of .onLoad in zzz.R
+  .spc_default_limits_internal
+}
