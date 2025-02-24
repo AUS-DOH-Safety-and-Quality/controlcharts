@@ -11,21 +11,22 @@ spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId =
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()
     input_data <- data$origData()
-    deps <- crosstalk::crosstalkLibs()
   } else {
     crosstalk_keys <- NULL
     crosstalk_group <- NULL
     input_data <- data
-    deps <- NULL
   }
 
   keys <- eval(substitute(keys), input_data, parent.frame())
   numerators <- eval(substitute(numerators), input_data, parent.frame())
 
+  spc_categories <- list(values_entry('key', keys))
+  spc_values <- list(values_entry('numerators', numerators))
+
   # forward options using x
   x = list(
-    keys = keys,
-    numerators = numerators,
+    categories = spc_categories,
+    values = spc_values,
     settings = list(
       crosstalk_keys = crosstalk_keys,
       crosstalk_group = crosstalk_group
@@ -40,7 +41,7 @@ spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId =
     height = height,
     package = 'controlcharts',
     elementId = elementId,
-    dependencies = deps
+    dependencies = crosstalk::crosstalkLibs()
   )
 }
 
