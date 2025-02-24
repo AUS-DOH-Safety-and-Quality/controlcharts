@@ -52,7 +52,7 @@ HTMLWidgets.widget({
         ct_sel.setGroup(x.settings.crosstalk_group);
         visual.host.createSelectionIdBuilder = () => ({
             withCategory: (cat, idx) => ({
-              createSelectionId: () => crosstalk_keys[idx]
+              createSelectionId: () => [crosstalk_keys[idx]]
             })
           })
         visual.selectionManager.select = (identity, multi) => {
