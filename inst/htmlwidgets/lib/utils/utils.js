@@ -54,7 +54,6 @@ const make_constructor = function(element) {
                 }
               )
 
-        console.log(x.dataItems);
       },
       hide: () => {
         spc.d3.select(".tooltip").selectAll("rect").remove();
@@ -72,6 +71,9 @@ const make_constructor = function(element) {
       background: { value: "white" },
       foregroundSelected: { value: "black" },
       hyperlink: { value: "blue" }
+    },
+    hostCapabilities: {
+      allowInteractions: true
     }
   }
   }

@@ -2,9 +2,20 @@ HTMLWidgets.widget({
   name: 'spc',
   type: 'output',
   factory: function(el, width, height) {
-
+  var ct_sel = new crosstalk.SelectionHandle();
   var options_constructor = make_constructor(el);
   var visual = new spc.Visual(options_constructor);
+
+  visual.selectionManager.getSelectionIds = () => {
+        return ct_sel.value ?? []
+      }
+  visual.selectionManager.clear = () => {
+    ct_sel.clear()
+  }
+  ct_sel.on("change", function(e) {
+    visual.updateHighlighting()
+  });
+
   visual.svg
         .append("g")
         .classed("tooltip", true);
@@ -36,10 +47,24 @@ HTMLWidgets.widget({
     return {
 
       renderValue: function(x) {
-        var keys = x.keys;
-        var numerators = x.numerators;
-        options_update.dataViews[0].categorical.categories[0].values = keys;
-        options_update.dataViews[0].categorical.values[0].values = numerators;
+        var data_keys = x.keys;
+        var crosstalk_keys = x.settings.crosstalk_keys;
+        ct_sel.setGroup(x.settings.crosstalk_group);
+        visual.host.createSelectionIdBuilder = () => ({
+            withCategory: (cat, idx) => ({
+              createSelectionId: () => crosstalk_keys[idx]
+            })
+          })
+        visual.selectionManager.select = (identity, multi) => {
+          var new_idents = [identity];
+          if (multi && ct_sel.value) {
+            new_idents = new_idents.concat(ct_sel.value)
+          }
+          ct_sel.set(new_idents)
+          return { then: (f) => f() }
+        }
+        options_update.dataViews[0].categorical.categories[0].values = x.keys;
+        options_update.dataViews[0].categorical.values[0].values = x.numerators;
 
         visual.update(options_update);
 

@@ -5,15 +5,29 @@
 #' @import htmlwidgets
 #'
 #' @export
-spc <- function(keys, numerators, width = NULL, height = NULL, elementId = NULL) {
+spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId = NULL) {
 
-  inputs <- data.frame(keys = keys, numerators = numerators)
-  inputs_agg <- aggregate(numerators ~ keys, inputs, sum)
+  if (crosstalk::is.SharedData(data)) {
+    crosstalk_keys <- data$key()
+    crosstalk_group <- data$groupName()
+    input_data <- data$origData()
+  } else {
+    crosstalk_keys <- NULL
+    crosstalk_group <- NULL
+    input_data <- data
+  }
+
+  keys <- eval(substitute(keys), input_data, parent.frame())
+  numerators <- eval(substitute(numerators), input_data, parent.frame())
 
   # forward options using x
   x = list(
-    keys = inputs_agg$keys,
-    numerators = inputs_agg$numerators
+    keys = keys,
+    numerators = numerators,
+    settings = list(
+      crosstalk_keys = crosstalk_keys,
+      crosstalk_group = crosstalk_group
+    )
   )
 
   # create widget
@@ -23,7 +37,8 @@ spc <- function(keys, numerators, width = NULL, height = NULL, elementId = NULL)
     width = width,
     height = height,
     package = 'controlcharts',
-    elementId = elementId
+    elementId = elementId,
+    dependencies = crosstalk::crosstalkLibs()
   )
 }
 
