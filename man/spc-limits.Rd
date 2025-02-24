@@ -6,12 +6,13 @@
 \title{Calculate control limits}
 \usage{
 spc_limits(
-  keys,
-  numerators,
-  denominators,
+  keys = NULL,
+  numerators = NULL,
+  denominators = NULL,
+  rebaseline_groupings = NULL,
+  xbar_sds = NULL,
   width = NULL,
-  height = NULL,
-  elementId = NULL
+  height = NULL
 )
 }
 \description{

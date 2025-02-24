@@ -6,7 +6,7 @@
 <Add Title>
 }}}
 \usage{
-spc(keys, numerators, width = NULL, height = NULL, elementId = NULL)
+spc(keys, numerators, data, width = NULL, height = NULL, elementId = NULL)
 }
 \description{
 \if{html}{\out{

@@ -3,6 +3,7 @@
 #' <Add Description>
 #'
 #' @import htmlwidgets
+#' @import crosstalk
 #'
 #' @export
 spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId = NULL) {
@@ -11,10 +12,12 @@ spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId =
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()
     input_data <- data$origData()
+    deps <- crosstalk::crosstalkLibs()
   } else {
     crosstalk_keys <- NULL
     crosstalk_group <- NULL
     input_data <- data
+    deps <- NULL
   }
 
   keys <- eval(substitute(keys), input_data, parent.frame())
@@ -38,7 +41,7 @@ spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId =
     height = height,
     package = 'controlcharts',
     elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
+    dependencies = deps
   )
 }
 
