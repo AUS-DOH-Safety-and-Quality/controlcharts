@@ -1,13 +1,12 @@
-#' <Add Title>
+#' Generate interactive SPC chart
 #'
-#' <Add Description>
+#'
 #'
 #' @import htmlwidgets
 #' @import crosstalk
 #'
 #' @export
 spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId = NULL) {
-
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()

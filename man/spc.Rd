@@ -2,14 +2,10 @@
 % Please edit documentation in R/spc.R
 \name{spc}
 \alias{spc}
-\title{\if{html}{\out{
-<Add Title>
-}}}
+\title{Generate interactive SPC chart}
 \usage{
 spc(keys, numerators, data, width = NULL, height = NULL, elementId = NULL)
 }
 \description{
-\if{html}{\out{
-<Add Description>
-}}
+Generate interactive SPC chart
 }
