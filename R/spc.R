@@ -108,3 +108,11 @@ spc_default_settings <- function() {
   # Defaults loaded from JS as part of .onLoad in zzz.R
   .spc_default_limits_internal
 }
+
+spc_canvas_settings <- function(show_errors = spc_default_settings()$canvas$show_errors,
+                                lower_padding = spc_default_settings()$canvas$lower_padding,
+                                upper_padding = spc_default_settings()$canvas$upper_padding,
+                                left_padding = spc_default_settings()$canvas$left_padding,
+                                right_padding = spc_default_settings()$canvas$right_padding) {
+
+}
