@@ -21,6 +21,10 @@ spc <- function(keys, numerators, denominators, data,
   keys <- eval(substitute(keys), input_data, parent.frame())
   spc_categories <- values_entry('key', unique(keys))
 
+  if (!is.null(crosstalk_keys)) {
+    crosstalk_keys <- split(crosstalk_keys, keys)
+  }
+
   # objects <- list(spc = list(chart_type = 'run'))
   # spc_categories[[1]]$objects <- lapply(unique(keys), \(x) objects)
 
@@ -42,7 +46,7 @@ spc <- function(keys, numerators, denominators, data,
     categories = spc_categories,
     values = spc_values,
     settings = list(
-      crosstalk_keys = split(crosstalk_keys, keys),
+      crosstalk_keys = crosstalk_keys,
       crosstalk_group = crosstalk_group
     )
   )
