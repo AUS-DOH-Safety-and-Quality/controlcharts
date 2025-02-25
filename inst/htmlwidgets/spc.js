@@ -38,11 +38,11 @@ HTMLWidgets.widget({
         ct_sel.setGroup(x.settings.crosstalk_group);
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (cat, idx) => ({
-            createSelectionId: () => [crosstalk_keys?.[idx] ?? idx]
+            createSelectionId: () => crosstalk_keys?.[cat.values[idx]] ?? [idx]
           })
         })
         visual.selectionManager.select = (identity, multi_select) => {
-          var new_idents = [identity];
+          var new_idents = identity;
           if (multi_select && ct_sel.value) {
             new_idents = new_idents.concat(ct_sel.value)
           }
@@ -50,14 +50,12 @@ HTMLWidgets.widget({
           return { then: (f) => f() }
         }
 
-        options_update.dataViews = [
-          {
-            categorical: {
-              categories: x.categories,
-              values: x.values
-            }
+        options_update.dataViews = [{
+          categorical: {
+            categories: x.categories,
+            values: x.values
           }
-        ]
+        }]
 
         visual.update(options_update);
       },

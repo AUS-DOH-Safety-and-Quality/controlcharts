@@ -16863,12 +16863,24 @@
 
   function identitySelected(identity, selectionManager) {
       const allSelectedIdentities = selectionManager.getSelectionIds();
-      if (Array.isArray(identity)) {
-          return identity.some((d) => allSelectedIdentities.some((e) => e.includes(d)));
+      var identity_selected = false;
+      for (const selected of allSelectedIdentities) {
+          if (Array.isArray(identity)) {
+              for (const d of identity) {
+                  if (selected === d) {
+                      identity_selected = true;
+                      break;
+                  }
+              }
+          }
+          else {
+              if (selected === identity) {
+                  identity_selected = true;
+                  break;
+              }
+          }
       }
-      else {
-          return allSelectedIdentities.some((d) => d.includes(identity));
-      }
+      return identity_selected;
   }
 
   function seq(start, end) {

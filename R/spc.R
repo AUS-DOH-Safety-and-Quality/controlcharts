@@ -18,16 +18,18 @@ spc <- function(keys, numerators, denominators, data, width = NULL, height = NUL
   }
 
   keys <- eval(substitute(keys), input_data, parent.frame())
-  spc_categories <- values_entry('key', keys)
+  spc_categories <- values_entry('key', unique(keys))
 
   spc_values <- list()
   if (!missing(numerators)) {
-    numerators <- eval(substitute(numerators), input_data, parent.frame())
+    numerators <- as.numeric(eval(substitute(numerators), input_data, parent.frame()))
+    numerators <- aggregate(numerators, by = list(keys), FUN = sum)$x
     spc_values <- append(spc_values, values_entry('numerators', numerators))
   }
 
   if (!missing(denominators)) {
-    denominators <- eval(substitute(denominators), input_data, parent.frame())
+    denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
+    denominators <- aggregate(denominators, by = list(keys), FUN = sum)$x
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
@@ -36,7 +38,7 @@ spc <- function(keys, numerators, denominators, data, width = NULL, height = NUL
     categories = spc_categories,
     values = spc_values,
     settings = list(
-      crosstalk_keys = crosstalk_keys,
+      crosstalk_keys = split(crosstalk_keys, keys),
       crosstalk_group = crosstalk_group
     )
   )
