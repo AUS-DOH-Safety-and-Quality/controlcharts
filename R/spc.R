@@ -6,7 +6,7 @@
 #' @import crosstalk
 #'
 #' @export
-spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId = NULL) {
+spc <- function(keys, numerators, denominators, data, width = NULL, height = NULL, elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()
@@ -18,10 +18,18 @@ spc <- function(keys, numerators, data, width = NULL, height = NULL, elementId =
   }
 
   keys <- eval(substitute(keys), input_data, parent.frame())
-  numerators <- eval(substitute(numerators), input_data, parent.frame())
+  spc_categories <- values_entry('key', keys)
 
-  spc_categories <- list(values_entry('key', keys))
-  spc_values <- list(values_entry('numerators', numerators))
+  spc_values <- list()
+  if (!missing(numerators)) {
+    numerators <- eval(substitute(numerators), input_data, parent.frame())
+    spc_values <- append(spc_values, values_entry('numerators', numerators))
+  }
+
+  if (!missing(denominators)) {
+    denominators <- eval(substitute(denominators), input_data, parent.frame())
+    spc_values <- append(spc_values, values_entry('denominators', denominators))
+  }
 
   # forward options using x
   x = list(

@@ -1,8 +1,10 @@
 values_entry <- function(name, values) {
-  roles <- list(val = values)
+  roles <- list(dummy = TRUE)
   names(roles) <- name
   list(
-    source = list(roles = roles),
-    values = values
+    list(
+      source = list(roles = roles),
+      values = values
+    )
   )
 }
