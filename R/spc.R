@@ -6,7 +6,8 @@
 #' @import crosstalk
 #'
 #' @export
-spc <- function(keys, numerators, denominators, data, width = NULL, height = NULL, elementId = NULL) {
+spc <- function(keys, numerators, denominators, data,
+                width = NULL, height = NULL, elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()
@@ -19,6 +20,9 @@ spc <- function(keys, numerators, denominators, data, width = NULL, height = NUL
 
   keys <- eval(substitute(keys), input_data, parent.frame())
   spc_categories <- values_entry('key', unique(keys))
+
+  # objects <- list(spc = list(chart_type = 'run'))
+  # spc_categories[[1]]$objects <- lapply(unique(keys), \(x) objects)
 
   spc_values <- list()
   if (!missing(numerators)) {
@@ -34,7 +38,7 @@ spc <- function(keys, numerators, denominators, data, width = NULL, height = NUL
   }
 
   # forward options using x
-  x = list(
+  x <- list(
     categories = spc_categories,
     values = spc_values,
     settings = list(
@@ -45,11 +49,11 @@ spc <- function(keys, numerators, denominators, data, width = NULL, height = NUL
 
   # create widget
   htmlwidgets::createWidget(
-    name = 'spc',
+    name = "spc",
     x,
     width = width,
     height = height,
-    package = 'controlcharts',
+    package = "controlcharts",
     elementId = elementId,
     dependencies = crosstalk::crosstalkLibs()
   )
@@ -93,7 +97,7 @@ spc_limits <- function(keys = NULL, numerators = NULL, denominators = NULL, reba
                       values_entry('denominators', denominators))
 
   spc_ctx$call("update_visual", spc_categories, spc_values, width, height, TRUE)
-  spc_ctx$get('visual.viewModel.controlLimits')
+  spc_ctx$get("visual.viewModel.controlLimits")
 }
 
 spc_default_settings <- function() {
