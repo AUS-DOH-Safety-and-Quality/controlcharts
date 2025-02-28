@@ -3464,6 +3464,7 @@
       deterioration: { default: "#E46C0A" },
       neutral_low: { default: "#490092" },
       neutral_high: { default: "#490092" },
+      common_cause: { default: "#A6A6A6" },
       limits: { default: "#6495ED" },
       standard: { default: "#000000" }
   };
@@ -3551,7 +3552,7 @@
       },
       scatter: {
           size: { default: 2.5, valid: { numberRange: { min: 0, max: 100 } } },
-          colour: colourOptions.standard,
+          colour: colourOptions.common_cause,
           opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
           opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } }
       },
@@ -3580,7 +3581,7 @@
           colour_99: colourOptions.limits,
           colour_95: colourOptions.limits,
           colour_68: colourOptions.limits,
-          colour_main: colourOptions.standard,
+          colour_main: colourOptions.common_cause,
           colour_target: colourOptions.standard,
           colour_alt_target: colourOptions.standard,
           colour_specification: colourOptions.limits,
@@ -23703,16 +23704,18 @@
           const parentNode = select(currNode.property("parentNode"));
           const rowData = parentNode.datum();
           if (showGrouped && draw_icons && (d.column === "variation" || d.column === "assurance")) {
-              const scaling = inputSettings.nhs_icons[`${d.column}_icons_scaling`];
-              currNode
-                  .append("svg")
-                  .attr("width", `${thisSelDims.width * 0.5 * scaling}px`)
-                  .attr("viewBox", "0 0 378 378")
-                  .classed("rowsvg", true)
-                  .call(initialiseIconSVG, d.value)
-                  .selectAll(".icongroup")
-                  .selectAll(`.${d.value}`)
-                  .call(nhsIcons[d.value]);
+              if (d.value !== "none") {
+                  const scaling = inputSettings.nhs_icons[`${d.column}_icons_scaling`];
+                  currNode
+                      .append("svg")
+                      .attr("width", `${thisSelDims.width * 0.5 * scaling}px`)
+                      .attr("viewBox", "0 0 378 378")
+                      .classed("rowsvg", true)
+                      .call(initialiseIconSVG, d.value)
+                      .selectAll(".icongroup")
+                      .selectAll(`.${d.value}`)
+                      .call(nhsIcons[d.value]);
+              }
           }
           else {
               const value = typeof d.value === "number"
@@ -23867,6 +23870,7 @@
       })
           .style("fill", d => d.label.aesthetics.label_marker_colour)
           .style("stroke", d => d.label.aesthetics.label_marker_outline_colour);
+      return selection;
   };
   function drawLabels(selection, visualObj) {
       if (!visualObj.viewModel.inputSettings.settings.labels.show_labels) {
@@ -23911,8 +23915,7 @@
           grp.append("text");
           grp.append("line");
           grp.append("path");
-          grp.call(labelFormatting, visualObj)
-              .call(dragFun);
+          grp.call(dragFun);
           return grp;
       }, (update) => {
           update.call(labelFormatting, visualObj);
