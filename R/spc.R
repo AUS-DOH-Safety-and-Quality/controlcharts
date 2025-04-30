@@ -7,6 +7,12 @@
 #'
 #' @export
 spc <- function(keys, numerators, denominators, data,
+                canvas_settings = spc_canvas_settings(),
+                spc_settings = spc_data_settings(),
+                outlier_settings = spc_outlier_settings(),
+                nhs_icon_settings = spc_nhs_icon_settings(),
+                scatter_settings = spc_scatter_settings(),
+                line_settings = spc_line_settings(),
                 width = NULL, height = NULL, elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
@@ -18,15 +24,21 @@ spc <- function(keys, numerators, denominators, data,
     input_data <- data
   }
 
+  spc_settings <- list(
+    canvas = canvas_settings,
+    spc = spc_settings,
+    outliers = outlier_settings,
+    nhs_icons = nhs_icon_settings,
+    scatter = scatter_settings,
+    lines = line_settings
+  )
+
   keys <- eval(substitute(keys), input_data, parent.frame())
-  spc_categories <- values_entry('key', unique(keys))
+  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
 
   if (!is.null(crosstalk_keys)) {
     crosstalk_keys <- split(crosstalk_keys, keys)
   }
-
-  # objects <- list(spc = list(chart_type = 'run'))
-  # spc_categories[[1]]$objects <- lapply(unique(keys), \(x) objects)
 
   spc_values <- list()
   if (!missing(numerators)) {
@@ -95,9 +107,23 @@ renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
 #'
 #' @name spc-limits
 #' @export
-spc_limits <- function(keys, numerators, denominators, data) {
+spc_limits <- function(keys, numerators, denominators, data,
+                canvas_settings = spc_canvas_settings(),
+                spc_settings = spc_data_settings(),
+                outlier_settings = spc_outlier_settings(),
+                nhs_icon_settings = spc_nhs_icon_settings(),
+                scatter_settings = spc_scatter_settings(),
+                line_settings = spc_line_settings()) {
   keys <- eval(substitute(keys), data, parent.frame())
-  spc_categories <- values_entry('key', unique(keys))
+  spc_settings <- list(
+    canvas = canvas_settings,
+    spc = spc_settings,
+    outliers = outlier_settings,
+    nhs_icons = nhs_icon_settings,
+    scatter = scatter_settings,
+    lints = line_settings
+  )
+  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
 
   spc_values <- list()
   if (!missing(numerators)) {
@@ -120,17 +146,4 @@ spc_limits <- function(keys, numerators, denominators, data) {
   # Depending on the chart type, the 'numerators' and 'denominators' may be
   # empty, so we need to remove them from the list
   data.frame(raw_ret[!sapply(raw_ret, is.null)])
-}
-
-spc_default_settings <- function() {
-  # Defaults loaded from JS as part of .onLoad in zzz.R
-  .spc_default_limits_internal
-}
-
-spc_canvas_settings <- function(show_errors = spc_default_settings()$canvas$show_errors,
-                                lower_padding = spc_default_settings()$canvas$lower_padding,
-                                upper_padding = spc_default_settings()$canvas$upper_padding,
-                                left_padding = spc_default_settings()$canvas$left_padding,
-                                right_padding = spc_default_settings()$canvas$right_padding) {
-
 }
