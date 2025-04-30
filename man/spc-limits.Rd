@@ -5,15 +5,7 @@
 \alias{spc_limits}
 \title{Calculate control limits}
 \usage{
-spc_limits(
-  keys = NULL,
-  numerators = NULL,
-  denominators = NULL,
-  rebaseline_groupings = NULL,
-  xbar_sds = NULL,
-  width = NULL,
-  height = NULL
-)
+spc_limits(keys, numerators, denominators, data)
 }
 \description{
 Calculate control limits

@@ -1209,7 +1209,7 @@
     return max;
   }
 
-  function min(values, valueof) {
+  function min$1(values, valueof) {
     let min;
     if (valueof === undefined) {
       for (const value of values) {
@@ -1308,13 +1308,13 @@
   function quantile(values, p, valueof) {
     values = Float64Array.from(numbers(values, valueof));
     if (!(n = values.length) || isNaN(p = +p)) return;
-    if (p <= 0 || n < 2) return min(values);
+    if (p <= 0 || n < 2) return min$1(values);
     if (p >= 1) return max(values);
     var n,
         i = (n - 1) * p,
         i0 = Math.floor(i),
         value0 = max(quickselect(values, i0).subarray(0, i0 + 1)),
-        value1 = min(values.subarray(i0 + 1));
+        value1 = min$1(values.subarray(i0 + 1));
     return value0 + (value1 - value0) * (i - i0);
   }
 
@@ -1384,6 +1384,9 @@
     };
   }
 
+  const cos = Math.cos;
+  const min = Math.min;
+  const sin = Math.sin;
   const sqrt$1 = Math.sqrt;
   const pi$1 = Math.PI;
   const tau$1 = 2 * pi$1;
@@ -1651,11 +1654,92 @@
     return line;
   }
 
+  const sqrt3$1 = sqrt$1(3);
+
+  var asterisk = {
+    draw(context, size) {
+      const r = sqrt$1(size + min(size / 28, 0.75)) * 0.59436;
+      const t = r / 2;
+      const u = t * sqrt3$1;
+      context.moveTo(0, r);
+      context.lineTo(0, -r);
+      context.moveTo(-u, -t);
+      context.lineTo(u, t);
+      context.moveTo(-u, t);
+      context.lineTo(u, -t);
+    }
+  };
+
   var circle = {
     draw(context, size) {
       const r = sqrt$1(size / pi$1);
       context.moveTo(r, 0);
       context.arc(0, 0, r, 0, tau$1);
+    }
+  };
+
+  var cross = {
+    draw(context, size) {
+      const r = sqrt$1(size / 5) / 2;
+      context.moveTo(-3 * r, -r);
+      context.lineTo(-r, -r);
+      context.lineTo(-r, -3 * r);
+      context.lineTo(r, -3 * r);
+      context.lineTo(r, -r);
+      context.lineTo(3 * r, -r);
+      context.lineTo(3 * r, r);
+      context.lineTo(r, r);
+      context.lineTo(r, 3 * r);
+      context.lineTo(-r, 3 * r);
+      context.lineTo(-r, r);
+      context.lineTo(-3 * r, r);
+      context.closePath();
+    }
+  };
+
+  const tan30 = sqrt$1(1 / 3);
+  const tan30_2 = tan30 * 2;
+
+  var diamond = {
+    draw(context, size) {
+      const y = sqrt$1(size / tan30_2);
+      const x = y * tan30;
+      context.moveTo(0, -y);
+      context.lineTo(x, 0);
+      context.lineTo(0, y);
+      context.lineTo(-x, 0);
+      context.closePath();
+    }
+  };
+
+  var square$1 = {
+    draw(context, size) {
+      const w = sqrt$1(size);
+      const x = -w / 2;
+      context.rect(x, x, w, w);
+    }
+  };
+
+  const ka = 0.89081309152928522810;
+  const kr = sin(pi$1 / 10) / sin(7 * pi$1 / 10);
+  const kx = sin(tau$1 / 10) * kr;
+  const ky = -cos(tau$1 / 10) * kr;
+
+  var star = {
+    draw(context, size) {
+      const r = sqrt$1(size * ka);
+      const x = kx * r;
+      const y = ky * r;
+      context.moveTo(0, -r);
+      context.lineTo(x, y);
+      for (let i = 1; i < 5; ++i) {
+        const a = tau$1 * i / 5;
+        const c = cos(a);
+        const s = sin(a);
+        context.lineTo(s * r, -c * r);
+        context.lineTo(c * x - s * y, s * x + c * y);
+      }
+      context.closePath();
     }
   };
 
@@ -1667,6 +1751,30 @@
       context.moveTo(0, y * 2);
       context.lineTo(-sqrt3 * y, -y);
       context.lineTo(sqrt3 * y, -y);
+      context.closePath();
+    }
+  };
+
+  const c = -0.5;
+  const s = sqrt$1(3) / 2;
+  const k = 1 / sqrt$1(12);
+  const a = (k / 2 + 1) * 3;
+
+  var wye = {
+    draw(context, size) {
+      const r = sqrt$1(size / a);
+      const x0 = r / 2, y0 = r * k;
+      const x1 = x0, y1 = r * k + r;
+      const x2 = -x1, y2 = y1;
+      context.moveTo(x0, y0);
+      context.lineTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.lineTo(c * x0 - s * y0, s * x0 + c * y0);
+      context.lineTo(c * x1 - s * y1, s * x1 + c * y1);
+      context.lineTo(c * x2 - s * y2, s * x2 + c * y2);
+      context.lineTo(c * x0 + s * y0, c * y0 - s * x0);
+      context.lineTo(c * x1 + s * y1, c * y1 - s * x1);
+      context.lineTo(c * x2 + s * y2, c * y2 - s * x2);
       context.closePath();
     }
   };
@@ -3372,7 +3480,7 @@
     return drag;
   }
 
-  var index$1 = /*#__PURE__*/Object.freeze({
+  var d3 = /*#__PURE__*/Object.freeze({
     __proto__: null,
     axisBottom: axisBottom,
     axisLeft: axisLeft,
@@ -3384,7 +3492,14 @@
     select: select,
     selectAll: selectAll,
     symbol: Symbol$1,
-    symbolTriangle: triangle
+    symbolAsterisk: asterisk,
+    symbolCircle: circle,
+    symbolCross: cross,
+    symbolDiamond: diamond,
+    symbolSquare: square$1,
+    symbolStar: star,
+    symbolTriangle: triangle,
+    symbolWye: wye
   });
 
   const textOptions = {
@@ -3551,9 +3666,13 @@
           assurance_icons_scaling: iconOptions.scaling
       },
       scatter: {
+          shape: { default: "Circle", valid: ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"] },
           size: { default: 2.5, valid: { numberRange: { min: 0, max: 100 } } },
           colour: colourOptions.common_cause,
+          colour_outline: colourOptions.common_cause,
+          width_outline: { default: 1, valid: lineOptions.width.valid },
           opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_selected: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
           opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } }
       },
       lines: {
@@ -3605,6 +3724,20 @@
           ttip_label_specification: { default: "Specification Limit" },
           ttip_label_specification_prefix_lower: { default: "Lower " },
           ttip_label_specification_prefix_upper: { default: "Upper " },
+          opacity_99: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_99: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_95: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_95: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_68: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_68: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_main: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_main: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_target: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_target: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_alt_target: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_alt_target: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_specification: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          opacity_unselected_specification: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
           alt_target: { default: null },
           specification_upper: { default: null },
           specification_lower: { default: null },
@@ -3617,6 +3750,20 @@
           plot_label_show_target: { default: false },
           plot_label_show_alt_target: { default: false },
           plot_label_show_specification: { default: false },
+          plot_label_show_all_99: { default: false },
+          plot_label_show_all_95: { default: false },
+          plot_label_show_all_68: { default: false },
+          plot_label_show_all_main: { default: false },
+          plot_label_show_all_target: { default: false },
+          plot_label_show_all_alt_target: { default: false },
+          plot_label_show_all_specification: { default: false },
+          plot_label_show_n_99: { default: 1, valid: { numberRange: { min: 1 } } },
+          plot_label_show_n_95: { default: 1, valid: { numberRange: { min: 1 } } },
+          plot_label_show_n_68: { default: 1, valid: { numberRange: { min: 1 } } },
+          plot_label_show_n_main: { default: 1, valid: { numberRange: { min: 1 } } },
+          plot_label_show_n_target: { default: 1, valid: { numberRange: { min: 1 } } },
+          plot_label_show_n_alt_target: { default: 1, valid: { numberRange: { min: 1 } } },
+          plot_label_show_n_specification: { default: 1, valid: { numberRange: { min: 1 } } },
           plot_label_position_99: labelOptions.limits,
           plot_label_position_95: labelOptions.limits,
           plot_label_position_68: labelOptions.limits,
@@ -3710,6 +3857,7 @@
           show_table: { default: false },
           table_text_overflow: textOptions.text_overflow,
           table_opacity: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
+          table_opacity_selected: { default: 1, valid: { numberRange: { min: 0, max: 1 } } },
           table_opacity_unselected: { default: 0.2, valid: { numberRange: { min: 0, max: 1 } } },
           table_variation_filter: { default: "all", valid: ["all", "common", "special", "improvement", "deterioration", "neutral"] },
           table_assurance_filter: { default: "all", valid: ["all", "any", "pass", "fail", "inconsistent"] },
@@ -3779,13 +3927,13 @@
           "Two-In-Three": ["two_in_three", "two_in_three_highlight_series", "two_in_three_limit", "twointhree_colour_improvement", "twointhree_colour_deterioration", "twointhree_colour_neutral_low", "twointhree_colour_neutral_high"]
       },
       lines: {
-          "Main": ["show_main", "width_main", "type_main", "colour_main", "plot_label_show_main", "plot_label_position_main", "plot_label_vpad_main", "plot_label_hpad_main", "plot_label_font_main", "plot_label_size_main", "plot_label_colour_main", "plot_label_prefix_main"],
-          "Target": ["show_target", "width_target", "type_target", "colour_target", "ttip_show_target", "ttip_label_target", "plot_label_show_target", "plot_label_position_target", "plot_label_vpad_target", "plot_label_hpad_target", "plot_label_font_target", "plot_label_size_target", "plot_label_colour_target", "plot_label_prefix_target"],
-          "Alt. Target": ["show_alt_target", "alt_target", "multiplier_alt_target", "width_alt_target", "type_alt_target", "colour_alt_target", "ttip_show_alt_target", "ttip_label_alt_target", "plot_label_show_alt_target", "plot_label_position_alt_target", "plot_label_vpad_alt_target", "plot_label_hpad_alt_target", "plot_label_font_alt_target", "plot_label_size_alt_target", "plot_label_colour_alt_target", "plot_label_prefix_alt_target"],
-          "68% Limits": ["show_68", "width_68", "type_68", "colour_68", "ttip_show_68", "ttip_label_68", "ttip_label_68_prefix_lower", "ttip_label_68_prefix_upper", "plot_label_show_68", "plot_label_position_68", "plot_label_vpad_68", "plot_label_hpad_68", "plot_label_font_68", "plot_label_size_68", "plot_label_colour_68", "plot_label_prefix_68"],
-          "95% Limits": ["show_95", "width_95", "type_95", "colour_95", "ttip_show_95", "ttip_label_95", "ttip_label_95_prefix_lower", "ttip_label_95_prefix_upper", "plot_label_show_95", "plot_label_position_95", "plot_label_vpad_95", "plot_label_hpad_95", "plot_label_font_95", "plot_label_size_95", "plot_label_colour_95", "plot_label_prefix_95"],
-          "99% Limits": ["show_99", "width_99", "type_99", "colour_99", "ttip_show_99", "ttip_label_99", "ttip_label_99_prefix_lower", "ttip_label_99_prefix_upper", "plot_label_show_99", "plot_label_position_99", "plot_label_vpad_99", "plot_label_hpad_99", "plot_label_font_99", "plot_label_size_99", "plot_label_colour_99", "plot_label_prefix_99"],
-          "Specification Limits": ["show_specification", "specification_upper", "specification_lower", "multiplier_specification", "width_specification", "type_specification", "colour_specification", "ttip_show_specification", "ttip_label_specification", "ttip_label_specification_prefix_lower", "ttip_label_specification_prefix_upper", "plot_label_show_specification", "plot_label_position_specification", "plot_label_vpad_specification", "plot_label_hpad_specification", "plot_label_font_specification", "plot_label_size_specification", "plot_label_colour_specification", "plot_label_prefix_specification"]
+          "Main": ["show_main", "width_main", "type_main", "colour_main", "opacity_main", "opacity_unselected_main", "plot_label_show_main", "plot_label_show_all_main", "plot_label_show_n_main", "plot_label_position_main", "plot_label_vpad_main", "plot_label_hpad_main", "plot_label_font_main", "plot_label_size_main", "plot_label_colour_main", "plot_label_prefix_main"],
+          "Target": ["show_target", "width_target", "type_target", "colour_target", "opacity_target", "opacity_unselected_target", "ttip_show_target", "ttip_label_target", "plot_label_show_target", "plot_label_show_all_target", "plot_label_show_n_target", "plot_label_position_target", "plot_label_vpad_target", "plot_label_hpad_target", "plot_label_font_target", "plot_label_size_target", "plot_label_colour_target", "plot_label_prefix_target"],
+          "Alt. Target": ["show_alt_target", "alt_target", "multiplier_alt_target", "width_alt_target", "type_alt_target", "colour_alt_target", "opacity_alt_target", "opacity_unselected_alt_target", "ttip_show_alt_target", "ttip_label_alt_target", "plot_label_show_alt_target", "plot_label_show_all_alt_target", "plot_label_show_n_alt_target", "plot_label_position_alt_target", "plot_label_vpad_alt_target", "plot_label_hpad_alt_target", "plot_label_font_alt_target", "plot_label_size_alt_target", "plot_label_colour_alt_target", "plot_label_prefix_alt_target"],
+          "68% Limits": ["show_68", "width_68", "type_68", "colour_68", "opacity_68", "opacity_unselected_68", "ttip_show_68", "ttip_label_68", "ttip_label_68_prefix_lower", "ttip_label_68_prefix_upper", "plot_label_show_68", "plot_label_show_all_68", "plot_label_show_n_68", "plot_label_position_68", "plot_label_vpad_68", "plot_label_hpad_68", "plot_label_font_68", "plot_label_size_68", "plot_label_colour_68", "plot_label_prefix_68"],
+          "95% Limits": ["show_95", "width_95", "type_95", "colour_95", "opacity_95", "opacity_unselected_95", "ttip_show_95", "ttip_label_95", "ttip_label_95_prefix_lower", "ttip_label_95_prefix_upper", "plot_label_show_95", "plot_label_show_all_95", "plot_label_show_n_95", "plot_label_position_95", "plot_label_vpad_95", "plot_label_hpad_95", "plot_label_font_95", "plot_label_size_95", "plot_label_colour_95", "plot_label_prefix_95"],
+          "99% Limits": ["show_99", "width_99", "type_99", "colour_99", "opacity_99", "opacity_unselected_99", "ttip_show_99", "ttip_label_99", "ttip_label_99_prefix_lower", "ttip_label_99_prefix_upper", "plot_label_show_99", "plot_label_show_all_99", "plot_label_show_n_99", "plot_label_position_99", "plot_label_vpad_99", "plot_label_hpad_99", "plot_label_font_99", "plot_label_size_99", "plot_label_colour_99", "plot_label_prefix_99"],
+          "Specification Limits": ["show_specification", "specification_upper", "specification_lower", "multiplier_specification", "width_specification", "type_specification", "colour_specification", "opacity_specification", "opacity_unselected_specification", "ttip_show_specification", "ttip_label_specification", "ttip_label_specification_prefix_lower", "ttip_label_specification_prefix_upper", "plot_label_show_specification", "plot_label_show_all_specification", "plot_label_show_n_specification", "plot_label_position_specification", "plot_label_vpad_specification", "plot_label_hpad_specification", "plot_label_font_specification", "plot_label_size_specification", "plot_label_colour_specification", "plot_label_prefix_specification"]
       },
       x_axis: {
           "Axis": ["xlimit_colour", "xlimit_l", "xlimit_u"],
@@ -3798,7 +3946,7 @@
           "Label": ["ylimit_label", "ylimit_label_font", "ylimit_label_size", "ylimit_label_colour"]
       },
       summary_table: {
-          "General": ["show_table", "table_variation_filter", "table_assurance_filter", "table_text_overflow", "table_opacity", "table_opacity_unselected", "table_outer_border_style", "table_outer_border_width", "table_outer_border_colour", "table_outer_border_top", "table_outer_border_bottom", "table_outer_border_left", "table_outer_border_right"],
+          "General": ["show_table", "table_variation_filter", "table_assurance_filter", "table_text_overflow", "table_opacity", "table_opacity_selected", "table_opacity_unselected", "table_outer_border_style", "table_outer_border_width", "table_outer_border_colour", "table_outer_border_top", "table_outer_border_bottom", "table_outer_border_left", "table_outer_border_right"],
           "Header": ["table_header_font", "table_header_size", "table_header_text_align", "table_header_font_weight", "table_header_text_transform", "table_header_text_padding", "table_header_colour", "table_header_bg_colour", "table_header_border_style", "table_header_border_width", "table_header_border_colour", "table_header_border_bottom", "table_header_border_inner"],
           "Body": ["table_body_font", "table_body_size", "table_body_text_align", "table_body_font_weight", "table_body_text_transform", "table_body_text_padding", "table_body_colour", "table_body_bg_colour", "table_body_border_style", "table_body_border_width", "table_body_border_colour", "table_body_border_top_bottom", "table_body_border_left_right"]
       }
@@ -15525,10 +15673,11 @@
           : propertyValue;
   }
   function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings, idxs) {
-      if (isNullOrUndefined(categoricalView)) {
+      var _a, _b, _c;
+      if (isNullOrUndefined(categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories)) {
           return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
       }
-      if (isNullOrUndefined(categoricalView.categories)) {
+      if (((_c = (_b = (_a = categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.identity) === null || _c === void 0 ? void 0 : _c.length) === 0) {
           return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
       }
       const inputCategories = categoricalView.categories[0];
@@ -15878,14 +16027,14 @@
   }
 
   function validateDataView(inputDV, inputSettingsClass) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
-      if (!(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0])) {
-          return "No data present";
+      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+      if (isNullOrUndefined(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) || (((_e = (_d = (_c = (_b = (_a = inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.identity) === null || _e === void 0 ? void 0 : _e.length) === 0)) {
+          return "";
       }
-      if (!((_b = (_a = inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) || !((_d = (_c = inputDV[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
-          return "No grouping/ID variable passed!";
+      if (isNullOrUndefined((_g = (_f = inputDV[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) || isNullOrUndefined((_j = (_h = inputDV[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
+          return "";
       }
-      const numeratorsPresent = (_f = (_e = inputDV[0].categorical) === null || _e === void 0 ? void 0 : _e.values) === null || _f === void 0 ? void 0 : _f.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; });
+      const numeratorsPresent = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; });
       if (!numeratorsPresent) {
           return "No Numerators passed!";
       }
@@ -15910,13 +16059,13 @@
           needs_sd = inputSettingsClass.derivedSettings.chart_type_props.needs_sd;
       }
       if (needs_denominator) {
-          const denominatorsPresent = (_h = (_g = inputDV[0].categorical) === null || _g === void 0 ? void 0 : _g.values) === null || _h === void 0 ? void 0 : _h.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; });
+          const denominatorsPresent = (_o = (_m = inputDV[0].categorical) === null || _m === void 0 ? void 0 : _m.values) === null || _o === void 0 ? void 0 : _o.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; });
           if (!denominatorsPresent) {
               return `Chart type '${chart_type}' requires denominators!`;
           }
       }
       if (needs_sd) {
-          const xbarSDPresent = (_k = (_j = inputDV[0].categorical) === null || _j === void 0 ? void 0 : _j.values) === null || _k === void 0 ? void 0 : _k.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; });
+          const xbarSDPresent = (_q = (_p = inputDV[0].categorical) === null || _p === void 0 ? void 0 : _p.values) === null || _q === void 0 ? void 0 : _q.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; });
           if (!xbarSDPresent) {
               return `Chart type '${chart_type}' requires SDs!`;
           }
@@ -16919,9 +17068,9 @@
               const alt_targets = controlLimits.alt_targets;
               const maxValue = max(values);
               const maxValueOrLimit = max(values.concat(ul99).concat(speclimits_upper).concat(alt_targets));
-              const minValueOrLimit = min(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
+              const minValueOrLimit = min$1(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
               const maxTarget = max(controlLimits.targets);
-              const minTarget = min(controlLimits.targets);
+              const minTarget = min$1(controlLimits.targets);
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
               const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
               const multiplier = derivedSettings.multiplier;
@@ -16934,7 +17083,7 @@
               const keysToPlot = controlLimits.keys.map(d => d.x);
               xLowerLimit = !isNullOrUndefined(xLowerLimit)
                   ? xLowerLimit
-                  : min(keysToPlot);
+                  : min$1(keysToPlot);
               xUpperLimit = !isNullOrUndefined(xUpperLimit)
                   ? xUpperLimit
                   : max(keysToPlot);
@@ -21417,14 +21566,6 @@
                   this.validationStatus.error = "Variation icons require at least one outlier pattern to be selected";
               }
           }
-          if (this.settings.nhs_icons.show_assurance_icons) {
-              const altTargetPresent = !isNullOrUndefined(this.settings.lines.alt_target);
-              const improvementDirection = this.settings.outliers.improvement_direction;
-              if (!altTargetPresent || improvementDirection === "neutral") {
-                  this.validationStatus.status = 1;
-                  this.validationStatus.error = "Assurance icons require an alternative target and a non-neutral improvement direction";
-              }
-          }
           this.derivedSettings.update(this.settings.spc);
           this.derivedSettingsGrouped = new Array();
           if (is_grouped) {
@@ -21908,6 +22049,17 @@
       }
       update(options, host) {
           var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+          if (isNullOrUndefined(this.colourPalette)) {
+              this.colourPalette = {
+                  isHighContrast: host.colorPalette.isHighContrast,
+                  foregroundColour: host.colorPalette.foreground.value,
+                  backgroundColour: host.colorPalette.background.value,
+                  foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
+                  hyperlinkColour: host.colorPalette.hyperlink.value
+              };
+          }
+          this.svgWidth = options.viewport.width;
+          this.svgHeight = options.viewport.height;
           const indicator_cols = (_c = (_b = (_a = options.dataViews[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c.filter(d => d.source.roles.indicator);
           this.indicatorVarNames = (_d = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _d !== void 0 ? _d : [];
           const n_indicators = (indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length) - 1;
@@ -21943,17 +22095,6 @@
               res.error = checkDV;
               return res;
           }
-          if (isNullOrUndefined(this.colourPalette)) {
-              this.colourPalette = {
-                  isHighContrast: host.colorPalette.isHighContrast,
-                  foregroundColour: host.colorPalette.foreground.value,
-                  backgroundColour: host.colorPalette.background.value,
-                  foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
-                  hyperlinkColour: host.colorPalette.hyperlink.value
-              };
-          }
-          this.svgWidth = options.viewport.width;
-          this.svgHeight = options.viewport.height;
           if (options.type === 2 || this.firstRun) {
               if (options.dataViews[0].categorical.categories.some(d => d.source.roles.indicator)) {
                   this.showGrouped = true;
@@ -22466,13 +22607,18 @@
   function drawDots(selection, visualObj) {
       selection
           .select(".dotsgroup")
-          .selectAll("circle")
+          .selectAll("path")
           .data(visualObj.viewModel.plotPoints)
-          .join("circle")
+          .join("path")
           .filter((d) => !isNullOrUndefined(d.value))
-          .attr("cy", (d) => visualObj.viewModel.plotProperties.yScale(d.value))
-          .attr("cx", (d) => visualObj.viewModel.plotProperties.xScale(d.x))
-          .attr("r", (d) => d.aesthetics.size)
+          .attr("d", (d) => {
+          const shape = d.aesthetics.shape;
+          const size = d.aesthetics.size;
+          return Symbol$1().type(d3[`symbol${shape}`]).size((size * size) * Math.PI)();
+      })
+          .attr("transform", (d) => {
+          return `translate(${visualObj.viewModel.plotProperties.xScale(d.x)}, ${visualObj.viewModel.plotProperties.yScale(d.value)})`;
+      })
           .style("fill", (d) => {
           const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
           const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
@@ -22480,6 +22626,14 @@
           const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
           return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper)) ? d.aesthetics.colour : "#FFFFFF";
       })
+          .style("stroke", (d) => {
+          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
+          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
+          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
+          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
+          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper)) ? d.aesthetics.colour_outline : "#FFFFFF";
+      })
+          .style("stroke-width", (d) => d.aesthetics.width_outline)
           .on("click", (event, d) => {
           if (visualObj.host.hostCapabilities.allowInteractions) {
               if (visualObj.viewModel.inputSettings.settings.spc.split_on_click) {
@@ -23396,6 +23550,9 @@
 
   function drawTooltipLine(selection, visualObj) {
       const plotProperties = visualObj.viewModel.plotProperties;
+      const colour = visualObj.viewModel.colourPalette.isHighContrast
+          ? visualObj.viewModel.colourPalette.foregroundColour
+          : "black";
       const xAxisLine = selection
           .select(".ttip-line-x")
           .attr("x1", 0)
@@ -23403,7 +23560,7 @@
           .attr("y1", plotProperties.yAxis.end_padding)
           .attr("y2", visualObj.viewModel.svgHeight - plotProperties.yAxis.start_padding)
           .attr("stroke-width", "1px")
-          .attr("stroke", "black")
+          .attr("stroke", colour)
           .style("stroke-opacity", 0);
       const yAxisLine = selection
           .select(".ttip-line-y")
@@ -23412,7 +23569,7 @@
           .attr("y1", 0)
           .attr("y2", 0)
           .attr("stroke-width", "1px")
-          .attr("stroke", "black")
+          .attr("stroke", colour)
           .style("stroke-opacity", 0);
       selection.on("mousemove", (event) => {
           if (!plotProperties.displayPlot) {
@@ -23564,7 +23721,7 @@
       selection.append('g').classed("dotsgroup", true);
   }
 
-  function drawErrors(selection, options, message, type = null) {
+  function drawErrors(selection, options, colourPalette, message, type = null) {
       selection.call(initialiseSVG, true);
       const errMessageSVG = selection.append("g").classed("errormessage", true);
       if (type) {
@@ -23577,14 +23734,16 @@
               .attr("y", options.viewport.height / 3)
               .style("text-anchor", "middle")
               .text(preamble[type])
-              .style("font-size", "10px");
+              .style("font-size", "10px")
+              .style("fill", colourPalette.foregroundColour);
       }
       errMessageSVG.append('text')
           .attr("x", options.viewport.width / 2)
           .attr("y", options.viewport.height / 2)
           .style("text-anchor", "middle")
           .text(message)
-          .style("font-size", "10px");
+          .style("font-size", "10px")
+          .style("fill", colourPalette.foregroundColour);
   }
 
   function drawTableHeaders(selection, cols, tableSettings, maxWidth) {
@@ -23950,37 +24109,83 @@
   };
   function drawLineLabels(selection, visualObj) {
       const lineSettings = visualObj.viewModel.inputSettings.settings.lines;
+      const rebaselinePoints = new Array();
+      visualObj.viewModel.groupedLines[0][1].forEach((d, idx) => {
+          if (d.line_value === null) {
+              rebaselinePoints.push(idx - 1);
+          }
+          if (idx === visualObj.viewModel.groupedLines[0][1].length - 1) {
+              rebaselinePoints.push(idx);
+          }
+      });
+      const limits = visualObj.viewModel.groupedLines.map(d => d[0]);
+      const labelsToPlot = new Array();
+      rebaselinePoints.forEach((d, rb_idx) => {
+          limits.forEach((limit, idx) => {
+              const lastIndex = rebaselinePoints[rebaselinePoints.length - 1];
+              const showN = rebaselinePoints.length - Math.min(rebaselinePoints.length, lineSettings[`plot_label_show_n_${lineNameMap[limit]}`]);
+              const showLabel = lineSettings[`plot_label_show_all_${lineNameMap[limit]}`]
+                  || (d == lastIndex);
+              if (rb_idx >= showN) {
+                  labelsToPlot.push({ index: d, limit: idx });
+              }
+              else if (showLabel) {
+                  labelsToPlot.push({ index: d, limit: idx });
+              }
+          });
+      });
       const formatValue = valueFormatter(visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
       selection
           .select(".linesgroup")
           .selectAll("text")
-          .data(visualObj.viewModel.groupedLines)
+          .data(labelsToPlot)
           .join("text")
-          .text(d => {
-          return lineSettings[`plot_label_show_${lineNameMap[d[0]]}`]
-              ? lineSettings[`plot_label_prefix_${lineNameMap[d[0]]}`] + formatValue(d[1][d[1].length - 1].line_value, "value")
+          .text((d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_show_${lineNameMap[lineGroup[0]]}`]
+              ? lineSettings[`plot_label_prefix_${lineNameMap[lineGroup[0]]}`] + formatValue(lineGroup[1][d.index].line_value, "value")
               : "";
       })
-          .attr("x", d => visualObj.viewModel.plotProperties.xScale(d[1][d[1].length - 1].x))
-          .attr("y", d => visualObj.viewModel.plotProperties.yScale(d[1][d[1].length - 1].line_value))
-          .attr("fill", d => lineSettings[`plot_label_colour_${lineNameMap[d[0]]}`])
-          .attr("font-size", d => `${lineSettings[`plot_label_size_${lineNameMap[d[0]]}`]}px`)
-          .attr("font-family", d => lineSettings[`plot_label_font_${lineNameMap[d[0]]}`])
-          .attr("text-anchor", d => lineSettings[`plot_label_position_${lineNameMap[d[0]]}`] === "beside" ? "start" : "end")
-          .attr("dx", d => {
-          const offset = (lineSettings[`plot_label_position_${lineNameMap[d[0]]}`] === "beside" ? 1 : -1) * lineSettings[`plot_label_hpad_${lineNameMap[d[0]]}`];
+          .attr("x", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return visualObj.viewModel.plotProperties.xScale(lineGroup[1][d.index].x);
+      })
+          .attr("y", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return visualObj.viewModel.plotProperties.yScale(lineGroup[1][d.index].line_value);
+      })
+          .attr("fill", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_colour_${lineNameMap[lineGroup[0]]}`];
+      })
+          .attr("font-size", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return `${lineSettings[`plot_label_size_${lineNameMap[lineGroup[0]]}`]}px`;
+      })
+          .attr("font-family", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_font_${lineNameMap[lineGroup[0]]}`];
+      })
+          .attr("text-anchor", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`] === "beside" ? "start" : "end";
+      })
+          .attr("dx", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          const offset = (lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`] === "beside" ? 1 : -1) * lineSettings[`plot_label_hpad_${lineNameMap[lineGroup[0]]}`];
           return `${offset}px`;
       })
           .attr("dy", function (d) {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
           const bounds = select(this).node().getBoundingClientRect();
-          let position = lineSettings[`plot_label_position_${lineNameMap[d[0]]}`];
-          let vpadding = lineSettings[`plot_label_vpad_${lineNameMap[d[0]]}`];
+          let position = lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`];
+          let vpadding = lineSettings[`plot_label_vpad_${lineNameMap[lineGroup[0]]}`];
           if (["outside", "inside"].includes(position)) {
-              position = position === "outside" ? outsideMap[d[0]] : insideMap[d[0]];
+              position = position === "outside" ? outsideMap[lineGroup[0]] : insideMap[lineGroup[0]];
           }
           const heightMap = {
-              "above": -lineSettings[`width_${lineNameMap[d[0]]}`],
-              "below": lineSettings[`plot_label_size_${lineNameMap[d[0]]}`],
+              "above": -lineSettings[`width_${lineNameMap[lineGroup[0]]}`],
+              "below": lineSettings[`plot_label_size_${lineNameMap[lineGroup[0]]}`],
               "beside": bounds.height / 4
           };
           return `${positionOffsetMap[position] * vpadding + heightMap[position]}px`;
@@ -24017,7 +24222,7 @@
               if (!update_status.status) {
                   this.resizeCanvas(options.viewport.width, options.viewport.height);
                   if ((_e = (_d = (_c = (_b = (_a = this.viewModel) === null || _a === void 0 ? void 0 : _a.inputSettings) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c.canvas) === null || _d === void 0 ? void 0 : _d.show_errors) !== null && _e !== void 0 ? _e : true) {
-                      this.svg.call(drawErrors, options, update_status === null || update_status === void 0 ? void 0 : update_status.error, update_status === null || update_status === void 0 ? void 0 : update_status.type);
+                      this.svg.call(drawErrors, options, this.viewModel.colourPalette, update_status === null || update_status === void 0 ? void 0 : update_status.error, update_status === null || update_status === void 0 ? void 0 : update_status.type);
                   }
                   else {
                       this.svg.call(initialiseSVG, true);
@@ -24043,7 +24248,7 @@
           }
           catch (caught_error) {
               this.resizeCanvas(options.viewport.width, options.viewport.height);
-              this.svg.call(drawErrors, options, caught_error.message, "internal");
+              this.svg.call(drawErrors, options, this.viewModel.colourPalette, caught_error.message, "internal");
               console.error(caught_error);
               this.host.eventService.renderingFailed(options);
           }
@@ -24068,6 +24273,10 @@
           const svgWidth = this.viewModel.svgWidth;
           const svgHeight = this.viewModel.svgHeight;
           this.svg.selectChildren().each(function () {
+              const currentClass = select(this).attr("class");
+              if (currentClass === "yaxislabel" || currentClass === "xaxislabel") {
+                  return;
+              }
               const boundRect = this.getBoundingClientRect();
               const bbox = this.getBBox();
               xLeftOverflow = Math.min(xLeftOverflow, bbox.x);
@@ -24101,29 +24310,30 @@
           const anyHighlights = this.viewModel.inputData ? this.viewModel.inputData.anyHighlights : false;
           const anyHighlightsGrouped = this.viewModel.inputDataGrouped ? this.viewModel.inputDataGrouped.some(d => d.anyHighlights) : false;
           const allSelectionIDs = this.selectionManager.getSelectionIds();
-          const opacityFull = this.viewModel.inputSettings.settings.scatter.opacity;
-          const opacityReduced = this.viewModel.inputSettings.settings.scatter.opacity_unselected;
-          const defaultOpacity = (anyHighlights || (allSelectionIDs.length > 0))
-              ? opacityReduced
-              : opacityFull;
-          this.svg.selectAll(".linesgroup").style("stroke-opacity", defaultOpacity);
           const dotsSelection = this.svg.selectAll(".dotsgroup").selectChildren();
+          const linesSelection = this.svg.selectAll(".linesgroup").selectChildren();
           const tableSelection = this.tableDiv.selectAll(".table-body").selectChildren();
-          dotsSelection.style("fill-opacity", defaultOpacity);
-          tableSelection.style("opacity", defaultOpacity);
+          linesSelection.style("stroke-opacity", (d) => {
+              return getAesthetic(d[0], "lines", "opacity", this.viewModel.inputSettings.settings);
+          });
+          dotsSelection.style("fill-opacity", (d) => d.aesthetics.opacity);
+          tableSelection.style("opacity", (d) => d.aesthetics["table_opacity"]);
           if (anyHighlights || (allSelectionIDs.length > 0) || anyHighlightsGrouped) {
+              linesSelection.style("stroke-opacity", (d) => {
+                  return getAesthetic(d[0], "lines", "opacity_unselected", this.viewModel.inputSettings.settings);
+              });
               dotsSelection.nodes().forEach(currentDotNode => {
                   const dot = select(currentDotNode).datum();
                   const currentPointSelected = identitySelected(dot.identity, this.selectionManager);
                   const currentPointHighlighted = dot.highlighted;
-                  const newDotOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics.opacity : dot.aesthetics.opacity_unselected;
+                  const newDotOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics.opacity_selected : dot.aesthetics.opacity_unselected;
                   select(currentDotNode).style("fill-opacity", newDotOpacity);
               });
               tableSelection.nodes().forEach(currentTableNode => {
                   const dot = select(currentTableNode).datum();
                   const currentPointSelected = identitySelected(dot.identity, this.selectionManager);
                   const currentPointHighlighted = dot.highlighted;
-                  const newTableOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics["table_opacity"] : dot.aesthetics["table_opacity_unselected"];
+                  const newTableOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics["table_opacity_selected"] : dot.aesthetics["table_opacity_unselected"];
                   select(currentTableNode).style("opacity", newTableOpacity);
               });
           }
@@ -36833,7 +37043,7 @@
   exports.c5 = c5;
   exports.checkFlagDirection = checkFlagDirection;
   exports.colourOptions = colourOptions;
-  exports.d3 = index$1;
+  exports.d3 = d3;
   exports.dateSettingsToFormatOptions = dateSettingsToFormatOptions;
   exports.defaultSettings = defaultSettings;
   exports.derivedSettingsClass = derivedSettingsClass;
@@ -36872,7 +37082,7 @@
   exports.max = max;
   exports.mean = mean;
   exports.median = median;
-  exports.min = min;
+  exports.min = min$1;
   exports.mr = mrLimits;
   exports.multiply = multiply;
   exports.p = pLimits;

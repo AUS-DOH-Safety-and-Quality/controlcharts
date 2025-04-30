@@ -79,7 +79,7 @@ const make_constructor = function(element) {
   }
 }
 
-function update_visual(spc_categories, spc_values, width, height, is_headless) {
+function update_visual(spc_categories, spc_values, is_headless) {
   var options_update = {
     dataViews: [
       {
@@ -90,8 +90,8 @@ function update_visual(spc_categories, spc_values, width, height, is_headless) {
       }
     ],
     viewport: {
-      "width": width,
-      "height": height
+      "width": null,
+      "height": null
     },
     type: 2,
     headless: is_headless

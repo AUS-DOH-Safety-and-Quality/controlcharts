@@ -4,7 +4,15 @@
 \alias{spc}
 \title{Generate interactive SPC chart}
 \usage{
-spc(keys, numerators, data, width = NULL, height = NULL, elementId = NULL)
+spc(
+  keys,
+  numerators,
+  denominators,
+  data,
+  width = NULL,
+  height = NULL,
+  elementId = NULL
+)
 }
 \description{
 Generate interactive SPC chart

@@ -95,13 +95,31 @@ renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
 #'
 #' @name spc-limits
 #' @export
-spc_limits <- function(keys = NULL, numerators = NULL, denominators = NULL, rebaseline_groupings = NULL, xbar_sds = NULL, width = NULL, height = NULL) {
-  spc_categories <- list(values_entry('key', keys))
-  spc_values <- list(values_entry('numerators', numerators),
-                      values_entry('denominators', denominators))
+spc_limits <- function(keys, numerators, denominators, data) {
+  keys <- eval(substitute(keys), data, parent.frame())
+  spc_categories <- values_entry('key', unique(keys))
 
-  spc_ctx$call("update_visual", spc_categories, spc_values, width, height, TRUE)
-  spc_ctx$get("visual.viewModel.controlLimits")
+  spc_values <- list()
+  if (!missing(numerators)) {
+    numerators <- as.numeric(eval(substitute(numerators), data, parent.frame()))
+    numerators <- aggregate(numerators, by = list(keys), FUN = sum)$x
+    spc_values <- append(spc_values, values_entry('numerators', numerators))
+  }
+
+  if (!missing(denominators)) {
+    denominators <- as.numeric(eval(substitute(denominators), data, parent.frame()))
+    denominators <- aggregate(denominators, by = list(keys), FUN = sum)$x
+    spc_values <- append(spc_values, values_entry('denominators', denominators))
+  }
+
+  spc_ctx$call("update_visual", spc_categories, spc_values, TRUE)
+  raw_ret <- spc_ctx$get("visual.viewModel.controlLimits")
+  # First element is an array of IDs used for plotting, replace with
+  # original categories
+  raw_ret[[1]] <- unique(keys)
+  # Depending on the chart type, the 'numerators' and 'denominators' may be
+  # empty, so we need to remove them from the list
+  data.frame(raw_ret[!sapply(raw_ret, is.null)])
 }
 
 spc_default_settings <- function() {

@@ -34,7 +34,7 @@ HTMLWidgets.widget({
 
     return {
       renderValue: function(x) {
-        var crosstalk_keys = Object.values(x.settings.crosstalk_keys);
+        var crosstalk_keys = x.settings.crosstalk_keys ? Object.values(x.settings.crosstalk_keys) : null;
         ct_sel.setGroup(x.settings.crosstalk_group);
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (cat, idx) => ({
