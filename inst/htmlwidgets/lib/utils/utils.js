@@ -97,5 +97,9 @@ function update_visual(spc_categories, spc_values, is_headless) {
     headless: is_headless
   };
   visual.update(options_update);
-  return visual.viewModel.plotPoints.map(d => d.table_row)
+  return {
+    plotPoints: visual.viewModel.plotPoints,
+    xAxis: visual.viewModel.plotProperties.xAxis,
+    yAxis: visual.viewModel.plotProperties.yAxis
+  }
 }

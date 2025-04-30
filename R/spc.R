@@ -13,6 +13,7 @@ spc <- function(keys, numerators, denominators, data,
                 nhs_icon_settings = spc_nhs_icon_settings(),
                 scatter_settings = spc_scatter_settings(),
                 line_settings = spc_line_settings(),
+                plot_type = "html",
                 width = NULL, height = NULL, elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
@@ -53,25 +54,46 @@ spc <- function(keys, numerators, denominators, data,
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
-  # forward options using x
-  x <- list(
-    categories = spc_categories,
-    values = spc_values,
-    settings = list(
-      crosstalk_keys = crosstalk_keys,
-      crosstalk_group = crosstalk_group
-    )
-  )
+  raw_ret <- spc_ctx$call("update_visual", spc_categories, spc_values, TRUE)
+  limits <- raw_ret$plotPoints |>
+    lapply(\(elem) elem$table_row) |>
+    # Depending on the chart type, the 'numerators' and 'denominators' may be
+    # empty, so we need to remove them from the list
+    lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
+  limits <- do.call(rbind.data.frame, limits)
+  limits$date <- unique(keys)
 
-  # create widget
-  htmlwidgets::createWidget(
-    name = "spc",
-    x,
-    width = width,
-    height = height,
-    package = "controlcharts",
-    elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
+  plt <- NULL
+  if (plot_type == "html") {
+    # forward options using x
+    x <- list(
+      categories = spc_categories,
+      values = spc_values,
+      settings = list(
+        crosstalk_keys = crosstalk_keys,
+        crosstalk_group = crosstalk_group
+      )
+    )
+
+    # create widget
+    plt <- htmlwidgets::createWidget(
+      name = "spc",
+      x,
+      width = width,
+      height = height,
+      package = "controlcharts",
+      elementId = elementId,
+      dependencies = crosstalk::crosstalkLibs()
+    )
+  } else if (plot_type == "ggplot") {
+    plt <- draw_plot(limits, raw_ret$plotPoints, raw_ret$xAxis, raw_ret$yAxis, spc_settings)
+  } else {
+    stop("Invalid plot type. Must be 'html' or 'ggplot'.")
+  }
+
+  list(
+    limits = limits,
+    plot = plt
   )
 }
 
@@ -103,49 +125,71 @@ renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
   htmlwidgets::shinyRenderWidget(expr, spcOutput, env, quoted = TRUE)
 }
 
-#' Calculate control limits
-#'
-#' @name spc-limits
-#' @export
-spc_limits <- function(keys, numerators, denominators, data,
-                canvas_settings = spc_canvas_settings(),
-                spc_settings = spc_data_settings(),
-                outlier_settings = spc_outlier_settings(),
-                nhs_icon_settings = spc_nhs_icon_settings(),
-                scatter_settings = spc_scatter_settings(),
-                line_settings = spc_line_settings()) {
-  keys <- eval(substitute(keys), data, parent.frame())
-  spc_settings <- list(
-    canvas = canvas_settings,
-    spc = spc_settings,
-    outliers = outlier_settings,
-    nhs_icons = nhs_icon_settings,
-    scatter = scatter_settings,
-    lints = line_settings
-  )
-  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
+draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
+  lines <- settings$lines
 
-  spc_values <- list()
-  if (!missing(numerators)) {
-    numerators <- as.numeric(eval(substitute(numerators), data, parent.frame()))
-    numerators <- aggregate(numerators, by = list(keys), FUN = sum)$x
-    spc_values <- append(spc_values, values_entry('numerators', numerators))
+  lwidth <- function(px) { px * 0.5 }
+
+  plt_base <- ggplot(limits, aes(x = date))
+
+  if (lines$show_target) {
+    plt_base <- plt_base +
+      geom_line(
+        aes(y=target),
+        colour = lines$colour_target,
+        linewidth = lwidth(lines$width_target),
+        linetype = ltype[[lines$type_target]]
+      )
   }
 
-  if (!missing(denominators)) {
-    denominators <- as.numeric(eval(substitute(denominators), data, parent.frame()))
-    denominators <- aggregate(denominators, by = list(keys), FUN = sum)$x
-    spc_values <- append(spc_values, values_entry('denominators', denominators))
+  if (lines$show_main) {
+    plt_base <- plt_base +
+      geom_line(
+        aes(y=value),
+        colour = lines$colour_main,
+        linewidth = lwidth(lines$width_main),
+        linetype = ltype[[lines$type_main]]
+      )
   }
 
-  raw_ret <- spc_ctx$call("update_visual", spc_categories, spc_values, TRUE) |>
-    # Depending on the chart type, the 'numerators' and 'denominators' may be
-    # empty, so we need to remove them from the list
-    lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
+  if (lines$show_99) {
+    plt_base <- plt_base +
+      geom_line(aes(y=ll99),
+                colour = lines$colour_99,
+                linewidth = lwidth(lines$width_99),
+                linetype = ltype[[lines$type_99]]) +
+      geom_line(aes(y=ul99),
+                colour = lines$colour_99,
+                linewidth = lwidth(lines$width_99),
+                linetype = ltype[[lines$type_99]])
+  }
 
-  ret <- do.call(rbind.data.frame, raw_ret)
-  # First element is an array of IDs used for plotting, replace with
-  # original categories
-  ret$date <- unique(keys)
-  ret
+  if (lines$show_95) {
+    plt_base <- plt_base +
+      geom_line(aes(y=ll95),
+                colour = lines$colour_95,
+                linewidth = lwidth(lines$width_95),
+                linetype = ltype[[lines$type_95]]) +
+      geom_line(aes(y=ul95),
+                colour = lines$colour_95,
+                linewidth = lwidth(lines$width_95),
+                linetype = ltype[[lines$type_95]])
+  }
+
+  plt_base +
+    geom_point(aes(y = value),
+              colour = plotPoints[[1]]$aesthetics$colour,
+              size = plotPoints[[1]]$aesthetics$size) +
+    scale_y_continuous(
+      limits = c(yAxis$lower, yAxis$upper)
+    ) +
+    theme(
+      panel.background = element_blank(),
+      axis.line.y = element_line(
+        colour = yAxis$colour
+      ),
+      axis.line.x = element_line(
+        colour = xAxis$colour
+      )
+    )
 }
