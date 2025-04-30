@@ -3,6 +3,6 @@
 export(renderSpc)
 export(spc)
 export(spcOutput)
-export(spc_limits)
 import(crosstalk)
+import(ggplot2)
 import(htmlwidgets)

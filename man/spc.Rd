@@ -9,6 +9,13 @@ spc(
   numerators,
   denominators,
   data,
+  canvas_settings = spc_canvas_settings(),
+  spc_settings = spc_data_settings(),
+  outlier_settings = spc_outlier_settings(),
+  nhs_icon_settings = spc_nhs_icon_settings(),
+  scatter_settings = spc_scatter_settings(),
+  line_settings = spc_line_settings(),
+  plot_type = "html",
   width = NULL,
   height = NULL,
   elementId = NULL

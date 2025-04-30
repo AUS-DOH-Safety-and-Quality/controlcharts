@@ -125,6 +125,7 @@ renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
   htmlwidgets::shinyRenderWidget(expr, spcOutput, env, quoted = TRUE)
 }
 
+#' @import ggplot2
 draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
   lines <- settings$lines
 
@@ -181,7 +182,8 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
               colour = plotPoints[[1]]$aesthetics$colour,
               size = plotPoints[[1]]$aesthetics$size) +
     scale_y_continuous(
-      limits = c(yAxis$lower, yAxis$upper)
+      limits = c(yAxis$lower, yAxis$upper),
+      name = yAxis$label
     ) +
     theme(
       panel.background = element_blank(),
