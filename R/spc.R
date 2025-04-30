@@ -138,12 +138,14 @@ spc_limits <- function(keys, numerators, denominators, data,
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
-  spc_ctx$call("update_visual", spc_categories, spc_values, TRUE)
-  raw_ret <- spc_ctx$get("visual.viewModel.controlLimits")
+  raw_ret <- spc_ctx$call("update_visual", spc_categories, spc_values, TRUE) |>
+    # Depending on the chart type, the 'numerators' and 'denominators' may be
+    # empty, so we need to remove them from the list
+    lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
+
+  ret <- do.call(rbind.data.frame, raw_ret)
   # First element is an array of IDs used for plotting, replace with
   # original categories
-  raw_ret[[1]] <- unique(keys)
-  # Depending on the chart type, the 'numerators' and 'denominators' may be
-  # empty, so we need to remove them from the list
-  data.frame(raw_ret[!sapply(raw_ret, is.null)])
+  ret$date <- unique(keys)
+  ret
 }
