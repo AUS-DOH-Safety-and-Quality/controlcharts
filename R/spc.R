@@ -131,6 +131,8 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
 
   lwidth <- function(px) { px * 0.5 }
 
+  # Set as factor with ordering to avoid axis being re-ordered
+  limits$date <- factor(limits$date, levels = limits$date)
   plt_base <- ggplot(limits, aes(x = date))
 
   if (lines$show_target) {
@@ -139,7 +141,8 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
         aes(y=target),
         colour = lines$colour_target,
         linewidth = lwidth(lines$width_target),
-        linetype = ltype[[lines$type_target]]
+        linetype = ltype[[lines$type_target]],
+        group = 1
       )
   }
 
@@ -149,7 +152,8 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
         aes(y=value),
         colour = lines$colour_main,
         linewidth = lwidth(lines$width_main),
-        linetype = ltype[[lines$type_main]]
+        linetype = ltype[[lines$type_main]],
+        group = 1
       )
   }
 
@@ -158,11 +162,13 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
       geom_line(aes(y=ll99),
                 colour = lines$colour_99,
                 linewidth = lwidth(lines$width_99),
-                linetype = ltype[[lines$type_99]]) +
+                linetype = ltype[[lines$type_99]],
+                group = 1) +
       geom_line(aes(y=ul99),
                 colour = lines$colour_99,
                 linewidth = lwidth(lines$width_99),
-                linetype = ltype[[lines$type_99]])
+                linetype = ltype[[lines$type_99]],
+                group = 1)
   }
 
   if (lines$show_95) {
@@ -170,20 +176,26 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
       geom_line(aes(y=ll95),
                 colour = lines$colour_95,
                 linewidth = lwidth(lines$width_95),
-                linetype = ltype[[lines$type_95]]) +
+                linetype = ltype[[lines$type_95]],
+                group = 1) +
       geom_line(aes(y=ul95),
                 colour = lines$colour_95,
                 linewidth = lwidth(lines$width_95),
-                linetype = ltype[[lines$type_95]])
+                linetype = ltype[[lines$type_95]],
+                group = 1)
   }
 
-  plt_base +
-    geom_point(aes(y = value),
-              colour = plotPoints[[1]]$aesthetics$colour,
-              size = plotPoints[[1]]$aesthetics$size) +
+  plt_base <- plt_base +
+    geom_point(aes(y = value, colour = date),
+               size = plotPoints[[1]]$aesthetics$size) +
+    scale_colour_manual(values = sapply(plotPoints, \(point){ point$aesthetics$colour })) +
     scale_y_continuous(
       limits = c(yAxis$lower, yAxis$upper),
       name = yAxis$label
+    ) +
+    scale_x_discrete(
+      breaks = limits$date[iddxs],
+      name = xAxis$label
     ) +
     theme(
       panel.background = element_blank(),
@@ -192,6 +204,11 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
       ),
       axis.line.x = element_line(
         colour = xAxis$colour
-      )
+      ),
+      axis.text.x = element_text(
+        angle = abs(xAxis$tick_rotation),
+        hjust = 1
+      ),
+      legend.position = "none"
     )
 }
