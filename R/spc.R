@@ -13,7 +13,6 @@ spc <- function(keys, numerators, denominators, data,
                 nhs_icon_settings = spc_nhs_icon_settings(),
                 scatter_settings = spc_scatter_settings(),
                 line_settings = spc_line_settings(),
-                plot_type = "html",
                 width = NULL, height = NULL, elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
@@ -54,6 +53,26 @@ spc <- function(keys, numerators, denominators, data,
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
+  # forward options using x
+  x <- list(
+    categories = spc_categories,
+    values = spc_values,
+    settings = list(
+      crosstalk_keys = crosstalk_keys,
+      crosstalk_group = crosstalk_group
+    )
+  )
+
+  # create widget
+  html_plt <- htmlwidgets::createWidget(
+    name = "spc",
+    x,
+    width = width,
+    height = height,
+    package = "controlcharts",
+    elementId = elementId,
+    dependencies = crosstalk::crosstalkLibs()
+  )
   raw_ret <- spc_ctx$call("update_visual", spc_categories, spc_values, TRUE)
   limits <- raw_ret$plotPoints |>
     lapply(\(elem) elem$table_row) |>
@@ -61,39 +80,14 @@ spc <- function(keys, numerators, denominators, data,
     # empty, so we need to remove them from the list
     lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
   limits <- do.call(rbind.data.frame, limits)
-  limits$date <- unique(keys)
-
-  plt <- NULL
-  if (plot_type == "html") {
-    # forward options using x
-    x <- list(
-      categories = spc_categories,
-      values = spc_values,
-      settings = list(
-        crosstalk_keys = crosstalk_keys,
-        crosstalk_group = crosstalk_group
-      )
-    )
-
-    # create widget
-    plt <- htmlwidgets::createWidget(
-      name = "spc",
-      x,
-      width = width,
-      height = height,
-      package = "controlcharts",
-      elementId = elementId,
-      dependencies = crosstalk::crosstalkLibs()
-    )
-  } else if (plot_type == "ggplot") {
-    plt <- draw_plot(limits, raw_ret$plotPoints, raw_ret$xAxis, raw_ret$yAxis, spc_settings)
-  } else {
-    stop("Invalid plot type. Must be 'html' or 'ggplot'.")
-  }
+  limits$date <- trimws(limits$date)
+  gg_plt <- draw_plot(limits, raw_ret$plotPoints, raw_ret$xAxis, raw_ret$yAxis, spc_settings)
 
   list(
     limits = limits,
-    plot = plt
+    html_plot = html_plt,
+    static_plot = gg_plt,
+    raw = raw_ret
   )
 }
 
@@ -128,6 +122,12 @@ renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
 #' @import ggplot2
 draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
   lines <- settings$lines
+
+  ltype <- list(
+    "10 0" = "solid",
+    "10 10" = "dashed",
+    "2 5" = "dotted"
+  )
 
   lwidth <- function(px) { px * 0.5 }
 
