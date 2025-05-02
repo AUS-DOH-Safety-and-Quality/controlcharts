@@ -131,6 +131,8 @@ draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
 
   lwidth <- function(px) { px * 0.5 }
 
+  iddxs <- floor(seq(1, nrow(limits), length.out = xAxis$tick_count))
+
   # Set as factor with ordering to avoid axis being re-ordered
   limits$date <- factor(limits$date, levels = limits$date)
   plt_base <- ggplot(limits, aes(x = date))
