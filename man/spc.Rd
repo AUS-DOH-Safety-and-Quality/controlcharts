@@ -15,7 +15,6 @@ spc(
   nhs_icon_settings = spc_nhs_icon_settings(),
   scatter_settings = spc_scatter_settings(),
   line_settings = spc_line_settings(),
-  plot_type = "html",
   width = NULL,
   height = NULL,
   elementId = NULL

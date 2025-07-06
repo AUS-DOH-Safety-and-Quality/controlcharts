@@ -1,0 +1,12 @@
+
+dependencies:
+  - name: PBIFUN
+    version: 1.5.3.4
+    src: htmlwidgets/lib/PBIFUN-1.5.3.4
+    script:
+      - PBIFUN-1.5.3.4.js
+  - name: FUNUTILS
+    version: 1.0.0
+    src: htmlwidgets/lib/FUNUTILS
+    script:
+      - FUNUTILS.js

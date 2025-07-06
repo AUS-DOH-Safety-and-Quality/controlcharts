@@ -73,7 +73,7 @@ spc <- function(keys, numerators, denominators, data,
     elementId = elementId,
     dependencies = crosstalk::crosstalkLibs()
   )
-  raw_ret <- spc_ctx$call("update_visual", spc_categories, spc_values, TRUE)
+  raw_ret <- spc_ctx$call("update_visual_spc", spc_categories, spc_values, TRUE)
   limits <- raw_ret$plotPoints |>
     lapply(\(elem) elem$table_row) |>
     # Depending on the chart type, the 'numerators' and 'denominators' may be

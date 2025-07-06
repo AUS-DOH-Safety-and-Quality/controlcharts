@@ -1,4 +1,4 @@
-const make_constructor = function(element) {
+const make_constructor_funnel = function(element) {
   return {
   element: element,
   host: {
@@ -13,7 +13,7 @@ const make_constructor = function(element) {
     }),
     tooltipService: {
       show: (x) => {
-        spc.d3.select(".tooltip")
+        funnel.d3.select(".tooltip")
               .selectAll(".tooltip-group-inner")
               .data([,])
               .join(
@@ -56,8 +56,8 @@ const make_constructor = function(element) {
 
       },
       hide: () => {
-        spc.d3.select(".tooltip").selectAll("rect").remove();
-        spc.d3.select(".tooltip").selectAll("text").remove();
+        funnel.d3.select(".tooltip").selectAll("rect").remove();
+        funnel.d3.select(".tooltip").selectAll("text").remove();
       }
     },
     eventService: {
@@ -79,13 +79,13 @@ const make_constructor = function(element) {
   }
 }
 
-function update_visual(spc_categories, spc_values, is_headless) {
+function update_visual_funnel(funnel_categories, funnel_values, is_headless) {
   var options_update = {
     dataViews: [
       {
         categorical: {
-          categories: spc_categories,
-          values: spc_values
+          categories: funnel_categories,
+          values: funnel_values
         }
       }
     ],
@@ -96,10 +96,11 @@ function update_visual(spc_categories, spc_values, is_headless) {
     type: 2,
     headless: is_headless
   };
-  visual.update(options_update);
+  visual_funnel.update(options_update);
   return {
-    plotPoints: visual.viewModel.plotPoints,
-    xAxis: visual.viewModel.plotProperties.xAxis,
-    yAxis: visual.viewModel.plotProperties.yAxis
+    plotPoints: visual_funnel.viewModel.plotPoints,
+    calculatedLimits: visual_funnel.viewModel.calculatedLimits,
+    xAxis: visual_funnel.viewModel.plotProperties.xAxis,
+    yAxis: visual_funnel.viewModel.plotProperties.yAxis
   }
 }

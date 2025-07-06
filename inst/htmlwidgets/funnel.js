@@ -1,10 +1,10 @@
 HTMLWidgets.widget({
-  name: 'spc',
+  name: 'funnel',
   type: 'output',
   factory: function(el, width, height) {
     var ct_sel = new crosstalk.SelectionHandle();
-    var options_constructor = make_constructor_spc(el);
-    var visual = new spc.Visual(options_constructor);
+    var options_constructor = make_constructor_funnel(el);
+    var visual = new funnel.Visual(options_constructor);
 
     visual.selectionManager.getSelectionIds = () => ct_sel.value ?? []
     visual.selectionManager.clear = () => ct_sel.clear()

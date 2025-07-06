@@ -1,6 +1,6 @@
 spc_default_settings <- function() {
   # Defaults loaded from JS as part of .onLoad in zzz.R
-  .spc_default_limits_internal
+  .spc_default_settings_internal
 }
 
 spc_canvas_settings <- function(show_errors = spc_default_settings()$canvas$show_errors,
