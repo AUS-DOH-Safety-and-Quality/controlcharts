@@ -29,3 +29,4 @@ dat_funnel <- data.frame(
   nums = rbinom(n = 10, size = denom, prob = 0.6),
   dens = denom
 )
+res_fun <- funnel(keys = grps, numerators = nums, denominators = dens, data = dat_funnel)
