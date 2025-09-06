@@ -14,7 +14,11 @@ print.static_plot <- function(x, ...) {
 #' @importFrom grid grid.raster
 #'
 #' @export
-spc <- function(keys, numerators, denominators, data,
+spc <- function(keys,
+                numerators,
+                denominators,
+                xbar_sds,
+                data,
                 canvas_settings = spc_canvas_settings(),
                 spc_settings = spc_data_settings(),
                 outlier_settings = spc_outlier_settings(),
@@ -61,6 +65,12 @@ spc <- function(keys, numerators, denominators, data,
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
+  if (!missing(xbar_sds)) {
+    xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
+    xbar_sds <- aggregate(xbar_sds, by = list(keys), FUN = sum)$x
+    spc_values <- append(spc_values, values_entry('xbar_sds', xbar_sds))
+  } 
+
   # forward options using x
   x <- list(
     categories = spc_categories,
@@ -75,6 +85,9 @@ spc <- function(keys, numerators, denominators, data,
   html_plt <- htmlwidgets::createWidget(
     name = "spc",
     x,
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth = "100%"
+    ),
     width = width,
     height = height,
     package = "controlcharts",
