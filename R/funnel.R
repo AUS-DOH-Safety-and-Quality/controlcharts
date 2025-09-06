@@ -58,7 +58,7 @@ funnel <- function(keys, numerators, denominators, data,
     elementId = elementId,
     dependencies = crosstalk::crosstalkLibs()
   )
-  raw_ret <- spc_ctx$call("update_visual_funnel", funnel_categories, funnel_values, TRUE)
+  raw_ret <- spc_ctx$call("update_visual", "funnel", funnel_categories, funnel_values, TRUE)
   values <- raw_ret$plotPoints |>
     lapply(\(obs) { data.frame(group = obs$group_text, denominator = obs$x, value = obs$value)  })
   values <- do.call(rbind.data.frame, values)

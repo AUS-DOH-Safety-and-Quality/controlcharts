@@ -103,7 +103,7 @@ spc <- function(keys,
   spc_settings$canvas$left_padding <- 50
   spc_settings$canvas$lower_padding <- 50
   spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
-  raw_ret <- spc_ctx$call("update_visual_spc", spc_categories, spc_values, width, height)
+  raw_ret <- spc_ctx$call("update_visual", "spc", spc_categories, spc_values, width, height)
   svg <- paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', raw_ret$svg, '</svg>')
   img <- rsvg::rsvg_nativeraster(charToRaw(svg), width=width*3, height=height*3)
   # Add print method to img for rendering via grid::grid.raster

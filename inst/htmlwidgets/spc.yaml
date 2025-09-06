@@ -5,8 +5,8 @@ dependencies:
     src: htmlwidgets/lib/PBISPC
     script:
       - PBISPC.js
-  - name: SPCUTILS
+  - name: UTILS
     version: 1.0.0
-    src: htmlwidgets/lib/SPCUTILS
+    src: htmlwidgets/lib/UTILS
     script:
-      - SPCUTILS.js
+      - UTILS.js
