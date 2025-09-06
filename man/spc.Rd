@@ -8,6 +8,7 @@ spc(
   keys,
   numerators,
   denominators,
+  xbar_sds,
   data,
   canvas_settings = spc_canvas_settings(),
   spc_settings = spc_data_settings(),

@@ -3,6 +3,12 @@ print.static_plot <- function(x, ...) {
   grid::grid.raster(x)
 }
 
+#' @exportS3Method
+print.controlchart <- function(x, ...) {
+  print(x$html_plot)
+}
+
+
 #' Generate interactive SPC chart
 #'
 #'
@@ -116,13 +122,14 @@ spc <- function(keys,
     lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
   limits <- do.call(rbind.data.frame, limits)
   limits$date <- trimws(limits$date)
-
-  list(
+  res <- list(
     limits = limits,
     html_plot = html_plt,
     static_plot = img,
     raw = raw_ret
   )
+  class(res) <- "controlchart"
+  res
 }
 
 #' Shiny bindings for wrapper
