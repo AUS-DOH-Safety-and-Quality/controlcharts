@@ -1,9 +1,17 @@
+#' @exportS3Method
+print.static_plot <- function(x, ...) {
+  grid::grid.raster(x)
+}
+
 #' Generate interactive SPC chart
 #'
 #'
 #'
 #' @import htmlwidgets
 #' @import crosstalk
+#' @importFrom stats aggregate
+#' @importFrom rsvg rsvg_nativeraster
+#' @importFrom grid grid.raster
 #'
 #' @export
 spc <- function(keys, numerators, denominators, data,
@@ -73,7 +81,21 @@ spc <- function(keys, numerators, denominators, data,
     elementId = elementId,
     dependencies = crosstalk::crosstalkLibs()
   )
-  raw_ret <- spc_ctx$call("update_visual_spc", spc_categories, spc_values, TRUE)
+  if (is.null(height)) {
+    height <- 400
+  }
+  if (is.null(width)) {
+    width <- 600
+  }
+  spc_settings$canvas$left_padding <- 50
+  spc_settings$canvas$lower_padding <- 50
+  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
+  raw_ret <- spc_ctx$call("update_visual_spc", spc_categories, spc_values, width, height)
+  svg <- paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', raw_ret$svg, '</svg>')
+  img <- rsvg::rsvg_nativeraster(charToRaw(svg), width=width*3, height=height*3)
+  # Add print method to img for rendering via grid::grid.raster
+  class(img) <- c("static_plot", class(img))
+  
   limits <- raw_ret$plotPoints |>
     lapply(\(elem) elem$table_row) |>
     # Depending on the chart type, the 'numerators' and 'denominators' may be
@@ -81,12 +103,11 @@ spc <- function(keys, numerators, denominators, data,
     lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
   limits <- do.call(rbind.data.frame, limits)
   limits$date <- trimws(limits$date)
-  gg_plt <- draw_plot(limits, raw_ret$plotPoints, raw_ret$xAxis, raw_ret$yAxis, spc_settings)
 
   list(
     limits = limits,
     html_plot = html_plt,
-    static_plot = gg_plt,
+    static_plot = img,
     raw = raw_ret
   )
 }
@@ -117,100 +138,4 @@ spcOutput <- function(outputId, width = '100%', height = '400px'){
 renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   htmlwidgets::shinyRenderWidget(expr, spcOutput, env, quoted = TRUE)
-}
-
-#' @import ggplot2
-draw_plot <- function(limits, plotPoints, xAxis, yAxis, settings) {
-  lines <- settings$lines
-
-  ltype <- list(
-    "10 0" = "solid",
-    "10 10" = "dashed",
-    "2 5" = "dotted"
-  )
-
-  lwidth <- function(px) { px * 0.5 }
-
-  iddxs <- floor(seq(1, nrow(limits), length.out = xAxis$tick_count))
-
-  # Set as factor with ordering to avoid axis being re-ordered
-  limits$date <- factor(limits$date, levels = limits$date)
-  plt_base <- ggplot(limits, aes(x = date))
-
-  if (lines$show_target) {
-    plt_base <- plt_base +
-      geom_line(
-        aes(y=target),
-        colour = lines$colour_target,
-        linewidth = lwidth(lines$width_target),
-        linetype = ltype[[lines$type_target]],
-        group = 1
-      )
-  }
-
-  if (lines$show_main) {
-    plt_base <- plt_base +
-      geom_line(
-        aes(y=value),
-        colour = lines$colour_main,
-        linewidth = lwidth(lines$width_main),
-        linetype = ltype[[lines$type_main]],
-        group = 1
-      )
-  }
-
-  if (lines$show_99) {
-    plt_base <- plt_base +
-      geom_line(aes(y=ll99),
-                colour = lines$colour_99,
-                linewidth = lwidth(lines$width_99),
-                linetype = ltype[[lines$type_99]],
-                group = 1) +
-      geom_line(aes(y=ul99),
-                colour = lines$colour_99,
-                linewidth = lwidth(lines$width_99),
-                linetype = ltype[[lines$type_99]],
-                group = 1)
-  }
-
-  if (lines$show_95) {
-    plt_base <- plt_base +
-      geom_line(aes(y=ll95),
-                colour = lines$colour_95,
-                linewidth = lwidth(lines$width_95),
-                linetype = ltype[[lines$type_95]],
-                group = 1) +
-      geom_line(aes(y=ul95),
-                colour = lines$colour_95,
-                linewidth = lwidth(lines$width_95),
-                linetype = ltype[[lines$type_95]],
-                group = 1)
-  }
-
-  plt_base <- plt_base +
-    geom_point(aes(y = value, colour = date),
-               size = plotPoints[[1]]$aesthetics$size) +
-    scale_colour_manual(values = sapply(plotPoints, \(point){ point$aesthetics$colour })) +
-    scale_y_continuous(
-      limits = c(yAxis$lower, yAxis$upper),
-      name = yAxis$label
-    ) +
-    scale_x_discrete(
-      breaks = limits$date[iddxs],
-      name = xAxis$label
-    ) +
-    theme(
-      panel.background = element_blank(),
-      axis.line.y = element_line(
-        colour = yAxis$colour
-      ),
-      axis.line.x = element_line(
-        colour = xAxis$colour
-      ),
-      axis.text.x = element_text(
-        angle = abs(xAxis$tick_rotation),
-        hjust = 1
-      ),
-      legend.position = "none"
-    )
 }

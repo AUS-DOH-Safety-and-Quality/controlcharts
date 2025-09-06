@@ -79,7 +79,7 @@ const make_constructor_spc = function(element) {
   }
 }
 
-function update_visual_spc(spc_categories, spc_values, is_headless) {
+function update_visual_spc(spc_categories, spc_values, width, height) {
   var options_update = {
     dataViews: [
       {
@@ -90,16 +90,15 @@ function update_visual_spc(spc_categories, spc_values, is_headless) {
       }
     ],
     viewport: {
-      "width": null,
-      "height": null
+      width: width,
+      height: height
     },
     type: 2,
-    headless: is_headless
+    headless: true
   };
   visual_spc.update(options_update);
   return {
     plotPoints: visual_spc.viewModel.plotPoints,
-    xAxis: visual_spc.viewModel.plotProperties.xAxis,
-    yAxis: visual_spc.viewModel.plotProperties.yAxis
+    svg: visual_spc.svg.node().innerHTML
   }
 }

@@ -1,10 +1,10 @@
 
 dependencies:
   - name: PBISPC
-    version: 1.5.1.8
-    src: htmlwidgets/lib/PBISPC-1.5.1.8
+    version: 1.6.1.1
+    src: htmlwidgets/lib/PBISPC
     script:
-      - PBISPC-1.5.1.8.js
+      - PBISPC.js
   - name: SPCUTILS
     version: 1.0.0
     src: htmlwidgets/lib/SPCUTILS

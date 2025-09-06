@@ -2,7 +2,7 @@
 .onLoad <- function(libname, pkgname) {
   assign("spc_ctx", QuickJSR::JSContext$new(), envir = topenv())
   spc_ctx$source(system.file("intl_polyfill.js", package = "controlcharts", mustWork = TRUE))
-  spc_ctx$source(system.file("htmlwidgets/lib/PBISPC-1.5.1.8/PBISPC-1.5.1.8.js", package = "controlcharts", mustWork = TRUE))
+  spc_ctx$source(system.file("htmlwidgets/lib/PBISPC/PBISPC.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("htmlwidgets/lib/PBIFUN-1.5.3.4/PBIFUN-1.5.3.4.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("htmlwidgets/lib/SPCUTILS/SPCUTILS.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("htmlwidgets/lib/FUNUTILS/FUNUTILS.js", package = "controlcharts", mustWork = TRUE))
