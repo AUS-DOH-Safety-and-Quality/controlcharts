@@ -25314,7 +25314,8 @@
               return;
           }
           const plotPoints = visualObj.viewModel.plotPoints;
-          const xValue = plotProperties.xScale.invert(event.pageX);
+          const boundRect = visualObj.svg.node().getBoundingClientRect();
+          const xValue = plotProperties.xScale.invert(event.pageX - boundRect.left);
           const xRange = plotPoints.map(d => d.x).map(d => Math.abs(d - xValue));
           const nearestDenominator = leastIndex(xRange, (a, b) => a - b);
           const x_coord = plotProperties.xScale(plotPoints[nearestDenominator].x);
