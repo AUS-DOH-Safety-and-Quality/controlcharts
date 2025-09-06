@@ -21,6 +21,7 @@ res$html_plot
 res$static_plot
 
 p1 <- plotly::plot_ly(data = iris, x = ~Sepal.Length, y = ~Sepal.Width)
+crosstalk::bscols(p1, res$html_plot)
 
 # Funnel
 
