@@ -59,12 +59,11 @@ funnel <- function(keys, numerators, denominators, data,
     dependencies = crosstalk::crosstalkLibs()
   )
   raw_ret <- spc_ctx$call("update_visual", "funnel", funnel_categories, funnel_values, TRUE)
-  values <- raw_ret$plotPoints |>
-    lapply(\(obs) { data.frame(group = obs$group_text, denominator = obs$x, value = obs$value)  })
+  values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, denominator = obs$x, value = obs$value)  })
   values <- do.call(rbind.data.frame, values)
-  limits <- raw_ret$calculatedLimits |>
-    lapply(\(limit_grp) {
-        limit_grp <- lapply(limit_grp, \(x) ifelse(is.null(x) || is.nan(x), NA, x))
+  limits <-
+    lapply(raw_ret$calculatedLimits, function(limit_grp) {
+        limit_grp <- lapply(limit_grp, function(x) ifelse(is.null(x) || is.nan(x), NA, x))
         data.frame(limit_grp)
     })
   limits <- do.call(rbind.data.frame, limits)

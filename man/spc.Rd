@@ -8,18 +8,71 @@ spc(
   keys,
   numerators,
   denominators,
+  groupings,
   xbar_sds,
+  tooltips,
+  labels,
   data,
-  canvas_settings = spc_canvas_settings(),
-  spc_settings = spc_data_settings(),
-  outlier_settings = spc_outlier_settings(),
-  nhs_icon_settings = spc_nhs_icon_settings(),
-  scatter_settings = spc_scatter_settings(),
-  line_settings = spc_line_settings(),
+  canvas_settings = NULL,
+  spc_settings = NULL,
+  outlier_settings = NULL,
+  nhs_icon_settings = NULL,
+  scatter_settings = NULL,
+  line_settings = NULL,
+  x_axis_settings = NULL,
+  y_axis_settings = NULL,
+  date_settings = NULL,
+  label_settings = NULL,
   width = NULL,
   height = NULL,
   elementId = NULL
 )
+}
+\arguments{
+\item{keys}{A vector or column name representing the categories (x-axis) of the chart.}
+
+\item{numerators}{A numeric vector or column name representing the numerators for each category.}
+
+\item{denominators}{A numeric vector or column name representing the denominators for each category.}
+
+\item{groupings}{A vector or column name representing the grouping for each category.}
+
+\item{xbar_sds}{A numeric vector or column name representing the x-bar and standard deviation values for each category.}
+
+\item{tooltips}{A vector or column name representing the tooltips for each category.}
+
+\item{labels}{A vector or column name representing the labels for each category.}
+
+\item{data}{A data frame containing the data for the chart.}
+
+\item{canvas_settings}{Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.}
+
+\item{spc_settings}{Optional list of settings for the SPC chart, see \code{spc_default_settings('spc')} for valid options.}
+
+\item{outlier_settings}{Optional list of settings for outliers, see \code{spc_default_settings('outliers')} for valid options.}
+
+\item{nhs_icon_settings}{Optional list of settings for NHS icons, see \code{spc_default_settings('nhs_icons')} for valid options.}
+
+\item{scatter_settings}{Optional list of settings for scatter points, see \code{spc_default_settings('scatter')} for valid options.}
+
+\item{line_settings}{Optional list of settings for lines, see \code{spc_default_settings('lines')} for valid options.}
+
+\item{x_axis_settings}{Optional list of settings for the x-axis, see \code{spc_default_settings('x_axis')} for valid options.}
+
+\item{y_axis_settings}{Optional list of settings for the y-axis, see \code{spc_default_settings('y_axis')} for valid options.}
+
+\item{date_settings}{Optional list of settings for dates, see \code{spc_default_settings('dates')} for valid options.}
+
+\item{label_settings}{Optional list of settings for labels, see \code{spc_default_settings('labels')} for valid options.}
+
+\item{width}{Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.}
+
+\item{height}{Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.}
+
+\item{elementId}{Optional HTML element ID for the chart.}
+}
+\value{
+An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
 }
 \description{
 Generate interactive SPC chart

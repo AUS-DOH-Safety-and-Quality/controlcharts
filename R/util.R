@@ -1,3 +1,19 @@
+spc_default_settings <- function(group = NULL) {
+  # Defaults loaded from JS as part of .onLoad in zzz.R
+  if (is.null(group)) {
+    return(.spc_default_settings_internal)
+  }
+  if (!(group %in% names(.spc_default_settings_internal))) {
+    stop("'", group, "' is not a valid settings group! Valid options are: ", paste0(names(.spc_default_settings_internal), collapse = ', '))
+  }
+  .spc_default_settings_internal[[group]]
+}
+
+
+first <- function(x) {
+  head(x, 1)
+}
+
 values_entry <- function(name, values, objects = NULL) {
   roles <- list(dummy = TRUE)
   names(roles) <- name
@@ -60,7 +76,7 @@ svg_string <- function(svg, width, height) {
 }
 
 create_static <- function(type, categories, values, width, height) {
-  categories[[1]]$objects <- lapply(categories[[1]]$objects, \(obj) {
+  categories[[1]]$objects <- lapply(categories[[1]]$objects, function(obj) {
     obj$canvas$left_padding <- obj$canvas$left_padding + 50
     obj$canvas$lower_padding <- obj$canvas$lower_padding + 50
     obj
@@ -77,11 +93,10 @@ create_static <- function(type, categories, values, width, height) {
     class = "static_plot"
   )
 
-  limits <- raw_ret$plotPoints |>
-    lapply(\(elem) elem$table_row) |>
+  limits <- lapply(raw_ret$plotPoints, function(elem) elem$table_row)
     # Depending on the chart type, the 'numerators' and 'denominators' may be
     # empty, so we need to remove them from the list
-    lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
+  limits <- lapply(limits, function(lim) data.frame(lim[!sapply(lim, is.null)]))
   limits <- do.call(rbind.data.frame, limits)
   limits$date <- trimws(limits$date)
   list(

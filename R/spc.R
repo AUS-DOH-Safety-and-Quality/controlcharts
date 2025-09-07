@@ -4,7 +4,6 @@ print.static_plot <- function(x, ...) {
   viewer_dims <- grDevices::dev.size("px")
   width <- viewer_dims[1]
   height <- viewer_dims[2]
-  message("Rendering static plot at ", width, "x", height, " pixels")
   svg <- spc_ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
   svg_resized <- svg_string(svg, width, height)
   # Rasterize at 3x resolution for better quality
@@ -20,13 +19,29 @@ print.controlchart <- function(x, ...) {
 
 #' Generate interactive SPC chart
 #'
+#' @param keys A vector or column name representing the categories (x-axis) of the chart.
+#' @param numerators A numeric vector or column name representing the numerators for each category.
+#' @param denominators A numeric vector or column name representing the denominators for each category.
+#' @param groupings A vector or column name representing the grouping for each category.
+#' @param xbar_sds A numeric vector or column name representing the x-bar and standard deviation values for each category.
+#' @param tooltips A vector or column name representing the tooltips for each category.
+#' @param labels A vector or column name representing the labels for each category.
+#' @param data A data frame containing the data for the chart.
+#' @param canvas_settings Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.
+#' @param spc_settings Optional list of settings for the SPC chart, see \code{spc_default_settings('spc')} for valid options.
+#' @param outlier_settings Optional list of settings for outliers, see \code{spc_default_settings('outliers')} for valid options.
+#' @param nhs_icon_settings Optional list of settings for NHS icons, see \code{spc_default_settings('nhs_icons')} for valid options.
+#' @param scatter_settings Optional list of settings for scatter points, see \code{spc_default_settings('scatter')} for valid options.
+#' @param line_settings Optional list of settings for lines, see \code{spc_default_settings('lines')} for valid options.
+#' @param x_axis_settings Optional list of settings for the x-axis, see \code{spc_default_settings('x_axis')} for valid options.
+#' @param y_axis_settings Optional list of settings for the y-axis, see \code{spc_default_settings('y_axis')} for valid options.
+#' @param date_settings Optional list of settings for dates, see \code{spc_default_settings('dates')} for valid options.
+#' @param label_settings Optional list of settings for labels, see \code{spc_default_settings('labels')} for valid options.
+#' @param width Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.
+#' @param height Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.
+#' @param elementId Optional HTML element ID for the chart.
 #'
-#'
-#' @import htmlwidgets
-#' @import crosstalk
-#' @importFrom stats aggregate
-#' @importFrom rsvg rsvg_nativeraster
-#' @importFrom grid grid.raster
+#' @return An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
 #'
 #' @export
 spc <- function(keys,
@@ -74,7 +89,7 @@ spc <- function(keys,
   ))
 
   keys <- eval(substitute(keys), input_data, parent.frame())
-  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) chart_settings))
+  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), function(x) chart_settings))
 
 
   if (!is.null(crosstalk_keys)) {

@@ -1,4 +1,3 @@
-# @import QuickJSR
 .onLoad <- function(libname, pkgname) {
   assign("spc_ctx", QuickJSR::JSContext$new(), envir = topenv())
   spc_ctx$source(system.file("intl_polyfill.js", package = "controlcharts", mustWork = TRUE))
@@ -7,16 +6,16 @@
   spc_ctx$source(system.file("htmlwidgets/lib/UTILS/UTILS.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("initialise_headless.js", package = "controlcharts", mustWork = TRUE))
   assign(".spc_default_settings_internal",
-    lapply(spc_ctx$get("spc.defaultSettings"), \(settings_group) {
-      lapply(settings_group, \(setting) {
+    lapply(spc_ctx$get("spc.defaultSettings"), function(settings_group) {
+      lapply(settings_group, function(setting) {
         setting$default
       })
     }),
     envir = topenv()
   )
   assign(".funnel_default_settings_internal",
-    lapply(spc_ctx$get("funnel.defaultSettings"), \(settings_group) {
-      lapply(settings_group, \(setting) {
+    lapply(spc_ctx$get("funnel.defaultSettings"), function(settings_group) {
+      lapply(settings_group, function(setting) {
         setting$default
       })
     }),
