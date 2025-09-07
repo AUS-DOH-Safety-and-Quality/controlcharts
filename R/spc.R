@@ -1,6 +1,15 @@
 #' @exportS3Method
 print.static_plot <- function(x, ...) {
-  grid::grid.raster(x)
+  grid::grid.newpage()
+  viewer_dims <- grDevices::dev.size("px")
+  width <- viewer_dims[1]
+  height <- viewer_dims[2]
+  message("Rendering static plot at ", width, "x", height, " pixels")
+  svg <- spc_ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
+  svg_resized <- svg_string(svg, width, height)
+  # Rasterize at 3x resolution for better quality
+  svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)
+  grid::grid.raster(svg)
 }
 
 #' @exportS3Method
@@ -23,15 +32,24 @@ print.controlchart <- function(x, ...) {
 spc <- function(keys,
                 numerators,
                 denominators,
+                groupings,
                 xbar_sds,
+                tooltips,
+                labels,
                 data,
-                canvas_settings = spc_canvas_settings(),
-                spc_settings = spc_data_settings(),
-                outlier_settings = spc_outlier_settings(),
-                nhs_icon_settings = spc_nhs_icon_settings(),
-                scatter_settings = spc_scatter_settings(),
-                line_settings = spc_line_settings(),
-                width = NULL, height = NULL, elementId = NULL) {
+                canvas_settings = NULL,
+                spc_settings = NULL,
+                outlier_settings = NULL,
+                nhs_icon_settings = NULL,
+                scatter_settings = NULL,
+                line_settings = NULL,
+                x_axis_settings = NULL,
+                y_axis_settings = NULL,
+                date_settings = NULL,
+                label_settings = NULL,
+                width = NULL,
+                height = NULL,
+                elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()
@@ -42,17 +60,22 @@ spc <- function(keys,
     input_data <- data
   }
 
-  spc_settings <- list(
+  chart_settings <- prep_settings('spc', list(
     canvas = canvas_settings,
     spc = spc_settings,
     outliers = outlier_settings,
     nhs_icons = nhs_icon_settings,
     scatter = scatter_settings,
-    lines = line_settings
-  )
+    lines = line_settings,
+    x_axis = x_axis_settings,
+    y_axis = y_axis_settings,
+    dates = date_settings,
+    labels = label_settings
+  ))
 
   keys <- eval(substitute(keys), input_data, parent.frame())
-  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
+  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) chart_settings))
+
 
   if (!is.null(crosstalk_keys)) {
     crosstalk_keys <- split(crosstalk_keys, keys)
@@ -71,65 +94,60 @@ spc <- function(keys,
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
+  if (!missing(groupings)) {
+    groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))
+    groupings <- aggregate(groupings, by = list(keys), FUN = first)$x
+    spc_values <- append(spc_values, values_entry('groupings', groupings))
+  }
+
   if (!missing(xbar_sds)) {
     xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
     xbar_sds <- aggregate(xbar_sds, by = list(keys), FUN = sum)$x
     spc_values <- append(spc_values, values_entry('xbar_sds', xbar_sds))
-  } 
+  }
 
-  # forward options using x
-  x <- list(
-    categories = spc_categories,
-    values = spc_values,
-    settings = list(
-      crosstalk_keys = crosstalk_keys,
-      crosstalk_group = crosstalk_group
-    )
-  )
+  if (!missing(tooltips)) {
+    tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
+    tooltips <- aggregate(tooltips, by = list(keys), FUN = first)$x
+    spc_values <- append(spc_values, values_entry('tooltips', tooltips))
+  }
+
+  if (!missing(labels)) {
+    labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
+    labels <- aggregate(labels, by = list(keys), FUN = first)$x
+    spc_values <- append(spc_values, values_entry('labels', labels))
+  }
 
   # create widget
-  html_plt <- htmlwidgets::createWidget(
-    name = "spc",
-    x,
-    sizingPolicy = htmlwidgets::sizingPolicy(
-      defaultWidth = "100%"
-    ),
+  html_plt <- create_interactive(
+    type = 'spc',
+    categories = spc_categories,
+    values = spc_values,
+    crosstalk_keys = crosstalk_keys,
+    crosstalk_group = crosstalk_group,
     width = width,
     height = height,
-    package = "controlcharts",
-    elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
+    elementId = elementId
   )
-  if (is.null(height)) {
-    height <- 400
-  }
-  if (is.null(width)) {
-    width <- 600
-  }
-  spc_settings$canvas$left_padding <- 50
-  spc_settings$canvas$lower_padding <- 50
-  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), \(x) spc_settings))
-  raw_ret <- spc_ctx$call("update_visual", "spc", spc_categories, spc_values, width, height)
-  svg <- paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', raw_ret$svg, '</svg>')
-  img <- rsvg::rsvg_nativeraster(charToRaw(svg), width=width*3, height=height*3)
-  # Add print method to img for rendering via grid::grid.raster
-  class(img) <- c("static_plot", class(img))
-  
-  limits <- raw_ret$plotPoints |>
-    lapply(\(elem) elem$table_row) |>
-    # Depending on the chart type, the 'numerators' and 'denominators' may be
-    # empty, so we need to remove them from the list
-    lapply(\(lim) data.frame(lim[!sapply(lim, is.null)]))
-  limits <- do.call(rbind.data.frame, limits)
-  limits$date <- trimws(limits$date)
-  res <- list(
-    limits = limits,
-    html_plot = html_plt,
-    static_plot = img,
-    raw = raw_ret
+
+  static <- create_static(
+    type = 'spc',
+    categories = spc_categories,
+    values = spc_values,
+    width = width,
+    height = height
   )
-  class(res) <- "controlchart"
-  res
+
+  structure(
+    list(
+      html_plot = html_plt,
+      static_plot = static$static_plot,
+      limits = static$limits,
+      raw = static$raw,
+      save_plot = create_save_fun('spc', html_plt, spc_categories, spc_values)
+    ),
+    class = "controlchart"
+  )
 }
 
 #' Shiny bindings for wrapper

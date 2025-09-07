@@ -10,12 +10,12 @@ dat <- data.frame(
 res <- spc(keys = x,
            numerators = y,
            data = dat,
-           scatter_settings = spc_scatter_settings(size = 4),
-           outlier_settings = spc_outlier_settings(astronomical = TRUE,
+           scatter_settings = list(size = 4),
+           outlier_settings = list(astronomical = TRUE,
                                                    shift = TRUE,
                                                    shift_n = 4,
                                                    two_in_three = TRUE),
-           nhs_icon_settings = spc_nhs_icon_settings(show_variation_icons = TRUE))
+           nhs_icon_settings = list(show_variation_icons = TRUE))
 View(res$limits)
 res$html_plot
 res$static_plot
