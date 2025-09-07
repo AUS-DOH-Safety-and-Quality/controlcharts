@@ -26011,6 +26011,7 @@
           const svgWidth = this.viewModel.svgWidth;
           const svgHeight = this.viewModel.svgHeight;
           const headless = this.viewModel.headless;
+          const svgRect = this.svg.node().getBoundingClientRect();
           this.svg.selectChildren().each(function () {
               const currentClass = select(this).attr("class");
               if (currentClass === "yaxislabel" || currentClass === "xaxislabel") {
@@ -26020,8 +26021,8 @@
               const bbox = headless ? { x: 0 } : this.getBBox();
               xLeftOverflow = Math.min(xLeftOverflow, bbox.x);
               xRightOverflow = Math.max(xRightOverflow, boundRect.right - (svgWidth + boundRect.left - bbox.x));
-              yBottomOverflow = Math.max(yBottomOverflow, boundRect.bottom - svgHeight);
-              yTopOverflow = Math.min(yTopOverflow, boundRect.top);
+              yBottomOverflow = Math.max(yBottomOverflow, boundRect.bottom - svgRect.bottom);
+              yTopOverflow = Math.min(yTopOverflow, boundRect.top - svgRect.top);
           });
           xLeftOverflow = Math.abs(xLeftOverflow);
           xRightOverflow = Math.abs(xRightOverflow);
