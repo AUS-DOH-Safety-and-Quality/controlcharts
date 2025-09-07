@@ -1,22 +1,3 @@
-#' @exportS3Method
-print.static_plot <- function(x, ...) {
-  grid::grid.newpage()
-  viewer_dims <- grDevices::dev.size("px")
-  width <- viewer_dims[1]
-  height <- viewer_dims[2]
-  svg <- spc_ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
-  svg_resized <- svg_string(svg, width, height)
-  # Rasterize at 3x resolution for better quality
-  svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)
-  grid::grid.raster(svg)
-}
-
-#' @exportS3Method
-print.controlchart <- function(x, ...) {
-  print(x$html_plot)
-}
-
-
 #' Generate interactive SPC chart
 #'
 #' @param keys A vector or column name representing the categories (x-axis) of the chart.

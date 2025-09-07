@@ -2,7 +2,7 @@
   assign("spc_ctx", QuickJSR::JSContext$new(), envir = topenv())
   spc_ctx$source(system.file("intl_polyfill.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("htmlwidgets/lib/PBISPC/PBISPC.js", package = "controlcharts", mustWork = TRUE))
-  spc_ctx$source(system.file("htmlwidgets/lib/PBIFUN-1.5.3.4/PBIFUN-1.5.3.4.js", package = "controlcharts", mustWork = TRUE))
+  spc_ctx$source(system.file("htmlwidgets/lib/PBIFUN/PBIFUN.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("htmlwidgets/lib/UTILS/UTILS.js", package = "controlcharts", mustWork = TRUE))
   spc_ctx$source(system.file("initialise_headless.js", package = "controlcharts", mustWork = TRUE))
   assign(".spc_default_settings_internal",

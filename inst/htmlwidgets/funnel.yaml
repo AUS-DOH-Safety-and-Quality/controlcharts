@@ -1,10 +1,10 @@
 
 dependencies:
   - name: PBIFUN
-    version: 1.5.3.4
-    src: htmlwidgets/lib/PBIFUN-1.5.3.4
+    version: 1.6.1.2
+    src: htmlwidgets/lib/PBIFUN
     script:
-      - PBIFUN-1.5.3.4.js
+      - PBIFUN.js
   - name: UTILS
     version: 1.0.0
     src: htmlwidgets/lib/UTILS

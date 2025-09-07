@@ -2,18 +2,66 @@
 % Please edit documentation in R/funnel.R
 \name{funnel}
 \alias{funnel}
-\title{Generate interactive funnel chart}
+\title{Generate interactive Funnel chart}
 \usage{
 funnel(
   keys,
   numerators,
   denominators,
+  tooltips,
+  labels,
   data,
+  canvas_settings = NULL,
+  funnel_settings = NULL,
+  outlier_settings = NULL,
+  scatter_settings = NULL,
+  line_settings = NULL,
+  x_axis_settings = NULL,
+  y_axis_settings = NULL,
+  label_settings = NULL,
   width = NULL,
   height = NULL,
   elementId = NULL
 )
 }
+\arguments{
+\item{keys}{A vector or column name representing the categories of the chart.}
+
+\item{numerators}{A numeric vector or column name representing the numerators for each category.}
+
+\item{denominators}{A numeric vector or column name representing the denominators for each category.}
+
+\item{tooltips}{A vector or column name representing the tooltips for each category.}
+
+\item{labels}{A vector or column name representing the labels for each category.}
+
+\item{data}{A data frame containing the data for the chart.}
+
+\item{canvas_settings}{Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.}
+
+\item{funnel_settings}{Optional list of settings for the Funnel chart, see \code{funnel_default_settings('funnel')} for valid options.}
+
+\item{outlier_settings}{Optional list of settings for outliers, see \code{funnel_default_settings('outliers')} for valid options.}
+
+\item{scatter_settings}{Optional list of settings for scatter points, see \code{funnel_default_settings('scatter')} for valid options.}
+
+\item{line_settings}{Optional list of settings for lines, see \code{funnel_default_settings('lines')} for valid options.}
+
+\item{x_axis_settings}{Optional list of settings for the x-axis, see \code{funnel_default_settings('x_axis')} for valid options.}
+
+\item{y_axis_settings}{Optional list of settings for the y-axis, see \code{funnel_default_settings('y_axis')} for valid options.}
+
+\item{label_settings}{Optional list of settings for labels, see \code{funnel_default_settings('labels')} for valid options.}
+
+\item{width}{Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.}
+
+\item{height}{Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.}
+
+\item{elementId}{Optional HTML element ID for the chart.}
+}
+\value{
+An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
+}
 \description{
-Generate interactive funnel chart
+Generate interactive Funnel chart
 }

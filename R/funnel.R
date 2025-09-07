@@ -1,13 +1,43 @@
-#' Generate interactive funnel chart
+#' Generate interactive Funnel chart
 #'
+#' @param keys A vector or column name representing the categories of the chart.
+#' @param numerators A numeric vector or column name representing the numerators for each category.
+#' @param denominators A numeric vector or column name representing the denominators for each category.
+#' @param tooltips A vector or column name representing the tooltips for each category.
+#' @param labels A vector or column name representing the labels for each category.
+#' @param data A data frame containing the data for the chart.
+#' @param canvas_settings Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.
+#' @param funnel_settings Optional list of settings for the Funnel chart, see \code{funnel_default_settings('funnel')} for valid options.
+#' @param outlier_settings Optional list of settings for outliers, see \code{funnel_default_settings('outliers')} for valid options.
+#' @param scatter_settings Optional list of settings for scatter points, see \code{funnel_default_settings('scatter')} for valid options.
+#' @param line_settings Optional list of settings for lines, see \code{funnel_default_settings('lines')} for valid options.
+#' @param x_axis_settings Optional list of settings for the x-axis, see \code{funnel_default_settings('x_axis')} for valid options.
+#' @param y_axis_settings Optional list of settings for the y-axis, see \code{funnel_default_settings('y_axis')} for valid options.
+#' @param label_settings Optional list of settings for labels, see \code{funnel_default_settings('labels')} for valid options.
+#' @param width Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.
+#' @param height Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.
+#' @param elementId Optional HTML element ID for the chart.
 #'
-#'
-#' @import htmlwidgets
-#' @import crosstalk
+#' @return An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
 #'
 #' @export
-funnel <- function(keys, numerators, denominators, data,
-                width = NULL, height = NULL, elementId = NULL) {
+funnel <- function(keys,
+                numerators,
+                denominators,
+                tooltips,
+                labels,
+                data,
+                canvas_settings = NULL,
+                funnel_settings = NULL,
+                outlier_settings = NULL,
+                scatter_settings = NULL,
+                line_settings = NULL,
+                x_axis_settings = NULL,
+                y_axis_settings = NULL,
+                label_settings = NULL,
+                width = NULL,
+                height = NULL,
+                elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalk_keys <- data$key()
     crosstalk_group <- data$groupName()
@@ -18,8 +48,19 @@ funnel <- function(keys, numerators, denominators, data,
     input_data <- data
   }
 
+  chart_settings <- prep_settings('funnel', list(
+    canvas = canvas_settings,
+    funnel = funnel_settings,
+    outliers = outlier_settings,
+    scatter = scatter_settings,
+    lines = line_settings,
+    x_axis = x_axis_settings,
+    y_axis = y_axis_settings,
+    labels = label_settings
+  ))
+
   keys <- eval(substitute(keys), input_data, parent.frame())
-  funnel_categories <- values_entry('key', unique(keys))
+  funnel_categories <- values_entry('key', unique(keys), lapply(unique(keys), function(x) chart_settings))
 
   if (!is.null(crosstalk_keys)) {
     crosstalk_keys <- split(crosstalk_keys, keys)
@@ -38,43 +79,47 @@ funnel <- function(keys, numerators, denominators, data,
     funnel_values <- append(funnel_values, values_entry('denominators', denominators))
   }
 
-  # forward options using x
-  x <- list(
-    categories = funnel_categories,
-    values = funnel_values,
-    settings = list(
-      crosstalk_keys = crosstalk_keys,
-      crosstalk_group = crosstalk_group
-    )
-  )
+  if (!missing(tooltips)) {
+    tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
+    tooltips <- aggregate(tooltips, by = list(keys), FUN = first)$x
+    funnel_values <- append(funnel_values, values_entry('tooltips', tooltips))
+  }
+
+  if (!missing(labels)) {
+    labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
+    labels <- aggregate(labels, by = list(keys), FUN = first)$x
+    funnel_values <- append(funnel_values, values_entry('labels', labels))
+  }
 
   # create widget
-  html_plt <- htmlwidgets::createWidget(
-    name = "funnel",
-    x,
+  html_plt <- create_interactive(
+    type = 'funnel',
+    categories = funnel_categories,
+    values = funnel_values,
+    crosstalk_keys = crosstalk_keys,
+    crosstalk_group = crosstalk_group,
     width = width,
     height = height,
-    package = "controlcharts",
-    elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
+    elementId = elementId
   )
-  raw_ret <- spc_ctx$call("update_visual", "funnel", funnel_categories, funnel_values, TRUE)
-  values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, denominator = obs$x, value = obs$value)  })
-  values <- do.call(rbind.data.frame, values)
-  limits <-
-    lapply(raw_ret$calculatedLimits, function(limit_grp) {
-        limit_grp <- lapply(limit_grp, function(x) ifelse(is.null(x) || is.nan(x), NA, x))
-        data.frame(limit_grp)
-    })
-  limits <- do.call(rbind.data.frame, limits)
-  values <- merge(values, limits, by.x = "denominator", by.y = "denominators")
 
-  list(
-    values = values,
-    limits = limits,
-    html_plot = html_plt,
-    #static_plot = gg_plt,
-    raw = raw_ret
+  static <- create_static(
+    type = 'funnel',
+    categories = funnel_categories,
+    values = funnel_values,
+    width = width,
+    height = height
+  )
+
+  structure(
+    list(
+      html_plot = html_plt,
+      static_plot = static$static_plot,
+      limits = static$limits,
+      raw = static$raw,
+      save_plot = create_save_fun('funnel', html_plt, funnel_categories, funnel_values)
+    ),
+    class = "controlchart"
   )
 }
 

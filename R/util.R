@@ -1,12 +1,45 @@
-spc_default_settings <- function(group = NULL) {
-  # Defaults loaded from JS as part of .onLoad in zzz.R
+.default_settings_impl <- function(type, group = NULL) {
+  settings <- switch(
+    type,
+    spc = .spc_default_settings_internal,
+    funnel = .funnel_default_settings_internal
+  )
   if (is.null(group)) {
-    return(.spc_default_settings_internal)
+    return(settings)
   }
-  if (!(group %in% names(.spc_default_settings_internal))) {
-    stop("'", group, "' is not a valid settings group! Valid options are: ", paste0(names(.spc_default_settings_internal), collapse = ', '))
+  if (!(group %in% names(settings))) {
+    stop("'", group, "' is not a valid settings group! Valid options are: ", paste0(names(settings), collapse = ', '))
   }
-  .spc_default_settings_internal[[group]]
+  settings[[group]]
+}
+
+#' Get default settings for SPC charts
+#' 
+#' Retrieve the default settings for SPC charts or a specific settings group.
+#' @param group Optional. A specific settings group to retrieve. If NULL, all settings groups are returned.
+#' @return A list of default settings for SPC charts or the specified settings group.
+#' @examples
+#' #' # Get all default settings for SPC charts
+#' spc_default_settings()
+#' # # Get default settings for a specific group
+#' spc_default_settings("x_axis")
+#' @export
+spc_default_settings <- function(group = NULL) {
+  .default_settings_impl("spc", group)
+}
+
+#' Get default settings for Funnel charts
+#' Retrieve the default settings for Funnel charts or a specific settings group.
+#' @param group Optional. A specific settings group to retrieve. If NULL, all settings groups are returned.
+#' @return A list of default settings for Funnel charts or the specified settings group.
+#' @examples
+#' #' # Get all default settings for Funnel charts
+#' funnel_default_settings()
+#' # # Get default settings for a specific group
+#' funnel_default_settings("x_axis")
+#' @export
+funnel_default_settings <- function(group = NULL) {
+  .default_settings_impl("funnel", group)
 }
 
 
@@ -92,13 +125,25 @@ create_static <- function(type, categories, values, width, height) {
     ),
     class = "static_plot"
   )
-
-  limits <- lapply(raw_ret$plotPoints, function(elem) elem$table_row)
-    # Depending on the chart type, the 'numerators' and 'denominators' may be
-    # empty, so we need to remove them from the list
-  limits <- lapply(limits, function(lim) data.frame(lim[!sapply(lim, is.null)]))
-  limits <- do.call(rbind.data.frame, limits)
-  limits$date <- trimws(limits$date)
+  limits <- NULL
+  if (type == "spc") {
+    limits <- lapply(raw_ret$plotPoints, function(elem) elem$table_row)
+      # Depending on the chart type, the 'numerators' and 'denominators' may be
+      # empty, so we need to remove them from the list
+    limits <- lapply(limits, function(lim) data.frame(lim[!sapply(lim, is.null)]))
+    limits <- do.call(rbind.data.frame, limits)
+    limits$date <- trimws(limits$date)
+  } else if (type == "funnel") {
+    values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, denominator = obs$x, value = obs$value)  })
+    values <- do.call(rbind.data.frame, values)
+    limits <-
+      lapply(raw_ret$calculatedLimits, function(limit_grp) {
+        limit_grp <- lapply(limit_grp, function(x) ifelse(is.null(x) || is.nan(x), NA, x))
+        data.frame(limit_grp)
+      })
+    limits <- do.call(rbind.data.frame, limits)
+    limits <- merge(values, limits, by.x = "denominator", by.y = "denominators")
+  }
   list(
     limits = limits,
     static_plot = static_plot,
@@ -142,4 +187,22 @@ create_save_fun <- function(type, html_plt, categories, values) {
     save_fun(charToRaw(svg_resized), file, width = width * 3, height = height * 3)
     invisible(NULL)
   }
+}
+
+#' @exportS3Method
+print.static_plot <- function(x, ...) {
+  grid::grid.newpage()
+  viewer_dims <- grDevices::dev.size("px")
+  width <- viewer_dims[1]
+  height <- viewer_dims[2]
+  svg <- spc_ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
+  svg_resized <- svg_string(svg, width, height)
+  # Rasterize at 3x resolution for better quality
+  svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)
+  grid::grid.raster(svg)
+}
+
+#' @exportS3Method
+print.controlchart <- function(x, ...) {
+  print(x$html_plot)
 }
