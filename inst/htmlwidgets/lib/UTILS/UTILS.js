@@ -1,34 +1,28 @@
 const make_constructor = function(type, element) {
   var d3 = type === "spc" ? spc.d3 : funnel.d3;
   return {
-  element: element,
-  host: {
-    createSelectionManager: () => ({
-      registerOnSelectCallback: () => {},
-      getSelectionIds: () => [],
-      showContextMenu: () => {},
-      clear: () => {}
-    }),
-    createSelectionIdBuilder: () => ({
-      withCategory: () => ({ createSelectionId: () => {} })
-    }),
-    tooltipService: {
-      show: (x) => {
-        d3.select(".tooltip")
-              .selectAll(".tooltip-group-inner")
-              .data([,])
-              .join(
-                (enter) => {
-                  let grp =  enter.append("g")
-                                  .classed("tooltip-group-inner", true);
-
-
-                  grp.append("rect")
-                      .attr("fill", "#ffffff")
-                      .attr("width", 50)
-                      .attr("height", 50);
-
-                  grp.selectAll("text")
+    element: element,
+    host: {
+      createSelectionManager: () => ({
+        registerOnSelectCallback: () => {},
+        getSelectionIds: () => [],
+        showContextMenu: () => {},
+        clear: () => {}
+      }),
+      createSelectionIdBuilder: () => ({
+        withCategory: () => ({ createSelectionId: () => {} })
+      }),
+      tooltipService: {
+        show: (x) => {
+          var ttip_group = d3.select(element).select(".spc-ttip-group");
+          ttip_group.selectAll("rect")
+                    .data([0])
+                    .join("rect")
+                    .attr("fill", "#ffffff")
+                    .attr("width", 50)
+                    .attr("height", 50);
+                  
+          ttip_group.selectAll("text")
                       .data(x.dataItems)
                       .join("text")
                       .attr("fill", "black")
@@ -36,47 +30,30 @@ const make_constructor = function(type, element) {
                       .attr("x", 5)
                       .attr("y", (_, i) => 0 + 15*i)
                       .text(d => `${d.displayName}: ${d.value}`);
-
-
-                  grp.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
-                  return grp;
-                },
-                (update) => {
-                    update.selectAll("text")
-                          .data(x.dataItems)
-                          .join("text")
-                          .attr("fill", "black")
-                          .style("text-anchor", "left")
-                          .attr("x", 5)
-                          .attr("y", (_, i) => 0 + 15*i)
-                          .text(d => `${d.displayName}: ${d.value}`);
-                  update.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
-                  return update;
-                }
-              )
-
+          ttip_group.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
+        },
+        hide: () => {
+          var ttip_group = d3.select(element).select(".spc-ttip-group");
+          ttip_group.selectAll("rect").remove();
+          ttip_group.selectAll("text").remove();
+        }
       },
-      hide: () => {
-        d3.select(".tooltip").selectAll("rect").remove();
-        d3.select(".tooltip").selectAll("text").remove();
+      eventService: {
+        renderingStarted: () => {},
+        renderingFailed: () => {},
+        renderingFinished: () => {}
+      },
+      colorPalette: {
+        isHighContrast: false,
+        foreground: { value: "black" },
+        background: { value: "white" },
+        foregroundSelected: { value: "black" },
+        hyperlink: { value: "blue" }
+      },
+      hostCapabilities: {
+        allowInteractions: true
       }
-    },
-    eventService: {
-      renderingStarted: () => {},
-      renderingFailed: () => {},
-      renderingFinished: () => {}
-    },
-    colorPalette: {
-      isHighContrast: false,
-      foreground: { value: "black" },
-      background: { value: "white" },
-      foregroundSelected: { value: "black" },
-      hyperlink: { value: "blue" }
-    },
-    hostCapabilities: {
-      allowInteractions: true
     }
-  }
   }
 }
 
@@ -124,7 +101,8 @@ function make_factory(type) {
     visual.selectionManager.clear = () => ct_sel.clear()
     ct_sel.on("change", function(e) { visual.updateHighlighting() });
 
-    visual.svg.append("g").classed("tooltip", true);
+    var ttip_group = visual.svg.append("g").classed("spc-ttip-group", true);
+    ttip_group.append("rect");
 
     var options_update = {
       dataViews: [{

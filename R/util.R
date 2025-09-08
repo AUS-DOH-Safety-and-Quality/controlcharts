@@ -114,7 +114,7 @@ create_static <- function(type, categories, values, width, height) {
     obj$canvas$lower_padding <- obj$canvas$lower_padding + 50
     obj
   })
-  raw_ret <- spc_ctx$call("update_visual", type, categories, values, width, height)
+  raw_ret <- ctx$call("update_visual", type, categories, values, width, height)
   static_plot <- structure(
     list(
       type = type,
@@ -182,7 +182,7 @@ create_save_fun <- function(type, html_plt, categories, values) {
       height <- ifelse(is.null(height), 400, height)
     }
 
-    svg <- spc_ctx$call("update_visual", type, categories, values, width, height)$svg
+    svg <- ctx$call("update_visual", type, categories, values, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
     save_fun(charToRaw(svg_resized), file, width = width * 3, height = height * 3)
     invisible(NULL)
@@ -193,9 +193,9 @@ create_save_fun <- function(type, html_plt, categories, values) {
 print.static_plot <- function(x, ...) {
   grid::grid.newpage()
   viewer_dims <- grDevices::dev.size("px")
-  width <- viewer_dims[1]
-  height <- viewer_dims[2]
-  svg <- spc_ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
+  width <- ifelse(is.null(x$width), viewer_dims[1], x$width)
+  height <- ifelse(is.null(x$height), viewer_dims[2], x$height)
+  svg <- ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
   svg_resized <- svg_string(svg, width, height)
   # Rasterize at 3x resolution for better quality
   svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)

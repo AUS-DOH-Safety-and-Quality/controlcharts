@@ -3,3 +3,6 @@
 ^LICENSE\.md$
 ^testing\.R$
 demo.R
+Dev.qmd
+Dev.html
+Dev_files

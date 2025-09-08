@@ -1,0 +1,68 @@
+---
+title: "ChartsTests"
+format: html
+editor: visual
+---
+
+## Quarto
+
+```{r}
+devtools::load_all()
+
+set.seed(12324)
+
+# SPC
+
+dat <- data.frame(
+  y = rnorm(24),
+  x = seq(as.Date('2024-01-01'), length.out=24, by="month")
+)
+
+res <- spc(keys = x,
+           numerators = y,
+           data = dat,
+           scatter_settings = list(size = 4),
+           outlier_settings = list(astronomical = TRUE,
+                                                   shift = TRUE,
+                                                   shift_n = 4,
+                                                   two_in_three = TRUE),
+           nhs_icon_settings = list(show_variation_icons = TRUE))
+
+
+denom <- sample(100:1000, 10)
+
+dat_funnel <- data.frame(
+  grps = letters[1:10],
+  nums = rbinom(n = 10, size = denom, prob = 0.6),
+  dens = denom
+)
+res_fun <- funnel(keys = grps, numerators = nums, denominators = dens, data = dat_funnel)
+```
+
+## SPC
+
+### Interactive
+
+```{r}
+res$html_plot
+```
+
+### Static
+
+```{r}
+res$static_plot
+```
+
+## Funnel
+
+### Interactive
+
+```{r}
+res_fun$html_plot
+```
+
+### Static
+
+```{r}
+res_fun$static_plot
+```

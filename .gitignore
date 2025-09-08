@@ -1,3 +1,6 @@
 .Rproj.user
 testing.R
 .DS_Store
+/.quarto/
+*.html
+*_files
