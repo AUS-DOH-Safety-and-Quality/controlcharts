@@ -40,11 +40,11 @@ funnel <- function(keys,
                 elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
     crosstalkIdentities <- data$key()
-    crosstalk_group <- data$groupName()
+    crosstalkGroup <- data$groupName()
     input_data <- data$origData()
   } else {
     crosstalkIdentities <- NULL
-    crosstalk_group <- NULL
+    crosstalkGroup <- NULL
     input_data <- data
   }
 
@@ -97,7 +97,7 @@ funnel <- function(keys,
     categories = funnel_categories,
     values = funnel_values,
     crosstalkIdentities = crosstalkIdentities,
-    crosstalk_group = crosstalk_group,
+    crosstalkGroup = crosstalkGroup,
     width = width,
     height = height,
     elementId = elementId

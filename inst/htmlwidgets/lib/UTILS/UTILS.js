@@ -93,13 +93,15 @@ function updateVisual(type, categories, values, width, height) {
 
 function makeFactory(type) {
   return function(el, width, height) {
-    var crosstalkSelectionHandle = new crosstalk.SelectionHandle();
     var constructorArgs = makeConstructorArgs(type, el);
     var visual = type === "spc" ? new spc.Visual(constructorArgs) : new funnel.Visual(constructorArgs);
 
+    var crosstalkSelectionHandle = new crosstalk.SelectionHandle();
     visual.selectionManager.getSelectionIds = () => crosstalkSelectionHandle.value ?? []
     visual.selectionManager.clear = () => crosstalkSelectionHandle.clear()
     crosstalkSelectionHandle.on("change", function(e) { visual.updateHighlighting() });
+
+    var crosstalkFilterHandle = new crosstalk.FilterHandle();
 
     visual.svg.append("g").classed("spc-ttip-group", true).append("rect");
 
@@ -125,8 +127,10 @@ function makeFactory(type) {
 
     return {
       renderValue: function(x) {
+        crosstalkSelectionHandle.setGroup(x.settings.crosstalkGroup);
+        crosstalkFilterHandle.setGroup(x.settings.crosstalkGroup);
+
         var crosstalkIdentities = x.settings.crosstalkIdentities ? Object.values(x.settings.crosstalkIdentities) : null;
-        crosstalkSelectionHandle.setGroup(x.settings.crosstalk_group);
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (cat, idx) => ({
             createSelectionId: () => crosstalkIdentities?.[cat.values[idx]] ?? [idx]

@@ -46,13 +46,23 @@ spc <- function(keys,
                 width = NULL,
                 height = NULL,
                 elementId = NULL) {
+  if (missing(keys)) {
+    stop("keys is required", call. = FALSE)
+  }
+  if (missing(numerators)) {
+    stop("numerators is required", call. = FALSE)
+  }
+  if (missing(data)) {
+    stop("data is required", call. = FALSE)
+  }
+
   if (crosstalk::is.SharedData(data)) {
     crosstalkIdentities <- data$key()
-    crosstalk_group <- data$groupName()
+    crosstalkGroup <- data$groupName()
     input_data <- data$origData()
   } else {
     crosstalkIdentities <- NULL
-    crosstalk_group <- NULL
+    crosstalkGroup <- NULL
     input_data <- data
   }
 
@@ -120,7 +130,7 @@ spc <- function(keys,
     categories = spc_categories,
     values = spc_values,
     crosstalkIdentities = crosstalkIdentities,
-    crosstalk_group = crosstalk_group,
+    crosstalkGroup = crosstalkGroup,
     width = width,
     height = height,
     elementId = elementId

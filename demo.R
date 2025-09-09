@@ -32,4 +32,4 @@ fun_plt <- controlcharts::funnel(keys = estab,
                                  scatter_settings = list(size = 4),
                                  y_axis_settings = list(ylimit_u = 100))
 
-crosstalk::bscols(fun_plt$html_plot, spc_plt$html_plot)
+crosstalk::bscols(list(crosstalk::filter_checkbox("estab", "Establishment", crosstalk_dat, ~estab)), spc_plt$html_plot)

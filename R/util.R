@@ -80,13 +80,13 @@ prep_settings <- function(type, input_settings) {
   default_settings
 }
 
-create_interactive <- function(type, categories, values, crosstalkIdentities, crosstalk_group, width, height, elementId) {
+create_interactive <- function(type, categories, values, crosstalkIdentities, crosstalkGroup, width, height, elementId) {
   x <- list(
     categories = categories,
     values = values,
     settings = list(
       crosstalkIdentities = crosstalkIdentities,
-      crosstalk_group = crosstalk_group
+      crosstalkGroup = crosstalkGroup
     )
   )
 
