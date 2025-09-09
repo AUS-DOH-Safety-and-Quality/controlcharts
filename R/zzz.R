@@ -1,6 +1,8 @@
 .onLoad <- function(libname, pkgname) {
   assign("ctx", QuickJSR::JSContext$new(), envir = topenv())
-  ctx$source(system.file("intl_polyfill.js", package = "controlcharts", mustWork = TRUE))
+  # QuickJS doesn't support the Intl family of functions for date formatting (needed for SPC)
+  # so we need to load a polyfill
+  ctx$source(system.file("Intl.polyfill.js", package = "controlcharts", mustWork = TRUE))
   ctx$source(system.file("htmlwidgets/lib/PBISPC/PBISPC.js", package = "controlcharts", mustWork = TRUE))
   ctx$source(system.file("htmlwidgets/lib/PBIFUN/PBIFUN.js", package = "controlcharts", mustWork = TRUE))
   ctx$source(system.file("htmlwidgets/lib/UTILS/UTILS.js", package = "controlcharts", mustWork = TRUE))

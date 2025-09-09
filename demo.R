@@ -1,35 +1,35 @@
 set.seed(12324)
 
-# SPC
-
-dat <- data.frame(
-  y = rnorm(24),
-  x = seq(as.Date('2024-01-01'), length.out=24, by="month")
+dat <- do.call(
+  rbind.data.frame,
+  lapply(toupper(letters[1:10]), function(grp) {
+    denom <- sample(0:100, 24)
+    data.frame(
+      estab = grp,
+      month_start = seq(as.Date('2024-01-01'), length.out=24, by="month"),
+      numerators = rbinom(n = 24, size = denom, prob = 0.3),
+      denominators = denom
+    )
+  })
 )
 
-res <- spc(keys = x,
-           numerators = y,
-           data = dat,
-           scatter_settings = list(size = 4),
-           outlier_settings = list(astronomical = TRUE,
-                                                   shift = TRUE,
-                                                   shift_n = 4,
-                                                   two_in_three = TRUE),
-           nhs_icon_settings = list(show_variation_icons = TRUE))
-View(res$limits)
-res$html_plot
-res$static_plot
+crosstalk_dat <- crosstalk::SharedData$new(dat)
 
-p1 <- plotly::plot_ly(data = iris, x = ~Sepal.Length, y = ~Sepal.Width)
-crosstalk::bscols(p1, res$html_plot)
+spc_plt <- controlcharts::spc(keys = month_start,
+                              numerators = numerators,
+                              denominators = denominators,
+                              data = crosstalk_dat,
+                              scatter_settings = list(size = 4),
+                              outlier_settings = list(astronomical = TRUE,
+                                                      shift = TRUE,
+                                                      shift_n = 4,
+                                                      two_in_three = TRUE),
+                              nhs_icon_settings = list(show_variation_icons = TRUE))
+fun_plt <- controlcharts::funnel(keys = estab,
+                                 numerators = numerators,
+                                 denominators=denominators,
+                                 data = crosstalk_dat,
+                                 scatter_settings = list(size = 4),
+                                 y_axis_settings = list(ylimit_u = 100))
 
-# Funnel
-
-denom <- sample(100:1000, 10)
-
-dat_funnel <- data.frame(
-  grps = letters[1:10],
-  nums = rbinom(n = 10, size = denom, prob = 0.6),
-  dens = denom
-)
-res_fun <- funnel(keys = grps, numerators = nums, denominators = dens, data = dat_funnel)
+crosstalk::bscols(fun_plt$html_plot, spc_plt$html_plot)

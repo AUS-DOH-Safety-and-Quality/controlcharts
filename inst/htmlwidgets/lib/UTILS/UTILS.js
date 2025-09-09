@@ -1,4 +1,4 @@
-const make_constructor = function(type, element) {
+const makeConstructorArgs = function(type, element) {
   var d3 = type === "spc" ? spc.d3 : funnel.d3;
   return {
     element: element,
@@ -14,15 +14,15 @@ const make_constructor = function(type, element) {
       }),
       tooltipService: {
         show: (x) => {
-          var ttip_group = d3.select(element).select(".spc-ttip-group");
-          ttip_group.selectAll("rect")
+          var tooltipGroup = d3.select(element).select(".spc-ttip-group");
+          tooltipGroup.selectAll("rect")
                     .data([0])
                     .join("rect")
                     .attr("fill", "#ffffff")
                     .attr("width", 50)
                     .attr("height", 50);
-                  
-          ttip_group.selectAll("text")
+
+          tooltipGroup.selectAll("text")
                       .data(x.dataItems)
                       .join("text")
                       .attr("fill", "black")
@@ -30,12 +30,12 @@ const make_constructor = function(type, element) {
                       .attr("x", 5)
                       .attr("y", (_, i) => 0 + 15*i)
                       .text(d => `${d.displayName}: ${d.value}`);
-          ttip_group.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
+          tooltipGroup.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
         },
         hide: () => {
-          var ttip_group = d3.select(element).select(".spc-ttip-group");
-          ttip_group.selectAll("rect").remove();
-          ttip_group.selectAll("text").remove();
+          var tooltipGroup = d3.select(element).select(".spc-ttip-group");
+          tooltipGroup.selectAll("rect").remove();
+          tooltipGroup.selectAll("text").remove();
         }
       },
       eventService: {
@@ -57,8 +57,8 @@ const make_constructor = function(type, element) {
   }
 }
 
-function update_visual(type, categories, values, width, height) {
-  var options_update = {
+function updateVisual(type, categories, values, width, height) {
+  var updateArgs = {
     dataViews: [
       {
         categorical: {
@@ -76,43 +76,42 @@ function update_visual(type, categories, values, width, height) {
   };
 
   if (type === "spc") {
-    visual_spc.update(options_update);
+    spcVisual.update(updateArgs);
     return {
-      plotPoints: visual_spc.viewModel.plotPoints,
-      svg: visual_spc.svg.node().innerHTML
+      plotPoints: spcVisual.viewModel.plotPoints,
+      svg: spcVisual.svg.node().innerHTML
     };
   } else if (type === "funnel") {
-    visual_funnel.update(options_update);
+    funnelVisual.update(updateArgs);
     return {
-      plotPoints: visual_funnel.viewModel.plotPoints,
-      calculatedLimits: visual_funnel.viewModel.calculatedLimits,
-      svg: visual_funnel.svg.node().innerHTML
+      plotPoints: funnelVisual.viewModel.plotPoints,
+      calculatedLimits: funnelVisual.viewModel.calculatedLimits,
+      svg: funnelVisual.svg.node().innerHTML
     };
   }
 }
 
-function make_factory(type) {
+function makeFactory(type) {
   return function(el, width, height) {
-    var ct_sel = new crosstalk.SelectionHandle();
-    var options_constructor = make_constructor(type, el);
-    var visual = type === "spc" ? new spc.Visual(options_constructor) : new funnel.Visual(options_constructor);
+    var crosstalkSelectionHandle = new crosstalk.SelectionHandle();
+    var constructorArgs = makeConstructorArgs(type, el);
+    var visual = type === "spc" ? new spc.Visual(constructorArgs) : new funnel.Visual(constructorArgs);
 
-    visual.selectionManager.getSelectionIds = () => ct_sel.value ?? []
-    visual.selectionManager.clear = () => ct_sel.clear()
-    ct_sel.on("change", function(e) { visual.updateHighlighting() });
+    visual.selectionManager.getSelectionIds = () => crosstalkSelectionHandle.value ?? []
+    visual.selectionManager.clear = () => crosstalkSelectionHandle.clear()
+    crosstalkSelectionHandle.on("change", function(e) { visual.updateHighlighting() });
 
-    var ttip_group = visual.svg.append("g").classed("spc-ttip-group", true);
-    ttip_group.append("rect");
+    visual.svg.append("g").classed("spc-ttip-group", true).append("rect");
 
-    var options_update = {
+    var updateArgs = {
       dataViews: [{
         categorical: {
           categories: [{
-            source: { roles: {"key": true}},
+            source: { roles: {"key": true} },
             values: ["A", "B", "C"]
           }],
           values: [{
-            source: { roles: {"numerators": true}},
+            source: { roles: {"numerators": true} },
             values: [1, 2, 3]
           }]
         }
@@ -126,36 +125,36 @@ function make_factory(type) {
 
     return {
       renderValue: function(x) {
-        var crosstalk_keys = x.settings.crosstalk_keys ? Object.values(x.settings.crosstalk_keys) : null;
-        ct_sel.setGroup(x.settings.crosstalk_group);
+        var crosstalkIdentities = x.settings.crosstalkIdentities ? Object.values(x.settings.crosstalkIdentities) : null;
+        crosstalkSelectionHandle.setGroup(x.settings.crosstalk_group);
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (cat, idx) => ({
-            createSelectionId: () => crosstalk_keys?.[cat.values[idx]] ?? [idx]
+            createSelectionId: () => crosstalkIdentities?.[cat.values[idx]] ?? [idx]
           })
         })
-        visual.selectionManager.select = (identity, multi_select) => {
-          var new_idents = identity;
-          if (multi_select && ct_sel.value) {
-            new_idents = new_idents.concat(ct_sel.value)
+        visual.selectionManager.select = (currentIdentity, multiSelect) => {
+          var newIdentities = currentIdentity;
+          if (multiSelect && crosstalkSelectionHandle.value) {
+            newIdentities = newIdentities.concat(crosstalkSelectionHandle.value)
           }
-          ct_sel.set(new_idents)
+          crosstalkSelectionHandle.set(newIdentities)
           return { then: (f) => f() }
         }
 
-        options_update.dataViews = [{
+        updateArgs.dataViews = [{
           categorical: {
             categories: x.categories,
             values: x.values
           }
         }]
 
-        visual.update(options_update);
+        visual.update(updateArgs);
       },
 
       resize: function(width, height) {
-        options_update.viewport.width = width;
-        options_update.viewport.height = height;
-        visual.update(options_update);
+        updateArgs.viewport.width = width;
+        updateArgs.viewport.height = height;
+        visual.update(updateArgs);
       }
     };
   }

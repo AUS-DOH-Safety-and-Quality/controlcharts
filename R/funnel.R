@@ -39,11 +39,11 @@ funnel <- function(keys,
                 height = NULL,
                 elementId = NULL) {
   if (crosstalk::is.SharedData(data)) {
-    crosstalk_keys <- data$key()
+    crosstalkIdentities <- data$key()
     crosstalk_group <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalk_keys <- NULL
+    crosstalkIdentities <- NULL
     crosstalk_group <- NULL
     input_data <- data
   }
@@ -62,8 +62,8 @@ funnel <- function(keys,
   keys <- eval(substitute(keys), input_data, parent.frame())
   funnel_categories <- values_entry('key', unique(keys), lapply(unique(keys), function(x) chart_settings))
 
-  if (!is.null(crosstalk_keys)) {
-    crosstalk_keys <- split(crosstalk_keys, keys)
+  if (!is.null(crosstalkIdentities)) {
+    crosstalkIdentities <- split(crosstalkIdentities, keys)
   }
 
   funnel_values <- list()
@@ -96,7 +96,7 @@ funnel <- function(keys,
     type = 'funnel',
     categories = funnel_categories,
     values = funnel_values,
-    crosstalk_keys = crosstalk_keys,
+    crosstalkIdentities = crosstalkIdentities,
     crosstalk_group = crosstalk_group,
     width = width,
     height = height,

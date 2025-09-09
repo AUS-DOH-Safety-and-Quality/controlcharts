@@ -14,7 +14,7 @@
 }
 
 #' Get default settings for SPC charts
-#' 
+#'
 #' Retrieve the default settings for SPC charts or a specific settings group.
 #' @param group Optional. A specific settings group to retrieve. If NULL, all settings groups are returned.
 #' @return A list of default settings for SPC charts or the specified settings group.
@@ -80,12 +80,12 @@ prep_settings <- function(type, input_settings) {
   default_settings
 }
 
-create_interactive <- function(type, categories, values, crosstalk_keys, crosstalk_group, width, height, elementId) {
+create_interactive <- function(type, categories, values, crosstalkIdentities, crosstalk_group, width, height, elementId) {
   x <- list(
     categories = categories,
     values = values,
     settings = list(
-      crosstalk_keys = crosstalk_keys,
+      crosstalkIdentities = crosstalkIdentities,
       crosstalk_group = crosstalk_group
     )
   )
@@ -114,7 +114,7 @@ create_static <- function(type, categories, values, width, height) {
     obj$canvas$lower_padding <- obj$canvas$lower_padding + 50
     obj
   })
-  raw_ret <- ctx$call("update_visual", type, categories, values, width, height)
+  raw_ret <- ctx$call("updateVisual", type, categories, values, width, height)
   static_plot <- structure(
     list(
       type = type,
@@ -182,7 +182,7 @@ create_save_fun <- function(type, html_plt, categories, values) {
       height <- ifelse(is.null(height), 400, height)
     }
 
-    svg <- ctx$call("update_visual", type, categories, values, width, height)$svg
+    svg <- ctx$call("updateVisual", type, categories, values, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
     save_fun(charToRaw(svg_resized), file, width = width * 3, height = height * 3)
     invisible(NULL)
@@ -195,7 +195,7 @@ print.static_plot <- function(x, ...) {
   viewer_dims <- grDevices::dev.size("px")
   width <- ifelse(is.null(x$width), viewer_dims[1], x$width)
   height <- ifelse(is.null(x$height), viewer_dims[2], x$height)
-  svg <- ctx$call("update_visual", x$type, x$categories, x$values, width, height)$svg
+  svg <- ctx$call("updateVisual", x$type, x$categories, x$values, width, height)$svg
   svg_resized <- svg_string(svg, width, height)
   # Rasterize at 3x resolution for better quality
   svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)
