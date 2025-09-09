@@ -8064,6 +8064,16 @@
                           { displayName: "End", value: "End" }
                       ]
                   },
+                  ttip_show_date: {
+                      displayName: "Show Date in Tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_date: {
+                      displayName: "Date Tooltip Label",
+                      type: "TextInput",
+                      default: "Date"
+                  },
                   ttip_show_numerator: {
                       displayName: "Show Numerator in Tooltip",
                       type: "ToggleSwitch",
@@ -9384,7 +9394,8 @@
                   ylimit_sig_figs: {
                       displayName: "Tick Decimal Places",
                       type: "NumUpDown",
-                      default: null
+                      default: null,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
                   },
                   ylimit_l: {
                       displayName: "Lower Limit",
@@ -21507,10 +21518,12 @@
       const two_in_three_limit = inputSettings.outliers.two_in_three_limit;
       const formatValues = valueFormatter(inputSettings, derivedSettings);
       const tooltip = new Array();
-      tooltip.push({
-          displayName: "Date",
-          value: table_row.date
-      });
+      if (inputSettings.spc.ttip_show_date) {
+          tooltip.push({
+              displayName: inputSettings.spc.ttip_label_date,
+              value: table_row.date
+          });
+      }
       if (inputSettings.spc.ttip_show_value) {
           const ttip_label_value = inputSettings.spc.ttip_label_value;
           tooltip.push({
@@ -21735,9 +21748,8 @@
       });
       return datePartsRecord;
   }
-  function extractKeys(inputView, inputSettings, idxs) {
+  function formatKeys(col, inputSettings, idxs) {
       var _a, _b, _c;
-      const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
       const n_keys = idxs.length;
       let ret = new Array(n_keys);
       if (col.length === 1 && !((_a = col[0].source.type) === null || _a === void 0 ? void 0 : _a.temporal)) {
@@ -21771,6 +21783,31 @@
           }
       }
       return ret;
+  }
+  function extractKeys(inputView, inputSettings, idxs) {
+      const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
+      const groupedCols = {};
+      col.forEach((d) => {
+          var _a, _b;
+          const queryName = ((_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : "").split(" ")[0];
+          if (!groupedCols[queryName]) {
+              groupedCols[queryName] = [];
+          }
+          groupedCols[queryName].push(d);
+      });
+      const formattedKeys = [];
+      for (const queryName in groupedCols) {
+          const group = groupedCols[queryName];
+          const groupKeys = formatKeys(group, inputSettings, idxs);
+          formattedKeys.push(groupKeys);
+      }
+      const combinedKeys = [];
+      const n_keys = idxs.length;
+      for (let i = 0; i < n_keys; i++) {
+          const keyParts = formattedKeys.map(keys => keys[i]).filter(k => k !== null && k !== undefined);
+          combinedKeys.push(keyParts.join(" "));
+      }
+      return combinedKeys;
   }
   function extractTooltips(inputView, inputSettings, idxs) {
       const tooltipColumns = inputView.values.filter(viewColumn => viewColumn.source.roles.tooltips);
@@ -23024,8 +23061,8 @@
   function parseInputDates(inputs, idxs) {
       var _a, _b, _c, _d, _e;
       const n_keys = idxs.length;
-      let inputDates = new Array(n_keys);
-      const inputQuarters = new Array(n_keys);
+      let inputDates = [];
+      const inputQuarters = [];
       if (inputs.length > 1) {
           for (let i = 0; i < n_keys; i++) {
               const datePartsArray = [];
@@ -26004,35 +26041,29 @@
               .call(drawLabels, this);
       }
       adjustPaddingForOverflow() {
-          let xLeftOverflow = 0;
-          let xRightOverflow = 0;
-          let yBottomOverflow = 0;
-          let yTopOverflow = 0;
+          if (this.viewModel.headless) {
+              return;
+          }
           const svgWidth = this.viewModel.svgWidth;
           const svgHeight = this.viewModel.svgHeight;
-          const headless = this.viewModel.headless;
-          const svgRect = this.svg.node().getBoundingClientRect();
-          this.svg.selectChildren().each(function () {
-              const currentClass = select(this).attr("class");
-              if (currentClass === "yaxislabel" || currentClass === "xaxislabel") {
-                  return;
-              }
-              const boundRect = this.getBoundingClientRect();
-              const bbox = headless ? { x: 0 } : this.getBBox();
-              xLeftOverflow = Math.min(xLeftOverflow, bbox.x);
-              xRightOverflow = Math.max(xRightOverflow, boundRect.right - (svgWidth + boundRect.left - bbox.x));
-              yBottomOverflow = Math.max(yBottomOverflow, boundRect.bottom - svgRect.bottom);
-              yTopOverflow = Math.min(yTopOverflow, boundRect.top - svgRect.top);
-          });
-          xLeftOverflow = Math.abs(xLeftOverflow);
-          xRightOverflow = Math.abs(xRightOverflow);
-          yBottomOverflow = Math.abs(yBottomOverflow);
-          yTopOverflow = Math.abs(yTopOverflow);
-          if ((xLeftOverflow + xRightOverflow + yBottomOverflow + yTopOverflow) > 0) {
-              this.viewModel.plotProperties.xAxis.start_padding += xLeftOverflow + this.viewModel.plotProperties.xAxis.start_padding;
-              this.viewModel.plotProperties.xAxis.end_padding += xRightOverflow + this.viewModel.plotProperties.xAxis.end_padding;
-              this.viewModel.plotProperties.yAxis.start_padding += yBottomOverflow + this.viewModel.plotProperties.yAxis.start_padding;
-              this.viewModel.plotProperties.yAxis.end_padding += yTopOverflow + this.viewModel.plotProperties.yAxis.end_padding;
+          const svgBBox = this.svg.node().getBBox();
+          const overflowLeft = Math.abs(Math.min(0, svgBBox.x));
+          const overflowRight = Math.max(0, svgBBox.width + svgBBox.x - svgWidth);
+          const overflowTop = Math.abs(Math.min(0, svgBBox.y));
+          const overflowBottom = Math.max(0, svgBBox.height + svgBBox.y - svgHeight);
+          if (overflowLeft > 0) {
+              this.viewModel.plotProperties.xAxis.start_padding += overflowLeft + this.viewModel.plotProperties.xAxis.start_padding;
+          }
+          if (overflowRight > 0) {
+              this.viewModel.plotProperties.xAxis.end_padding += overflowRight + this.viewModel.plotProperties.xAxis.end_padding;
+          }
+          if (overflowTop > 0) {
+              this.viewModel.plotProperties.yAxis.end_padding += overflowTop + this.viewModel.plotProperties.yAxis.end_padding;
+          }
+          if (overflowBottom > 0) {
+              this.viewModel.plotProperties.yAxis.start_padding += overflowBottom + this.viewModel.plotProperties.yAxis.start_padding;
+          }
+          if (overflowLeft > 0 || overflowRight > 0 || overflowTop > 0 || overflowBottom > 0) {
               this.viewModel.plotProperties.initialiseScale(svgWidth, svgHeight);
               this.drawVisual();
           }
@@ -26057,6 +26088,7 @@
               return getAesthetic(d[0], "lines", "opacity", this.viewModel.inputSettings.settings);
           });
           dotsSelection.style("fill-opacity", (d) => d.aesthetics.opacity);
+          dotsSelection.style("stroke-opacity", (d) => d.aesthetics.opacity);
           tableSelection.style("opacity", (d) => d.aesthetics["table_opacity"]);
           if (anyHighlights || (allSelectionIDs.length > 0) || anyHighlightsGrouped) {
               linesSelection.style("stroke-opacity", (d) => {
@@ -26068,6 +26100,7 @@
                   const currentPointHighlighted = dot.highlighted;
                   const newDotOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics.opacity_selected : dot.aesthetics.opacity_unselected;
                   select(currentDotNode).style("fill-opacity", newDotOpacity);
+                  select(currentDotNode).style("stroke-opacity", newDotOpacity);
               });
               tableSelection.nodes().forEach(currentTableNode => {
                   const dot = select(currentTableNode).datum();
@@ -30313,28 +30346,6 @@
       htmlClasses.set(name.toUpperCase(), Class);
     }
   };
-
-  var perf_hooks = {};
-
-  /* c8 ignore start */
-
-  var hasRequiredPerf_hooks;
-
-  function requirePerf_hooks () {
-  	if (hasRequiredPerf_hooks) return perf_hooks;
-  	hasRequiredPerf_hooks = 1;
-  	try {
-  	  const {performance} = require('perf_hooks');
-  	  perf_hooks.performance = performance;
-  	}
-  	catch (fallback) {
-  	  perf_hooks.performance = {now() { return +new Date; }};
-  	}
-  	/* c8 ignore stop */
-  	return perf_hooks;
-  }
-
-  var perf_hooksExports = requirePerf_hooks();
 
   const loopSegment = ({[NEXT]: next, [END]: end}, json) => {
     while (next !== end) {
@@ -38459,7 +38470,7 @@
                   this[CUSTOM_ELEMENTS] = new CustomElementRegistry(this);
                 return this[CUSTOM_ELEMENTS];
               case 'performance':
-                return perf_hooksExports.performance;
+                return globalThis.performance;
               case 'DOMParser':
                 return this[DOM_PARSER];
               case 'Image':
