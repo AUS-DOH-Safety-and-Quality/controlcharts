@@ -64,7 +64,7 @@ svg_string <- function(svg, width, height) {
   paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', svg, '</svg>')
 }
 
-create_static <- function(type, dataViews, width, height) {
+update_static_padding <- function(type, dataViews) {
   dataViews[[1]]$categorical$categories[[1]]$objects <- lapply(
     dataViews[[1]]$categorical$categories[[1]]$objects,
     function(settings) {
@@ -78,6 +78,10 @@ create_static <- function(type, dataViews, width, height) {
       settings
     }
   )
+  dataViews
+}
+
+create_static <- function(type, dataViews, width, height) {
   raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
   static_plot <- structure(
     list(
@@ -114,7 +118,7 @@ create_static <- function(type, dataViews, width, height) {
   )
 }
 
-create_save_fun <- function(type, html_plt, dataViews) {
+create_save_function <- function(type, html_plt, dataViews) {
   function(file, height = NULL, width = NULL) {
     file_ext <- tools::file_ext(file)
     valid_exts <- c("webp", "png", "pdf", "svg", "ps", "eps", "html")

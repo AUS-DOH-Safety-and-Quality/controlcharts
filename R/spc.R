@@ -134,7 +134,10 @@ spc <- function(keys,
     dependencies = crosstalk::crosstalkLibs()
   )
 
-  dataViews <- ctx$call("makeUpdateValues", data_df, input_settings)$dataViews
+  dataViews <- update_static_padding(
+    "spc",
+    ctx$call("makeUpdateValues", data_df, input_settings)$dataViews
+  )
 
   static <- create_static(
     type = 'spc',
@@ -149,7 +152,7 @@ spc <- function(keys,
       static_plot = static$static_plot,
       limits = static$limits,
       raw = static$raw,
-      save_plot = create_save_fun('spc', html_plt, dataViews)
+      save_plot = create_save_function('spc', html_plt, dataViews)
     ),
     class = "controlchart"
   )

@@ -30,7 +30,7 @@ fun_plt <- controlcharts::funnel(keys = estab,
                                  denominators=denominators,
                                  data = crosstalk_dat,
                                  scatter_settings = list(size = 4),
-                                 y_axis_settings = list(ylimit_u = 100))
+                                 y_axis_settings = list(ylimit_u = 100))$static_plot
 
 crosstalk::bscols(fun_plt$html_plot, spc_plt$html_plot)
 
