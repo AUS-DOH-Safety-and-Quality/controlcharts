@@ -56,7 +56,7 @@ funnel <- function(keys,
     crosstalkGroup <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalkIdentities <-  as.character(seq.len(nrow(data)))
+    crosstalkIdentities <-  as.character(seq_len(nrow(data)))
     crosstalkGroup <- NULL
     input_data <- data
   }

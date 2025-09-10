@@ -3,9 +3,9 @@ print.controlchart <- function(x, ...) {
   print(x$html_plot)
 }
 
-#' Method to print a static plot to the R graphics device
-#' Uses the QuickJSR package for running the visual JS to create an SVG string
-#' of the plot, then the rsvg package to render that SVG to the graphics device
+# Method to print a static plot to the R graphics device
+# Uses the QuickJSR package for running the visual JS to create an SVG string
+# of the plot, then the rsvg package to render that SVG to the graphics device
 #' @exportS3Method
 print.static_plot <- function(x, ...) {
   # Clear the current device before drawing
