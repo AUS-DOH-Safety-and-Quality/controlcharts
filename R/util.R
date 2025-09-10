@@ -66,6 +66,24 @@ values_entry <- function(name, values, objects = NULL) {
   )
 }
 
+validate_settings <- function(type, input_settings) {
+  default_settings <- switch(
+    type,
+    spc = spc_default_settings(),
+    funnel = funnel_default_settings()
+  )
+  for (group in names(default_settings)) {
+    if (!is.null(input_settings[[group]])) {
+      valid_settings <- names(default_settings[[group]])
+      invalid_settings <- setdiff(names(input_settings[[group]]), valid_settings)
+      if (length(invalid_settings) > 0) {
+        stop("Invalid settings in group '", group, "': ", paste0("'", invalid_settings, "'", collapse = ', '), ".\nValid settings are: ", paste0("'", valid_settings, "'", collapse = ', '), ".")
+      }
+    }
+  }
+  input_settings
+}
+
 prep_settings <- function(type, input_settings) {
   default_settings <- switch(
     type,
@@ -80,14 +98,16 @@ prep_settings <- function(type, input_settings) {
   default_settings
 }
 
-create_interactive <- function(type, categories, values, crosstalkIdentities, crosstalkGroup, width, height, elementId) {
+create_interactive <- function(type, categories, values, crosstalkIdentities, crosstalkGroup, width, height, elementId, data_raw, input_settings) {
   x <- list(
     categories = categories,
     values = values,
     settings = list(
       crosstalkIdentities = crosstalkIdentities,
       crosstalkGroup = crosstalkGroup
-    )
+    ),
+    data_raw = data_raw,
+    input_settings = input_settings
   )
 
   htmlwidgets::createWidget(

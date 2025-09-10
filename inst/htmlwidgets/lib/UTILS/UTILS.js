@@ -1,3 +1,60 @@
+function sum(arr) {
+  return arr.reduce((acc, val) => acc + val, 0);
+}
+
+function makeUpdateValues(rawData, inputSettings, crosstalkFilters) {
+  if (crosstalkFilters) {
+    rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalkIdentities));
+  }
+  var dataGrouped = Object.groupBy(rawData, d => d.categories);
+  Object.freeze(dataGrouped);
+  var identitiesGrouped = [];
+  for (group in dataGrouped) {
+    identitiesGrouped.push([group, dataGrouped[group].map(d => d.crosstalkIdentities)]);
+  }
+
+
+
+  var args = {
+    categories: [{
+      source: { roles: {"key": true}, type: { temporal: { underlyingType: 519 } } },
+      values: [],
+      objects: []
+    }],
+    values: [],
+    crosstalkIdentities: Object.fromEntries(identitiesGrouped)
+  };
+
+  var valueNames = Object.keys(rawData[0]).filter(k => ["categories", "crosstalkIdentities"].includes(k) === false);
+
+  args.values = valueNames.map(name => ({
+    source: { roles: {[name]: true} },
+    values: []
+  }));
+
+  for (var category in dataGrouped) {
+    args.categories[0].values.push(category);
+    args.categories[0].objects.push(inputSettings);
+
+    var categoryData = dataGrouped[category];
+
+    for (var i = 0; i < valueNames.length; i++) {
+      var name = valueNames[i];
+      args.values[i].values.push(sum(categoryData.map(d => d[name])));
+    }
+  }
+
+  return {
+    dataViews: [{
+      categorical: {
+        categories: args.categories,
+        values: args.values
+      }
+    }],
+    crosstalkIdentities: args.crosstalkIdentities
+  };
+}
+
 const makeConstructorArgs = function(type, element) {
   var d3 = type === "spc" ? spc.d3 : funnel.d3;
   return {
@@ -130,12 +187,20 @@ function makeFactory(type) {
         crosstalkSelectionHandle.setGroup(x.settings.crosstalkGroup);
         crosstalkFilterHandle.setGroup(x.settings.crosstalkGroup);
 
-        var crosstalkIdentities = x.settings.crosstalkIdentities ? Object.values(x.settings.crosstalkIdentities) : null;
+        crosstalkFilterHandle.on("change", function(e) {
+          var filteredUpdateValues = makeUpdateValues(x.data_raw, x.input_settings, e.value);
+          updateArgs.dataViews = filteredUpdateValues.dataViews;
+
+          visual.update(updateArgs);
+        })
+
+        var updateValues = makeUpdateValues(x.data_raw, x.input_settings);
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (cat, idx) => ({
-            createSelectionId: () => crosstalkIdentities?.[cat.values[idx]] ?? [idx]
+            createSelectionId: () => updateValues.crosstalkIdentities?.[cat.values[idx]]
           })
         })
+
         visual.selectionManager.select = (currentIdentity, multiSelect) => {
           var newIdentities = currentIdentity;
           if (multiSelect && crosstalkSelectionHandle.value) {
@@ -145,13 +210,7 @@ function makeFactory(type) {
           return { then: (f) => f() }
         }
 
-        updateArgs.dataViews = [{
-          categorical: {
-            categories: x.categories,
-            values: x.values
-          }
-        }]
-
+        updateArgs.dataViews = updateValues.dataViews;
         visual.update(updateArgs);
       },
 

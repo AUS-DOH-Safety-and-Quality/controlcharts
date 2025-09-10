@@ -38,17 +38,30 @@ funnel <- function(keys,
                 width = NULL,
                 height = NULL,
                 elementId = NULL) {
+  if (missing(keys)) {
+    stop("keys are required", call. = FALSE)
+  }
+  if (missing(numerators)) {
+    stop("numerators are required", call. = FALSE)
+  }
+  if (missing(denominators)) {
+    stop("denominators are required", call. = FALSE)
+  }
+  if (missing(data)) {
+    stop("data is required", call. = FALSE)
+  }
+
   if (crosstalk::is.SharedData(data)) {
     crosstalkIdentities <- data$key()
     crosstalkGroup <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalkIdentities <- NULL
+    crosstalkIdentities <-  as.character(seq.len(nrow(data)))
     crosstalkGroup <- NULL
     input_data <- data
   }
 
-  chart_settings <- prep_settings('funnel', list(
+  input_settings <- list(
     canvas = canvas_settings,
     funnel = funnel_settings,
     outliers = outlier_settings,
@@ -57,7 +70,17 @@ funnel <- function(keys,
     x_axis = x_axis_settings,
     y_axis = y_axis_settings,
     labels = label_settings
-  ))
+  )
+  input_settings <- validate_settings('spc', input_settings)
+
+  chart_settings <- prep_settings('funnel', input_settings)
+
+  data_raw <- list(
+    crosstalkIdentities = crosstalkIdentities,
+    categories = eval(substitute(keys), input_data, parent.frame()),
+    numerators = eval(substitute(numerators), input_data, parent.frame()),
+    denominators = eval(substitute(denominators), input_data, parent.frame())
+  )
 
   keys <- eval(substitute(keys), input_data, parent.frame())
   funnel_categories <- values_entry('key', unique(keys), lapply(unique(keys), function(x) chart_settings))
@@ -81,15 +104,21 @@ funnel <- function(keys,
 
   if (!missing(tooltips)) {
     tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(tooltips = tooltips))
     tooltips <- aggregate(tooltips, by = list(keys), FUN = first)$x
     funnel_values <- append(funnel_values, values_entry('tooltips', tooltips))
   }
 
   if (!missing(labels)) {
     labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(labels = labels))
     labels <- aggregate(labels, by = list(keys), FUN = first)$x
     funnel_values <- append(funnel_values, values_entry('labels', labels))
   }
+
+  data_df <- lapply(seq_len(length(data_raw$categories)), function(idx) {
+    lapply(data_raw, function(elem){ elem[idx] })
+  })
 
   # create widget
   html_plt <- create_interactive(
@@ -100,7 +129,9 @@ funnel <- function(keys,
     crosstalkGroup = crosstalkGroup,
     width = width,
     height = height,
-    elementId = elementId
+    elementId = elementId,
+    data_raw = data_df,
+    input_settings = input_settings
   )
 
   static <- create_static(

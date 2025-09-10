@@ -47,10 +47,10 @@ spc <- function(keys,
                 height = NULL,
                 elementId = NULL) {
   if (missing(keys)) {
-    stop("keys is required", call. = FALSE)
+    stop("keys are required", call. = FALSE)
   }
   if (missing(numerators)) {
-    stop("numerators is required", call. = FALSE)
+    stop("numerators are required", call. = FALSE)
   }
   if (missing(data)) {
     stop("data is required", call. = FALSE)
@@ -61,12 +61,12 @@ spc <- function(keys,
     crosstalkGroup <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalkIdentities <- NULL
+    crosstalkIdentities <- as.character(seq.len(nrow(data)))
     crosstalkGroup <- NULL
     input_data <- data
   }
 
-  chart_settings <- prep_settings('spc', list(
+  input_settings <- list(
     canvas = canvas_settings,
     spc = spc_settings,
     outliers = outlier_settings,
@@ -77,7 +77,17 @@ spc <- function(keys,
     y_axis = y_axis_settings,
     dates = date_settings,
     labels = label_settings
-  ))
+  )
+
+  input_settings <- validate_settings('spc', input_settings)
+
+  chart_settings <- prep_settings('spc', input_settings)
+
+  data_raw <- list(
+    crosstalkIdentities = crosstalkIdentities,
+    categories = eval(substitute(keys), input_data, parent.frame()),
+    numerators = eval(substitute(numerators), input_data, parent.frame())
+  )
 
   keys <- eval(substitute(keys), input_data, parent.frame())
   spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), function(x) chart_settings))
@@ -96,33 +106,42 @@ spc <- function(keys,
 
   if (!missing(denominators)) {
     denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(denominators = denominators))
     denominators <- aggregate(denominators, by = list(keys), FUN = sum)$x
     spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
   if (!missing(groupings)) {
     groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(groupings = groupings))
     groupings <- aggregate(groupings, by = list(keys), FUN = first)$x
     spc_values <- append(spc_values, values_entry('groupings', groupings))
   }
 
   if (!missing(xbar_sds)) {
     xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(xbar_sds = xbar_sds))
     xbar_sds <- aggregate(xbar_sds, by = list(keys), FUN = sum)$x
     spc_values <- append(spc_values, values_entry('xbar_sds', xbar_sds))
   }
 
   if (!missing(tooltips)) {
     tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(tooltips = tooltips))
     tooltips <- aggregate(tooltips, by = list(keys), FUN = first)$x
     spc_values <- append(spc_values, values_entry('tooltips', tooltips))
   }
 
   if (!missing(labels)) {
     labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(labels = labels))
     labels <- aggregate(labels, by = list(keys), FUN = first)$x
     spc_values <- append(spc_values, values_entry('labels', labels))
   }
+
+  data_df <- lapply(seq_len(length(data_raw$categories)), function(idx) {
+    lapply(data_raw, function(elem){ elem[idx] })
+  })
 
   # create widget
   html_plt <- create_interactive(
@@ -133,7 +152,9 @@ spc <- function(keys,
     crosstalkGroup = crosstalkGroup,
     width = width,
     height = height,
-    elementId = elementId
+    elementId = elementId,
+    data_raw = data_df,
+    input_settings = input_settings
   )
 
   static <- create_static(
