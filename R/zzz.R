@@ -1,26 +1,27 @@
+.load_js_file <- function(context, filename) {
+  context$source(system.file(filename, package = "controlcharts", mustWork = TRUE))
+}
+
 .onLoad <- function(libname, pkgname) {
+  # Create a new Javascript context for calculating limits and rendering static plots
   assign("ctx", QuickJSR::JSContext$new(), envir = topenv())
+
   # QuickJS doesn't support the Intl family of functions for date formatting (needed for SPC)
   # so we need to load a polyfill
-  ctx$source(system.file("Intl.polyfill.js", package = "controlcharts", mustWork = TRUE))
-  ctx$source(system.file("htmlwidgets/lib/PBISPC/PBISPC.js", package = "controlcharts", mustWork = TRUE))
-  ctx$source(system.file("htmlwidgets/lib/PBIFUN/PBIFUN.js", package = "controlcharts", mustWork = TRUE))
-  ctx$source(system.file("htmlwidgets/lib/UTILS/UTILS.js", package = "controlcharts", mustWork = TRUE))
-  ctx$source(system.file("initialise_headless.js", package = "controlcharts", mustWork = TRUE))
-  assign(".spc_default_settings_internal",
-    lapply(ctx$get("spc.defaultSettings"), function(settings_group) {
-      lapply(settings_group, function(setting) {
-        setting$default
-      })
-    }),
-    envir = topenv()
-  )
-  assign(".funnel_default_settings_internal",
-    lapply(ctx$get("funnel.defaultSettings"), function(settings_group) {
-      lapply(settings_group, function(setting) {
-        setting$default
-      })
-    }),
-    envir = topenv()
-  )
+  .load_js_file(ctx, "Intl.polyfill.js")
+  .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.js")
+  .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.js")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.js")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/headlessUtils.js")
+  ctx$call("initialiseHeadless");
+
+  # Extract default settings from each chart type and store in R
+  for (type in c("spc", "funnel")) {
+    assign(paste0(".", type, "_default_settings_internal"),
+      lapply(ctx$get(paste0(type, ".defaultSettings")), function(settings_group) {
+        lapply(settings_group, function(setting) { setting$default })
+      }),
+      envir = topenv()
+    )
+  }
 }

@@ -42,30 +42,6 @@ funnel_default_settings <- function(group = NULL) {
   .default_settings_impl("funnel", group)
 }
 
-
-first <- function(x) {
-  head(x, 1)
-}
-
-values_entry <- function(name, values, objects = NULL) {
-  roles <- list(dummy = TRUE)
-  names(roles) <- name
-  type <- list()
-  if (name == "key") {
-    type <- list(temporal = list(underlyingType = 519))
-  }
-  list(
-    list(
-      source = list(
-        roles = roles,
-        type = type
-      ),
-      values = values,
-      objects = objects
-    )
-  )
-}
-
 validate_settings <- function(type, input_settings) {
   default_settings <- switch(
     type,
@@ -84,53 +60,25 @@ validate_settings <- function(type, input_settings) {
   input_settings
 }
 
-prep_settings <- function(type, input_settings) {
-  default_settings <- switch(
-    type,
-    spc = spc_default_settings(),
-    funnel = funnel_default_settings()
-  )
-  for (group in names(default_settings)) {
-    if (!is.null(input_settings[[group]])) {
-      default_settings[[group]] <- modifyList(default_settings[[group]], input_settings[[group]])
-    }
-  }
-  default_settings
-}
-
-create_interactive <- function(type, data_raw, input_settings, crosstalkGroup, width, height, elementId) {
-  x <- list(
-    data_raw = data_raw,
-    input_settings = input_settings,
-    crosstalkGroup = crosstalkGroup
-  )
-
-  htmlwidgets::createWidget(
-    name = type,
-    x,
-    sizingPolicy = htmlwidgets::sizingPolicy(
-      defaultWidth = "100%"
-    ),
-    width = width,
-    height = height,
-    package = "controlcharts",
-    elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
-  )
-}
-
 svg_string <- function(svg, width, height) {
   paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', svg, '</svg>')
 }
 
 create_static <- function(type, dataViews, width, height) {
-  dataViews[[1]]$categorical$categories[[1]]$objects <- lapply(dataViews[[1]]$categorical$categories[[1]]$objects, function(obj) {
-    settings <- prep_settings(type, obj)
-    settings$canvas$left_padding <- settings$canvas$left_padding + 50
-    settings$canvas$lower_padding <- settings$canvas$lower_padding + 50
-    settings
-  })
-  raw_ret <- ctx$call("updateVisual", type, dataViews, width, height)
+  dataViews[[1]]$categorical$categories[[1]]$objects <- lapply(
+    dataViews[[1]]$categorical$categories[[1]]$objects,
+    function(settings) {
+      if (is.null(settings$canvas)) {
+        settings$canvas <- .default_settings_impl(type, "canvas")
+      } else if (is.null(settings$canvas$left_padding)) {
+        settings$canvas <- modifyList(.default_settings_impl(type, "canvas"), settings$canvas)
+      }
+      settings$canvas$left_padding <- settings$canvas$left_padding + 50
+      settings$canvas$lower_padding <- settings$canvas$lower_padding + 50
+      settings
+    }
+  )
+  raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
   static_plot <- structure(
     list(
       type = type,
@@ -197,27 +145,9 @@ create_save_fun <- function(type, html_plt, dataViews) {
       height <- ifelse(is.null(height), 400, height)
     }
 
-    svg <- ctx$call("updateVisual", type, dataViews, width, height)$svg
+    svg <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
     save_fun(charToRaw(svg_resized), file, width = width * 3, height = height * 3)
     invisible(NULL)
   }
-}
-
-#' @exportS3Method
-print.static_plot <- function(x, ...) {
-  grid::grid.newpage()
-  viewer_dims <- grDevices::dev.size("px")
-  width <- ifelse(is.null(x$width), viewer_dims[1], x$width)
-  height <- ifelse(is.null(x$height), viewer_dims[2], x$height)
-  svg <- ctx$call("updateVisual", x$type, x$dataViews, width, height)$svg
-  svg_resized <- svg_string(svg, width, height)
-  # Rasterize at 3x resolution for better quality
-  svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)
-  grid::grid.raster(svg)
-}
-
-#' @exportS3Method
-print.controlchart <- function(x, ...) {
-  print(x$html_plot)
 }

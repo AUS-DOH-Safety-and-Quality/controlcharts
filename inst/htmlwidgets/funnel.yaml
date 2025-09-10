@@ -9,4 +9,5 @@ dependencies:
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
     script:
-      - UTILS.js
+      - commonUtils.js
+      - interactiveUtils.js

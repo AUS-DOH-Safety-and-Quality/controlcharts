@@ -95,14 +95,21 @@ funnel <- function(keys,
   })
 
   # create widget
-  html_plt <- create_interactive(
-    type = 'funnel',
-    data_raw = data_df,
-    input_settings = input_settings,
-    crosstalkGroup = crosstalkGroup,
+  html_plt <- htmlwidgets::createWidget(
+    name = 'funnel',
+    x = list(
+      data_raw = data_df,
+      input_settings = input_settings,
+      crosstalkGroup = crosstalkGroup
+    ),
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth = "100%"
+    ),
     width = width,
     height = height,
-    elementId = elementId
+    package = "controlcharts",
+    elementId = elementId,
+    dependencies = crosstalk::crosstalkLibs()
   )
 
   dataViews <- ctx$call("makeUpdateValues", data_df, input_settings)$dataViews

@@ -116,15 +116,22 @@ spc <- function(keys,
     lapply(data_raw, function(elem){ elem[idx] })
   })
 
-  # create widget
-  html_plt <- create_interactive(
-    type = 'spc',
-    data_raw = data_df,
-    input_settings = input_settings,
-    crosstalkGroup = crosstalkGroup,
+  # Create interactive plot
+  html_plt <- htmlwidgets::createWidget(
+    name = 'spc',
+    x = list(
+      data_raw = data_df,
+      input_settings = input_settings,
+      crosstalkGroup = crosstalkGroup
+    ),
+    sizingPolicy = htmlwidgets::sizingPolicy(
+      defaultWidth = "100%"
+    ),
     width = width,
     height = height,
-    elementId = elementId
+    package = "controlcharts",
+    elementId = elementId,
+    dependencies = crosstalk::crosstalkLibs()
   )
 
   dataViews <- ctx$call("makeUpdateValues", data_df, input_settings)$dataViews
