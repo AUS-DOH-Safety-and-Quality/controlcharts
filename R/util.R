@@ -98,16 +98,11 @@ prep_settings <- function(type, input_settings) {
   default_settings
 }
 
-create_interactive <- function(type, categories, values, crosstalkIdentities, crosstalkGroup, width, height, elementId, data_raw, input_settings) {
+create_interactive <- function(type, data_raw, input_settings, crosstalkGroup, width, height, elementId) {
   x <- list(
-    categories = categories,
-    values = values,
-    settings = list(
-      crosstalkIdentities = crosstalkIdentities,
-      crosstalkGroup = crosstalkGroup
-    ),
     data_raw = data_raw,
-    input_settings = input_settings
+    input_settings = input_settings,
+    crosstalkGroup = crosstalkGroup
   )
 
   htmlwidgets::createWidget(
@@ -128,18 +123,18 @@ svg_string <- function(svg, width, height) {
   paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', svg, '</svg>')
 }
 
-create_static <- function(type, categories, values, width, height) {
-  categories[[1]]$objects <- lapply(categories[[1]]$objects, function(obj) {
-    obj$canvas$left_padding <- obj$canvas$left_padding + 50
-    obj$canvas$lower_padding <- obj$canvas$lower_padding + 50
-    obj
+create_static <- function(type, dataViews, width, height) {
+  dataViews[[1]]$categorical$categories[[1]]$objects <- lapply(dataViews[[1]]$categorical$categories[[1]]$objects, function(obj) {
+    settings <- prep_settings(type, obj)
+    settings$canvas$left_padding <- settings$canvas$left_padding + 50
+    settings$canvas$lower_padding <- settings$canvas$lower_padding + 50
+    settings
   })
-  raw_ret <- ctx$call("updateVisual", type, categories, values, width, height)
+  raw_ret <- ctx$call("updateVisual", type, dataViews, width, height)
   static_plot <- structure(
     list(
       type = type,
-      categories = categories,
-      values = values,
+      dataViews = dataViews,
       width = width,
       height = height
     ),
@@ -171,7 +166,7 @@ create_static <- function(type, categories, values, width, height) {
   )
 }
 
-create_save_fun <- function(type, html_plt, categories, values) {
+create_save_fun <- function(type, html_plt, dataViews) {
   function(file, height = NULL, width = NULL) {
     file_ext <- tools::file_ext(file)
     valid_exts <- c("webp", "png", "pdf", "svg", "ps", "eps", "html")
@@ -202,7 +197,7 @@ create_save_fun <- function(type, html_plt, categories, values) {
       height <- ifelse(is.null(height), 400, height)
     }
 
-    svg <- ctx$call("updateVisual", type, categories, values, width, height)$svg
+    svg <- ctx$call("updateVisual", type, dataViews, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
     save_fun(charToRaw(svg_resized), file, width = width * 3, height = height * 3)
     invisible(NULL)
@@ -215,7 +210,7 @@ print.static_plot <- function(x, ...) {
   viewer_dims <- grDevices::dev.size("px")
   width <- ifelse(is.null(x$width), viewer_dims[1], x$width)
   height <- ifelse(is.null(x$height), viewer_dims[2], x$height)
-  svg <- ctx$call("updateVisual", x$type, x$categories, x$values, width, height)$svg
+  svg <- ctx$call("updateVisual", x$type, x$dataViews, width, height)$svg
   svg_resized <- svg_string(svg, width, height)
   # Rasterize at 3x resolution for better quality
   svg <- rsvg::rsvg_nativeraster(charToRaw(svg_resized), width=width*3, height=height*3)

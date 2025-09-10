@@ -81,62 +81,35 @@ spc <- function(keys,
 
   input_settings <- validate_settings('spc', input_settings)
 
-  chart_settings <- prep_settings('spc', input_settings)
-
   data_raw <- list(
     crosstalkIdentities = crosstalkIdentities,
     categories = eval(substitute(keys), input_data, parent.frame()),
     numerators = eval(substitute(numerators), input_data, parent.frame())
   )
 
-  keys <- eval(substitute(keys), input_data, parent.frame())
-  spc_categories <- values_entry('key', unique(keys), lapply(unique(keys), function(x) chart_settings))
-
-
-  if (!is.null(crosstalkIdentities)) {
-    crosstalkIdentities <- split(crosstalkIdentities, keys)
-  }
-
-  spc_values <- list()
-  if (!missing(numerators)) {
-    numerators <- as.numeric(eval(substitute(numerators), input_data, parent.frame()))
-    numerators <- aggregate(numerators, by = list(keys), FUN = sum)$x
-    spc_values <- append(spc_values, values_entry('numerators', numerators))
-  }
-
   if (!missing(denominators)) {
     denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
     data_raw <- append(data_raw, list(denominators = denominators))
-    denominators <- aggregate(denominators, by = list(keys), FUN = sum)$x
-    spc_values <- append(spc_values, values_entry('denominators', denominators))
   }
 
   if (!missing(groupings)) {
     groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))
     data_raw <- append(data_raw, list(groupings = groupings))
-    groupings <- aggregate(groupings, by = list(keys), FUN = first)$x
-    spc_values <- append(spc_values, values_entry('groupings', groupings))
   }
 
   if (!missing(xbar_sds)) {
     xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
     data_raw <- append(data_raw, list(xbar_sds = xbar_sds))
-    xbar_sds <- aggregate(xbar_sds, by = list(keys), FUN = sum)$x
-    spc_values <- append(spc_values, values_entry('xbar_sds', xbar_sds))
   }
 
   if (!missing(tooltips)) {
     tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
     data_raw <- append(data_raw, list(tooltips = tooltips))
-    tooltips <- aggregate(tooltips, by = list(keys), FUN = first)$x
-    spc_values <- append(spc_values, values_entry('tooltips', tooltips))
   }
 
   if (!missing(labels)) {
     labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
     data_raw <- append(data_raw, list(labels = labels))
-    labels <- aggregate(labels, by = list(keys), FUN = first)$x
-    spc_values <- append(spc_values, values_entry('labels', labels))
   }
 
   data_df <- lapply(seq_len(length(data_raw$categories)), function(idx) {
@@ -146,21 +119,19 @@ spc <- function(keys,
   # create widget
   html_plt <- create_interactive(
     type = 'spc',
-    categories = spc_categories,
-    values = spc_values,
-    crosstalkIdentities = crosstalkIdentities,
+    data_raw = data_df,
+    input_settings = input_settings,
     crosstalkGroup = crosstalkGroup,
     width = width,
     height = height,
-    elementId = elementId,
-    data_raw = data_df,
-    input_settings = input_settings
+    elementId = elementId
   )
+
+  dataViews <- ctx$call("makeUpdateValues", data_df, input_settings)$dataViews
 
   static <- create_static(
     type = 'spc',
-    categories = spc_categories,
-    values = spc_values,
+    dataViews = dataViews,
     width = width,
     height = height
   )
@@ -171,7 +142,7 @@ spc <- function(keys,
       static_plot = static$static_plot,
       limits = static$limits,
       raw = static$raw,
-      save_plot = create_save_fun('spc', html_plt, spc_categories, spc_values)
+      save_plot = create_save_fun('spc', html_plt, dataViews)
     ),
     class = "controlchart"
   )

@@ -13,8 +13,6 @@ function makeUpdateValues(rawData, inputSettings, crosstalkFilters) {
     identitiesGrouped.push([group, dataGrouped[group].map(d => d.crosstalkIdentities)]);
   }
 
-
-
   var args = {
     categories: [{
       source: { roles: {"key": true}, type: { temporal: { underlyingType: 519 } } },
@@ -114,16 +112,9 @@ const makeConstructorArgs = function(type, element) {
   }
 }
 
-function updateVisual(type, categories, values, width, height) {
+function updateVisual(type, dataViews, width, height) {
   var updateArgs = {
-    dataViews: [
-      {
-        categorical: {
-          categories: categories,
-          values: values
-        }
-      }
-    ],
+    dataViews: dataViews,
     viewport: {
       width: width,
       height: height
@@ -184,8 +175,8 @@ function makeFactory(type) {
 
     return {
       renderValue: function(x) {
-        crosstalkSelectionHandle.setGroup(x.settings.crosstalkGroup);
-        crosstalkFilterHandle.setGroup(x.settings.crosstalkGroup);
+        crosstalkSelectionHandle.setGroup(x.crosstalkGroup);
+        crosstalkFilterHandle.setGroup(x.crosstalkGroup);
 
         crosstalkFilterHandle.on("change", function(e) {
           var filteredUpdateValues = makeUpdateValues(x.data_raw, x.input_settings, e.value);

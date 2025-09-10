@@ -31,7 +31,10 @@ fun_plt <- controlcharts::funnel(keys = estab,
                                  data = crosstalk_dat,
                                  scatter_settings = list(size = 4),
                                  y_axis_settings = list(ylimit_u = 100))
-crosstalk::bscols(list(crosstalk::filter_checkbox("estab", "Establishment", crosstalk_dat, ~estab)), spc_plt$html_plot)
 
-p1 <- plotly::plot_ly(data = crosstalk_dat, x = ~month_start, y = ~numerators)
-crosstalk::bscols(p1, spc_plt$html_plot)
+crosstalk::bscols(fun_plt$html_plot, spc_plt$html_plot)
+
+
+
+crosstalk::bscols(list(crosstalk::filter_checkbox("estab", "Establishment", crosstalk_dat, ~estab)), spc_plt$html_plot)
+spc_plt
