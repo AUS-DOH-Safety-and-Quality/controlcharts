@@ -64,7 +64,7 @@ function makeFactory(chartType) {
           visualUpdateArgs.dataViews = filteredUpdateValues.dataViews;
           visualUpdateArgs.type = 2; // Change in data, so recalculate limits
 
-          visual.update(updateArgs);
+          visual.update(visualUpdateArgs);
         })
 
         // Replace PowerBI function for assigning selection identities to points,
