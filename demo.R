@@ -68,9 +68,11 @@ fun_plt <- controlcharts::funnel(keys = organisation,
                                  scatter_settings = list(size = 4),
                                  y_axis_settings = list(ylimit_u = 100))
 
-crosstalk::bscols(list(crosstalk::filter_slider("dateFilter", "Date", crosstalk_dat, ~month_start, width = "100%"),
+crosstalk::bscols(list(
+                      crosstalk::filter_slider("dateFilter", "Date", crosstalk_dat, ~month_start, width = "100%"),
                        crosstalk::filter_checkbox("countryFilter", "Country", crosstalk_dat, ~country, inline = TRUE),
-                       crosstalk::filter_checkbox("orgFilter", "Organisation", crosstalk_dat, ~organisation, inline = TRUE)),
+                       crosstalk::filter_checkbox("orgFilter", "Organisation", crosstalk_dat, ~organisation)
+                  ),
                   fun_plt$html_plot,
                   spc_plt$html_plot)
 spc_plt

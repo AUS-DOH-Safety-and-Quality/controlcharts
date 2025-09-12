@@ -4,6 +4,7 @@
 ^testing\.R$
 demo.R
 Dev.qmd
+Dev.Rmd
 Dev.html
 Dev_files
 update-lib.sh

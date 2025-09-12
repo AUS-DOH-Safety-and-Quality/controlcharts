@@ -8749,6 +8749,16 @@
                           { displayName: "Square-Root", value: "sqrt" }
                       ]
                   },
+                  ttip_show_group: {
+                      displayName: "Show Group in Tooltip",
+                      type: "ToggleSwitch" /* powerbi.visuals.FormattingComponent.ToggleSwitch */,
+                      default: true
+                  },
+                  ttip_label_group: {
+                      displayName: "Group Tooltip Label",
+                      type: "TextInput" /* powerbi.visuals.FormattingComponent.TextInput */,
+                      default: "Group"
+                  },
                   ttip_show_numerator: {
                       displayName: "Show Numerator in Tooltip",
                       type: "ToggleSwitch" /* powerbi.visuals.FormattingComponent.ToggleSwitch */,
@@ -9594,7 +9604,8 @@
                   ylimit_sig_figs: {
                       displayName: "Tick Decimal Places",
                       type: "NumUpDown" /* powerbi.visuals.FormattingComponent.NumUpDown */,
-                      default: null
+                      default: null,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
                   },
                   ylimit_l: {
                       displayName: "Lower Limit",
@@ -39578,10 +39589,12 @@
           "RC": "Rate"
       };
       const tooltip = new Array();
-      tooltip.push({
-          displayName: "Group",
-          value: group
-      });
+      if (inputSettings.funnel.ttip_show_group) {
+          tooltip.push({
+              displayName: inputSettings.funnel.ttip_label_group,
+              value: group
+          });
+      }
       if (inputSettings.funnel.ttip_show_value) {
           const ttip_label_value = inputSettings.funnel.ttip_label_value;
           tooltip.push({
@@ -41623,6 +41636,7 @@
               return getAesthetic(d[0], "lines", "opacity", this.viewModel.inputSettings.settings);
           });
           dotsSelection.style("fill-opacity", (d) => d.aesthetics.opacity);
+          dotsSelection.style("stroke-opacity", (d) => d.aesthetics.opacity);
           if (anyHighlights || (allSelectionIDs.length > 0)) {
               linesSelection.style("stroke-opacity", (d) => {
                   return getAesthetic(d[0], "lines", "opacity_unselected", this.viewModel.inputSettings.settings);
@@ -41633,6 +41647,7 @@
                   const currentPointHighlighted = dot.highlighted;
                   const newDotOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics.opacity_selected : dot.aesthetics.opacity_unselected;
                   select(currentDotNode).style("fill-opacity", newDotOpacity);
+                  select(currentDotNode).style("stroke-opacity", newDotOpacity);
               });
           }
       }
@@ -41647,38 +41662,30 @@
               .call(drawLabels, this);
       }
       adjustPaddingForOverflow() {
-          let xLeftOverflow = 0;
-          let xRightOverflow = 0;
-          let yBottomOverflow = 0;
-          let yTopOverflow = 0;
+          // Headless mode does not render to screen so do not attempt to adjust for overflow
+          if (this.viewModel.headless) {
+              return;
+          }
           const svgWidth = this.viewModel.svgWidth;
           const svgHeight = this.viewModel.svgHeight;
-          const headless = this.viewModel.headless;
-          const svgRect = this.svg.node().getBoundingClientRect();
-          // Select xaxisgroup and y
-          this.svg.selectChildren().each(function () {
-              const currentClass = select(this).attr("class");
-              if (["yaxislabel", "xaxislabel", "dotsgroup", "text-labels"].includes(currentClass)) {
-                  return;
-              }
-              const boundRect = this.getBoundingClientRect();
-              // getBBox not available in headless mode
-              const bbox = headless ? { x: 0 } : this.getBBox();
-              xLeftOverflow = Math.min(xLeftOverflow, bbox.x);
-              xRightOverflow = Math.max(xRightOverflow, boundRect.right - (svgWidth + boundRect.left - bbox.x));
-              yBottomOverflow = Math.max(yBottomOverflow, boundRect.bottom - svgRect.bottom);
-              yTopOverflow = Math.min(yTopOverflow, boundRect.top - svgRect.top);
-          });
-          xLeftOverflow = Math.abs(xLeftOverflow);
-          xRightOverflow = Math.abs(xRightOverflow);
-          yBottomOverflow = Math.abs(yBottomOverflow);
-          yTopOverflow = Math.abs(yTopOverflow);
-          // Only redraw plot if overflow occurred
-          if ((xLeftOverflow + xRightOverflow + yBottomOverflow + yTopOverflow) > 0) {
-              this.viewModel.plotProperties.xAxis.start_padding += xLeftOverflow + this.viewModel.plotProperties.xAxis.start_padding;
-              this.viewModel.plotProperties.xAxis.end_padding += xRightOverflow + this.viewModel.plotProperties.xAxis.end_padding;
-              this.viewModel.plotProperties.yAxis.start_padding += yBottomOverflow + this.viewModel.plotProperties.yAxis.start_padding;
-              this.viewModel.plotProperties.yAxis.end_padding += yTopOverflow + this.viewModel.plotProperties.yAxis.end_padding;
+          const svgBBox = this.svg.node().getBBox();
+          const overflowLeft = Math.abs(Math.min(0, svgBBox.x));
+          const overflowRight = Math.max(0, svgBBox.width + svgBBox.x - svgWidth);
+          const overflowTop = Math.abs(Math.min(0, svgBBox.y));
+          const overflowBottom = Math.max(0, svgBBox.height + svgBBox.y - svgHeight);
+          if (overflowLeft > 0) {
+              this.viewModel.plotProperties.xAxis.start_padding += overflowLeft + this.viewModel.plotProperties.xAxis.start_padding;
+          }
+          if (overflowRight > 0) {
+              this.viewModel.plotProperties.xAxis.end_padding += overflowRight + this.viewModel.plotProperties.xAxis.end_padding;
+          }
+          if (overflowTop > 0) {
+              this.viewModel.plotProperties.yAxis.end_padding += overflowTop + this.viewModel.plotProperties.yAxis.end_padding;
+          }
+          if (overflowBottom > 0) {
+              this.viewModel.plotProperties.yAxis.start_padding += overflowBottom + this.viewModel.plotProperties.yAxis.start_padding;
+          }
+          if (overflowLeft > 0 || overflowRight > 0 || overflowTop > 0 || overflowBottom > 0) {
               this.viewModel.plotProperties.initialiseScale(svgWidth, svgHeight);
               this.drawVisual();
           }
