@@ -16,6 +16,11 @@ jobs:
   update-lib:
     name: "Update Library"
     runs-on: "ubuntu-latest"
+    env:
+      REPO_NAME: ""
+      LIB_NAME: ""
+      YAML_NAME: ""
+      PBIVER: ""
 
     steps:
     - uses: actions/checkout@v5
@@ -32,12 +37,30 @@ jobs:
           echo "YAML_NAME=funnel" >> $GITHUB_ENV
         fi
 
-    - name: Clone Library Repo
+    - name: Clone ${{ env.REPO_NAME }} Repo
       uses: actions/checkout@v5
       with:
-        repository: "AUS-DOH-Safety-and-Quality/$REPO_NAME"
-        path: $REPO_NAME
+        repository: "AUS-DOH-Safety-and-Quality/${{ env.REPO_NAME }}"
+        path: ${{ env.REPO_NAME }}
 
-    - name: Install Dependencies
-      run: npm install
-      working-directory: $REPO_NAME
+    - name: Install ${{ env.LIB_NAME }} and Replace Bundle
+      run: |
+        npm install
+        npm run bundle
+        mv .tmp/build/${{ env.LIB_NAME }}.js ../inst/htmlwidgets/lib/${{ env.LIB_NAME }}
+      working-directory: ${{ env.REPO_NAME }}
+
+    - name: Update htmlwidgets YAML config for ${{ env.LIB_NAME }}
+      run: |
+        PBIVER=$(jq '.visual.version' pbiviz.json | sed 's/"//g')
+        echo "PBIVER=$PBIVER" >> $GITHUB_ENV
+        sed -i "/- name: ${{ env.LIB_NAME }}/{n;s/version: .*/version: $PBIVER/;}" ../inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
+      working-directory: ${{ env.REPO_NAME }}
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        git add inst/htmlwidgets/lib/${{ env.LIB_NAME }} inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
+        git commit -m "Update ${{ env.LIB_NAME }} library to version ${{ env.PBIVER }}"
+        git push
