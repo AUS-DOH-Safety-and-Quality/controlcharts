@@ -2,16 +2,24 @@ Package: controlcharts
 Title: Interactive Plotting for Funnel and Statistical Process Control Charts
 Version: 0.0.0.9000
 Authors@R: c(
-    person(c("Andrew", "R."), "Johnson", , "andrew.johnson@arjohnsonau.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-7000-8065"))
-  )
-Description: An 'R' front-end for the WA Health 'PowerBI' custom visuals for funnel plots and SPC charts.
+  person(c("Andrew", "R."), "Johnson", , "andrew.johnson@arjohnsonau.com",
+          role = c("aut", "cre"),
+          comment = c(ORCID = "0000-0001-7000-8065")))
+Description: Generate fully interactive and dynamic funnel plots and statistical
+  process control (SPC) charts. All data manaipulation, calculation, and plotting
+  is done in JavaScript, allowing for completely dynamic charts without the need
+  for a Shiny server.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
-    htmlwidgets,
-    crosstalk,
-    QuickJSR,
-    rsvg
+  htmlwidgets,
+  crosstalk,
+  QuickJSR,
+  rsvg
+Suggests:
+    DT,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

@@ -4,3 +4,4 @@ testing.R
 /.quarto/
 *.html
 *_files
+inst/doc
