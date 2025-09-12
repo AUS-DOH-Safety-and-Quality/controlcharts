@@ -52,10 +52,10 @@ jobs:
 
     - name: Update htmlwidgets YAML config for ${{ env.LIB_NAME }}
       run: |
-        PBIVER=$(jq '.visual.version' pbiviz.json | sed 's/"//g')
+        PBIVER=$(jq '.visual.version' ${{ env.REPO_NAME }}/pbiviz.json | sed 's/"//g')
         echo "PBIVER=$PBIVER" >> $GITHUB_ENV
-        sed -i "/- name: ${{ env.LIB_NAME }}/{n;s/version: .*/version: $PBIVER/;}" ../inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
-      working-directory: ${{ env.REPO_NAME }}
+        sed -i "/- name: ${{ env.LIB_NAME }}/{n;s/version: .*/version: $PBIVER/;}" inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
+        rm -rf ${{ env.REPO_NAME }}
 
     - name: Commit and Push Changes
       run: |
