@@ -67,9 +67,9 @@ spc_plt$html_plot
 ### Static
 
 ```{r}
-grDevices::dev.size("px")
 spc_plt$static_plot
 ```
+
 
 ### Control Limits
 
