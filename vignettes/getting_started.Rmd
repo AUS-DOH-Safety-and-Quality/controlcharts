@@ -12,16 +12,18 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
 
-```{r setup}
-library(controlcharts)
+# Workaround for crosstalk bug which needs 'filter_slider' to be first HTML element when working with dates
+# Simply create a hidden/'dummy' filter to initialise correct includes
+# https://github.com/rstudio/crosstalk/issues/65
+crosstalk::filter_slider("dummy", "dummy", crosstalk::SharedData$new(data.frame(d = as.Date("01/01/1970"))), ~d)
 ```
 
 ## Generate Data
 
 ```{r}
 library(controlcharts)
+
 set.seed(12324)
 
 dat <- do.call(
@@ -66,10 +68,16 @@ spc_plt$html_plot
 
 ### Static
 
-```{r}
+```{r, eval=FALSE}
 spc_plt$static_plot
 ```
 
+
+```{r, echo=FALSE, out.width=640}
+temp_png <- tempfile(fileext = ".png")
+spc_plt$save_plot(temp_png, width = 640, height = 480)
+knitr::include_graphics(temp_png)
+```
 
 ### Control Limits
 
@@ -100,8 +108,15 @@ fun_plt$html_plot
 
 ### Static
 
-```{r}
+```{r, eval=FALSE}
 fun_plt$static_plot
+```
+
+
+```{r, echo=FALSE, out.width=640}
+temp_png <- tempfile(fileext = ".png")
+fun_plt$save_plot(temp_png, width = 640, height = 480)
+knitr::include_graphics(temp_png)
 ```
 
 ### Control Limits
