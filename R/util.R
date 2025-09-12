@@ -122,7 +122,7 @@ create_static <- function(type, dataViews, width, height) {
 }
 
 create_save_function <- function(type, html_plt, dataViews) {
-  function(file, width = NUL, height = NULL) {
+  function(file, width = NULL, height = NULL) {
     file_ext <- tools::file_ext(file)
     valid_exts <- c("webp", "png", "pdf", "svg", "ps", "eps", "html")
     if (!(file_ext %in% valid_exts)) {
