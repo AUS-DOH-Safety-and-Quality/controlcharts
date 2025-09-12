@@ -61,7 +61,10 @@ validate_settings <- function(type, input_settings) {
 }
 
 svg_string <- function(svg, width, height) {
-  paste('<svg viewBox="0 0', width, height, '" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="100%" height="100%" fill="white"/>', svg, '</svg>')
+  paste0('<svg viewBox="0 0 ', width, ' ', height, '" width="', width, 'px" height="', height, 'px" xmlns="http://www.w3.org/2000/svg">',
+        '<rect x="0" y="0" width="100%" height="100%" fill="white"/>',
+        svg,
+        '</svg>')
 }
 
 update_static_padding <- function(type, dataViews) {
