@@ -9289,6 +9289,121 @@
                       type: "TextInput",
                       default: ""
                   }
+              },
+              "Trend": {
+                  show_trend: {
+                      displayName: "Show Trend",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  width_trend: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 1.5,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_trend: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "10 0",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_trend: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.common_cause
+                  },
+                  opacity_trend: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_trend: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_trend: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_trend: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_trend: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "Centerline"
+                  },
+                  plot_label_show_trend: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_trend: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_trend: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_trend: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["above", "below", "beside"],
+                      items: [
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_trend: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_trend: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_trend: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_trend: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_trend: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_trend: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
               }
           }
       },
@@ -21543,6 +21658,12 @@
               value: formatValues(table_row.denominator, "integer")
           });
       }
+      if (inputSettings.lines.ttip_show_trend && inputSettings.lines.show_trend) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_trend,
+              value: formatValues(table_row.trend_line, "value")
+          });
+      }
       if (inputSettings.lines.show_specification && inputSettings.lines.ttip_show_specification) {
           if (!isNullOrUndefined(table_row.speclimits_upper)) {
               tooltip.push({
@@ -22006,7 +22127,8 @@
       "values": "main",
       "alt_targets": "alt_target",
       "speclimits_lower": "specification",
-      "speclimits_upper": "specification"
+      "speclimits_upper": "specification",
+      "trend_line": "trend",
   };
   function getAesthetic(type, group, aesthetic, inputSettings) {
       const mapName = group.includes("line") ? lineNameMap[type] : type;
@@ -23110,6 +23232,31 @@
       return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
+  function calculateTrendLine(values) {
+      const n = values.length;
+      if (n === 0)
+          return [];
+      let sumY = 0;
+      let sumX = 0;
+      let sumXY = 0;
+      let sumX2 = 0;
+      for (let i = 0; i < n; i++) {
+          const x = i + 1;
+          const y = values[i];
+          sumX += x;
+          sumY += y;
+          sumXY += x * y;
+          sumX2 += x * x;
+      }
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      const trendLine = [];
+      for (let i = 0; i < n; i++) {
+          trendLine.push(slope * (i + 1) + intercept);
+      }
+      return trendLine;
+  }
+
   class plotPropertiesClass {
       initialiseScale(svgWidth, svgHeight) {
           this.xScale = linear()
@@ -23967,7 +24114,11 @@
                   data.limitInputArgs.keys = data.limitInputArgs.keys.slice(indexes[0], indexes[1]);
                   return data;
               });
-              const calcLimitsGrouped = groupedData.map(d => limitFunction(d.limitInputArgs));
+              const calcLimitsGrouped = groupedData.map(d => {
+                  const currLimits = limitFunction(d.limitInputArgs);
+                  currLimits.trend_line = calculateTrendLine(currLimits.values);
+                  return currLimits;
+              });
               controlLimits = calcLimitsGrouped.reduce((all, curr) => {
                   const allInner = all;
                   Object.entries(all).forEach((entry, idx) => {
@@ -23979,6 +24130,7 @@
           }
           else {
               controlLimits = limitFunction(inputData.limitInputArgs);
+              controlLimits.trend_line = calculateTrendLine(controlLimits.values);
           }
           controlLimits.alt_targets = inputData.alt_targets;
           controlLimits.speclimits_lower = inputData.speclimits_lower;
@@ -24110,7 +24262,7 @@
           }
       }
       initialisePlotData(host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
           this.plotPoints = new Array();
           this.tickLabels = new Array();
           this.tableColumns = new Array();
@@ -24130,6 +24282,9 @@
           }
           if (this.inputSettings.settings.lines.show_specification) {
               this.tableColumns.push({ name: "speclimits_lower", label: "Spec. Lower" }, { name: "speclimits_upper", label: "Spec. Upper" });
+          }
+          if (this.inputSettings.settings.lines.show_trend) {
+              this.tableColumns.push({ name: "trend_line", label: "Trend Line" });
           }
           if (this.inputSettings.derivedSettings.chart_type_props.has_control_limits) {
               if (this.inputSettings.settings.lines.show_99) {
@@ -24188,6 +24343,7 @@
                   ul99: (_p = (_o = this.controlLimits) === null || _o === void 0 ? void 0 : _o.ul99) === null || _p === void 0 ? void 0 : _p[i],
                   speclimits_lower: (_r = (_q = this.controlLimits) === null || _q === void 0 ? void 0 : _q.speclimits_lower) === null || _r === void 0 ? void 0 : _r[i],
                   speclimits_upper: (_t = (_s = this.controlLimits) === null || _s === void 0 ? void 0 : _s.speclimits_upper) === null || _t === void 0 ? void 0 : _t[i],
+                  trend_line: (_v = (_u = this.controlLimits) === null || _u === void 0 ? void 0 : _u.trend_line) === null || _v === void 0 ? void 0 : _v[i],
                   astpoint: this.outliers.astpoint[i],
                   trend: this.outliers.trend[i],
                   shift: this.outliers.shift[i],
@@ -24201,10 +24357,10 @@
                   identity: host.createSelectionIdBuilder()
                       .withCategory(this.inputData.categories, this.inputData.limitInputArgs.keys[i].id)
                       .createSelectionId(),
-                  highlighted: !isNullOrUndefined((_u = this.inputData.highlights) === null || _u === void 0 ? void 0 : _u[index]),
-                  tooltip: buildTooltip(table_row, (_w = (_v = this.inputData) === null || _v === void 0 ? void 0 : _v.tooltips) === null || _w === void 0 ? void 0 : _w[index], this.inputSettings.settings, this.inputSettings.derivedSettings),
+                  highlighted: !isNullOrUndefined((_w = this.inputData.highlights) === null || _w === void 0 ? void 0 : _w[index]),
+                  tooltip: buildTooltip(table_row, (_y = (_x = this.inputData) === null || _x === void 0 ? void 0 : _x.tooltips) === null || _y === void 0 ? void 0 : _y[index], this.inputSettings.settings, this.inputSettings.derivedSettings),
                   label: {
-                      text_value: (_x = this.inputData.labels) === null || _x === void 0 ? void 0 : _x[index],
+                      text_value: (_z = this.inputData.labels) === null || _z === void 0 ? void 0 : _z[index],
                       aesthetics: this.inputData.label_formatting[index],
                       angle: null,
                       distance: null,
@@ -24228,6 +24384,9 @@
           }
           if (this.inputSettings.settings.lines.show_specification) {
               labels.push("speclimits_lower", "speclimits_upper");
+          }
+          if (this.inputSettings.settings.lines.show_trend) {
+              labels.push("trend_line");
           }
           if (this.inputSettings.derivedSettings.chart_type_props.has_control_limits) {
               if (this.inputSettings.settings.lines.show_99) {
@@ -24380,6 +24539,10 @@
   }
 
   function drawDots(selection, visualObj) {
+      const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
+      const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
+      const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
+      const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
       selection
           .select(".dotsgroup")
           .selectAll("path")
@@ -24392,21 +24555,16 @@
           return Symbol$1().type(d3[`symbol${shape}`]).size((size * size) * Math.PI)();
       })
           .attr("transform", (d) => {
+          if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
+              return "translate(0, 0) scale(0)";
+          }
           return `translate(${visualObj.viewModel.plotProperties.xScale(d.x)}, ${visualObj.viewModel.plotProperties.yScale(d.value)})`;
       })
           .style("fill", (d) => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
-          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper)) ? d.aesthetics.colour : "#FFFFFF";
+          return d.aesthetics.colour;
       })
           .style("stroke", (d) => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
-          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper)) ? d.aesthetics.colour_outline : "#FFFFFF";
+          return d.aesthetics.colour_outline;
       })
           .style("stroke-width", (d) => d.aesthetics.width_outline)
           .on("click", (event, d) => {
@@ -25353,13 +25511,14 @@
           const plotPoints = visualObj.viewModel.plotPoints;
           const boundRect = visualObj.svg.node().getBoundingClientRect();
           const xValue = plotProperties.xScale.invert(event.pageX - boundRect.left);
-          const xRange = plotPoints.map(d => d.x).map(d => Math.abs(d - xValue));
-          const nearestDenominator = leastIndex(xRange, (a, b) => a - b);
-          const x_coord = plotProperties.xScale(plotPoints[nearestDenominator].x);
-          const y_coord = plotProperties.yScale(plotPoints[nearestDenominator].value);
+          const yValue = plotProperties.yScale.invert(event.pageY - boundRect.top);
+          const distances = plotPoints.map(d => Math.sqrt(Math.pow(d.x - xValue, 2) + Math.pow(d.value - yValue, 2)));
+          const indexNearestValue = leastIndex(distances, (a, b) => a - b);
+          const x_coord = plotProperties.xScale(plotPoints[indexNearestValue].x);
+          const y_coord = plotProperties.yScale(plotPoints[indexNearestValue].value);
           visualObj.host.tooltipService.show({
-              dataItems: plotPoints[nearestDenominator].tooltip,
-              identities: [plotPoints[nearestDenominator].identity],
+              dataItems: plotPoints[indexNearestValue].tooltip,
+              identities: [plotPoints[indexNearestValue].identity],
               coordinates: [x_coord, y_coord],
               isTouchEvent: false
           });
@@ -38811,6 +38970,7 @@
   exports.c = cLimits;
   exports.c4 = c4;
   exports.c5 = c5;
+  exports.calculateTrendLine = calculateTrendLine;
   exports.checkFlagDirection = checkFlagDirection;
   exports.d3 = d3;
   exports.dateSettingsToFormatOptions = dateSettingsToFormatOptions;
