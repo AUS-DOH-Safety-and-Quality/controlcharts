@@ -47,10 +47,10 @@ DT::datatable(dat)
 ### Create Plot
 
 ```{r}
-spc_plt <- controlcharts::spc(keys = month_start,
+spc_plt <- controlcharts::spc(data = dat,
+                              keys = month_start,
                               numerators = numerators,
                               denominators = denominators,
-                              data = dat,
                               scatter_settings = list(size = 4),
                               outlier_settings = list(astronomical = TRUE,
                                                       shift = TRUE,
@@ -91,10 +91,10 @@ DT::datatable(spc_plt$limits) |>
 ### Create Plot
 
 ```{r}
-fun_plt <- controlcharts::funnel(keys = organisation,
+fun_plt <- controlcharts::funnel(data = dat,
+                                 keys = organisation,
                                  numerators = numerators,
                                  denominators=denominators,
-                                 data = dat,
                                  scatter_settings = list(size = 4),
                                  y_axis_settings = list(ylimit_u = 100),
                               width = 640, height = 480)
@@ -130,20 +130,20 @@ DT::datatable(fun_plt$limits) |>
 
 ```{r}
 crosstalk_dat <- crosstalk::SharedData$new(dat)
-spc_plt <- controlcharts::spc(keys = month_start,
+spc_plt <- controlcharts::spc(data = crosstalk_dat,
+                              keys = month_start,
                               numerators = numerators,
                               denominators = denominators,
-                              data = crosstalk_dat,
                               scatter_settings = list(size = 4),
                               outlier_settings = list(astronomical = TRUE,
                                                       shift = TRUE,
                                                       shift_n = 4,
                                                       two_in_three = TRUE),
                               nhs_icon_settings = list(show_variation_icons = TRUE))
-fun_plt <- controlcharts::funnel(keys = organisation,
+fun_plt <- controlcharts::funnel(data = crosstalk_dat,
+                                 keys = organisation,
                                  numerators = numerators,
                                  denominators=denominators,
-                                 data = crosstalk_dat,
                                  scatter_settings = list(size = 4),
                                  y_axis_settings = list(ylimit_u = 100))
 ```
