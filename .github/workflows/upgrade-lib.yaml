@@ -1,37 +1,33 @@
-name: "Update SPC/Funnel Chart Library"
+name: "Update SPC & Funnel Chart Libraries"
 on:
   workflow_dispatch:
-    inputs:
-      library:
-        description: "Library to update"
-        required: true
-        type: choice
-        options:
-          - SPC
-          - Funnel
 permissions:
   contents: write
 
 jobs:
   update-lib:
-    name: "Update Library"
+    name: "Update ${{ matrix.library }} Library"
     runs-on: "ubuntu-latest"
     env:
       REPO_NAME: ""
       LIB_NAME: ""
       YAML_NAME: ""
       PBIVER: ""
+    strategy:
+      matrix:
+        library: [SPC, Funnel]
+      max-parallel: 1
 
     steps:
     - uses: actions/checkout@v5
 
     - name: Set name variables
       run: |
-        if [ "${{ github.event.inputs.library }}" == "SPC" ]; then
+        if [ "${{ matrix.library }}" == "SPC" ]; then
           echo "REPO_NAME=PowerBI-SPC" >> $GITHUB_ENV
           echo "LIB_NAME=PBISPC" >> $GITHUB_ENV
           echo "YAML_NAME=spc" >> $GITHUB_ENV
-        elif [ "${{ github.event.inputs.library }}" == "Funnel" ]; then
+        elif [ "${{ matrix.library }}" == "Funnel" ]; then
           echo "REPO_NAME=PowerBI-Funnels" >> $GITHUB_ENV
           echo "LIB_NAME=PBIFUN" >> $GITHUB_ENV
           echo "YAML_NAME=funnel" >> $GITHUB_ENV
