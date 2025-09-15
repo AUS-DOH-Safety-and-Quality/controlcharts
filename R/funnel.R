@@ -71,7 +71,7 @@ funnel <- function(data,
     y_axis = y_axis_settings,
     labels = label_settings
   )
-  input_settings <- validate_settings('spc', input_settings)
+  input_settings <- validate_settings('funnel', input_settings)
 
   data_raw <- list(
     crosstalkIdentities = crosstalkIdentities,
