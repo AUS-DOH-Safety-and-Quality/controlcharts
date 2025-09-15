@@ -86,6 +86,9 @@ update_static_padding <- function(type, dataViews) {
 
 create_static <- function(type, dataViews, width, height) {
   raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
+  if ("error" %in% names(raw_ret)) {
+    stop(raw_ret$error, call. = FALSE)
+  }
   static_plot <- structure(
     list(
       type = type,
