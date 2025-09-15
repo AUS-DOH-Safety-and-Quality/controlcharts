@@ -74,9 +74,8 @@ spc_plt$static_plot
 
 
 ```{r, echo=FALSE, out.width=640}
-temp_png <- tempfile(fileext = ".png")
-spc_plt$save_plot(temp_png, width = 640, height = 480)
-knitr::include_graphics(temp_png)
+spc_plt$save_plot("spc.png", width = 640, height = 480)
+knitr::include_graphics("spc.png")
 ```
 
 ### Control Limits
@@ -114,9 +113,8 @@ fun_plt$static_plot
 
 
 ```{r, echo=FALSE, out.width=640}
-temp_png <- tempfile(fileext = ".png")
-fun_plt$save_plot(temp_png, width = 640, height = 480)
-knitr::include_graphics(temp_png)
+fun_plt$save_plot("funnel.png", width = 640, height = 480)
+knitr::include_graphics("funnel.png")
 ```
 
 ### Control Limits
