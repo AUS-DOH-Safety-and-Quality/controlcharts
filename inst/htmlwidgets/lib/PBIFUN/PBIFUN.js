@@ -41070,6 +41070,10 @@
   //   - Tricky as the plotProperties get updated when rendering X & Y axes
   //      to add padding when rendering out of frame
   function dot_attributes(selection, visualObj) {
+      const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
+      const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
+      const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
+      const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
       selection
           .attr("d", (d) => {
           const shape = d.aesthetics.shape;
@@ -41077,32 +41081,31 @@
           return Symbol$1().type(d3[`symbol${shape}`]).size((size * size) * Math.PI)();
       })
           .attr("transform", (d) => {
+          if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
+              return "translate(0, 0) scale(0, 0)";
+          }
           return `translate(${visualObj.viewModel.plotProperties.xScale(d.x)}, ${visualObj.viewModel.plotProperties.yScale(d.value)})`;
       })
           .style("fill", (d) => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
-          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper))
-              ? d.aesthetics.colour
-              : "#FFFFFF";
+          return d.aesthetics.colour;
       })
           .style("stroke", (d) => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
-          return (between(d.value, ylower, yupper) && between(d.x, xlower, xupper))
-              ? d.aesthetics.colour_outline
-              : "#FFFFFF";
+          return d.aesthetics.colour_outline;
       })
           .style("stroke-width", (d) => d.aesthetics.width_outline);
   }
   function text_attributes(selection, visualObj) {
+      const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
+      const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
+      const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
+      const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
       selection
-          .attr("y", (d) => visualObj.viewModel.plotProperties.yScale(d.value))
-          .attr("x", (d) => visualObj.viewModel.plotProperties.xScale(d.x))
+          .attr("transform", (d) => {
+          if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
+              return "translate(0, 0) scale(0, 0)";
+          }
+          return `translate(${visualObj.viewModel.plotProperties.xScale(d.x)}, ${visualObj.viewModel.plotProperties.yScale(d.value)})`;
+      })
           .attr("dy", "0.35em")
           .text((d) => d.group_text)
           .style("text-anchor", "middle")
@@ -41172,13 +41175,14 @@
           const plotPoints = visualObj.viewModel.plotPoints;
           const boundRect = visualObj.svg.node().getBoundingClientRect();
           const xValue = plotProperties.xScale.invert(event.pageX - boundRect.left);
-          const xRange = plotPoints.map(d => d.x).map(d => Math.abs(d - xValue));
-          const nearestDenominator = leastIndex(xRange, (a, b) => a - b);
-          const x_coord = plotProperties.xScale(plotPoints[nearestDenominator].x);
-          const y_coord = plotProperties.yScale(plotPoints[nearestDenominator].value);
+          const yValue = plotProperties.yScale.invert(event.pageY - boundRect.top);
+          const distances = plotPoints.map(d => Math.sqrt(Math.pow(d.x - xValue, 2) + Math.pow(d.value - yValue, 2)));
+          const indexNearestValue = leastIndex(distances, (a, b) => a - b);
+          const x_coord = plotProperties.xScale(plotPoints[indexNearestValue].x);
+          const y_coord = plotProperties.yScale(plotPoints[indexNearestValue].value);
           visualObj.host.tooltipService.show({
-              dataItems: plotPoints[nearestDenominator].tooltip,
-              identities: [plotPoints[nearestDenominator].identity],
+              dataItems: plotPoints[indexNearestValue].tooltip,
+              identities: [plotPoints[indexNearestValue].identity],
               coordinates: [x_coord, y_coord],
               isTouchEvent: false
           });
