@@ -28,6 +28,10 @@ function updateHeadlessVisual(chartType, dataViews, width, height) {
 
   var visual = globalThis[chartType + "Visual"];
   visual.update(updateArgs);
+  // Check for presence of 'errormessage' class and return error text if it exists
+  if (visual.svg.select('.errormessage').size() > 0) {
+    return { error: visual.svg.select('.errormessage').text() };
+  }
   return {
     plotPoints: visual.viewModel.plotPoints,
     svg: visual.svg.node().innerHTML,
