@@ -5,12 +5,12 @@
 \title{Generate interactive Funnel chart}
 \usage{
 funnel(
+  data,
   keys,
   numerators,
   denominators,
   tooltips,
   labels,
-  data,
   canvas_settings = NULL,
   funnel_settings = NULL,
   outlier_settings = NULL,
@@ -25,6 +25,8 @@ funnel(
 )
 }
 \arguments{
+\item{data}{A data frame containing the data for the chart.}
+
 \item{keys}{A vector or column name representing the categories of the chart.}
 
 \item{numerators}{A numeric vector or column name representing the numerators for each category.}
@@ -34,8 +36,6 @@ funnel(
 \item{tooltips}{A vector or column name representing the tooltips for each category.}
 
 \item{labels}{A vector or column name representing the labels for each category.}
-
-\item{data}{A data frame containing the data for the chart.}
 
 \item{canvas_settings}{Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.}
 

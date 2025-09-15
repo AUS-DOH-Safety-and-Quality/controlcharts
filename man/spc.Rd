@@ -5,6 +5,7 @@
 \title{Generate interactive SPC chart}
 \usage{
 spc(
+  data,
   keys,
   numerators,
   denominators,
@@ -12,7 +13,6 @@ spc(
   xbar_sds,
   tooltips,
   labels,
-  data,
   canvas_settings = NULL,
   spc_settings = NULL,
   outlier_settings = NULL,
@@ -29,6 +29,8 @@ spc(
 )
 }
 \arguments{
+\item{data}{A data frame containing the data for the chart.}
+
 \item{keys}{A vector or column name representing the categories (x-axis) of the chart.}
 
 \item{numerators}{A numeric vector or column name representing the numerators for each category.}
@@ -42,8 +44,6 @@ spc(
 \item{tooltips}{A vector or column name representing the tooltips for each category.}
 
 \item{labels}{A vector or column name representing the labels for each category.}
-
-\item{data}{A data frame containing the data for the chart.}
 
 \item{canvas_settings}{Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.}
 

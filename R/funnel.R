@@ -1,11 +1,11 @@
 #' Generate interactive Funnel chart
 #'
+#' @param data A data frame containing the data for the chart.
 #' @param keys A vector or column name representing the categories of the chart.
 #' @param numerators A numeric vector or column name representing the numerators for each category.
 #' @param denominators A numeric vector or column name representing the denominators for each category.
 #' @param tooltips A vector or column name representing the tooltips for each category.
 #' @param labels A vector or column name representing the labels for each category.
-#' @param data A data frame containing the data for the chart.
 #' @param canvas_settings Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.
 #' @param funnel_settings Optional list of settings for the Funnel chart, see \code{funnel_default_settings('funnel')} for valid options.
 #' @param outlier_settings Optional list of settings for outliers, see \code{funnel_default_settings('outliers')} for valid options.
@@ -21,12 +21,12 @@
 #' @return An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
 #'
 #' @export
-funnel <- function(keys,
+funnel <- function(data,
+                keys,
                 numerators,
                 denominators,
                 tooltips,
                 labels,
-                data,
                 canvas_settings = NULL,
                 funnel_settings = NULL,
                 outlier_settings = NULL,
