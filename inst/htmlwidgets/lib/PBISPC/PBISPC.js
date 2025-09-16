@@ -21926,7 +21926,7 @@
       const n_keys = idxs.length;
       for (let i = 0; i < n_keys; i++) {
           const keyParts = formattedKeys.map(keys => keys[i]).filter(k => k !== null && k !== undefined);
-          combinedKeys.push(keyParts.join(" "));
+          combinedKeys.push(keyParts.length > 0 ? keyParts.join(" ") : null);
       }
       return combinedKeys;
   }
@@ -23257,6 +23257,10 @@
       return trendLine;
   }
 
+  function isValidNumber(value) {
+      return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
+  }
+
   class plotPropertiesClass {
       initialiseScale(svgWidth, svgHeight) {
           this.xScale = linear()
@@ -23269,7 +23273,7 @@
               this.yAxis.end_padding]);
       }
       update(options, plotPoints, controlLimits, inputData, inputSettings, derivedSettings, colorPalette) {
-          var _a;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j;
           this.displayPlot = plotPoints
               ? plotPoints.length > 1
               : null;
@@ -23280,17 +23284,18 @@
           if (((_a = inputData === null || inputData === void 0 ? void 0 : inputData.validationStatus) === null || _a === void 0 ? void 0 : _a.status) == 0 && controlLimits) {
               xUpperLimit = !isNullOrUndefined(xUpperLimit) ? xUpperLimit : max(controlLimits.keys.map(d => d.x));
               const limitMultiplier = inputSettings.y_axis.limit_multiplier;
-              const values = controlLimits.values;
-              const ul99 = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99;
-              const speclimits_upper = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper;
-              const ll99 = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99;
-              const speclimits_lower = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower;
-              const alt_targets = controlLimits.alt_targets;
+              const values = controlLimits.values.filter(d => isValidNumber(d));
+              const ul99 = (_b = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _b === void 0 ? void 0 : _b.filter(d => isValidNumber(d));
+              const speclimits_upper = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d));
+              const ll99 = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _d === void 0 ? void 0 : _d.filter(d => isValidNumber(d));
+              const speclimits_lower = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d));
+              const alt_targets = (_f = controlLimits.alt_targets) === null || _f === void 0 ? void 0 : _f.filter(d => isValidNumber(d));
+              const targets = (_g = controlLimits.targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
               const maxValue = max(values);
               const maxValueOrLimit = max(values.concat(ul99).concat(speclimits_upper).concat(alt_targets));
               const minValueOrLimit = min$1(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
-              const maxTarget = max(controlLimits.targets);
-              const minTarget = min$1(controlLimits.targets);
+              const maxTarget = (_h = max(targets)) !== null && _h !== void 0 ? _h : 0;
+              const minTarget = (_j = min$1(targets)) !== null && _j !== void 0 ? _j : 0;
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
               const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
               const multiplier = derivedSettings.multiplier;
@@ -24103,6 +24108,7 @@
           return groupStartEndIndexes;
       }
       calculateLimits(inputData, groupStartEndIndexes, inputSettings) {
+          var _a;
           const limitFunction = limitFunctions[inputSettings.spc.chart_type];
           inputData.limitInputArgs.outliers_in_limits = inputSettings.spc.outliers_in_limits;
           let controlLimits;
@@ -24123,7 +24129,8 @@
                   const allInner = all;
                   Object.entries(all).forEach((entry, idx) => {
                       var _a;
-                      allInner[entry[0]] = (_a = entry[1]) === null || _a === void 0 ? void 0 : _a.concat(Object.entries(curr)[idx][1]);
+                      const newValues = Object.entries(curr)[idx][1];
+                      allInner[entry[0]] = (_a = entry[1]) === null || _a === void 0 ? void 0 : _a.concat(newValues);
                   });
                   return allInner;
               });
@@ -24135,10 +24142,16 @@
           controlLimits.alt_targets = inputData.alt_targets;
           controlLimits.speclimits_lower = inputData.speclimits_lower;
           controlLimits.speclimits_upper = inputData.speclimits_upper;
+          for (const key of Object.keys(controlLimits)) {
+              if (key === "keys") {
+                  continue;
+              }
+              controlLimits[key] = (_a = controlLimits[key]) === null || _a === void 0 ? void 0 : _a.map(d => isNaN(d) ? null : d);
+          }
           return controlLimits;
       }
       initialisePlotDataGrouped() {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
           this.plotPointsGrouped = new Array();
           this.tableColumnsGrouped = new Array();
           this.indicatorVarNames.forEach(indicator_name => {
@@ -24184,13 +24197,16 @@
           if (nhsIconSettings.show_assurance_icons) {
               this.tableColumnsGrouped.push({ name: "assurance", label: "Assurance" });
           }
-          const anyTooltips = this.inputDataGrouped.some(d => d.tooltips.length > 0);
+          const anyTooltips = this.inputDataGrouped.some(d => { var _a; return (_a = d === null || d === void 0 ? void 0 : d.tooltips) === null || _a === void 0 ? void 0 : _a.some(t => t.length > 0); });
           if (anyTooltips) {
-              this.inputDataGrouped[0].tooltips[0].forEach(tooltip => {
+              (_b = (_a = this.inputDataGrouped) === null || _a === void 0 ? void 0 : _a[0].tooltips) === null || _b === void 0 ? void 0 : _b[0].forEach(tooltip => {
                   this.tableColumnsGrouped.push({ name: tooltip.displayName, label: tooltip.displayName });
               });
           }
           for (let i = 0; i < this.groupNames.length; i++) {
+              if (isNullOrUndefined((_c = this.inputDataGrouped[i]) === null || _c === void 0 ? void 0 : _c.categories)) {
+                  continue;
+              }
               const formatValues = valueFormatter(this.inputSettings.settingsGrouped[i], this.inputSettings.derivedSettingsGrouped[i]);
               const varIconFilter = this.inputSettings.settingsGrouped[i].summary_table.table_variation_filter;
               const assIconFilter = this.inputSettings.settingsGrouped[i].summary_table.table_assurance_filter;
@@ -24234,18 +24250,18 @@
               this.indicatorVarNames.forEach((indicator_name, idx) => {
                   table_row_entries.push([indicator_name, this.groupNames[i][idx]]);
               });
-              table_row_entries.push(["latest_date", (_a = limits.keys) === null || _a === void 0 ? void 0 : _a[lastIndex].label]);
-              table_row_entries.push(["value", formatValues((_b = limits.values) === null || _b === void 0 ? void 0 : _b[lastIndex], "value")]);
-              table_row_entries.push(["numerator", formatValues((_c = limits.numerators) === null || _c === void 0 ? void 0 : _c[lastIndex], "integer")]);
-              table_row_entries.push(["denominator", formatValues((_d = limits.denominators) === null || _d === void 0 ? void 0 : _d[lastIndex], "integer")]);
-              table_row_entries.push(["target", formatValues((_e = limits.targets) === null || _e === void 0 ? void 0 : _e[lastIndex], "value")]);
-              table_row_entries.push(["alt_target", formatValues((_f = limits.alt_targets) === null || _f === void 0 ? void 0 : _f[lastIndex], "value")]);
-              table_row_entries.push(["ucl99", formatValues((_g = limits.ul99) === null || _g === void 0 ? void 0 : _g[lastIndex], "value")]);
-              table_row_entries.push(["ucl95", formatValues((_h = limits.ul95) === null || _h === void 0 ? void 0 : _h[lastIndex], "value")]);
-              table_row_entries.push(["ucl68", formatValues((_j = limits.ul68) === null || _j === void 0 ? void 0 : _j[lastIndex], "value")]);
-              table_row_entries.push(["lcl68", formatValues((_k = limits.ll68) === null || _k === void 0 ? void 0 : _k[lastIndex], "value")]);
-              table_row_entries.push(["lcl95", formatValues((_l = limits.ll95) === null || _l === void 0 ? void 0 : _l[lastIndex], "value")]);
-              table_row_entries.push(["lcl99", formatValues((_m = limits.ll99) === null || _m === void 0 ? void 0 : _m[lastIndex], "value")]);
+              table_row_entries.push(["latest_date", (_d = limits.keys) === null || _d === void 0 ? void 0 : _d[lastIndex].label]);
+              table_row_entries.push(["value", formatValues((_e = limits.values) === null || _e === void 0 ? void 0 : _e[lastIndex], "value")]);
+              table_row_entries.push(["numerator", formatValues((_f = limits.numerators) === null || _f === void 0 ? void 0 : _f[lastIndex], "integer")]);
+              table_row_entries.push(["denominator", formatValues((_g = limits.denominators) === null || _g === void 0 ? void 0 : _g[lastIndex], "integer")]);
+              table_row_entries.push(["target", formatValues((_h = limits.targets) === null || _h === void 0 ? void 0 : _h[lastIndex], "value")]);
+              table_row_entries.push(["alt_target", formatValues((_j = limits.alt_targets) === null || _j === void 0 ? void 0 : _j[lastIndex], "value")]);
+              table_row_entries.push(["ucl99", formatValues((_k = limits.ul99) === null || _k === void 0 ? void 0 : _k[lastIndex], "value")]);
+              table_row_entries.push(["ucl95", formatValues((_l = limits.ul95) === null || _l === void 0 ? void 0 : _l[lastIndex], "value")]);
+              table_row_entries.push(["ucl68", formatValues((_m = limits.ul68) === null || _m === void 0 ? void 0 : _m[lastIndex], "value")]);
+              table_row_entries.push(["lcl68", formatValues((_o = limits.ll68) === null || _o === void 0 ? void 0 : _o[lastIndex], "value")]);
+              table_row_entries.push(["lcl95", formatValues((_p = limits.ll95) === null || _p === void 0 ? void 0 : _p[lastIndex], "value")]);
+              table_row_entries.push(["lcl99", formatValues((_q = limits.ll99) === null || _q === void 0 ? void 0 : _q[lastIndex], "value")]);
               table_row_entries.push(["variation", varIcons[0]]);
               table_row_entries.push(["assurance", assIcon]);
               if (anyTooltips) {
@@ -25915,8 +25931,19 @@
           line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
           let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
           marker_offset = label_position === "top" ? -marker_offset : marker_offset;
-          return { x: x_val + side_length * Math.cos(theta * Math.PI / 180),
-              y: y_val + side_length * Math.sin(theta * Math.PI / 180),
+          const newX = x_val + side_length * Math.cos(theta * Math.PI / 180);
+          const newY = y_val + side_length * Math.sin(theta * Math.PI / 180);
+          if (!isValidNumber(newX) || !isValidNumber(newY)) {
+              return {
+                  x: 0,
+                  y: 0,
+                  theta: 0,
+                  line_offset: 0,
+                  marker_offset: 0
+              };
+          }
+          return { x: newX,
+              y: newY,
               theta: theta,
               line_offset: line_offset,
               marker_offset: marker_offset
@@ -25932,13 +25959,24 @@
           .style("fill", d => d.label.aesthetics.label_colour);
       selection.select("line")
           .attr("x1", (_, i) => initialLabelXY[i].x)
-          .attr("y1", (_, i) => initialLabelXY[i].y + initialLabelXY[i].line_offset)
+          .attr("y1", (_, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return 0;
+          }
+          return initialLabelXY[i].y + initialLabelXY[i].line_offset;
+      })
           .attr("x2", (d, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return 0;
+          }
           const marker_offset = initialLabelXY[i].marker_offset;
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
           return visualObj.viewModel.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
       })
           .attr("y2", (d, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return 0;
+          }
           const marker_offset = initialLabelXY[i].marker_offset;
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
           return visualObj.viewModel.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
@@ -25954,6 +25992,9 @@
           return Symbol$1().type(triangle).size(marker_size)();
       })
           .attr("transform", (d, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return "translate(0, 0) rotate(0)";
+          }
           const marker_offset = initialLabelXY[i].marker_offset;
           const x = visualObj.viewModel.plotProperties.xScale(d.x);
           const y = visualObj.viewModel.plotProperties.yScale(d.value);
@@ -39004,6 +39045,7 @@
   exports.identitySelected = identitySelected;
   exports.initialiseSVG = initialiseSVG;
   exports.isNullOrUndefined = isNullOrUndefined;
+  exports.isValidNumber = isValidNumber;
   exports.lgamma = lgamma;
   exports.max = max;
   exports.mean = mean;
