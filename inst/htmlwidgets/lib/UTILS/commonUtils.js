@@ -58,7 +58,34 @@ const makeConstructorArgs = function(element) {
   }
 }
 
-function makeUpdateValues(rawData, inputSettings, crosstalkFilters) {
+const aggregateColumn = function(column, aggregation) {
+  if (aggregation === "sum") {
+    return column.reduce((acc, val) => acc + val, 0);
+  } else if (aggregation === "mean") {
+    return column.reduce((acc, val) => acc + val, 0) / column.length;
+  } else if (aggregation === "sd") {
+    var mean = column.reduce((acc, val) => acc + val, 0) / column.length;
+    return Math.sqrt(column.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (column.length - 1));
+  } else if (aggregation === "count") {
+    return column.length;
+  } else if (aggregation === "min") {
+    return Math.min(...column);
+  } else if (aggregation === "max") {
+    return Math.max(...column);
+  } else if (aggregation === "median") {
+    var sorted = [...column].sort((a, b) => a - b);
+    var mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  } else if (aggregation === "first") {
+    return column[0];
+  } else if (aggregation === "last") {
+    return column[column.length - 1];
+  } else {
+    throw new Error(`Unsupported aggregation: ${aggregation}`);
+  }
+}
+
+function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters) {
   if (crosstalkFilters) {
     rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalkIdentities));
   }
@@ -92,8 +119,7 @@ function makeUpdateValues(rawData, inputSettings, crosstalkFilters) {
 
     for (var i = 0; i < valueNames.length; i++) {
       var name = valueNames[i];
-      var aggregatedValue = dataGrouped[category].map(dataRow => dataRow[name])
-                                                 .reduce((acc, val) => acc + val, 0)
+      var aggregatedValue = aggregateColumn(dataGrouped[category].map(dataRow => dataRow[name]), aggregations[name]);
       args.values[i].values.push(aggregatedValue);
     }
   }

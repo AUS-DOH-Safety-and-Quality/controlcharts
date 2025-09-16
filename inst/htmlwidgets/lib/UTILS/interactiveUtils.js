@@ -43,7 +43,7 @@ function makeFactory(chartType) {
     return {
       renderValue: function(x) {
         // Aggregate the raw data into the format expected by the visual
-        var updateValues = makeUpdateValues(x.data_raw, x.input_settings);
+        var updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations);
         visualUpdateArgs.dataViews = updateValues.dataViews;
 
         // Initialise the dataset linkage for crosstalk highlighting and filtering
@@ -60,7 +60,7 @@ function makeFactory(chartType) {
         // filter the original dataset before re-aggregating and re-rendering the visual
         // (see the `makeUpdateValues` function)
         crosstalkFilterHandle.on("change", function(e) {
-          var filteredUpdateValues = makeUpdateValues(x.data_raw, x.input_settings, e.value);
+          var filteredUpdateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, e.value);
           visualUpdateArgs.dataViews = filteredUpdateValues.dataViews;
           visualUpdateArgs.type = 2; // Change in data, so recalculate limits
 

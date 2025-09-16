@@ -13,6 +13,8 @@ spc(
   xbar_sds,
   tooltips,
   labels,
+  aggregations = list(numerators = "sum", denominators = "sum", groupings = "first",
+    xbar_sds = "first", tooltips = "first", labels = "first"),
   canvas_settings = NULL,
   spc_settings = NULL,
   outlier_settings = NULL,
@@ -44,6 +46,18 @@ spc(
 \item{tooltips}{A vector or column name representing the tooltips for each category.}
 
 \item{labels}{A vector or column name representing the labels for each category.}
+
+\item{aggregations}{A list of aggregation function names for each field if multiple values are provided for each key. Valid options are:
+\itemize{
+\item \code{"first"}: returns the first value
+\item \code{"last"}: returns the last value
+\item \code{"sum"}: returns the sum of values
+\item \code{"mean"}: returns the mean of values
+\item \code{"min"}: returns the minimum value
+\item \code{"max"}: returns the maximum value
+\item \code{"median"}: returns the median value
+\item \code{"count"}: returns the count of values
+}}
 
 \item{canvas_settings}{Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.}
 

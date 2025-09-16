@@ -60,6 +60,35 @@ validate_settings <- function(type, input_settings) {
   input_settings
 }
 
+validate_aggregations <- function(aggregations) {
+  if (is.null(aggregations)) {
+    return(NULL)
+  }
+  if (!is.list(aggregations)) {
+    stop("Aggregations must be a list.", call. = FALSE)
+  }
+
+  all_defaults <- list(
+    numerators = "sum",
+    denominators = "sum",
+    groupings = "first",
+    xbar_sds = "first",
+    tooltips = "first",
+    labels = "first"
+  )
+  valid_aggregations <- c("first", "last", "sum", "mean", "min", "max", "median", "count")
+  for (new_agg in names(aggregations)) {
+    if (!(new_agg %in% names(all_defaults))) {
+      stop("'", new_agg, "' is not a valid variable to aggregate! Valid options are: ", paste0(names(all_defaults), collapse = ', '), ".", call. = FALSE)
+    }
+    if (!(aggregations[[new_agg]] %in% valid_aggregations)) {
+      stop("'", aggregations[[new_agg]], "' is not a valid aggregation! Valid options are: ", paste0(valid_aggregations, collapse = ', '), ".", call. = FALSE)
+    }
+    all_defaults[[new_agg]] <- aggregations[[new_agg]]
+  }
+  all_defaults
+}
+
 svg_string <- function(svg, width, height) {
   paste0('<svg viewBox="0 0 ', width, ' ', height, '" width="', width, 'px" height="', height, 'px" xmlns="http://www.w3.org/2000/svg">',
         '<rect x="0" y="0" width="100%" height="100%" fill="white"/>',

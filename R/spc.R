@@ -8,6 +8,17 @@
 #' @param xbar_sds A numeric vector or column name representing the x-bar and standard deviation values for each category.
 #' @param tooltips A vector or column name representing the tooltips for each category.
 #' @param labels A vector or column name representing the labels for each category.
+#' @param aggregations A list of aggregation function names for each field if multiple values are provided for each key. Valid options are:
+#'   \itemize{
+#'     \item \code{"first"}: returns the first value
+#'     \item \code{"last"}: returns the last value
+#'     \item \code{"sum"}: returns the sum of values
+#'     \item \code{"mean"}: returns the mean of values
+#'     \item \code{"min"}: returns the minimum value
+#'     \item \code{"max"}: returns the maximum value
+#'     \item \code{"median"}: returns the median value
+#'     \item \code{"count"}: returns the count of values
+#'   }
 #' @param canvas_settings Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.
 #' @param spc_settings Optional list of settings for the SPC chart, see \code{spc_default_settings('spc')} for valid options.
 #' @param outlier_settings Optional list of settings for outliers, see \code{spc_default_settings('outliers')} for valid options.
@@ -33,6 +44,14 @@ spc <- function(data,
                 xbar_sds,
                 tooltips,
                 labels,
+                aggregations = list(
+                  numerators = "sum",
+                  denominators = "sum",
+                  groupings = "first",
+                  xbar_sds = "first",
+                  tooltips = "first",
+                  labels = "first"
+                ),
                 canvas_settings = NULL,
                 spc_settings = NULL,
                 outlier_settings = NULL,
@@ -80,6 +99,7 @@ spc <- function(data,
   )
 
   input_settings <- validate_settings('spc', input_settings)
+  aggregations <- validate_aggregations(aggregations)
 
   data_raw <- list(
     crosstalkIdentities = crosstalkIdentities,
@@ -122,7 +142,8 @@ spc <- function(data,
     x = list(
       data_raw = data_df,
       input_settings = input_settings,
-      crosstalkGroup = crosstalkGroup
+      crosstalkGroup = crosstalkGroup,
+      aggregations = aggregations
     ),
     sizingPolicy = htmlwidgets::sizingPolicy(
       defaultWidth = "100%"
@@ -136,7 +157,7 @@ spc <- function(data,
 
   dataViews <- update_static_padding(
     "spc",
-    ctx$call("makeUpdateValues", data_df, input_settings)$dataViews
+    ctx$call("makeUpdateValues", data_df, input_settings, aggregations)$dataViews
   )
 
   static <- create_static(
