@@ -84,6 +84,17 @@ update_static_padding <- function(type, dataViews) {
   dataViews
 }
 
+svg_raster <- function(svg, width, height) {
+  # Use the rsvg package to convert the SVG string to a raster image compatible
+  # with the R graphics device
+  rsvg::rsvg_nativeraster(
+    charToRaw(svg_string(svg, width, height)),
+    # Rasterize at 3x resolution for better quality
+    width = width * 3,
+    height = height * 3
+  )
+}
+
 create_static <- function(type, dataViews, width, height) {
   raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
   if ("error" %in% names(raw_ret)) {
@@ -93,8 +104,13 @@ create_static <- function(type, dataViews, width, height) {
     list(
       type = type,
       dataViews = dataViews,
-      width = width,
-      height = height
+      svg = raw_ret$svg,
+      # Don't process and rasterise the SVG until requested
+      raster = NULL,
+      # Set to non-null values, will be updated when printed
+      width = ifelse(is.null(width), 0, width),
+      height = ifelse(is.null(height), 0, height),
+      fixed_dimensions = !is.null(width) && !is.null(height)
     ),
     class = "static_plot"
   )

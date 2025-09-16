@@ -8,6 +8,13 @@
 \description{
 Generate fully interactive and dynamic funnel plots and statistical process control (SPC) charts. All data manaipulation, calculation, and plotting is done in JavaScript, allowing for completely dynamic charts without the need for a Shiny server.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://andrjohns.github.io/controlcharts/}
+}
+
+}
 \author{
 \strong{Maintainer}: Andrew R. Johnson \email{andrew.johnson@arjohnsonau.com} (\href{https://orcid.org/0000-0001-7000-8065}{ORCID})
 
