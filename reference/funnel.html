@@ -48,6 +48,8 @@
 <span>  <span class="va">denominators</span>,</span>
 <span>  <span class="va">tooltips</span>,</span>
 <span>  <span class="va">labels</span>,</span>
+<span>  aggregations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numerators <span class="op">=</span> <span class="st">"sum"</span>, denominators <span class="op">=</span> <span class="st">"sum"</span>, tooltips <span class="op">=</span> <span class="st">"first"</span>,</span>
+<span>    labels <span class="op">=</span> <span class="st">"first"</span><span class="op">)</span>,</span>
 <span>  canvas_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  funnel_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outlier_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -88,6 +90,18 @@
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
 <dd><p>A vector or column name representing the labels for each category.</p></dd>
+
+
+<dt id="arg-aggregations">aggregations<a class="anchor" aria-label="anchor" href="#arg-aggregations"></a></dt>
+<dd><p>A list of aggregation function names for each field if multiple values are provided for each key. Valid options are:</p><ul><li><p><code>"first"</code>: returns the first value</p></li>
+<li><p><code>"last"</code>: returns the last value</p></li>
+<li><p><code>"sum"</code>: returns the sum of values</p></li>
+<li><p><code>"mean"</code>: returns the mean of values</p></li>
+<li><p><code>"min"</code>: returns the minimum value</p></li>
+<li><p><code>"max"</code>: returns the maximum value</p></li>
+<li><p><code>"median"</code>: returns the median value</p></li>
+<li><p><code>"count"</code>: returns the count of values</p></li>
+</ul></dd>
 
 
 <dt id="arg-canvas-settings">canvas_settings<a class="anchor" aria-label="anchor" href="#arg-canvas-settings"></a></dt>
