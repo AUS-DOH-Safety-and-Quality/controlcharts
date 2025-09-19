@@ -132,7 +132,8 @@ spc <- function(data,
     data_raw <- append(data_raw, list(labels = labels))
   }
 
-  data_df <- lapply(seq_len(length(data_raw$categories)), function(idx) {
+  data_raw <- as.data.frame(data_raw)[order(data_raw$categories), ]
+  data_df <- lapply(seq_len(nrow(data_raw)), function(idx) {
     lapply(data_raw, function(elem){ elem[idx] })
   })
 
