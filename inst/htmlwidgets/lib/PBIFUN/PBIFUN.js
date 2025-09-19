@@ -39838,6 +39838,7 @@
               label_formatting: null,
               tooltips: null,
               labels: null,
+              anyLabels: false,
               warningMessage: inputValidStatus.error,
               validationStatus: inputValidStatus
           };
@@ -39863,13 +39864,15 @@
               removalMessages.push(`${groupVarName} ${keys[i]} removed due to: ${inputValidStatus.messages[i]}.`);
           }
       }
+      const valid_labels = extractValues(labels, valid_ids);
       return {
           keys: valid_keys,
           id: valid_ids,
           numerators: extractValues(numerators, valid_ids),
           denominators: extractValues(denominators, valid_ids),
           tooltips: extractValues(tooltips, valid_ids),
-          labels: extractValues(labels, valid_ids),
+          labels: valid_labels,
+          anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
           highlights: extractValues(highlights, valid_ids),
           anyHighlights: highlights != null,
           categories: inputView.categories[0],
@@ -40443,7 +40446,7 @@
               ? inputSettings.y_axis.ylimit_label_size
               : 0;
           const lowerLabelPadding = inputSettings.x_axis.xlimit_label
-              ? inputSettings.x_axis.xlimit_label_size
+              ? inputSettings.x_axis.xlimit_label_size + 20
               : 0;
           this.xAxis = {
               lower: xLowerLimit !== null && xLowerLimit !== void 0 ? xLowerLimit : 0,
@@ -41214,7 +41217,7 @@
       else {
           xAxis.tickValues([]);
       }
-      const plotHeight = visualObj.viewModel.plotProperties.height;
+      const plotHeight = visualObj.viewModel.svgHeight;
       const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
       const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
       const xAxisGroup = selection.select(".xaxisgroup");
@@ -41243,13 +41246,17 @@
               .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
           return;
       }
-      const xAxisCoordinates = xAxisNode.getBoundingClientRect();
-      const bottomMidpoint = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
-      selection.select(".xaxislabel")
-          .attr("x", visualObj.viewModel.plotProperties.width / 2)
-          .attr("y", bottomMidpoint)
+      const textX = visualObj.viewModel.svgWidth / 2;
+      const textY = visualObj.viewModel.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
+      xAxisGroup.select(".xaxislabel")
+          .selectAll("text")
+          .data([xAxisProperties.label])
+          .join("text")
+          .attr("x", 0)
+          .attr("y", 0)
+          .attr("transform", `translate(${textX}, ${textY})`)
           .style("text-anchor", "middle")
-          .text(xAxisProperties.label)
+          .text(d => d)
           .style("font-size", xAxisProperties.label_size)
           .style("font-family", xAxisProperties.label_font)
           .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
@@ -41290,24 +41297,20 @@
           .style("font-size", yAxisProperties.tick_size)
           .style("font-family", yAxisProperties.tick_font)
           .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      const yAxisNode = selection.selectAll(".yaxisgroup").node();
-      if (!yAxisNode) {
-          selection.select(".yaxislabel")
-              .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
-          return;
-      }
-      const yAxisCoordinates = yAxisNode.getBoundingClientRect();
-      const leftMidpoint = yAxisCoordinates.x * 0.7;
-      const y = visualObj.viewModel.plotProperties.height / 2;
-      selection.select(".yaxislabel")
-          .attr("x", leftMidpoint)
-          .attr("y", y)
-          .attr("transform", `rotate(-90, ${leftMidpoint}, ${y})`)
-          .text(yAxisProperties.label)
+      const textX = -(visualObj.viewModel.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
+      const textY = visualObj.viewModel.svgHeight / 2;
+      yAxisGroup.select(".yaxislabel")
+          .selectAll("text")
+          .data([visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label])
+          .join("text")
+          .attr("x", textX)
+          .attr("y", textY)
+          .attr("transform", `rotate(-90, ${textX}, ${textY})`)
           .style("text-anchor", "middle")
+          .text(d => d)
           .style("font-size", yAxisProperties.label_size)
           .style("font-family", yAxisProperties.label_font)
-          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+          .style("fill", yAxisProperties.label_colour);
   }
 
   function initialiseSVG(selection, removeAll = false) {
@@ -41316,10 +41319,8 @@
       }
       selection.append('line').classed("ttip-line-x", true);
       selection.append('line').classed("ttip-line-y", true);
-      selection.append('g').classed("xaxisgroup", true);
-      selection.append('text').classed("xaxislabel", true);
-      selection.append('g').classed("yaxisgroup", true);
-      selection.append('text').classed("yaxislabel", true);
+      selection.append('g').classed("xaxisgroup", true).append('g').classed('xaxislabel', true);
+      selection.append('g').classed("yaxisgroup", true).append('g').classed('yaxislabel', true);
       selection.append('g').classed("linesgroup", true);
       selection.append('g').classed("dotsgroup", true);
       selection.append('g').classed("text-labels", true);
@@ -41438,7 +41439,7 @@
       return selection;
   };
   function drawLabels(selection, visualObj) {
-      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels) {
+      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels || !visualObj.viewModel.inputData.anyLabels) {
           selection.select(".text-labels").remove();
           return;
       }
@@ -41609,6 +41610,7 @@
       }
       update(options) {
           var _a, _b, _c, _d, _e;
+          console.log('update called');
           try {
               this.host.eventService.renderingStarted(options);
               // Remove printed error if refreshing after a previous error run
