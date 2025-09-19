@@ -21987,6 +21987,7 @@
           label_formatting: null,
           tooltips: null,
           labels: null,
+          anyLabels: false,
           warningMessage: inputValidStatus.error,
           alt_targets: null,
           speclimits_lower: null,
@@ -22071,6 +22072,7 @@
               subset_points = seq(valid_ids.length - spcSettings[0].num_points_subset, valid_ids.length - 1);
           }
       }
+      const valid_labels = extractValues(labels, valid_ids);
       return {
           limitInputArgs: {
               keys: valid_keys,
@@ -22082,7 +22084,8 @@
           },
           spcSettings: spcSettings[0],
           tooltips: extractValues(tooltips, valid_ids),
-          labels: extractValues(labels, valid_ids),
+          labels: valid_labels,
+          anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
           highlights: curr_highlights,
           anyHighlights: curr_highlights.filter(d => !isNullOrUndefined(d)).length > 0,
           categories: inputView.categories[0],
@@ -26008,7 +26011,7 @@
       return selection;
   };
   function drawLabels(selection, visualObj) {
-      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels) {
+      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels || !visualObj.viewModel.inputData.anyLabels) {
           selection.select(".text-labels").remove();
           return;
       }
