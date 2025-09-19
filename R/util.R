@@ -125,6 +125,9 @@ svg_raster <- function(svg, width, height) {
 }
 
 create_static <- function(type, dataViews, width, height) {
+  fixed_dimensions <- !is.null(width) && !is.null(height)
+  width <- ifelse(is.null(width), 640, width)
+  height <- ifelse(is.null(height), 400, height)
   raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
   if ("error" %in% names(raw_ret)) {
     stop(raw_ret$error, call. = FALSE)
@@ -137,9 +140,9 @@ create_static <- function(type, dataViews, width, height) {
       # Don't process and rasterise the SVG until requested
       raster = NULL,
       # Set to non-null values, will be updated when printed
-      width = ifelse(is.null(width), 0, width),
-      height = ifelse(is.null(height), 0, height),
-      fixed_dimensions = !is.null(width) && !is.null(height)
+      width = width,
+      height = height,
+      fixed_dimensions = fixed_dimensions
     ),
     class = "static_plot"
   )

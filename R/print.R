@@ -34,11 +34,34 @@ print.static_plot <- function(x, ...) {
 }
 
 #' @exportS3Method knitr::knit_print
+knit_print.static_plot <- function(x, ...) {
+  # Adapted from magick::knit_print.magick-image
+  plot_counter <- utils::getFromNamespace('plot_counter', 'knitr')
+  in_base_dir <- utils::getFromNamespace('in_base_dir', 'knitr')
+  tmp <- knitr::fig_path(ifelse(knitr::pandoc_to("pdf"), "pdf", "svg"),
+                         number = plot_counter())
+  in_base_dir({
+    dir.create(dirname(tmp), showWarnings = FALSE, recursive = TRUE)
+    if (knitr::pandoc_to("pdf")) {
+      rsvg::rsvg_pdf(
+        charToRaw(svg_string(x$svg, x$width, x$height)),
+        file = tmp,
+        width = x$width * 3,
+        height = x$height * 3
+      )
+    } else {
+      cat(svg_string(x$svg, x$width, x$height), file=tmp)
+    }
+  })
+  knitr::include_graphics(tmp)
+}
+
+#' @exportS3Method knitr::knit_print
 knit_print.controlchart <- function(x, ...) {
   # For knitr, print html for HTML output, and static plot for other formats
   if (knitr::is_html_output()) {
     knitr::knit_print(x$html_plot)
   } else {
-    print.static_plot(x$static_plot)
+    knit_print.static_plot(x$static_plot)
   }
 }
