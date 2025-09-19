@@ -25597,13 +25597,16 @@
               .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
           return;
       }
-      const xAxisCoordinates = xAxisNode.getBoundingClientRect();
-      const bottomMidpoint = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
-      selection.select(".xaxislabel")
-          .attr("x", visualObj.viewModel.svgWidth / 2)
-          .attr("y", bottomMidpoint)
+      const textX = visualObj.viewModel.svgWidth / 2;
+      const textY = visualObj.viewModel.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
+      xAxisGroup.select(".xaxislabel")
+          .selectAll("text")
+          .data([xAxisProperties.label])
+          .join("text")
+          .attr("x", textX)
+          .attr("y", textY)
           .style("text-anchor", "middle")
-          .text(xAxisProperties.label)
+          .text(d => d)
           .style("font-size", xAxisProperties.label_size)
           .style("font-family", xAxisProperties.label_font)
           .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
@@ -25641,24 +25644,20 @@
           .style("font-size", yAxisProperties.tick_size)
           .style("font-family", yAxisProperties.tick_font)
           .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      const yAxisNode = selection.selectAll(".yaxisgroup").node();
-      if (!yAxisNode) {
-          selection.select(".yaxislabel")
-              .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
-          return;
-      }
-      const yAxisCoordinates = yAxisNode.getBoundingClientRect();
-      const leftMidpoint = yAxisCoordinates.x * 0.7;
-      const y = visualObj.viewModel.svgHeight / 2;
-      selection.select(".yaxislabel")
-          .attr("x", leftMidpoint)
-          .attr("y", y)
-          .attr("transform", `rotate(-90, ${leftMidpoint}, ${y})`)
-          .text(yAxisProperties.label)
+      const textX = -(visualObj.viewModel.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
+      const textY = visualObj.viewModel.svgHeight / 2;
+      yAxisGroup.select(".yaxislabel")
+          .selectAll("text")
+          .data([visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label])
+          .join("text")
+          .attr("x", textX)
+          .attr("y", textY)
+          .attr("transform", `rotate(-90, ${textX}, ${textY})`)
           .style("text-anchor", "middle")
+          .text(d => d)
           .style("font-size", yAxisProperties.label_size)
           .style("font-family", yAxisProperties.label_font)
-          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+          .style("fill", yAxisProperties.label_colour);
   }
 
   function initialiseSVG(selection, removeAll = false) {
@@ -25667,10 +25666,8 @@
       }
       selection.append('line').classed("ttip-line-x", true);
       selection.append('line').classed("ttip-line-y", true);
-      selection.append('g').classed("xaxisgroup", true);
-      selection.append('text').classed("xaxislabel", true);
-      selection.append('g').classed("yaxisgroup", true);
-      selection.append('text').classed("yaxislabel", true);
+      selection.append('g').classed("xaxisgroup", true).append('g').classed('xaxislabel', true);
+      selection.append('g').classed("yaxisgroup", true).append('g').classed('yaxislabel', true);
       selection.append('g').classed("linesgroup", true);
       selection.append('g').classed("dotsgroup", true);
   }
