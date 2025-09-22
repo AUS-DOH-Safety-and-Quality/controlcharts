@@ -1,7 +1,7 @@
 #' @keywords internal
-#' @import htmlwidgets
-#' @import crosstalk
-#' @import rsvg
+#' @importFrom rsvg rsvg_webp rsvg_png rsvg_pdf rsvg_ps rsvg_eps rsvg_svg
+#' @importFrom crosstalk is.SharedData crosstalkLibs
+#' @importFrom htmlwidgets createWidget createWidget shinyWidgetOutput shinyRenderWidget saveWidget
 #' @importFrom QuickJSR JSContext
 #' @importFrom stats aggregate
 #' @importFrom grid grid.raster grid.newpage
