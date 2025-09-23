@@ -16,11 +16,11 @@ RoxygenNote: 7.3.3
 Imports:
   htmlwidgets,
   crosstalk,
-  QuickJSR,
-  rsvg
+  QuickJSR
 Suggests:
-    DT,
-    knitr,
-    rmarkdown
+  rsvg,
+  DT,
+  knitr,
+  rmarkdown
 VignetteBuilder: knitr
 URL: https://andrjohns.github.io/controlcharts/

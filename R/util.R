@@ -113,17 +113,6 @@ update_static_padding <- function(type, dataViews) {
   dataViews
 }
 
-svg_raster <- function(svg, width, height) {
-  # Use the rsvg package to convert the SVG string to a raster image compatible
-  # with the R graphics device
-  rsvg::rsvg_nativeraster(
-    charToRaw(svg_string(svg, width, height)),
-    # Rasterize at 3x resolution for better quality
-    width = width * 3,
-    height = height * 3
-  )
-}
-
 create_static <- function(type, dataViews, width, height) {
   fixed_dimensions <- !is.null(width) && !is.null(height)
   width <- ifelse(is.null(width), 640, width)
@@ -182,6 +171,11 @@ create_save_function <- function(type, html_plt, dataViews, orig_width = NULL, o
     if (file_ext == "html") {
       htmlwidgets::saveWidget(html_plt, file, selfcontained = TRUE)
       return(invisible(NULL))
+    }
+    if (!(file_ext %in% c("html", "svg"))) {
+      if (!requireNamespace("rsvg", quietly = TRUE)) {
+        stop("The 'rsvg' package is required for saving plots in formats other than SVG or HTML but is not installed.", call. = FALSE)
+      }
     }
 
     width <- ifelse(is.null(width), ifelse(is.null(orig_width), 640, orig_width), width)
