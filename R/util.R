@@ -172,7 +172,7 @@ create_static <- function(type, dataViews, width, height) {
   )
 }
 
-create_save_function <- function(type, html_plt, dataViews) {
+create_save_function <- function(type, html_plt, dataViews, orig_width = NULL, orig_height = NULL) {
   function(file, width = NULL, height = NULL) {
     file_ext <- tools::file_ext(file)
     valid_exts <- c("webp", "png", "pdf", "svg", "ps", "eps", "html")
@@ -184,14 +184,8 @@ create_save_function <- function(type, html_plt, dataViews) {
       return(invisible(NULL))
     }
 
-    if (dev.cur() != 1) {
-      viewer_dims <- grDevices::dev.size("px")
-      width <- ifelse(is.null(width), viewer_dims[1], width)
-      height <- ifelse(is.null(height), viewer_dims[2], height)
-    } else {
-      width <- ifelse(is.null(width), 640, width)
-      height <- ifelse(is.null(height), 400, height)
-    }
+    width <- ifelse(is.null(width), ifelse(is.null(orig_width), 640, orig_width), width)
+    height <- ifelse(is.null(height), ifelse(is.null(orig_height), 480, orig_height), height)
 
     svg <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
