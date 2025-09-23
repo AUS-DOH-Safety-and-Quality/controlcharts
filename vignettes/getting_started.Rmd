@@ -68,15 +68,10 @@ spc_plt$html_plot
 
 ### Static
 
-```{r, eval=FALSE}
+```{r}
 spc_plt$static_plot
 ```
 
-
-```{r, echo=FALSE, out.width=640}
-spc_plt$save_plot("spc.png", width = 640, height = 480)
-knitr::include_graphics("spc.png")
-```
 
 ### Control Limits
 
@@ -107,15 +102,10 @@ fun_plt$html_plot
 
 ### Static
 
-```{r, eval=FALSE}
+```{r}
 fun_plt$static_plot
 ```
 
-
-```{r, echo=FALSE, out.width=640}
-fun_plt$save_plot("funnel.png", width = 640, height = 480)
-knitr::include_graphics("funnel.png")
-```
 
 ### Control Limits
 
