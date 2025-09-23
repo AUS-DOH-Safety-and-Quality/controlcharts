@@ -1,39 +1,53 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
 
 # controlcharts
 
 <!-- badges: start -->
-
 [![R-CMD-check](https://github.com/andrjohns/controlcharts/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/andrjohns/controlcharts/actions/workflows/R-CMD-check.yaml)
-[![CRAN
-status](https://www.r-pkg.org/badges/version/controlcharts)](https://CRAN.R-project.org/package=controlcharts)
-[![controlcharts status
-badge](https://andrjohns.r-universe.dev/badges/controlcharts)](https://andrjohns.r-universe.dev/controlcharts)
+[![CRAN status](https://www.r-pkg.org/badges/version/controlcharts)](https://CRAN.R-project.org/package=controlcharts)
+[![controlcharts status badge](https://andrjohns.r-universe.dev/badges/controlcharts)](https://andrjohns.r-universe.dev/controlcharts)
 <!-- badges: end -->
+
+
 
 ## Installation
 
-You can install the development version of controlcharts from
-[GitHub](https://github.com/) with:
+You can install the development version of controlcharts from [GitHub](https://github.com/) with:
 
-``` r
+```{r, eval=FALSE}
 # install.packages("remotes")
 remotes::install_github("andrjohns/controlcharts")
 ```
 
 Or you can install pre-built binaries from R-Universe:
 
-``` r
+```{r, eval=FALSE}
 install.packages("controlcharts", repos = c("https://andrjohns.r-universe.dev",
                                             "https://cran.r-project.org"))
 ```
 
+
 ## Getting Started
+```{r setup, include=FALSE}
+set.seed(12324)
+```
+
 
 ### SPC
-
-``` r
+```{r spc}
 # Simulate 2 years of monthly data
 dat <- data.frame(
   month = seq(as.Date('2024-01-01'), length.out = 24, by = "month"),
@@ -44,15 +58,14 @@ dat <- data.frame(
 spc_chart <- controlcharts::spc(data = dat, numerators = y, keys = month)
 ```
 
-``` r
+```{r spc_plot}
 spc_chart$static_plot
 ```
 
-<img src="man/figures/README-spc_plot-1.svg" width="100%" />
 
 ### Funnel Plot
 
-``` r
+```{r funnel}
 # Simulate proportion data for 10 organisations
 denoms <- sample(100:200, 10)
 funnel_data <- data.frame(
@@ -67,8 +80,6 @@ funnel_chart <- controlcharts::funnel(data = funnel_data,
                                        keys = organisation)
 ```
 
-``` r
+```{r funnel_plot}
 funnel_chart$static_plot
 ```
-
-<img src="man/figures/README-funnel_plot-1.svg" width="100%" />
