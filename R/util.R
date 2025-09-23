@@ -184,16 +184,6 @@ create_save_function <- function(type, html_plt, dataViews) {
       return(invisible(NULL))
     }
 
-    save_fun <- switch(
-      file_ext,
-      webp = rsvg::rsvg_webp,
-      png = rsvg::rsvg_png,
-      pdf = rsvg::rsvg_pdf,
-      svg = rsvg::rsvg_svg,
-      ps = rsvg::rsvg_ps,
-      eps = rsvg::rsvg_eps
-    )
-
     if (dev.cur() != 1) {
       viewer_dims <- grDevices::dev.size("px")
       width <- ifelse(is.null(width), viewer_dims[1], width)
@@ -205,6 +195,21 @@ create_save_function <- function(type, html_plt, dataViews) {
 
     svg <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
+
+    if (file_ext == "svg") {
+      writeLines(svg_resized, file)
+      return(invisible(NULL))
+    }
+
+    save_fun <- switch(
+      file_ext,
+      webp = rsvg::rsvg_webp,
+      png = rsvg::rsvg_png,
+      pdf = rsvg::rsvg_pdf,
+      ps = rsvg::rsvg_ps,
+      eps = rsvg::rsvg_eps
+    )
+
     save_fun(charToRaw(svg_resized), file, width = width * 3, height = height * 3)
     invisible(NULL)
   }
