@@ -53,7 +53,60 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="controlcharts">controlcharts<a class="anchor" aria-label="anchor" href="#controlcharts"></a>
 </h1></div>
-<p>Generate fully interactive and dynamic funnel plots and statistical process control (SPC) charts. All data manaipulation, calculation, and plottingis done in JavaScript, allowing for completely dynamic charts without the need for a Shiny server.</p>
+<!-- badges: start -->
+
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the development version of controlcharts from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"andrjohns/controlcharts"</span><span class="op">)</span></span></code></pre></div>
+<p>Or you can install pre-built binaries from R-Universe:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"controlcharts"</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"https://andrjohns.r-universe.dev"</span>,</span>
+<span>                                            <span class="st">"https://cran.r-project.org"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+</h2>
+<div class="section level3">
+<h3 id="spc">SPC<a class="anchor" aria-label="anchor" href="#spc"></a>
+</h3>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Simulate 2 years of monthly data</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">'2024-01-01'</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">24</span>, by <span class="op">=</span> <span class="st">"month"</span><span class="op">)</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">24</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">spc_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="reference/spc.html">spc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, numerators <span class="op">=</span> <span class="va">y</span>, keys <span class="op">=</span> <span class="va">month</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spc_chart</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
+<p><img src="reference/figures/README-spc_plot-1.svg" width="100%"></p>
+</div>
+<div class="section level3">
+<h3 id="funnel-plot">Funnel Plot<a class="anchor" aria-label="anchor" href="#funnel-plot"></a>
+</h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Simulate proportion data for 10 organisations</span></span>
+<span><span class="va">denoms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">100</span><span class="op">:</span><span class="fl">200</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">funnel_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  organisation <span class="op">=</span> <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
+<span>  numerators <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">10</span>, size <span class="op">=</span> <span class="va">denoms</span>, prob <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
+<span>  denominators <span class="op">=</span> <span class="va">denoms</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">funnel_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="reference/funnel.html">funnel</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">funnel_data</span>,</span>
+<span>                                       numerators <span class="op">=</span> <span class="va">numerators</span>,</span>
+<span>                                       denominators <span class="op">=</span> <span class="va">denominators</span>,</span>
+<span>                                       keys <span class="op">=</span> <span class="va">organisation</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">funnel_chart</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
+<p><img src="reference/figures/README-funnel_plot-1.svg" width="100%"></p>
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="license">
 <h2 data-toc-skip>License</h2>
@@ -78,7 +131,14 @@
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/andrjohns/controlcharts/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/andrjohns/controlcharts/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=controlcharts" class="external-link"><img src="https://www.r-pkg.org/badges/version/controlcharts" alt="CRAN status"></a></li>
+<li><a href="https://andrjohns.r-universe.dev/controlcharts" class="external-link"><img src="https://andrjohns.r-universe.dev/badges/controlcharts" alt="controlcharts status badge"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>
