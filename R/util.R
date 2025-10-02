@@ -107,7 +107,7 @@ update_static_padding <- function(type, dataViews) {
       }
       settings$canvas$left_padding <- settings$canvas$left_padding + 50
       # SPC Charts need more padding at the bottom for the x-axis dates
-      settings$canvas$lower_padding <- settings$canvas$lower_padding + ifelse(type == "SPC", 50, 25)
+      settings$canvas$lower_padding <- settings$canvas$lower_padding + ifelse(type == "SPC", 50, 0)
       settings
     }
   )
