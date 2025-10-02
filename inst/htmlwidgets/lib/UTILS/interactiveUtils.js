@@ -63,6 +63,7 @@ function makeFactory(chartType) {
           var filteredUpdateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, e.value);
           visualUpdateArgs.dataViews = filteredUpdateValues.dataViews;
           visualUpdateArgs.type = 2; // Change in data, so recalculate limits
+          visualUpdateArgs.frontend = true; // Enable additional compatibility for non-PBI rendering
 
           visual.update(visualUpdateArgs);
         })
