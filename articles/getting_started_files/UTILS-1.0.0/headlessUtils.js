@@ -23,7 +23,8 @@ function updateHeadlessVisual(chartType, dataViews, width, height) {
     dataViews: dataViews,
     viewport: { width: width, height: height },
     type: 2,
-    headless: true
+    headless: true,
+    frontend: true
   };
 
   var visual = globalThis[chartType + "Visual"];
