@@ -21908,9 +21908,23 @@
   function extractKeys(inputView, inputSettings, idxs) {
       const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
       const groupedCols = {};
-      col.forEach((d) => {
-          var _a, _b;
-          const queryName = ((_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : "").split(" ")[0];
+      let queryNames = col.map(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : ""; });
+      const uniqueQueryNames = new Set();
+      queryNames = queryNames.map((queryName, idx) => {
+          if (uniqueQueryNames.has(queryName)) {
+              queryName = `${idx}_${queryName}`;
+          }
+          uniqueQueryNames.add(queryName);
+          return queryName;
+      });
+      col.forEach((d, idx) => {
+          let queryName = queryNames[idx];
+          if (queryName.includes("Date Hierarchy")) {
+              const lastDotIndex = queryName.lastIndexOf(".");
+              if (lastDotIndex !== -1) {
+                  queryName = queryName.substring(0, lastDotIndex);
+              }
+          }
           if (!groupedCols[queryName]) {
               groupedCols[queryName] = [];
           }
@@ -22318,6 +22332,14 @@
           status: (allSameType && commonType !== 0) ? 1 : 0,
           messages: messages
       };
+      if (validationRtn.status === 0) {
+          const allInvalid = all_status.every(d => d !== 0);
+          if (allInvalid) {
+              validationRtn.status = 1;
+              validationRtn.error = "No valid data found!";
+              return validationRtn;
+          }
+      }
       if (allSameType && commonType !== 0) {
           switch (commonType) {
               case 1: {
@@ -23975,9 +23997,10 @@
           this.splitIndexes = new Array();
           this.colourPalette = null;
           this.headless = false;
+          this.frontend = false;
       }
       update(options, host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
           if (isNullOrUndefined(this.colourPalette)) {
               this.colourPalette = {
                   isHighContrast: host.colorPalette.isHighContrast,
@@ -23990,23 +24013,24 @@
           this.svgWidth = options.viewport.width;
           this.svgHeight = options.viewport.height;
           this.headless = (_a = options === null || options === void 0 ? void 0 : options["headless"]) !== null && _a !== void 0 ? _a : false;
-          const indicator_cols = (_d = (_c = (_b = options.dataViews[0]) === null || _b === void 0 ? void 0 : _b.categorical) === null || _c === void 0 ? void 0 : _c.categories) === null || _d === void 0 ? void 0 : _d.filter(d => d.source.roles.indicator);
-          this.indicatorVarNames = (_e = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _e !== void 0 ? _e : [];
+          this.frontend = (_b = options === null || options === void 0 ? void 0 : options["frontend"]) !== null && _b !== void 0 ? _b : false;
+          const indicator_cols = (_e = (_d = (_c = options.dataViews[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories) === null || _e === void 0 ? void 0 : _e.filter(d => d.source.roles.indicator);
+          this.indicatorVarNames = (_f = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _f !== void 0 ? _f : [];
           const n_indicators = (indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length) - 1;
-          const n_values = (_l = (_k = (_j = (_h = (_g = (_f = options.dataViews[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) === null || _h === void 0 ? void 0 : _h[0]) === null || _j === void 0 ? void 0 : _j.values) === null || _k === void 0 ? void 0 : _k.length) !== null && _l !== void 0 ? _l : 1;
+          const n_values = (_m = (_l = (_k = (_j = (_h = (_g = options.dataViews[0]) === null || _g === void 0 ? void 0 : _g.categorical) === null || _h === void 0 ? void 0 : _h.categories) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.length) !== null && _m !== void 0 ? _m : 1;
           const res = { status: true };
           const idx_per_indicator = new Array();
           idx_per_indicator.push([0]);
           this.groupNames = new Array();
-          this.groupNames.push((_m = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _m !== void 0 ? _m : []);
+          this.groupNames.push((_o = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _o !== void 0 ? _o : []);
           let curr_grp = 0;
           for (let i = 1; i < n_values; i++) {
-              if (((_o = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[n_indicators]) === null || _o === void 0 ? void 0 : _o.values[i]) === ((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[n_indicators]) === null || _p === void 0 ? void 0 : _p.values[i - 1])) {
+              if (((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[n_indicators]) === null || _p === void 0 ? void 0 : _p.values[i]) === ((_q = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[n_indicators]) === null || _q === void 0 ? void 0 : _q.values[i - 1])) {
                   idx_per_indicator[curr_grp].push(i);
               }
               else {
                   idx_per_indicator.push([i]);
-                  this.groupNames.push((_q = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _q !== void 0 ? _q : []);
+                  this.groupNames.push((_r = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _r !== void 0 ? _r : []);
                   curr_grp += 1;
               }
           }
@@ -24059,7 +24083,7 @@
                   this.inputDataGrouped = null;
                   this.groupStartEndIndexesGrouped = null;
                   this.controlLimitsGrouped = null;
-                  const split_indexes_str = (_v = ((_u = (_t = (_s = (_r = options.dataViews[0]) === null || _r === void 0 ? void 0 : _r.metadata) === null || _s === void 0 ? void 0 : _s.objects) === null || _t === void 0 ? void 0 : _t.split_indexes_storage) === null || _u === void 0 ? void 0 : _u.split_indexes)) !== null && _v !== void 0 ? _v : "[]";
+                  const split_indexes_str = (_w = ((_v = (_u = (_t = (_s = options.dataViews[0]) === null || _s === void 0 ? void 0 : _s.metadata) === null || _t === void 0 ? void 0 : _t.objects) === null || _u === void 0 ? void 0 : _u.split_indexes_storage) === null || _v === void 0 ? void 0 : _v.split_indexes)) !== null && _w !== void 0 ? _w : "[]";
                   const split_indexes = JSON.parse(split_indexes_str);
                   this.splitIndexes = split_indexes;
                   this.inputData = extractInputData(options.dataViews[0].categorical, this.inputSettings.settings, this.inputSettings.derivedSettings, this.inputSettings.validationStatus.messages, idx_per_indicator[0]);
@@ -25598,15 +25622,19 @@
           return;
       }
       const textX = visualObj.viewModel.svgWidth / 2;
-      const textY = visualObj.viewModel.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
-      xAxisGroup.select(".xaxislabel")
-          .selectAll("text")
-          .data([xAxisProperties.label])
-          .join("text")
+      let textY;
+      if (visualObj.viewModel.frontend) {
+          textY = visualObj.viewModel.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
+      }
+      else {
+          const xAxisCoordinates = xAxisNode.getBoundingClientRect();
+          textY = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
+      }
+      selection.select(".xaxislabel")
           .attr("x", textX)
           .attr("y", textY)
           .style("text-anchor", "middle")
-          .text(d => d)
+          .text(xAxisProperties.label)
           .style("font-size", xAxisProperties.label_size)
           .style("font-family", xAxisProperties.label_font)
           .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
@@ -25644,20 +25672,30 @@
           .style("font-size", yAxisProperties.tick_size)
           .style("font-family", yAxisProperties.tick_font)
           .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      const textX = -(visualObj.viewModel.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
+      const yAxisNode = selection.selectAll(".yaxisgroup").node();
+      if (!yAxisNode) {
+          selection.select(".yaxislabel")
+              .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+          return;
+      }
+      let textX;
       const textY = visualObj.viewModel.svgHeight / 2;
-      yAxisGroup.select(".yaxislabel")
-          .selectAll("text")
-          .data([visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label])
-          .join("text")
+      if (visualObj.viewModel.frontend) {
+          textX = -(visualObj.viewModel.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
+      }
+      else {
+          const yAxisCoordinates = yAxisNode.getBoundingClientRect();
+          textX = yAxisCoordinates.x * 0.7;
+      }
+      selection.select(".yaxislabel")
           .attr("x", textX)
           .attr("y", textY)
           .attr("transform", `rotate(-90, ${textX}, ${textY})`)
+          .text(yAxisProperties.label)
           .style("text-anchor", "middle")
-          .text(d => d)
           .style("font-size", yAxisProperties.label_size)
           .style("font-family", yAxisProperties.label_font)
-          .style("fill", yAxisProperties.label_colour);
+          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
   }
 
   function initialiseSVG(selection, removeAll = false) {
@@ -25666,8 +25704,10 @@
       }
       selection.append('line').classed("ttip-line-x", true);
       selection.append('line').classed("ttip-line-y", true);
-      selection.append('g').classed("xaxisgroup", true).append('g').classed('xaxislabel', true);
-      selection.append('g').classed("yaxisgroup", true).append('g').classed('yaxislabel', true);
+      selection.append('g').classed("xaxisgroup", true);
+      selection.append('text').classed('xaxislabel', true);
+      selection.append('g').classed("yaxisgroup", true);
+      selection.append('text').classed('yaxislabel', true);
       selection.append('g').classed("linesgroup", true);
       selection.append('g').classed("dotsgroup", true);
   }
