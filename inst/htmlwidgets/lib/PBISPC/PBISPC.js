@@ -25615,18 +25615,18 @@
           .style("font-size", xAxisProperties.tick_size)
           .style("font-family", xAxisProperties.tick_font)
           .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
-      const xAxisNode = selection.selectAll(".xaxisgroup").node();
-      if (!xAxisNode) {
-          selection.select(".xaxislabel")
-              .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
-          return;
-      }
       const textX = visualObj.viewModel.svgWidth / 2;
       let textY;
       if (visualObj.viewModel.frontend) {
-          textY = visualObj.viewModel.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
+          textY = plotHeight - (visualObj.viewModel.plotProperties.yAxis.start_padding / 3);
       }
       else {
+          const xAxisNode = selection.selectAll(".xaxisgroup").node();
+          if (!xAxisNode) {
+              selection.select(".xaxislabel")
+                  .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
+              return;
+          }
           const xAxisCoordinates = xAxisNode.getBoundingClientRect();
           textY = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
       }
@@ -25672,18 +25672,18 @@
           .style("font-size", yAxisProperties.tick_size)
           .style("font-family", yAxisProperties.tick_font)
           .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      const yAxisNode = selection.selectAll(".yaxisgroup").node();
-      if (!yAxisNode) {
-          selection.select(".yaxislabel")
-              .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
-          return;
-      }
       let textX;
       const textY = visualObj.viewModel.svgHeight / 2;
       if (visualObj.viewModel.frontend) {
-          textX = -(visualObj.viewModel.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
+          textX = visualObj.viewModel.plotProperties.xAxis.start_padding / 2;
       }
       else {
+          const yAxisNode = selection.selectAll(".yaxisgroup").node();
+          if (!yAxisNode) {
+              selection.select(".yaxislabel")
+                  .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+              return;
+          }
           const yAxisCoordinates = yAxisNode.getBoundingClientRect();
           textX = yAxisCoordinates.x * 0.7;
       }
