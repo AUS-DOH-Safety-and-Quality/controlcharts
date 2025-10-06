@@ -40768,6 +40768,7 @@
               }
               this.plotPoints.push({
                   x: denominator,
+                  numerator: numerator,
                   value: value,
                   group_text: category,
                   aesthetics: aesthetics,
@@ -41610,7 +41611,6 @@
       }
       update(options) {
           var _a, _b, _c, _d, _e;
-          console.log('update called');
           try {
               this.host.eventService.renderingStarted(options);
               // Remove printed error if refreshing after a previous error run
