@@ -145,7 +145,7 @@ create_static <- function(type, dataViews, width, height) {
     limits <- do.call(rbind.data.frame, limits)
     limits$date <- trimws(limits$date)
   } else if (type == "funnel") {
-    values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, denominator = obs$x, value = obs$value)  })
+    values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, numerator = obs$numerator, denominator = obs$x, value = obs$value)  })
     values <- do.call(rbind.data.frame, values)
     limits <-
       lapply(raw_ret$calculatedLimits, function(limit_grp) {

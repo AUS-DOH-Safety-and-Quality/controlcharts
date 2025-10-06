@@ -137,15 +137,18 @@ spc <- function(data,
     lapply(data_raw, function(elem){ elem[idx] })
   })
 
+  widget_data <- list(
+    data_raw = data_df,
+    input_settings = input_settings,
+    crosstalkGroup = crosstalkGroup,
+    aggregations = aggregations
+  )
+
   # Create interactive plot
   html_plt <- htmlwidgets::createWidget(
     name = 'spc',
-    x = list(
-      data_raw = data_df,
-      input_settings = input_settings,
-      crosstalkGroup = crosstalkGroup,
-      aggregations = aggregations
-    ),
+    # Store compressed data to reduce size
+    x = zlib::compress(serialize(widget_data, NULL)),
     sizingPolicy = htmlwidgets::sizingPolicy(
       defaultWidth = "100%"
     ),
@@ -153,7 +156,12 @@ spc <- function(data,
     height = height,
     package = "controlcharts",
     elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
+    dependencies = crosstalk::crosstalkLibs(),
+    # preRenderHook to decompress data before rendering
+    preRenderHook = function(instance) {
+      instance$x <- unserialize(zlib::decompress(instance$x))
+      instance
+    }
   )
 
   dataViews <- update_static_padding(
