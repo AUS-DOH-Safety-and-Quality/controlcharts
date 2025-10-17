@@ -11,7 +11,7 @@ Generate fully interactive and dynamic funnel plots and statistical process cont
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://andrjohns.github.io/controlcharts/}
+  \item \url{https://aus-doh-safety-and-quality.github.io/controlcharts/}
 }
 
 }

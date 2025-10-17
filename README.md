@@ -5,11 +5,11 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/andrjohns/controlcharts/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/andrjohns/controlcharts/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/AUS-DOH-Safety-and-Quality/controlcharts/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/AUS-DOH-Safety-and-Quality/controlcharts/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/controlcharts)](https://CRAN.R-project.org/package=controlcharts)
 [![controlcharts status
-badge](https://andrjohns.r-universe.dev/badges/controlcharts)](https://andrjohns.r-universe.dev/controlcharts)
+badge](https://AUS-DOH-Safety-and-Quality.r-universe.dev/badges/controlcharts)](https://AUS-DOH-Safety-and-Quality.r-universe.dev/controlcharts)
 <!-- badges: end -->
 
 ## Installation
@@ -19,13 +19,13 @@ You can install the development version of controlcharts from
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("andrjohns/controlcharts")
+remotes::install_github("AUS-DOH-Safety-and-Quality/controlcharts")
 ```
 
 Or you can install pre-built binaries from R-Universe:
 
 ``` r
-install.packages("controlcharts", repos = c("https://andrjohns.r-universe.dev",
+install.packages("controlcharts", repos = c("https://AUS-DOH-Safety-and-Quality.r-universe.dev",
                                             "https://cran.r-project.org"))
 ```
 

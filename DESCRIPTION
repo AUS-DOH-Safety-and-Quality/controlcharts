@@ -24,4 +24,4 @@ Suggests:
   knitr,
   rmarkdown
 VignetteBuilder: knitr
-URL: https://andrjohns.github.io/controlcharts/
+URL: https://aus-doh-safety-and-quality.github.io/controlcharts/
