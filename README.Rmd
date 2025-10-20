@@ -21,7 +21,9 @@ knitr::opts_chunk$set(
 [![controlcharts status badge](https://AUS-DOH-Safety-and-Quality.r-universe.dev/badges/controlcharts)](https://AUS-DOH-Safety-and-Quality.r-universe.dev/controlcharts)
 <!-- badges: end -->
 
+The `controlcharts` package aims to provide a comprehensive set of tools for both calculating and visualising statistical process control (SPC) charts and funnel plots in R.
 
+The package is implemented as a wrapper around the existing code for the Power BI custom visuals for [SPC Charts](https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-SPC) and [Funnel Plots](https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Funnels). As the data pre-processing, calculation of control limits, and plotting functions are all implemented in Javascript, this provides powerful flexibility for use in interactive contexts.
 
 ## Installation
 
@@ -46,7 +48,10 @@ set.seed(12324)
 ```
 
 
-### SPC
+### Constructing SPC Charts
+
+Consider a basic time-series, comprised of two-years of monthly data:
+
 ```{r spc}
 # Simulate 2 years of monthly data
 dat <- data.frame(
@@ -54,16 +59,40 @@ dat <- data.frame(
   y = rnorm(24)
 )
 
-
-spc_chart <- controlcharts::spc(data = dat, numerators = y, keys = month)
+knitr::kable(head(dat))
 ```
 
+By default, the `spc()` function will construct an `i`-chart (individuals chart; also referred to as an XmR-chart):
+
 ```{r spc_plot}
+spc_chart <- controlcharts::spc(data = dat,
+                                numerators = y,
+                                keys = month)
+```
+
+The result of the `spc()` function is a list containing three elements:
+
+  - `static_plot`: a static SVG plot of the SPC chart
+  - `html_plot`: an HTML widget containing the interactive SPC chart (for use in Shiny/interactive contexts)
+  - `limits`: a data frame containing the calculated control limits
+
+```{r spc_plot_static}
 spc_chart$static_plot
 ```
 
+```{r spc_plot_html, eval=FALSE}
+# If you are using an interactive environment, you can display the HTML widget:
+# spc_chart$html_plot
+```
+
+```{r spc_limits}
+# Display the control limits
+knitr::kable(head(spc_chart$limits), digits = 2)
+```
 
 ### Funnel Plot
+
+The same interface is provided for funnel charts. For this example, consider proportion data recorded by 10 organisations:
 
 ```{r funnel}
 # Simulate proportion data for 10 organisations
@@ -74,12 +103,22 @@ funnel_data <- data.frame(
   denominators = denoms
 )
 
+knitr::kable(funnel_data)
+```
+
+For funnel plots, the default is a proportions (`PR`) chart:
+
+```{r funnel_plot}
 funnel_chart <- controlcharts::funnel(data = funnel_data,
                                        numerators = numerators,
                                        denominators = denominators,
                                        keys = organisation)
 ```
 
-```{r funnel_plot}
+```{r funnel_plot_static}
 funnel_chart$static_plot
+```
+
+```{r funnel_plot_limits}
+knitr::kable(funnel_chart$limits, digits = 2)
 ```
