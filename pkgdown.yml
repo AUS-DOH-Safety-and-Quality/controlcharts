@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   getting_started: getting_started.html
-last_built: 2025-10-20T04:38Z
+last_built: 2025-10-20T06:06Z
 urls:
   reference: https://aus-doh-safety-and-quality.github.io/controlcharts/reference
   article: https://aus-doh-safety-and-quality.github.io/controlcharts/articles

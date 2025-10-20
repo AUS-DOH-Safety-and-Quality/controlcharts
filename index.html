@@ -55,6 +55,8 @@
 </h1></div>
 <!-- badges: start -->
 
+<p>The <code>controlcharts</code> package aims to provide a comprehensive set of tools for both calculating and visualising statistical process control (SPC) charts and funnel plots in R.</p>
+<p>The package is implemented as a wrapper around the existing code for the Power BI custom visuals for <a href="https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-SPC" class="external-link">SPC Charts</a> and <a href="https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Funnels" class="external-link">Funnel Plots</a>. As the data pre-processing, calculation of control limits, and plotting functions are all implemented in Javascript, this provides powerful flexibility for use in interactive contexts.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -71,8 +73,9 @@
 <h2 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
 <div class="section level3">
-<h3 id="spc">SPC<a class="anchor" aria-label="anchor" href="#spc"></a>
+<h3 id="constructing-spc-charts">Constructing SPC Charts<a class="anchor" aria-label="anchor" href="#constructing-spc-charts"></a>
 </h3>
+<p>Consider a basic time-series, comprised of two-years of monthly data:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simulate 2 years of monthly data</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -80,16 +83,200 @@
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">24</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span></span>
-<span><span class="va">spc_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="reference/spc.html">spc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>, numerators <span class="op">=</span> <span class="va">y</span>, keys <span class="op">=</span> <span class="va">month</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">month</th>
+<th align="right">y</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">2024-01-01</td>
+<td align="right">0.0672962</td>
+</tr>
+<tr class="even">
+<td align="left">2024-02-01</td>
+<td align="right">0.7948403</td>
+</tr>
+<tr class="odd">
+<td align="left">2024-03-01</td>
+<td align="right">1.5177286</td>
+</tr>
+<tr class="even">
+<td align="left">2024-04-01</td>
+<td align="right">-2.1648999</td>
+</tr>
+<tr class="odd">
+<td align="left">2024-05-01</td>
+<td align="right">-0.2143888</td>
+</tr>
+<tr class="even">
+<td align="left">2024-06-01</td>
+<td align="right">0.1285904</td>
+</tr>
+</tbody>
+</table>
+<p>By default, the <code><a href="reference/spc.html">spc()</a></code> function will construct an <code>i</code>-chart (individuals chart; also referred to as an XmR-chart):</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">spc_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="reference/spc.html">spc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat</span>,</span>
+<span>                                numerators <span class="op">=</span> <span class="va">y</span>,</span>
+<span>                                keys <span class="op">=</span> <span class="va">month</span><span class="op">)</span></span></code></pre></div>
+<p>The result of the <code><a href="reference/spc.html">spc()</a></code> function is a list containing three elements:</p>
+<ul>
+<li>
+<code>static_plot</code>: a static SVG plot of the SPC chart</li>
+<li>
+<code>html_plot</code>: an HTML widget containing the interactive SPC chart (for use in Shiny/interactive contexts)</li>
+<li>
+<code>limits</code>: a data frame containing the calculated control limits</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">spc_chart</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
-<p><img src="reference/figures/README-spc_plot-1.svg" width="100%"></p>
+<p><img src="reference/figures/README-spc_plot_static-1.svg" width="100%"></p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># If you are using an interactive environment, you can display the HTML widget:</span></span>
+<span><span class="co"># spc_chart$html_plot</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Display the control limits</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">spc_chart</span><span class="op">$</span><span class="va">limits</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">date</th>
+<th align="right">value</th>
+<th align="right">target</th>
+<th align="right">ll99</th>
+<th align="right">ll95</th>
+<th align="right">ll68</th>
+<th align="right">ul68</th>
+<th align="right">ul95</th>
+<th align="right">ul99</th>
+<th align="right">trend_line</th>
+<th align="left">astpoint</th>
+<th align="left">trend</th>
+<th align="left">shift</th>
+<th align="left">two_in_three</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">01/01/2024</td>
+<td align="right">0.07</td>
+<td align="right">-0.14</td>
+<td align="right">-2.53</td>
+<td align="right">-1.73</td>
+<td align="right">-0.93</td>
+<td align="right">0.66</td>
+<td align="right">1.46</td>
+<td align="right">2.25</td>
+<td align="right">-0.56</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+</tr>
+<tr class="even">
+<td align="left">01/02/2024</td>
+<td align="right">0.79</td>
+<td align="right">-0.14</td>
+<td align="right">-2.53</td>
+<td align="right">-1.73</td>
+<td align="right">-0.93</td>
+<td align="right">0.66</td>
+<td align="right">1.46</td>
+<td align="right">2.25</td>
+<td align="right">-0.53</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+</tr>
+<tr class="odd">
+<td align="left">01/03/2024</td>
+<td align="right">1.52</td>
+<td align="right">-0.14</td>
+<td align="right">-2.53</td>
+<td align="right">-1.73</td>
+<td align="right">-0.93</td>
+<td align="right">0.66</td>
+<td align="right">1.46</td>
+<td align="right">2.25</td>
+<td align="right">-0.49</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+</tr>
+<tr class="even">
+<td align="left">01/04/2024</td>
+<td align="right">-2.16</td>
+<td align="right">-0.14</td>
+<td align="right">-2.53</td>
+<td align="right">-1.73</td>
+<td align="right">-0.93</td>
+<td align="right">0.66</td>
+<td align="right">1.46</td>
+<td align="right">2.25</td>
+<td align="right">-0.45</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+</tr>
+<tr class="odd">
+<td align="left">01/05/2024</td>
+<td align="right">-0.21</td>
+<td align="right">-0.14</td>
+<td align="right">-2.53</td>
+<td align="right">-1.73</td>
+<td align="right">-0.93</td>
+<td align="right">0.66</td>
+<td align="right">1.46</td>
+<td align="right">2.25</td>
+<td align="right">-0.42</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+</tr>
+<tr class="even">
+<td align="left">01/06/2024</td>
+<td align="right">0.13</td>
+<td align="right">-0.14</td>
+<td align="right">-2.53</td>
+<td align="right">-1.73</td>
+<td align="right">-0.93</td>
+<td align="right">0.66</td>
+<td align="right">1.46</td>
+<td align="right">2.25</td>
+<td align="right">-0.38</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+<td align="left">none</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="funnel-plot">Funnel Plot<a class="anchor" aria-label="anchor" href="#funnel-plot"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>The same interface is provided for funnel charts. For this example, consider proportion data recorded by 10 organisations:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simulate proportion data for 10 organisations</span></span>
 <span><span class="va">denoms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">100</span><span class="op">:</span><span class="fl">200</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">funnel_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -98,13 +285,249 @@
 <span>  denominators <span class="op">=</span> <span class="va">denoms</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">funnel_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="reference/funnel.html">funnel</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">funnel_data</span>,</span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_data</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">organisation</th>
+<th align="right">numerators</th>
+<th align="right">denominators</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">a</td>
+<td align="right">27</td>
+<td align="right">170</td>
+</tr>
+<tr class="even">
+<td align="left">b</td>
+<td align="right">23</td>
+<td align="right">122</td>
+</tr>
+<tr class="odd">
+<td align="left">c</td>
+<td align="right">35</td>
+<td align="right">178</td>
+</tr>
+<tr class="even">
+<td align="left">d</td>
+<td align="right">26</td>
+<td align="right">184</td>
+</tr>
+<tr class="odd">
+<td align="left">e</td>
+<td align="right">38</td>
+<td align="right">161</td>
+</tr>
+<tr class="even">
+<td align="left">f</td>
+<td align="right">22</td>
+<td align="right">105</td>
+</tr>
+<tr class="odd">
+<td align="left">g</td>
+<td align="right">46</td>
+<td align="right">190</td>
+</tr>
+<tr class="even">
+<td align="left">h</td>
+<td align="right">27</td>
+<td align="right">121</td>
+</tr>
+<tr class="odd">
+<td align="left">i</td>
+<td align="right">27</td>
+<td align="right">137</td>
+</tr>
+<tr class="even">
+<td align="left">j</td>
+<td align="right">35</td>
+<td align="right">197</td>
+</tr>
+</tbody>
+</table>
+<p>For funnel plots, the default is a proportions (<code>PR</code>) chart:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">funnel_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="reference/funnel.html">funnel</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">funnel_data</span>,</span>
 <span>                                       numerators <span class="op">=</span> <span class="va">numerators</span>,</span>
 <span>                                       denominators <span class="op">=</span> <span class="va">denominators</span>,</span>
 <span>                                       keys <span class="op">=</span> <span class="va">organisation</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">funnel_chart</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
-<p><img src="reference/figures/README-funnel_plot-1.svg" width="100%"></p>
+<p><img src="reference/figures/README-funnel_plot_static-1.svg" width="100%"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_chart</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">denominator</th>
+<th align="left">group</th>
+<th align="right">numerator</th>
+<th align="right">value</th>
+<th align="right">ll99</th>
+<th align="right">ll95</th>
+<th align="right">ll68</th>
+<th align="right">ul68</th>
+<th align="right">ul95</th>
+<th align="right">ul99</th>
+<th align="right">target</th>
+<th align="left">alt_target</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">105</td>
+<td align="left">f</td>
+<td align="right">22</td>
+<td align="right">20.95</td>
+<td align="right">9.15</td>
+<td align="right">12.57</td>
+<td align="right">15.85</td>
+<td align="right">23.54</td>
+<td align="right">27.65</td>
+<td align="right">32.71</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">121</td>
+<td align="left">h</td>
+<td align="right">27</td>
+<td align="right">22.31</td>
+<td align="right">9.75</td>
+<td align="right">13.01</td>
+<td align="right">16.10</td>
+<td align="right">23.26</td>
+<td align="right">27.06</td>
+<td align="right">31.74</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">122</td>
+<td align="left">b</td>
+<td align="right">23</td>
+<td align="right">18.85</td>
+<td align="right">9.78</td>
+<td align="right">13.03</td>
+<td align="right">16.11</td>
+<td align="right">23.24</td>
+<td align="right">27.03</td>
+<td align="right">31.69</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">137</td>
+<td align="left">i</td>
+<td align="right">27</td>
+<td align="right">19.71</td>
+<td align="right">10.26</td>
+<td align="right">13.37</td>
+<td align="right">16.30</td>
+<td align="right">23.03</td>
+<td align="right">26.59</td>
+<td align="right">30.96</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">161</td>
+<td align="left">e</td>
+<td align="right">38</td>
+<td align="right">23.60</td>
+<td align="right">10.89</td>
+<td align="right">13.81</td>
+<td align="right">16.54</td>
+<td align="right">22.75</td>
+<td align="right">26.02</td>
+<td align="right">30.02</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">170</td>
+<td align="left">a</td>
+<td align="right">27</td>
+<td align="right">15.88</td>
+<td align="right">11.09</td>
+<td align="right">13.96</td>
+<td align="right">16.62</td>
+<td align="right">22.66</td>
+<td align="right">25.84</td>
+<td align="right">29.72</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">178</td>
+<td align="left">c</td>
+<td align="right">35</td>
+<td align="right">19.66</td>
+<td align="right">11.26</td>
+<td align="right">14.08</td>
+<td align="right">16.68</td>
+<td align="right">22.59</td>
+<td align="right">25.69</td>
+<td align="right">29.47</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">184</td>
+<td align="left">d</td>
+<td align="right">26</td>
+<td align="right">14.13</td>
+<td align="right">11.38</td>
+<td align="right">14.16</td>
+<td align="right">16.73</td>
+<td align="right">22.54</td>
+<td align="right">25.58</td>
+<td align="right">29.30</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">190</td>
+<td align="left">g</td>
+<td align="right">46</td>
+<td align="right">24.21</td>
+<td align="right">11.50</td>
+<td align="right">14.24</td>
+<td align="right">16.77</td>
+<td align="right">22.49</td>
+<td align="right">25.48</td>
+<td align="right">29.13</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="right">197</td>
+<td align="left">j</td>
+<td align="right">35</td>
+<td align="right">17.77</td>
+<td align="right">11.63</td>
+<td align="right">14.33</td>
+<td align="right">16.82</td>
+<td align="right">22.44</td>
+<td align="right">25.37</td>
+<td align="right">28.95</td>
+<td align="right">19.55</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
