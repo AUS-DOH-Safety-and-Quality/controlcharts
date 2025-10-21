@@ -139,6 +139,7 @@ funnel <- function(data,
   static <- create_static(
     type = 'funnel',
     dataViews = dataViews,
+    input_settings = input_settings,
     width = width,
     height = height
   )

@@ -115,7 +115,7 @@ update_static_padding <- function(type, dataViews) {
   dataViews
 }
 
-create_static <- function(type, dataViews, width, height) {
+create_static <- function(type, dataViews, input_settings, width, height) {
   fixed_dimensions <- !is.null(width) && !is.null(height)
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
@@ -140,11 +140,25 @@ create_static <- function(type, dataViews, width, height) {
   limits <- NULL
   if (type == "spc") {
     limits <- lapply(raw_ret$plotPoints, function(elem) elem$table_row)
-      # Depending on the chart type, the 'numerators' and 'denominators' may be
-      # empty, so we need to remove them from the list
+    # Depending on the chart type, the 'numerators' and 'denominators' may be
+    # empty, so we need to remove them from the list
     limits <- lapply(limits, function(lim) data.frame(lim[!sapply(lim, is.null)]))
     limits <- do.call(rbind.data.frame, limits)
     limits$date <- trimws(limits$date)
+
+    # Remove columns for any outlier patterns that were not used
+    outlier_cols <- c("astronomical", "shift", "trend", "two_in_three")
+    if (!is.null(input_settings$outliers)) {
+      for (pattern in names(input_settings$outliers)) {
+        if ((pattern %in% outlier_cols) && input_settings$outliers[[pattern]]) {
+          outlier_cols <- setdiff(outlier_cols, pattern)
+        }
+      }
+    }
+    # Return table uses 'astpoint' while input settings use 'astronomical'
+    outlier_cols[outlier_cols == "astronomical"] <- "astpoint"
+    # Remove any outlier columns that were not used
+    limits <- limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
   } else if (type == "funnel") {
     values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, numerator = obs$numerator, denominator = obs$x, value = obs$value)  })
     values <- do.call(rbind.data.frame, values)
