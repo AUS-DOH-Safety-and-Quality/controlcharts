@@ -169,3 +169,10 @@ knitr::kable(funnel_chart$limits, digits = 2)
 |         184 | d     |        26 | 14.13 | 11.38 | 14.16 | 16.73 | 22.54 | 25.58 | 29.30 |  19.55 |
 |         190 | g     |        46 | 24.21 | 11.50 | 14.24 | 16.77 | 22.49 | 25.48 | 29.13 |  19.55 |
 |         197 | j     |        35 | 17.77 | 11.63 | 14.33 | 16.82 | 22.44 | 25.37 | 28.95 |  19.55 |
+
+## Interactive Charts
+
+The package is also uniquely suited to creating interactive SPC charts
+and funnel plots. See the [vignette on interactive
+charts](https://aus-doh-safety-and-quality.github.io/controlcharts/articles/interactive_charts.html)
+for more details and examples.

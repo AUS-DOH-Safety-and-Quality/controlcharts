@@ -122,3 +122,7 @@ funnel_chart$static_plot
 ```{r funnel_plot_limits}
 knitr::kable(funnel_chart$limits, digits = 2)
 ```
+
+## Interactive Charts
+
+The package is also uniquely suited to creating interactive SPC charts and funnel plots. See the [vignette on interactive charts](https://aus-doh-safety-and-quality.github.io/controlcharts/articles/interactive_charts.html) for more details and examples.
