@@ -181,15 +181,19 @@ create_static <- function(type, dataViews, input_settings, width, height) {
     limits <- merge(values, limits, by.x = "denominator", by.y = "denominators")
 
     #  Remove columns for any outlier patterns that were not used
-    outlier_cols <- c("two_sigma", "three_sigma")
+    drop_cols <- c("two_sigma", "three_sigma")
     if (!is.null(input_settings$outliers)) {
       for (pattern in names(input_settings$outliers)) {
-        if ((pattern %in% outlier_cols) && input_settings$outliers[[pattern]]) {
-          outlier_cols <- setdiff(outlier_cols, pattern)
+        if ((pattern %in% drop_cols) && input_settings$outliers[[pattern]]) {
+          drop_cols <- setdiff(drop_cols, pattern)
         }
       }
     }
-    limits <- limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
+    # Remove alt-target column if not used
+    if (is.null(input_settings$lines) || is.null(input_settings$lines$alt_target)) {
+      drop_cols <- c(drop_cols, "alt_target")
+    }
+    limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
   }
   list(
     limits = limits,
