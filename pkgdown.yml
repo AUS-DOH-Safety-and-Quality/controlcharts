@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   getting_started: getting_started.html
   articles/interactive_charts: interactive_charts.html
-last_built: 2025-10-21T07:31Z
+last_built: 2025-10-21T07:34Z
 urls:
   reference: https://aus-doh-safety-and-quality.github.io/controlcharts/reference
   article: https://aus-doh-safety-and-quality.github.io/controlcharts/articles
