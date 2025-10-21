@@ -12,161 +12,85 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-
-# Workaround for crosstalk bug which needs 'filter_slider' to be first HTML element when working with dates
-# Simply create a hidden/'dummy' filter to initialise correct includes
-# https://github.com/rstudio/crosstalk/issues/65
-crosstalk::filter_slider("dummy", "dummy", crosstalk::SharedData$new(data.frame(d = as.Date("01/01/1970"))), ~d)
 ```
 
-## Generate Data
-
-```{r}
-library(controlcharts)
-
+## Getting Started
+```{r setup, include=FALSE}
 set.seed(12324)
+```
 
-dat <- do.call(
-  rbind.data.frame,
-  lapply(toupper(letters[1:10]), function(grp) {
-    denom <- sample(0:100, 24)
-    data.frame(
-      country = sample(c("C1", "C2", "C3"), 1, replace = TRUE),
-      organisation = grp,
-      month_start = seq(as.Date('2024-01-01'), length.out=24, by="month"),
-      numerators = rbinom(n = 24, size = denom, prob = 0.3),
-      denominators = denom
-    )
-  })
+
+### Constructing SPC Charts
+
+Consider a basic time-series, comprised of two-years of monthly data:
+
+```{r spc}
+# Simulate 2 years of monthly data
+dat <- data.frame(
+  month = seq(as.Date('2024-01-01'), length.out = 24, by = "month"),
+  y = rnorm(24)
 )
-DT::datatable(dat)
+
+knitr::kable(head(dat))
 ```
 
-## SPC
+By default, the `spc()` function will construct an `i`-chart (individuals chart; also referred to as an XmR-chart):
 
-### Create Plot
-
-```{r}
-spc_plt <- controlcharts::spc(data = dat,
-                              keys = month_start,
-                              numerators = numerators,
-                              denominators = denominators,
-                              scatter_settings = list(size = 4),
-                              outlier_settings = list(astronomical = TRUE,
-                                                      shift = TRUE,
-                                                      shift_n = 4,
-                                                      two_in_three = TRUE),
-                              nhs_icon_settings = list(show_variation_icons = TRUE),
-                              width = 640, height = 480)
+```{r spc_plot}
+spc_chart <- controlcharts::spc(data = dat,
+                                numerators = y,
+                                keys = month)
 ```
 
-### Interactive
+The result of the `spc()` function is a list containing three elements:
 
-```{r}
-spc_plt$html_plot
+  - `static_plot`: a static SVG plot of the SPC chart
+  - `html_plot`: an HTML widget containing the interactive SPC chart (for use in Shiny/interactive contexts)
+  - `limits`: a data frame containing the calculated control limits
+
+```{r spc_plot_static}
+spc_chart$static_plot
 ```
 
-### Static
-
-```{r}
-spc_plt$static_plot
+```{r spc_plot_html, eval=FALSE}
+# If you are using an interactive environment, you can display the HTML widget:
+# spc_chart$html_plot
 ```
 
-
-### Control Limits
-
-```{r}
-DT::datatable(spc_plt$limits) |>
-  DT::formatRound(c("value", "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"))
+```{r spc_limits}
+# Display the control limits
+knitr::kable(head(spc_chart$limits), digits = 2)
 ```
 
-## Funnel
+### Funnel Plot
 
-### Create Plot
+The same interface is provided for funnel charts. For this example, consider proportion data recorded by 10 organisations:
 
-```{r}
-fun_plt <- controlcharts::funnel(data = dat,
-                                 keys = organisation,
-                                 numerators = numerators,
-                                 denominators=denominators,
-                                 scatter_settings = list(size = 4),
-                                 y_axis_settings = list(ylimit_u = 100),
-                              width = 640, height = 480)
-```
-
-### Interactive
-
-```{r}
-fun_plt$html_plot
-```
-
-### Static
-
-```{r}
-fun_plt$static_plot
-```
-
-
-### Control Limits
-
-```{r}
-DT::datatable(fun_plt$limits) |>
-  DT::formatRound(c("value", "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"))
-```
-
-## Crosstalk
-
-```{r}
-crosstalk_dat <- crosstalk::SharedData$new(dat)
-spc_plt <- controlcharts::spc(data = crosstalk_dat,
-                              keys = month_start,
-                              numerators = numerators,
-                              denominators = denominators,
-                              scatter_settings = list(size = 4),
-                              outlier_settings = list(astronomical = TRUE,
-                                                      shift = TRUE,
-                                                      shift_n = 4,
-                                                      two_in_three = TRUE),
-                              nhs_icon_settings = list(show_variation_icons = TRUE))
-fun_plt <- controlcharts::funnel(data = crosstalk_dat,
-                                 keys = organisation,
-                                 numerators = numerators,
-                                 denominators=denominators,
-                                 scatter_settings = list(size = 4),
-                                 y_axis_settings = list(ylimit_u = 100))
-```
-
-```{r, eval=FALSE}
-country_filter <- crosstalk::filter_select("countryFilter", "Country",
-                                             crosstalk_dat, ~country)
-org_filter <- crosstalk::filter_select("orgFilter", "Organisation",
-                                         crosstalk_dat, ~organisation)
-date_filter <- crosstalk::filter_slider("monthFilter", "Date",
-                                        crosstalk_dat, ~month_start)
-crosstalk::bscols(
-  date_filter,
-  org_filter,
-  country_filter
+```{r funnel}
+# Simulate proportion data for 10 organisations
+denoms <- sample(100:200, 10)
+funnel_data <- data.frame(
+  organisation = letters[1:10],
+  numerators = rbinom(10, size = denoms, prob = 0.2),
+  denominators = denoms
 )
-crosstalk::bscols(
-  fun_plt$html_plot,
-  spc_plt$html_plot
-)
+
+knitr::kable(funnel_data)
 ```
 
-```{r, echo=FALSE}
-country_filter <- crosstalk::filter_select("countryFilter", "Country",
-                                             crosstalk_dat, ~country)
-org_filter <- crosstalk::filter_select("orgFilter", "Organisation",
-                                         crosstalk_dat, ~organisation)
-date_filter <- crosstalk::filter_slider("monthFilter", "Date",
-                                        crosstalk_dat, ~month_start)
-crosstalk::bscols(date_filter, country_filter, org_filter)
+For funnel plots, the default is a proportions (`PR`) chart:
+
+```{r funnel_plot}
+funnel_chart <- controlcharts::funnel(data = funnel_data,
+                                       numerators = numerators,
+                                       denominators = denominators,
+                                       keys = organisation)
 ```
 
-```{r, echo=FALSE}
-crosstalk::bscols(
-  fun_plt$html_plot,
-  spc_plt$html_plot
-)
+```{r funnel_plot_static}
+funnel_chart$static_plot
+```
+
+```{r funnel_plot_limits}
+knitr::kable(funnel_chart$limits, digits = 2)
 ```
