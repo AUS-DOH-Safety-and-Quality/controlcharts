@@ -160,8 +160,18 @@ create_static <- function(type, dataViews, input_settings, width, height) {
     # Remove any outlier columns that were not used
     limits <- limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
   } else if (type == "funnel") {
-    values <- lapply(raw_ret$plotPoints, function(obs) { data.frame(group = obs$group_text, numerator = obs$numerator, denominator = obs$x, value = obs$value)  })
+    values <- lapply(raw_ret$plotPoints, function(obs) {
+      data.frame(
+        group = obs$group_text,
+        numerator = obs$numerator,
+        denominator = obs$x,
+        value = obs$value,
+        two_sigma = obs$two_sigma,
+        three_sigma = obs$three_sigma
+      )
+    })
     values <- do.call(rbind.data.frame, values)
+
     limits <-
       lapply(raw_ret$calculatedLimits, function(limit_grp) {
         limit_grp <- lapply(limit_grp, function(x) ifelse(is.null(x) || is.nan(x), NA, x))
@@ -169,6 +179,17 @@ create_static <- function(type, dataViews, input_settings, width, height) {
       })
     limits <- do.call(rbind.data.frame, limits)
     limits <- merge(values, limits, by.x = "denominator", by.y = "denominators")
+
+    #  Remove columns for any outlier patterns that were not used
+    outlier_cols <- c("two_sigma", "three_sigma")
+    if (!is.null(input_settings$outliers)) {
+      for (pattern in names(input_settings$outliers)) {
+        if ((pattern %in% outlier_cols) && input_settings$outliers[[pattern]]) {
+          outlier_cols <- setdiff(outlier_cols, pattern)
+        }
+      }
+    }
+    limits <- limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
   }
   list(
     limits = limits,
