@@ -81,7 +81,7 @@ By converting the data to a `crosstalk::SharedData` object, multiple charts can 
 crosstalk_dat <- crosstalk::SharedData$new(dat)
 
 # Create charts using crosstalk data
-spc_plt <- controlcharts::spc(data = dat,
+spc_plt <- controlcharts::spc(data = crosstalk_dat,
                               keys = month_start,
                               numerators = numerators,
                               denominators = denominators,
@@ -90,7 +90,7 @@ spc_plt <- controlcharts::spc(data = dat,
                                                       two_in_three = TRUE),
                               nhs_icon_settings = list(show_variation_icons = TRUE))
 
-fun_plt <- controlcharts::funnel(data = dat,
+fun_plt <- controlcharts::funnel(data = crosstalk_dat,
                                  keys = organisation,
                                  numerators = numerators,
                                  denominators = denominators)
