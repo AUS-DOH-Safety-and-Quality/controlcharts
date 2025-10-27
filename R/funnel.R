@@ -88,8 +88,6 @@ funnel <- function(data,
     y_axis = y_axis_settings,
     labels = label_settings
   )
-  input_settings <- validate_settings('funnel', input_settings)
-  aggregations <- validate_aggregations(aggregations)
 
   data_raw <- list(
     crosstalkIdentities = crosstalkIdentities,
@@ -97,6 +95,11 @@ funnel <- function(data,
     numerators = eval(substitute(numerators), input_data, parent.frame()),
     denominators = eval(substitute(denominators), input_data, parent.frame())
   )
+
+  input_settings_processed <- validate_settings('funnel', input_settings, data_raw$categories)
+  input_settings <- input_settings_processed$input_settings
+  has_conditional_formatting <- input_settings_processed$has_conditional_formatting
+  aggregations <- validate_aggregations(aggregations)
 
   if (!missing(tooltips)) {
     tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
@@ -112,6 +115,8 @@ funnel <- function(data,
     lapply(data_raw, function(elem){ elem[idx] })
   })
 
+  unique_categories <- unique(data_raw$categories)
+
   # create widget
   html_plt <- htmlwidgets::createWidget(
     name = 'funnel',
@@ -119,7 +124,9 @@ funnel <- function(data,
       data_raw = data_df,
       input_settings = input_settings,
       crosstalkGroup = crosstalkGroup,
-      aggregations = aggregations
+      aggregations = aggregations,
+      has_conditional_formatting = has_conditional_formatting,
+      unique_categories = unique_categories
     ),
     sizingPolicy = htmlwidgets::sizingPolicy(
       defaultWidth = "100%"
@@ -133,7 +140,7 @@ funnel <- function(data,
 
   dataViews <- update_static_padding(
     "funnel",
-    ctx$call("makeUpdateValues", data_df, input_settings, aggregations)$dataViews
+    ctx$call("makeUpdateValues", data_df, input_settings, aggregations, has_conditional_formatting, unique_categories)$dataViews
   )
 
   static <- create_static(

@@ -42,22 +42,49 @@ funnel_default_settings <- function(group = NULL) {
   .default_settings_impl("funnel", group)
 }
 
-validate_settings <- function(type, input_settings) {
+validate_settings <- function(type, input_settings, categories) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
     funnel = funnel_default_settings()
   )
+  has_conditional_formatting <- FALSE
   for (group in names(default_settings)) {
     if (!is.null(input_settings[[group]])) {
       valid_settings <- names(default_settings[[group]])
       invalid_settings <- setdiff(names(input_settings[[group]]), valid_settings)
       if (length(invalid_settings) > 0) {
-        stop("Invalid settings in group '", group, "': ", paste0("'", invalid_settings, "'", collapse = ', '), ".\nValid settings are: ", paste0("'", valid_settings, "'", collapse = ', '), ".")
+        stop(
+          "Invalid settings in group '", group, "': ", paste0("'", invalid_settings, "'", collapse = ', '),
+          ".\nValid settings are: ", paste0("'", valid_settings, "'", collapse = ', '), "."
+        )
+      }
+
+      # Check that length of vector settings matches number of categories
+      for (setting_name in names(input_settings[[group]])) {
+        setting_value <- input_settings[[group]][[setting_name]]
+        if (length(setting_value) > 1) {
+          if (length(setting_value) != length(categories)) {
+            stop(
+              "Setting '", setting_name, "' in group '", group, "' has length ", length(setting_value),
+              " but there are ", length(categories), " observations. ",
+              "Either provide a single value or a vector of length equal to the number of observations."
+            )
+          }
+          has_conditional_formatting <- TRUE
+          # Only use the first value per unique category
+          input_settings[[group]][[setting_name]] <- aggregate(setting_value,
+            by = list(categories),
+            FUN = function(x) x[1]
+          )[, 2]
+        }
       }
     }
   }
-  input_settings
+  list(
+    input_settings = input_settings,
+    has_conditional_formatting = has_conditional_formatting
+  )
 }
 
 validate_aggregations <- function(aggregations) {

@@ -1,3 +1,5 @@
+ctx <- NULL
+
 .load_js_file <- function(context, filename) {
   context$source(system.file(filename, package = "controlcharts", mustWork = TRUE))
 }

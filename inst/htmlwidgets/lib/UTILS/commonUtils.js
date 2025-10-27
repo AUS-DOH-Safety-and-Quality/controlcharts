@@ -85,7 +85,7 @@ const aggregateColumn = function(column, aggregation) {
   }
 }
 
-function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters) {
+function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
   if (crosstalkFilters) {
     rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalkIdentities));
   }
@@ -93,6 +93,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters
   Object.freeze(dataGrouped);
   var identitiesGrouped = [];
   for (group in dataGrouped) {
+    // Group crosstalk identities for each category group
     identitiesGrouped.push([group, dataGrouped[group].map(d => d.crosstalkIdentities)]);
   }
 
@@ -113,9 +114,28 @@ function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters
     values: []
   }));
 
+  // Convert unique_categories to strings for comparison
+  //   against string keys in dataGrouped
+  unique_categories = unique_categories.map(d => d.toString());
+
   for (var category in dataGrouped) {
     args.categories[0].values.push(category);
-    args.categories[0].objects.push(inputSettings);
+    if (has_conditional_formatting) {
+      // If multiple values are passed for a given setting, extract the one for the current category
+      // Deep-clone the input settings to avoid modifying the original object
+      var settingsClone = JSON.parse(JSON.stringify(inputSettings));
+      for (var settingGroup in settingsClone) {
+        for (var setting in settingsClone[settingGroup]) {
+          if (Array.isArray(settingsClone[settingGroup][setting])) {
+            var index = unique_categories.indexOf(category);
+            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][index];
+          }
+        }
+      }
+      args.categories[0].objects.push(settingsClone);
+    } else {
+      args.categories[0].objects.push(inputSettings);
+    }
 
     for (var i = 0; i < valueNames.length; i++) {
       var name = valueNames[i];

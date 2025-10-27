@@ -98,14 +98,16 @@ spc <- function(data,
     labels = label_settings
   )
 
-  input_settings <- validate_settings('spc', input_settings)
-  aggregations <- validate_aggregations(aggregations)
-
   data_raw <- list(
     crosstalkIdentities = crosstalkIdentities,
     categories = eval(substitute(keys), input_data, parent.frame()),
     numerators = eval(substitute(numerators), input_data, parent.frame())
   )
+
+  input_settings_processed <- validate_settings('spc', input_settings, data_raw$categories)
+  input_settings <- input_settings_processed$input_settings
+  has_conditional_formatting <- input_settings_processed$has_conditional_formatting
+  aggregations <- validate_aggregations(aggregations)
 
   if (!missing(denominators)) {
     denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
@@ -137,11 +139,15 @@ spc <- function(data,
     lapply(data_raw, function(elem){ elem[idx] })
   })
 
+  unique_categories <- unique(data_raw$categories)
+
   widget_data <- list(
     data_raw = data_df,
     input_settings = input_settings,
     crosstalkGroup = crosstalkGroup,
-    aggregations = aggregations
+    aggregations = aggregations,
+    has_conditional_formatting = has_conditional_formatting,
+    unique_categories = unique_categories
   )
 
   # Create interactive plot
@@ -166,7 +172,7 @@ spc <- function(data,
 
   dataViews <- update_static_padding(
     "spc",
-    ctx$call("makeUpdateValues", data_df, input_settings, aggregations)$dataViews
+    ctx$call("makeUpdateValues", data_df, input_settings, aggregations, has_conditional_formatting, unique_categories)$dataViews
   )
 
   static <- create_static(
