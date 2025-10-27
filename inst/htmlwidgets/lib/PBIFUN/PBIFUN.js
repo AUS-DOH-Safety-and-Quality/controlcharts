@@ -35107,6 +35107,10 @@
       return formatValuesImpl;
   }
 
+  function isValidNumber(value) {
+      return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
+  }
+
   /**
    * Generate (un-adjusted) z-scores using transformed
    * observations and standard errors
@@ -41371,46 +41375,55 @@
           line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
           let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
           marker_offset = label_position === "top" ? -marker_offset : marker_offset;
-          return { x: x_val + side_length * Math.cos(theta * Math.PI / 180),
-              y: y_val + side_length * Math.sin(theta * Math.PI / 180),
+          const newX = x_val + side_length * Math.cos(theta * Math.PI / 180);
+          const newY = y_val + side_length * Math.sin(theta * Math.PI / 180);
+          if (!isValidNumber(newX) || !isValidNumber(newY)) {
+              return {
+                  x: 0,
+                  y: 0,
+                  theta: 0,
+                  line_offset: 0,
+                  marker_offset: 0
+              };
+          }
+          return { x: newX,
+              y: newY,
               theta: theta,
               line_offset: line_offset,
               marker_offset: marker_offset
           };
       });
-      const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-      const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-      const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-      const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
       selection.select("text")
           .text(d => d.label.text_value)
-          .attr("transform", (_, i) => {
-          if (!between(initialLabelXY[i].y, ylower, yupper) || !between(initialLabelXY[i].x, xlower, xupper)) {
-              return "translate(0, 0) scale(0, 0)";
-          }
-          return `translate(${initialLabelXY[i].x}, ${initialLabelXY[i].y}) rotate(${initialLabelXY[i].theta})`;
-      })
+          .attr("x", (_, i) => initialLabelXY[i].x)
+          .attr("y", (_, i) => initialLabelXY[i].y)
           .style("text-anchor", "middle")
           .style("font-size", d => `${d.label.aesthetics.label_size}px`)
           .style("font-family", d => d.label.aesthetics.label_font)
           .style("fill", d => d.label.aesthetics.label_colour);
       selection.select("line")
-          .attr("x1", (_, i) => between(initialLabelXY[i].x, xlower, xupper) ? initialLabelXY[i].x : 0)
+          .attr("x1", (_, i) => initialLabelXY[i].x)
           .attr("y1", (_, i) => {
-          const newY1 = initialLabelXY[i].y + initialLabelXY[i].line_offset;
-          return between(newY1, ylower, yupper) ? newY1 : 0;
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return 0;
+          }
+          return initialLabelXY[i].y + initialLabelXY[i].line_offset;
       })
           .attr("x2", (d, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return 0;
+          }
           const marker_offset = initialLabelXY[i].marker_offset;
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          const newX2 = visualObj.viewModel.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
-          return between(newX2, xlower, xupper) ? newX2 : 0;
+          return visualObj.viewModel.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
       })
           .attr("y2", (d, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return 0;
+          }
           const marker_offset = initialLabelXY[i].marker_offset;
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          const newY2 = visualObj.viewModel.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
-          return between(newY2, ylower, yupper) ? newY2 : 0;
+          return visualObj.viewModel.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
       })
           .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
           .style("stroke-width", d => { var _a; return ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "" ? 0 : visualObj.viewModel.inputSettings.settings.labels.label_line_width; })
@@ -41423,6 +41436,9 @@
           return Symbol$1().type(triangle).size(marker_size)();
       })
           .attr("transform", (d, i) => {
+          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+              return "translate(0, 0) rotate(0)";
+          }
           const marker_offset = initialLabelXY[i].marker_offset;
           //const label_position: string = d.label.aesthetics.label_position;
           const x = visualObj.viewModel.plotProperties.xScale(d.x);
@@ -41430,9 +41446,6 @@
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
           const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
           const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
-          if (!between(x + x_offset, xlower, xupper) || !between(y + y_offset, ylower, yupper)) {
-              return "translate(0, 0) scale(0, 0)";
-          }
           return `translate(${x + x_offset}, ${y + y_offset}) rotate(${angle + (d.label.aesthetics.label_position === "top" ? 90 : 270)})`;
       })
           .style("fill", d => d.label.aesthetics.label_marker_colour)
@@ -54440,6 +54453,7 @@
   exports.initialiseSVG = initialiseSVG;
   exports.inv = inv;
   exports.isNullOrUndefined = isNullOrUndefined;
+  exports.isValidNumber = isValidNumber;
   exports.log = log;
   exports.max = max;
   exports.mean = mean;
