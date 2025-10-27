@@ -50,8 +50,8 @@ knit_print.static_plot <- function(x, ...) {
 knit_print.controlchart <- function(x, ...) {
   # For knitr, print html for HTML output, and static plot for other formats
   if (knitr::is_html_output()) {
-    knitr::knit_print(x$html_plot)
+    knitr::knit_print(x$html_plot, ...)
   } else {
-    knit_print.static_plot(x$static_plot)
+    knit_print.static_plot(x$static_plot, ...)
   }
 }
