@@ -73,10 +73,13 @@ validate_settings <- function(type, input_settings, categories) {
           }
           has_conditional_formatting <- TRUE
           # Only use the first value per unique category
-          input_settings[[group]][[setting_name]] <- aggregate(setting_value,
+          agg_settings <- aggregate(setting_value,
             by = list(categories),
             FUN = function(x) x[1]
-          )[, 2]
+          )
+          # Make aggregated settings respect input order
+          agg_settings$Group.1 <- factor(agg_settings$Group.1, levels = categories)
+          input_settings[[group]][[setting_name]] <- agg_settings[order(agg_settings$Group.1), 2]
         }
       }
     }
