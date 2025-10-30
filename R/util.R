@@ -159,7 +159,7 @@ create_static <- function(type, dataViews, input_settings, width, height) {
       svg = raw_ret$svg,
       # Set to non-null values, will be updated when printed
       width = width,
-      height = height,
+      height = height
     ),
     class = "static_plot"
   )
