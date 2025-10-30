@@ -41491,20 +41491,19 @@
       selection.select(".text-labels")
           .selectAll(".text-group-inner")
           .data(visualObj.viewModel.plotPoints)
-          .join((enter) => {
-          let grp = enter.append("g").classed("text-group-inner", true);
-          grp.append("text");
-          grp.append("line");
-          grp.append("path");
-          // Drag functionality not available in headless mode
+          .join("g")
+          .classed("text-group-inner", true)
+          .each(function (_) {
+          const textGroup = select(this);
+          textGroup.selectAll("*").remove();
+          textGroup.append("text");
+          textGroup.append("line");
+          textGroup.append("path");
           if (!visualObj.viewModel.headless) {
-              grp.call(dragFun);
+              textGroup.call(dragFun);
           }
-          return grp;
-      }, (update) => {
-          update.call(labelFormatting, visualObj);
-          return update;
-      });
+      })
+          .call(labelFormatting, visualObj);
   }
 
   const positionOffsetMap = {
