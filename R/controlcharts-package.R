@@ -4,4 +4,5 @@
 #' @importFrom QuickJSR JSContext
 #' @importFrom utils modifyList
 #' @importFrom zlib compress decompress
+#' @importFrom stats aggregate
 "_PACKAGE"

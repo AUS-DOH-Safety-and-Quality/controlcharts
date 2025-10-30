@@ -18,5 +18,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Andrew R. Johnson \email{andrew.johnson@arjohnsonau.com} (\href{https://orcid.org/0000-0001-7000-8065}{ORCID})
 
+Authors:
+\itemize{
+  \item Healthcare Quality Intelligence Unit (Western Australia Health) \email{safetyandquality@health.wa.gov.au}
+}
+
 }
 \keyword{internal}

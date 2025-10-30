@@ -20,7 +20,8 @@ Imports:
   htmlwidgets,
   crosstalk,
   QuickJSR,
-  zlib
+  zlib,
+  stats
 Suggests:
   rsvg,
   DT,
