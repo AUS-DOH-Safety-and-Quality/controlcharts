@@ -35329,7 +35329,12 @@
               .range([svgHeight - this.yAxis.start_padding,
               this.yAxis.end_padding]);
       }
-      update(options, plotPoints, inputData, inputSettings, derivedSettings, colorPalette) {
+      update(options, viewModel) {
+          const plotPoints = viewModel.plotPoints;
+          const inputData = viewModel.inputData;
+          const inputSettings = viewModel.inputSettings.settings;
+          const derivedSettings = viewModel.inputSettings.derivedSettings;
+          const colorPalette = viewModel.colourPalette;
           // Get the width and height of plotting space
           this.width = options.viewport.width;
           this.height = options.viewport.height;
@@ -35571,7 +35576,6 @@
           this.calculatedLimits = null;
           this.plotPoints = new Array();
           this.groupedLines = new Array();
-          this.plotProperties = new plotPropertiesClass();
           this.firstRun = true;
           this.colourPalette = null;
           this.headless = false;
@@ -35618,7 +35622,6 @@
                   this.initialiseGroupedLines();
               }
           }
-          this.plotProperties.update(options, this.plotPoints, this.inputData, this.inputSettings.settings, this.inputSettings.derivedSettings, this.colourPalette);
           this.firstRun = false;
           if (this.inputData.validationStatus.status !== 0) {
               res.status = false;
@@ -40981,7 +40984,7 @@
   }
 
   function addContextMenu(selection, visualObj) {
-      if (!(visualObj.viewModel.plotProperties.displayPlot)) {
+      if (!(visualObj.plotProperties.displayPlot)) {
           selection.on("contextmenu", () => { return; });
           return;
       }
@@ -41078,10 +41081,10 @@
   //   - Tricky as the plotProperties get updated when rendering X & Y axes
   //      to add padding when rendering out of frame
   function dot_attributes(selection, visualObj) {
-      const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-      const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-      const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-      const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
+      const ylower = visualObj.plotProperties.yAxis.lower;
+      const yupper = visualObj.plotProperties.yAxis.upper;
+      const xlower = visualObj.plotProperties.xAxis.lower;
+      const xupper = visualObj.plotProperties.xAxis.upper;
       selection
           .attr("d", (d) => {
           const shape = d.aesthetics.shape;
@@ -41092,7 +41095,7 @@
           if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
               return "translate(0, 0) scale(0, 0)";
           }
-          return `translate(${visualObj.viewModel.plotProperties.xScale(d.x)}, ${visualObj.viewModel.plotProperties.yScale(d.value)})`;
+          return `translate(${visualObj.plotProperties.xScale(d.x)}, ${visualObj.plotProperties.yScale(d.value)})`;
       })
           .style("fill", (d) => {
           return d.aesthetics.colour;
@@ -41103,16 +41106,16 @@
           .style("stroke-width", (d) => d.aesthetics.width_outline);
   }
   function text_attributes(selection, visualObj) {
-      const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-      const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-      const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-      const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
+      const ylower = visualObj.plotProperties.yAxis.lower;
+      const yupper = visualObj.plotProperties.yAxis.upper;
+      const xlower = visualObj.plotProperties.xAxis.lower;
+      const xupper = visualObj.plotProperties.xAxis.upper;
       selection
           .attr("transform", (d) => {
           if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
               return "translate(0, 0) scale(0, 0)";
           }
-          return `translate(${visualObj.viewModel.plotProperties.xScale(d.x)}, ${visualObj.viewModel.plotProperties.yScale(d.value)})`;
+          return `translate(${visualObj.plotProperties.xScale(d.x)}, ${visualObj.plotProperties.yScale(d.value)})`;
       })
           .attr("dy", "0.35em")
           .text((d) => d.group_text)
@@ -41129,13 +41132,13 @@
           .data(visualObj.viewModel.groupedLines)
           .join("path")
           .attr("d", d => {
-          const ylower = visualObj.viewModel.plotProperties.yAxis.lower;
-          const yupper = visualObj.viewModel.plotProperties.yAxis.upper;
-          const xlower = visualObj.viewModel.plotProperties.xAxis.lower;
-          const xupper = visualObj.viewModel.plotProperties.xAxis.upper;
+          const ylower = visualObj.plotProperties.yAxis.lower;
+          const yupper = visualObj.plotProperties.yAxis.upper;
+          const xlower = visualObj.plotProperties.xAxis.lower;
+          const xupper = visualObj.plotProperties.xAxis.upper;
           return line()
-              .x(d => visualObj.viewModel.plotProperties.xScale(d.x))
-              .y(d => visualObj.viewModel.plotProperties.yScale(d.line_value))
+              .x(d => visualObj.plotProperties.xScale(d.x))
+              .y(d => visualObj.plotProperties.yScale(d.line_value))
               .defined(d => {
               return d.line_value !== null
                   && between(d.line_value, ylower, yupper)
@@ -41154,7 +41157,7 @@
   }
 
   function drawTooltipLine(selection, visualObj) {
-      const plotProperties = visualObj.viewModel.plotProperties;
+      const plotProperties = visualObj.plotProperties;
       const colour = visualObj.viewModel.colourPalette.isHighContrast
           ? visualObj.viewModel.colourPalette.foregroundColour
           : "black";
@@ -41212,8 +41215,8 @@
   }
 
   function drawXAxis(selection, visualObj, refresh) {
-      const xAxisProperties = visualObj.viewModel.plotProperties.xAxis;
-      const xAxis = axisBottom(visualObj.viewModel.plotProperties.xScale);
+      const xAxisProperties = visualObj.plotProperties.xAxis;
+      const xAxis = axisBottom(visualObj.plotProperties.xScale);
       if (xAxisProperties.ticks) {
           if (xAxisProperties.tick_count) {
               xAxis.ticks(xAxisProperties.tick_count);
@@ -41223,8 +41226,8 @@
           xAxis.tickValues([]);
       }
       const plotHeight = visualObj.viewModel.svgHeight;
-      const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
-      const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
+      const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
+      const displayPlot = visualObj.plotProperties.displayPlot;
       const xAxisGroup = selection.select(".xaxisgroup");
       xAxisGroup
           .call(xAxis)
@@ -41252,7 +41255,7 @@
           return;
       }
       const textX = visualObj.viewModel.svgWidth / 2;
-      const textY = visualObj.viewModel.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
+      const textY = visualObj.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
       xAxisGroup.select(".xaxislabel")
           .selectAll("text")
           .data([xAxisProperties.label])
@@ -41268,11 +41271,11 @@
   }
 
   function drawYAxis(selection, visualObj, refresh) {
-      const yAxisProperties = visualObj.viewModel.plotProperties.yAxis;
-      const yAxis = axisLeft(visualObj.viewModel.plotProperties.yScale);
+      const yAxisProperties = visualObj.plotProperties.yAxis;
+      const yAxis = axisLeft(visualObj.plotProperties.yScale);
       const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs;
       const sig_figs = yaxis_sig_figs === null ? visualObj.viewModel.inputSettings.settings.funnel.sig_figs : yaxis_sig_figs;
-      const displayPlot = visualObj.viewModel.plotProperties.displayPlot;
+      const displayPlot = visualObj.plotProperties.displayPlot;
       if (yAxisProperties.ticks) {
           if (yAxisProperties.tick_count) {
               yAxis.ticks(yAxisProperties.tick_count);
@@ -41292,7 +41295,7 @@
       yAxisGroup
           .call(yAxis)
           .attr("color", displayPlot ? yAxisProperties.colour : "#FFFFFF")
-          .attr("transform", `translate(${visualObj.viewModel.plotProperties.xAxis.start_padding}, 0)`)
+          .attr("transform", `translate(${visualObj.plotProperties.xAxis.start_padding}, 0)`)
           .selectAll(".tick text")
           // Right-align
           .style("text-anchor", "right")
@@ -41302,7 +41305,7 @@
           .style("font-size", yAxisProperties.tick_size)
           .style("font-family", yAxisProperties.tick_font)
           .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      const textX = -(visualObj.viewModel.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
+      const textX = -(visualObj.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
       const textY = visualObj.viewModel.svgHeight / 2;
       yAxisGroup.select(".yaxislabel")
           .selectAll("text")
@@ -41361,14 +41364,14 @@
           var _a, _b;
           const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
           const plotHeight = visualObj.viewModel.svgHeight;
-          const xAxisHeight = plotHeight - visualObj.viewModel.plotProperties.yAxis.start_padding;
+          const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
           const label_position = d.label.aesthetics.label_position;
           let y_offset = d.label.aesthetics.label_y_offset;
           const label_initial = label_position === "top" ? (0 + y_offset) : (xAxisHeight - y_offset);
-          const y = visualObj.viewModel.plotProperties.yScale(d.value);
+          const y = visualObj.plotProperties.yScale(d.value);
           let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
-          const x_val = visualObj.viewModel.plotProperties.xScale(d.x);
-          const y_val = visualObj.viewModel.plotProperties.yScale(d.value);
+          const x_val = visualObj.plotProperties.xScale(d.x);
+          const y_val = visualObj.plotProperties.yScale(d.value);
           const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
           side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
           let line_offset = d.label.aesthetics.label_line_offset;
@@ -41415,7 +41418,7 @@
           }
           const marker_offset = initialLabelXY[i].marker_offset;
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          return visualObj.viewModel.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
+          return visualObj.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
       })
           .attr("y2", (d, i) => {
           if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
@@ -41423,7 +41426,7 @@
           }
           const marker_offset = initialLabelXY[i].marker_offset;
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          return visualObj.viewModel.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
+          return visualObj.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
       })
           .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
           .style("stroke-width", d => { var _a; return ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "" ? 0 : visualObj.viewModel.inputSettings.settings.labels.label_line_width; })
@@ -41436,13 +41439,15 @@
           return Symbol$1().type(triangle).size(marker_size)();
       })
           .attr("transform", (d, i) => {
-          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
+          var _a;
+          const show_marker = d.label.aesthetics.label_marker_show && ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") !== "";
+          if ((initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) || !show_marker) {
               return "translate(0, 0) rotate(0)";
           }
           const marker_offset = initialLabelXY[i].marker_offset;
           //const label_position: string = d.label.aesthetics.label_position;
-          const x = visualObj.viewModel.plotProperties.xScale(d.x);
-          const y = visualObj.viewModel.plotProperties.yScale(d.value);
+          const x = visualObj.plotProperties.xScale(d.x);
+          const y = visualObj.plotProperties.yScale(d.value);
           const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
           const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
           const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
@@ -41463,8 +41468,8 @@
       const dragFun = drag().on("drag", function (e) {
           const d = e.subject;
           // Get the angle and distance of label from the point
-          const x_val = visualObj.viewModel.plotProperties.xScale(d.x);
-          const y_val = visualObj.viewModel.plotProperties.yScale(d.value);
+          const x_val = visualObj.plotProperties.xScale(d.x);
+          const y_val = visualObj.plotProperties.yScale(d.value);
           const angle = Math.atan2(e.sourceEvent.y - y_val, e.sourceEvent.x - x_val) * 180 / Math.PI;
           const distance = Math.sqrt(Math.pow(e.sourceEvent.y - y_val, 2) + Math.pow(e.sourceEvent.x - x_val, 2));
           const marker_offset = 10;
@@ -41568,11 +41573,11 @@
       })
           .attr("x", (d) => {
           const lineGroup = visualObj.viewModel.groupedLines[d.limit];
-          return visualObj.viewModel.plotProperties.xScale(lineGroup[1][d.index].x);
+          return visualObj.plotProperties.xScale(lineGroup[1][d.index].x);
       })
           .attr("y", (d) => {
           const lineGroup = visualObj.viewModel.groupedLines[d.limit];
-          return visualObj.viewModel.plotProperties.yScale(lineGroup[1][d.index].line_value);
+          return visualObj.plotProperties.yScale(lineGroup[1][d.index].line_value);
       })
           .attr("fill", (d) => {
           const lineGroup = visualObj.viewModel.groupedLines[d.limit];
@@ -41617,6 +41622,7 @@
           this.svg = select(options.element).append("svg");
           this.host = options.host;
           this.viewModel = new viewModelClass();
+          this.plotProperties = new plotPropertiesClass();
           this.selectionManager = this.host.createSelectionManager();
           this.selectionManager.registerOnSelectCallback(() => this.updateHighlighting());
           this.svg.call(initialiseSVG);
@@ -41642,6 +41648,7 @@
                   this.host.eventService.renderingFailed(options);
                   return;
               }
+              this.plotProperties.update(options, this.viewModel);
               if (update_status.warning) {
                   this.host.displayWarningIcon("Invalid inputs or settings ignored.\n", update_status.warning);
               }
@@ -41708,19 +41715,19 @@
           const overflowTop = Math.abs(Math.min(0, svgBBox.y));
           const overflowBottom = Math.max(0, svgBBox.height + svgBBox.y - svgHeight);
           if (overflowLeft > 0) {
-              this.viewModel.plotProperties.xAxis.start_padding += overflowLeft + this.viewModel.plotProperties.xAxis.start_padding;
+              this.plotProperties.xAxis.start_padding += overflowLeft + this.plotProperties.xAxis.start_padding;
           }
           if (overflowRight > 0) {
-              this.viewModel.plotProperties.xAxis.end_padding += overflowRight + this.viewModel.plotProperties.xAxis.end_padding;
+              this.plotProperties.xAxis.end_padding += overflowRight + this.plotProperties.xAxis.end_padding;
           }
           if (overflowTop > 0) {
-              this.viewModel.plotProperties.yAxis.end_padding += overflowTop + this.viewModel.plotProperties.yAxis.end_padding;
+              this.plotProperties.yAxis.end_padding += overflowTop + this.plotProperties.yAxis.end_padding;
           }
           if (overflowBottom > 0) {
-              this.viewModel.plotProperties.yAxis.start_padding += overflowBottom + this.viewModel.plotProperties.yAxis.start_padding;
+              this.plotProperties.yAxis.start_padding += overflowBottom + this.plotProperties.yAxis.start_padding;
           }
           if (overflowLeft > 0 || overflowRight > 0 || overflowTop > 0 || overflowBottom > 0) {
-              this.viewModel.plotProperties.initialiseScale(svgWidth, svgHeight);
+              this.plotProperties.initialiseScale(svgWidth, svgHeight);
               this.drawVisual();
           }
       }
