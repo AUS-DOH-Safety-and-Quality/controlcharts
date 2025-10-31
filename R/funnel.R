@@ -111,23 +111,27 @@ funnel <- function(data,
     data_raw <- append(data_raw, list(labels = labels))
   }
 
+  data_raw <- as.data.frame(data_raw)[order(data_raw$categories), ]
   data_df <- lapply(seq_len(length(data_raw$categories)), function(idx) {
     lapply(data_raw, function(elem){ elem[idx] })
   })
 
   unique_categories <- unique(data_raw$categories)
+  has_aggregations <- length(unique_categories) < nrow(data_raw)
+  widget_data <- list(
+    data_raw = data_df,
+    input_settings = input_settings,
+    crosstalkGroup = crosstalkGroup,
+    aggregations = aggregations,
+    has_conditional_formatting = has_conditional_formatting,
+    unique_categories = unique_categories
+  )
 
   # create widget
   html_plt <- htmlwidgets::createWidget(
     name = 'funnel',
-    x = list(
-      data_raw = data_df,
-      input_settings = input_settings,
-      crosstalkGroup = crosstalkGroup,
-      aggregations = aggregations,
-      has_conditional_formatting = has_conditional_formatting,
-      unique_categories = unique_categories
-    ),
+    # Store compressed data to reduce size
+    x = zlib::compress(serialize(widget_data, NULL)),
     sizingPolicy = htmlwidgets::sizingPolicy(
       defaultWidth = "100%"
     ),
@@ -135,7 +139,12 @@ funnel <- function(data,
     height = height,
     package = "controlcharts",
     elementId = elementId,
-    dependencies = crosstalk::crosstalkLibs()
+    dependencies = crosstalk::crosstalkLibs(),
+    # preRenderHook to decompress data before rendering
+    preRenderHook = function(instance) {
+      instance$x <- unserialize(zlib::decompress(instance$x))
+      instance
+    }
   )
 
   dataViews <- update_static_padding(
