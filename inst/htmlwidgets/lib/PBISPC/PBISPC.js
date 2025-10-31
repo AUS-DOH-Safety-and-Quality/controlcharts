@@ -25955,104 +25955,42 @@
       });
   }
 
-  const labelFormatting = function (selection, visualObj) {
-      const allData = selection.data();
-      const initialLabelXY = allData.map(d => {
-          var _a, _b;
-          const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
-          const plotHeight = visualObj.viewModel.svgHeight;
-          const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
-          const label_position = d.label.aesthetics.label_position;
-          let y_offset = d.label.aesthetics.label_y_offset;
-          const label_initial = label_position === "top" ? (0 + y_offset) : (xAxisHeight - y_offset);
-          const y = visualObj.plotProperties.yScale(d.value);
-          let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
-          const x_val = visualObj.plotProperties.xScale(d.x);
-          const y_val = visualObj.plotProperties.yScale(d.value);
-          const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
-          side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
-          let line_offset = d.label.aesthetics.label_line_offset;
-          line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
-          let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
-          marker_offset = label_position === "top" ? -marker_offset : marker_offset;
-          const newX = x_val + side_length * Math.cos(theta * Math.PI / 180);
-          const newY = y_val + side_length * Math.sin(theta * Math.PI / 180);
-          if (!isValidNumber(newX) || !isValidNumber(newY)) {
-              return {
-                  x: 0,
-                  y: 0,
-                  theta: 0,
-                  line_offset: 0,
-                  marker_offset: 0
-              };
-          }
-          return { x: newX,
-              y: newY,
-              theta: theta,
-              line_offset: line_offset,
-              marker_offset: marker_offset
+  function getLabelAttributes(d, visualObj) {
+      var _a, _b;
+      const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
+      const plotHeight = visualObj.viewModel.svgHeight;
+      const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
+      const label_position = d.label.aesthetics.label_position;
+      let y_offset = d.label.aesthetics.label_y_offset;
+      const label_initial = label_position === "top" ? (0 + y_offset) : (xAxisHeight - y_offset);
+      const y = visualObj.plotProperties.yScale(d.value);
+      let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
+      const x_val = visualObj.plotProperties.xScale(d.x);
+      const y_val = visualObj.plotProperties.yScale(d.value);
+      const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
+      side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
+      let line_offset = d.label.aesthetics.label_line_offset;
+      line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
+      let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
+      marker_offset = label_position === "top" ? -marker_offset : marker_offset;
+      const newX = x_val + side_length * Math.cos(theta * Math.PI / 180);
+      const newY = y_val + side_length * Math.sin(theta * Math.PI / 180);
+      if (!isValidNumber(newX) || !isValidNumber(newY)) {
+          return {
+              x: 0,
+              y: 0,
+              theta: 0,
+              line_offset: 0,
+              marker_offset: 0
           };
-      });
-      selection.select("text")
-          .text(d => d.label.text_value)
-          .attr("x", (_, i) => initialLabelXY[i].x)
-          .attr("y", (_, i) => initialLabelXY[i].y)
-          .style("text-anchor", "middle")
-          .style("font-size", d => `${d.label.aesthetics.label_size}px`)
-          .style("font-family", d => d.label.aesthetics.label_font)
-          .style("fill", d => d.label.aesthetics.label_colour);
-      selection.select("line")
-          .attr("x1", (_, i) => initialLabelXY[i].x)
-          .attr("y1", (_, i) => {
-          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
-              return 0;
-          }
-          return initialLabelXY[i].y + initialLabelXY[i].line_offset;
-      })
-          .attr("x2", (d, i) => {
-          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
-              return 0;
-          }
-          const marker_offset = initialLabelXY[i].marker_offset;
-          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          return visualObj.plotProperties.xScale(d.x) + marker_offset * Math.cos(angle * Math.PI / 180);
-      })
-          .attr("y2", (d, i) => {
-          if (initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) {
-              return 0;
-          }
-          const marker_offset = initialLabelXY[i].marker_offset;
-          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          return visualObj.plotProperties.yScale(d.value) + marker_offset * Math.sin(angle * Math.PI / 180);
-      })
-          .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
-          .style("stroke-width", d => { var _a; return ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "" ? 0 : visualObj.viewModel.inputSettings.settings.labels.label_line_width; })
-          .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings.labels.label_line_type);
-      selection.select("path")
-          .attr("d", d => {
-          var _a;
-          const show_marker = d.label.aesthetics.label_marker_show && ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") !== "";
-          const marker_size = show_marker ? Math.pow(d.label.aesthetics.label_marker_size, 2) : 0;
-          return Symbol$1().type(triangle).size(marker_size)();
-      })
-          .attr("transform", (d, i) => {
-          var _a;
-          const show_marker = d.label.aesthetics.label_marker_show && ((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") !== "";
-          if ((initialLabelXY[i].x === 0 && initialLabelXY[i].y === 0) || !show_marker) {
-              return "translate(0, 0) rotate(0)";
-          }
-          const marker_offset = initialLabelXY[i].marker_offset;
-          const x = visualObj.plotProperties.xScale(d.x);
-          const y = visualObj.plotProperties.yScale(d.value);
-          const angle = initialLabelXY[i].theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
-          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
-          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
-          return `translate(${x + x_offset}, ${y + y_offset}) rotate(${angle + (d.label.aesthetics.label_position === "top" ? 90 : 270)})`;
-      })
-          .style("fill", d => d.label.aesthetics.label_marker_colour)
-          .style("stroke", d => d.label.aesthetics.label_marker_outline_colour);
-      return selection;
-  };
+      }
+      return { x: newX,
+          y: newY,
+          theta: theta,
+          line_offset: line_offset,
+          marker_offset: marker_offset
+      };
+  }
   function drawLabels(selection, visualObj) {
       if (!visualObj.viewModel.inputSettings.settings.labels.show_labels || !visualObj.viewModel.inputData.anyLabels) {
           selection.select(".text-labels").remove();
@@ -26093,17 +26031,54 @@
           .data(visualObj.viewModel.plotPoints)
           .join("g")
           .classed("text-group-inner", true)
-          .each(function (_) {
+          .each(function (d) {
+          var _a;
           const textGroup = select(this);
+          if (((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "") {
+              textGroup.remove();
+              return;
+          }
           textGroup.selectAll("*").remove();
-          textGroup.append("text");
-          textGroup.append("line");
-          textGroup.append("path");
+          const textElement = textGroup.append("text");
+          const lineElement = textGroup.append("line");
+          const pathElement = textGroup.append("path");
+          const { x, y, line_offset, marker_offset, theta } = getLabelAttributes(d, visualObj);
+          const invalidXY = x === 0 && y === 0;
+          if (invalidXY) {
+              textGroup.remove();
+              return;
+          }
+          const angle = theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
+          const angleToRadians = angle * Math.PI / 180;
+          textElement
+              .attr("x", x)
+              .attr("y", y)
+              .text(d.label.text_value)
+              .style("text-anchor", "middle")
+              .style("font-size", `${d.label.aesthetics.label_size}px`)
+              .style("font-family", d.label.aesthetics.label_font)
+              .style("fill", d.label.aesthetics.label_colour);
+          const markerSize = Math.pow(d.label.aesthetics.label_marker_size, 2);
+          const markerX = visualObj.plotProperties.xScale(d.x) + marker_offset * Math.cos(angleToRadians);
+          const markerY = visualObj.plotProperties.yScale(d.value) + marker_offset * Math.sin(angleToRadians);
+          lineElement
+              .attr("x1", x)
+              .attr("y1", y + line_offset)
+              .attr("x2", markerX)
+              .attr("y2", markerY)
+              .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
+              .style("stroke-width", visualObj.viewModel.inputSettings.settings.labels.label_line_width)
+              .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings.labels.label_line_type);
+          const markerRotation = angle + (d.label.aesthetics.label_position === "top" ? 90 : 270);
+          pathElement
+              .attr("d", Symbol$1().type(triangle).size(markerSize)())
+              .attr("transform", `translate(${markerX}, ${markerY}) rotate(${markerRotation})`)
+              .style("fill", d.label.aesthetics.label_marker_colour)
+              .style("stroke", d.label.aesthetics.label_marker_outline_colour);
           if (!visualObj.viewModel.headless) {
               textGroup.call(dragFun);
           }
-      })
-          .call(labelFormatting, visualObj);
+      });
   }
 
   const positionOffsetMap = {
