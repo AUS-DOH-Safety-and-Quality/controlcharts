@@ -112,6 +112,7 @@ funnel <- function(data,
   }
 
   data_raw <- as.data.frame(data_raw)[order(data_raw$categories), ]
+  data_raw <- data_raw[!is.na(data_raw$categories), ]
   data_df <- lapply(seq_len(length(data_raw$categories)), function(idx) {
     lapply(data_raw, function(elem){ elem[idx] })
   })
