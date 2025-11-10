@@ -59,29 +59,30 @@ const makeConstructorArgs = function(element) {
 }
 
 const aggregateColumn = function(column, aggregation) {
-  if (aggregation === "sum") {
-    return column.reduce((acc, val) => acc + val, 0);
-  } else if (aggregation === "mean") {
-    return column.reduce((acc, val) => acc + val, 0) / column.length;
-  } else if (aggregation === "sd") {
-    var mean = column.reduce((acc, val) => acc + val, 0) / column.length;
-    return Math.sqrt(column.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (column.length - 1));
-  } else if (aggregation === "count") {
-    return column.length;
-  } else if (aggregation === "min") {
-    return Math.min(...column);
-  } else if (aggregation === "max") {
-    return Math.max(...column);
-  } else if (aggregation === "median") {
-    var sorted = [...column].sort((a, b) => a - b);
-    var mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-  } else if (aggregation === "first") {
-    return column[0];
-  } else if (aggregation === "last") {
-    return column[column.length - 1];
-  } else {
-    throw new Error(`Unsupported aggregation: ${aggregation}`);
+  switch(aggregation) {
+    case "sum":
+      return column.reduce((acc, val) => acc + val, 0);
+    case "mean":
+      return column.reduce((acc, val) => acc + val, 0) / column.length;
+    case "sd":
+      var mean = column.reduce((acc, val) => acc + val, 0) / column.length;
+      return Math.sqrt(column.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (column.length - 1));
+    case "count":
+      return column.length;
+    case "min":
+      return Math.min(...column);
+    case "max":
+      return Math.max(...column);
+    case "median":
+      var sorted = [...column].sort((a, b) => a - b);
+      var mid = Math.floor(sorted.length / 2);
+      return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    case "first":
+      return column[0];
+    case "last":
+      return column[column.length - 1];
+    default:
+      throw new Error(`Unsupported aggregation: ${aggregation}`);
   }
 }
 
