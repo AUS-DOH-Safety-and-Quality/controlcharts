@@ -131,7 +131,9 @@ validate_chart_title <- function(title) {
     text_anchor = "middle",
     dominant_baseline = "hanging"
   )
-  if ((is.character(title) || is.null(title)) && length(title) == 1) {
+  if (is.null(title)) {
+    return(title_settings)
+  } else if (is.character(title) && length(title) == 1) {
     title_settings$text <- title
   } else if (is.list(title) && any(names(title_settings) %in% names(title))) {
     for (x in names(title_settings)) {
@@ -140,7 +142,7 @@ validate_chart_title <- function(title) {
       }
     }
   } else {
-    stop("Invalid title format. It should be either a character string or a list with valid options.")
+    stop(paste0("Invalid title format. It should be either a character string or a list with at least one of the following valid options: ", paste0("'", names(title_settings), "'", collapse = ', '), "."), call. = FALSE)
   }
   title_settings
 }
