@@ -15,6 +15,8 @@ spc(
   labels,
   aggregations = list(numerators = "sum", denominators = "sum", groupings = "first",
     xbar_sds = "first", tooltips = "first", labels = "first"),
+  title = list(text = NULL, font_size = "16px", font_weight = "bold", font_family =
+    "'Arial', sans-serif"),
   canvas_settings = NULL,
   spc_settings = NULL,
   outlier_settings = NULL,
@@ -57,6 +59,14 @@ spc(
 \item \code{"max"}: returns the maximum value
 \item \code{"median"}: returns the median value
 \item \code{"count"}: returns the count of values
+}}
+
+\item{title}{Optional title to be added to the top of the chart. It can be a character string for the title text only, or a list with the following options:
+\itemize{
+\item \code{text}: Title text (default: NULL)
+\item \code{font_size}: Font size of the title (default: "16px")
+\item \code{font_weight}: Font weight of the title (default: "bold")
+\item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
 }}
 
 \item{canvas_settings}{Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.}

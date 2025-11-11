@@ -42,6 +42,20 @@ function makeFactory(chartType) {
 
     return {
       renderValue: function(x) {
+        // Add title to the visual
+        if (x.title_settings.text !== null) {
+          visual.svg.append("text")
+                    .classed("chart-title", true)
+                    .attr("x", "50%")
+                    .attr("y", 5)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "hanging")
+                    .attr("font-size", x.title_settings.font_size)
+                    .attr("font-weight", x.title_settings.font_weight)
+                    .attr("font-family", x.title_settings.font_family)
+                    .text(x.title_settings.text);
+        };
+
         // Aggregate the raw data into the format expected by the visual
         var updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories);
         visualUpdateArgs.dataViews = updateValues.dataViews;

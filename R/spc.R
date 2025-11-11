@@ -19,6 +19,13 @@
 #'     \item \code{"median"}: returns the median value
 #'     \item \code{"count"}: returns the count of values
 #'   }
+#' @param title Optional title to be added to the top of the chart. It can be a character string for the title text only, or a list with the following options:
+#' \itemize{
+#'  \item \code{text}: Title text (default: NULL)
+#'  \item \code{font_size}: Font size of the title (default: "16px")
+#'  \item \code{font_weight}: Font weight of the title (default: "bold")
+#'  \item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
+#' }
 #' @param canvas_settings Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.
 #' @param spc_settings Optional list of settings for the SPC chart, see \code{spc_default_settings('spc')} for valid options.
 #' @param outlier_settings Optional list of settings for outliers, see \code{spc_default_settings('outliers')} for valid options.
@@ -51,6 +58,12 @@ spc <- function(data,
                   xbar_sds = "first",
                   tooltips = "first",
                   labels = "first"
+                ),
+                title = list(
+                  text = NULL,
+                  font_size = "16px",
+                  font_weight = "bold",
+                  font_family = "'Arial', sans-serif"
                 ),
                 canvas_settings = NULL,
                 spc_settings = NULL,
@@ -142,8 +155,28 @@ spc <- function(data,
 
   unique_categories <- unique(data_raw$categories)
 
+  # Create chart title settings
+  title_settings <- list(
+    text = NULL,
+    font_size = "16px",
+    font_weight = "bold",
+    font_family = "'Arial', sans-serif"
+  )
+  if (is.character(title) && length(title) == 1) {
+    title_settings$text <- title
+  } else if (is.list(title) && any(names(title_settings) %in% names(title))) {
+    for (x in names(title_settings)) {
+      if (!is.null(title[[x]])) {
+        title_settings[[x]] <- title[[x]]
+      }
+    }
+  } else {
+    stop("Invalid title format. It should be either a character string or a list with valid options.")
+  }
+
   widget_data <- list(
     data_raw = data_df,
+    title_settings = title_settings,
     input_settings = input_settings,
     crosstalkGroup = crosstalkGroup,
     aggregations = aggregations,
