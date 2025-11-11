@@ -19,16 +19,17 @@ const makeConstructorArgs = function(element) {
                     .data([0])
                     .join("rect")
                     .attr("fill", "#ffffff")
-                    .attr("width", 50)
-                    .attr("height", 50);
+                    .attr("width", 170)
+                    .attr("height", x.dataItems.length * 15 + 5)
+                    .attr("transform", `translate(${x.coordinates[0] < element.clientWidth/2 ? 0: -170},${x.coordinates[1] < element.clientHeight/2 ? 0: -(x.dataItems.length * 15 + 5)})`);
 
           tooltipGroup.selectAll("text")
                       .data(x.dataItems)
                       .join("text")
                       .attr("fill", "black")
-                      .style("text-anchor", "left")
-                      .attr("x", 5)
-                      .attr("y", (_, i) => 0 + 15*i)
+                      .style("text-anchor", x.coordinates[0] < element.clientWidth/2 ? "start" : "end")
+                      .attr("x", x.coordinates[0] < element.clientWidth/2 ? 5 : -5)
+                      .attr("y", (_, i) => (x.coordinates[1] < element.clientHeight/2 ? 15 : x.dataItems.length * -15 + 7.5) + 15 * i)
                       .text(d => `${d.displayName}: ${d.value}`);
           tooltipGroup.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
         },
