@@ -13,8 +13,7 @@ funnel(
   labels,
   aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
     labels = "first"),
-  title = list(text = NULL, font_size = "16px", font_weight = "bold", font_family =
-    "'Arial', sans-serif"),
+  title = NULL,
   canvas_settings = NULL,
   funnel_settings = NULL,
   outlier_settings = NULL,
@@ -59,6 +58,10 @@ funnel(
 \item \code{font_size}: Font size of the title (default: "16px")
 \item \code{font_weight}: Font weight of the title (default: "bold")
 \item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
+\item \code{x}: Horizontal (x) position of the title as a percentage (default: "50\%")
+\item \code{y}: Vertical (y) position of the title in pixels (default: 5)
+\item \code{text_anchor}: Text anchor of the title (default: "middle")
+\item \code{dominant_baseline}: Dominant baseline of the title (default: "hanging")
 }}
 
 \item{canvas_settings}{Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.}

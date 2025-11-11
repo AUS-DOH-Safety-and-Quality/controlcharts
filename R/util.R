@@ -119,6 +119,32 @@ validate_aggregations <- function(aggregations) {
   all_defaults
 }
 
+validate_chart_title <- function(title) {
+  # Default chart title settings
+  title_settings <- list(
+    text = NULL,
+    font_size = "16px",
+    font_weight = "bold",
+    font_family = "'Arial', sans-serif",
+    x = "50%",
+    y = 5,
+    text_anchor = "middle",
+    dominant_baseline = "hanging"
+  )
+  if ((is.character(title) || is.null(title)) && length(title) == 1) {
+    title_settings$text <- title
+  } else if (is.list(title) && any(names(title_settings) %in% names(title))) {
+    for (x in names(title_settings)) {
+      if (!is.null(title[[x]])) {
+        title_settings[[x]] <- title[[x]]
+      }
+    }
+  } else {
+    stop("Invalid title format. It should be either a character string or a list with valid options.")
+  }
+  title_settings
+}
+
 svg_string <- function(svg, width, height) {
   paste0('<svg viewBox="0 0 ', width, ' ', height, '" width="', width, 'px" height="', height, 'px" xmlns="http://www.w3.org/2000/svg">',
         '<rect x="0" y="0" width="100%" height="100%" fill="white"/>',

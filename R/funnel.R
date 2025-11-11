@@ -23,6 +23,10 @@
 #'  \item \code{font_size}: Font size of the title (default: "16px")
 #'  \item \code{font_weight}: Font weight of the title (default: "bold")
 #'  \item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
+#'  \item \code{x}: Horizontal (x) position of the title as a percentage (default: "50%")
+#'  \item \code{y}: Vertical (y) position of the title in pixels (default: 5)
+#'  \item \code{text_anchor}: Text anchor of the title (default: "middle")
+#'  \item \code{dominant_baseline}: Dominant baseline of the title (default: "hanging")
 #' }
 #' @param canvas_settings Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.
 #' @param funnel_settings Optional list of settings for the Funnel chart, see \code{funnel_default_settings('funnel')} for valid options.
@@ -51,12 +55,7 @@ funnel <- function(data,
                   tooltips = "first",
                   labels = "first"
                 ),
-                title = list(
-                  text = NULL,
-                  font_size = "16px",
-                  font_weight = "bold",
-                  font_family = "'Arial', sans-serif"
-                ),
+                title = NULL,
                 canvas_settings = NULL,
                 funnel_settings = NULL,
                 outlier_settings = NULL,
@@ -113,6 +112,7 @@ funnel <- function(data,
   input_settings <- input_settings_processed$input_settings
   has_conditional_formatting <- input_settings_processed$has_conditional_formatting
   aggregations <- validate_aggregations(aggregations)
+  title_settings <- validate_chart_title(title)
 
   if (!missing(tooltips)) {
     tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
@@ -132,25 +132,6 @@ funnel <- function(data,
 
   unique_categories <- unique(data_raw$categories)
   has_aggregations <- length(unique_categories) < nrow(data_raw)
-
-  # Create chart title settings
-  title_settings <- list(
-    text = NULL,
-    font_size = "16px",
-    font_weight = "bold",
-    font_family = "'Arial', sans-serif"
-  )
-  if (is.character(title) && length(title) == 1) {
-    title_settings$text <- title
-  } else if (is.list(title) && any(names(title_settings) %in% names(title))) {
-    for (x in names(title_settings)) {
-      if (!is.null(title[[x]])) {
-        title_settings[[x]] <- title[[x]]
-      }
-    }
-  } else {
-    stop("Invalid title format. It should be either a character string or a list with valid options.")
-  }
 
   widget_data <- list(
     data_raw = data_df,
