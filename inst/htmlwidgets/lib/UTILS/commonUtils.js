@@ -155,3 +155,23 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
     crosstalkIdentities: args.crosstalkIdentities
   };
 }
+
+function updateChartTitle(svg, title_settings) {
+  // Remove any existing titles
+  svg.selectAll(".chart-title").remove();
+  // Add chart title if provided
+  if (title_settings.text !== null) {
+    // Append the title to the SVG
+    svg.append("text")
+      .classed("chart-title", true)
+      .attr("x", "50%")
+      .attr("y", 5)
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "hanging")
+      .attr("font-size", title_settings.font_size)
+      .attr("font-weight", title_settings.font_weight)
+      .attr("font-family", title_settings.font_family)
+      .text(title_settings.text);
+  }
+  return svg;
+}

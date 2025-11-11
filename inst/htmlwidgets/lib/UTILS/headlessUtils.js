@@ -30,22 +30,7 @@ function updateHeadlessVisual(chartType, dataViews, title_settings, width, heigh
   var visual = globalThis[chartType + "Visual"];
   visual.update(updateArgs);
 
-  // Remove any existing titles
-  visual.svg.selectAll(".chart-title").remove();
-  // Add chart title if provided
-  if (title_settings.text !== null) {
-    // Append the title to the SVG
-    visual.svg.append("text")
-              .classed("chart-title", true)
-              .attr("x", "50%")
-              .attr("y", 5)
-              .attr("text-anchor", "middle")
-              .attr("dominant-baseline", "hanging")
-              .attr("font-size", title_settings.font_size)
-              .attr("font-weight", title_settings.font_weight)
-              .attr("font-family", title_settings.font_family)
-              .text(title_settings.text);
-  };
+  updateChartTitle(visual.svg, title_settings);
 
   // Check for presence of 'errormessage' class and return error text if it exists
   if (visual.svg.select('.errormessage').size() > 0) {
