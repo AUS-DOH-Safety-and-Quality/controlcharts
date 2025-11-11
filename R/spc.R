@@ -212,6 +212,7 @@ spc <- function(data,
   static <- create_static(
     type = 'spc',
     dataViews = dataViews,
+    title_settings = title_settings,
     input_settings = input_settings,
     width = width,
     height = height

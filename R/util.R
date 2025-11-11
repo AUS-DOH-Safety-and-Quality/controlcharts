@@ -145,10 +145,10 @@ update_static_padding <- function(type, dataViews) {
   dataViews
 }
 
-create_static <- function(type, dataViews, input_settings, width, height) {
+create_static <- function(type, dataViews, title_settings, input_settings, width, height) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
-  raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
+  raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, title_settings, width, height)
   if ("error" %in% names(raw_ret)) {
     stop(raw_ret$error, call. = FALSE)
   }
