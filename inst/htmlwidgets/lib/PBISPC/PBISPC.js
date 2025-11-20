@@ -955,429 +955,6 @@
         : new Selection([array$1(selector)], root);
   }
 
-  function ascending(a, b) {
-    return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
-  }
-
-  function descending(a, b) {
-    return a == null || b == null ? NaN
-      : b < a ? -1
-      : b > a ? 1
-      : b >= a ? 0
-      : NaN;
-  }
-
-  function bisector(f) {
-    let compare1, compare2, delta;
-
-    // If an accessor is specified, promote it to a comparator. In this case we
-    // can test whether the search value is (self-) comparable. We can’t do this
-    // for a comparator (except for specific, known comparators) because we can’t
-    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
-    // used to test whether a single value is comparable.
-    if (f.length !== 2) {
-      compare1 = ascending;
-      compare2 = (d, x) => ascending(f(d), x);
-      delta = (d, x) => f(d) - x;
-    } else {
-      compare1 = f === ascending || f === descending ? f : zero$1;
-      compare2 = f;
-      delta = f;
-    }
-
-    function left(a, x, lo = 0, hi = a.length) {
-      if (lo < hi) {
-        if (compare1(x, x) !== 0) return hi;
-        do {
-          const mid = (lo + hi) >>> 1;
-          if (compare2(a[mid], x) < 0) lo = mid + 1;
-          else hi = mid;
-        } while (lo < hi);
-      }
-      return lo;
-    }
-
-    function right(a, x, lo = 0, hi = a.length) {
-      if (lo < hi) {
-        if (compare1(x, x) !== 0) return hi;
-        do {
-          const mid = (lo + hi) >>> 1;
-          if (compare2(a[mid], x) <= 0) lo = mid + 1;
-          else hi = mid;
-        } while (lo < hi);
-      }
-      return lo;
-    }
-
-    function center(a, x, lo = 0, hi = a.length) {
-      const i = left(a, x, lo, hi - 1);
-      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
-    }
-
-    return {left, center, right};
-  }
-
-  function zero$1() {
-    return 0;
-  }
-
-  function number$2(x) {
-    return x === null ? NaN : +x;
-  }
-
-  function* numbers(values, valueof) {
-    if (valueof === undefined) {
-      for (let value of values) {
-        if (value != null && (value = +value) >= value) {
-          yield value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
-          yield value;
-        }
-      }
-    }
-  }
-
-  const ascendingBisect = bisector(ascending);
-  const bisectRight = ascendingBisect.right;
-  bisector(number$2).center;
-
-  class InternMap extends Map {
-    constructor(entries, key = keyof) {
-      super();
-      Object.defineProperties(this, {_intern: {value: new Map()}, _key: {value: key}});
-      if (entries != null) for (const [key, value] of entries) this.set(key, value);
-    }
-    get(key) {
-      return super.get(intern_get(this, key));
-    }
-    has(key) {
-      return super.has(intern_get(this, key));
-    }
-    set(key, value) {
-      return super.set(intern_set(this, key), value);
-    }
-    delete(key) {
-      return super.delete(intern_delete(this, key));
-    }
-  }
-
-  function intern_get({_intern, _key}, value) {
-    const key = _key(value);
-    return _intern.has(key) ? _intern.get(key) : value;
-  }
-
-  function intern_set({_intern, _key}, value) {
-    const key = _key(value);
-    if (_intern.has(key)) return _intern.get(key);
-    _intern.set(key, value);
-    return value;
-  }
-
-  function intern_delete({_intern, _key}, value) {
-    const key = _key(value);
-    if (_intern.has(key)) {
-      value = _intern.get(key);
-      _intern.delete(key);
-    }
-    return value;
-  }
-
-  function keyof(value) {
-    return value !== null && typeof value === "object" ? value.valueOf() : value;
-  }
-
-  function identity$3(x) {
-    return x;
-  }
-
-  function groups(values, ...keys) {
-    return nest(values, Array.from, identity$3, keys);
-  }
-
-  function nest(values, map, reduce, keys) {
-    return (function regroup(values, i) {
-      if (i >= keys.length) return reduce(values);
-      const groups = new InternMap();
-      const keyof = keys[i++];
-      let index = -1;
-      for (const value of values) {
-        const key = keyof(value, ++index, values);
-        const group = groups.get(key);
-        if (group) group.push(value);
-        else groups.set(key, [value]);
-      }
-      for (const [key, values] of groups) {
-        groups.set(key, regroup(values, i));
-      }
-      return map(groups);
-    })(values, 0);
-  }
-
-  function compareDefined(compare = ascending) {
-    if (compare === ascending) return ascendingDefined;
-    if (typeof compare !== "function") throw new TypeError("compare is not a function");
-    return (a, b) => {
-      const x = compare(a, b);
-      if (x || x === 0) return x;
-      return (compare(b, b) === 0) - (compare(a, a) === 0);
-    };
-  }
-
-  function ascendingDefined(a, b) {
-    return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
-  }
-
-  const e10 = Math.sqrt(50),
-      e5 = Math.sqrt(10),
-      e2 = Math.sqrt(2);
-
-  function tickSpec(start, stop, count) {
-    const step = (stop - start) / Math.max(0, count),
-        power = Math.floor(Math.log10(step)),
-        error = step / Math.pow(10, power),
-        factor = error >= e10 ? 10 : error >= e5 ? 5 : error >= e2 ? 2 : 1;
-    let i1, i2, inc;
-    if (power < 0) {
-      inc = Math.pow(10, -power) / factor;
-      i1 = Math.round(start * inc);
-      i2 = Math.round(stop * inc);
-      if (i1 / inc < start) ++i1;
-      if (i2 / inc > stop) --i2;
-      inc = -inc;
-    } else {
-      inc = Math.pow(10, power) * factor;
-      i1 = Math.round(start / inc);
-      i2 = Math.round(stop / inc);
-      if (i1 * inc < start) ++i1;
-      if (i2 * inc > stop) --i2;
-    }
-    if (i2 < i1 && 0.5 <= count && count < 2) return tickSpec(start, stop, count * 2);
-    return [i1, i2, inc];
-  }
-
-  function ticks(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    if (!(count > 0)) return [];
-    if (start === stop) return [start];
-    const reverse = stop < start, [i1, i2, inc] = reverse ? tickSpec(stop, start, count) : tickSpec(start, stop, count);
-    if (!(i2 >= i1)) return [];
-    const n = i2 - i1 + 1, ticks = new Array(n);
-    if (reverse) {
-      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) / -inc;
-      else for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) * inc;
-    } else {
-      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) / -inc;
-      else for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) * inc;
-    }
-    return ticks;
-  }
-
-  function tickIncrement(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    return tickSpec(start, stop, count)[2];
-  }
-
-  function tickStep(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
-    return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
-  }
-
-  function max(values, valueof) {
-    let max;
-    if (valueof === undefined) {
-      for (const value of values) {
-        if (value != null
-            && (max < value || (max === undefined && value >= value))) {
-          max = value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null
-            && (max < value || (max === undefined && value >= value))) {
-          max = value;
-        }
-      }
-    }
-    return max;
-  }
-
-  function min$1(values, valueof) {
-    let min;
-    if (valueof === undefined) {
-      for (const value of values) {
-        if (value != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value;
-        }
-      }
-    }
-    return min;
-  }
-
-  function minIndex(values, valueof) {
-    let min;
-    let minIndex = -1;
-    let index = -1;
-    if (valueof === undefined) {
-      for (const value of values) {
-        ++index;
-        if (value != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value, minIndex = index;
-        }
-      }
-    } else {
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value, minIndex = index;
-        }
-      }
-    }
-    return minIndex;
-  }
-
-  // Based on https://github.com/mourner/quickselect
-  // ISC license, Copyright 2018 Vladimir Agafonkin.
-  function quickselect(array, k, left = 0, right = Infinity, compare) {
-    k = Math.floor(k);
-    left = Math.floor(Math.max(0, left));
-    right = Math.floor(Math.min(array.length - 1, right));
-
-    if (!(left <= k && k <= right)) return array;
-
-    compare = compare === undefined ? ascendingDefined : compareDefined(compare);
-
-    while (right > left) {
-      if (right - left > 600) {
-        const n = right - left + 1;
-        const m = k - left + 1;
-        const z = Math.log(n);
-        const s = 0.5 * Math.exp(2 * z / 3);
-        const sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
-        const newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
-        const newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
-        quickselect(array, k, newLeft, newRight, compare);
-      }
-
-      const t = array[k];
-      let i = left;
-      let j = right;
-
-      swap(array, left, k);
-      if (compare(array[right], t) > 0) swap(array, left, right);
-
-      while (i < j) {
-        swap(array, i, j), ++i, --j;
-        while (compare(array[i], t) < 0) ++i;
-        while (compare(array[j], t) > 0) --j;
-      }
-
-      if (compare(array[left], t) === 0) swap(array, left, j);
-      else ++j, swap(array, j, right);
-
-      if (j <= k) left = j + 1;
-      if (k <= j) right = j - 1;
-    }
-
-    return array;
-  }
-
-  function swap(array, i, j) {
-    const t = array[i];
-    array[i] = array[j];
-    array[j] = t;
-  }
-
-  function quantile(values, p, valueof) {
-    values = Float64Array.from(numbers(values, valueof));
-    if (!(n = values.length) || isNaN(p = +p)) return;
-    if (p <= 0 || n < 2) return min$1(values);
-    if (p >= 1) return max(values);
-    var n,
-        i = (n - 1) * p,
-        i0 = Math.floor(i),
-        value0 = max(quickselect(values, i0).subarray(0, i0 + 1)),
-        value1 = min$1(values.subarray(i0 + 1));
-    return value0 + (value1 - value0) * (i - i0);
-  }
-
-  function mean(values, valueof) {
-    let count = 0;
-    let sum = 0;
-    if (valueof === undefined) {
-      for (let value of values) {
-        if (value != null && (value = +value) >= value) {
-          ++count, sum += value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
-          ++count, sum += value;
-        }
-      }
-    }
-    if (count) return sum / count;
-  }
-
-  function median(values, valueof) {
-    return quantile(values, 0.5, valueof);
-  }
-
-  function leastIndex(values, compare = ascending) {
-    if (compare.length === 1) return minIndex(values, compare);
-    let minValue;
-    let min = -1;
-    let index = -1;
-    for (const value of values) {
-      ++index;
-      if (min < 0
-          ? compare(value, value) === 0
-          : compare(value, minValue) < 0) {
-        minValue = value;
-        min = index;
-      }
-    }
-    return min;
-  }
-
-  function sum(values, valueof) {
-    let sum = 0;
-    if (valueof === undefined) {
-      for (let value of values) {
-        if (value = +value) {
-          sum += value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if (value = +valueof(value, ++index, values)) {
-          sum += value;
-        }
-      }
-    }
-    return sum;
-  }
-
   function constant$2(x) {
     return function constant() {
       return x;
@@ -1385,7 +962,7 @@
   }
 
   const cos = Math.cos;
-  const min = Math.min;
+  const min$1 = Math.min;
   const sin = Math.sin;
   const sqrt$1 = Math.sqrt;
   const pi$1 = Math.PI;
@@ -1658,7 +1235,7 @@
 
   var asterisk = {
     draw(context, size) {
-      const r = sqrt$1(size + min(size / 28, 0.75)) * 0.59436;
+      const r = sqrt$1(size + min$1(size / 28, 0.75)) * 0.59436;
       const t = r / 2;
       const u = t * sqrt3$1;
       context.moveTo(0, r);
@@ -1826,7 +1403,7 @@
     return "translate(0," + y + ")";
   }
 
-  function number$1(scale) {
+  function number$2(scale) {
     return d => +scale(d);
   }
 
@@ -1859,7 +1436,7 @@
           range = scale.range(),
           range0 = +range[0] + offset,
           range1 = +range[range.length - 1] + offset,
-          position = (scale.bandwidth ? center : number$1)(scale.copy(), offset),
+          position = (scale.bandwidth ? center : number$2)(scale.copy(), offset),
           selection = context.selection ? context.selection() : context,
           path = selection.selectAll(".domain").data([null]),
           tick = selection.selectAll(".tick").data(values, scale).order(),
@@ -1975,6 +1552,317 @@
 
   function axisLeft(scale) {
     return axis(left, scale);
+  }
+
+  function ascending(a, b) {
+    return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+  }
+
+  function descending(a, b) {
+    return a == null || b == null ? NaN
+      : b < a ? -1
+      : b > a ? 1
+      : b >= a ? 0
+      : NaN;
+  }
+
+  function bisector(f) {
+    let compare1, compare2, delta;
+
+    // If an accessor is specified, promote it to a comparator. In this case we
+    // can test whether the search value is (self-) comparable. We can’t do this
+    // for a comparator (except for specific, known comparators) because we can’t
+    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
+    // used to test whether a single value is comparable.
+    if (f.length !== 2) {
+      compare1 = ascending;
+      compare2 = (d, x) => ascending(f(d), x);
+      delta = (d, x) => f(d) - x;
+    } else {
+      compare1 = f === ascending || f === descending ? f : zero$1;
+      compare2 = f;
+      delta = f;
+    }
+
+    function left(a, x, lo = 0, hi = a.length) {
+      if (lo < hi) {
+        if (compare1(x, x) !== 0) return hi;
+        do {
+          const mid = (lo + hi) >>> 1;
+          if (compare2(a[mid], x) < 0) lo = mid + 1;
+          else hi = mid;
+        } while (lo < hi);
+      }
+      return lo;
+    }
+
+    function right(a, x, lo = 0, hi = a.length) {
+      if (lo < hi) {
+        if (compare1(x, x) !== 0) return hi;
+        do {
+          const mid = (lo + hi) >>> 1;
+          if (compare2(a[mid], x) <= 0) lo = mid + 1;
+          else hi = mid;
+        } while (lo < hi);
+      }
+      return lo;
+    }
+
+    function center(a, x, lo = 0, hi = a.length) {
+      const i = left(a, x, lo, hi - 1);
+      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
+    }
+
+    return {left, center, right};
+  }
+
+  function zero$1() {
+    return 0;
+  }
+
+  function number$1(x) {
+    return x === null ? NaN : +x;
+  }
+
+  function* numbers(values, valueof) {
+    if (valueof === undefined) {
+      for (let value of values) {
+        if (value != null && (value = +value) >= value) {
+          yield value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
+          yield value;
+        }
+      }
+    }
+  }
+
+  const ascendingBisect = bisector(ascending);
+  const bisectRight = ascendingBisect.right;
+  bisector(number$1).center;
+
+  function compareDefined(compare = ascending) {
+    if (compare === ascending) return ascendingDefined;
+    if (typeof compare !== "function") throw new TypeError("compare is not a function");
+    return (a, b) => {
+      const x = compare(a, b);
+      if (x || x === 0) return x;
+      return (compare(b, b) === 0) - (compare(a, a) === 0);
+    };
+  }
+
+  function ascendingDefined(a, b) {
+    return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
+  }
+
+  const e10 = Math.sqrt(50),
+      e5 = Math.sqrt(10),
+      e2 = Math.sqrt(2);
+
+  function tickSpec(start, stop, count) {
+    const step = (stop - start) / Math.max(0, count),
+        power = Math.floor(Math.log10(step)),
+        error = step / Math.pow(10, power),
+        factor = error >= e10 ? 10 : error >= e5 ? 5 : error >= e2 ? 2 : 1;
+    let i1, i2, inc;
+    if (power < 0) {
+      inc = Math.pow(10, -power) / factor;
+      i1 = Math.round(start * inc);
+      i2 = Math.round(stop * inc);
+      if (i1 / inc < start) ++i1;
+      if (i2 / inc > stop) --i2;
+      inc = -inc;
+    } else {
+      inc = Math.pow(10, power) * factor;
+      i1 = Math.round(start / inc);
+      i2 = Math.round(stop / inc);
+      if (i1 * inc < start) ++i1;
+      if (i2 * inc > stop) --i2;
+    }
+    if (i2 < i1 && 0.5 <= count && count < 2) return tickSpec(start, stop, count * 2);
+    return [i1, i2, inc];
+  }
+
+  function ticks(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    if (!(count > 0)) return [];
+    if (start === stop) return [start];
+    const reverse = stop < start, [i1, i2, inc] = reverse ? tickSpec(stop, start, count) : tickSpec(start, stop, count);
+    if (!(i2 >= i1)) return [];
+    const n = i2 - i1 + 1, ticks = new Array(n);
+    if (reverse) {
+      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) / -inc;
+      else for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) * inc;
+    } else {
+      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) / -inc;
+      else for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) * inc;
+    }
+    return ticks;
+  }
+
+  function tickIncrement(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    return tickSpec(start, stop, count)[2];
+  }
+
+  function tickStep(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
+    return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
+  }
+
+  function max(values, valueof) {
+    let max;
+    if (valueof === undefined) {
+      for (const value of values) {
+        if (value != null
+            && (max < value || (max === undefined && value >= value))) {
+          max = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
+            && (max < value || (max === undefined && value >= value))) {
+          max = value;
+        }
+      }
+    }
+    return max;
+  }
+
+  function min(values, valueof) {
+    let min;
+    if (valueof === undefined) {
+      for (const value of values) {
+        if (value != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    }
+    return min;
+  }
+
+  // Based on https://github.com/mourner/quickselect
+  // ISC license, Copyright 2018 Vladimir Agafonkin.
+  function quickselect(array, k, left = 0, right = Infinity, compare) {
+    k = Math.floor(k);
+    left = Math.floor(Math.max(0, left));
+    right = Math.floor(Math.min(array.length - 1, right));
+
+    if (!(left <= k && k <= right)) return array;
+
+    compare = compare === undefined ? ascendingDefined : compareDefined(compare);
+
+    while (right > left) {
+      if (right - left > 600) {
+        const n = right - left + 1;
+        const m = k - left + 1;
+        const z = Math.log(n);
+        const s = 0.5 * Math.exp(2 * z / 3);
+        const sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
+        const newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
+        const newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
+        quickselect(array, k, newLeft, newRight, compare);
+      }
+
+      const t = array[k];
+      let i = left;
+      let j = right;
+
+      swap(array, left, k);
+      if (compare(array[right], t) > 0) swap(array, left, right);
+
+      while (i < j) {
+        swap(array, i, j), ++i, --j;
+        while (compare(array[i], t) < 0) ++i;
+        while (compare(array[j], t) > 0) --j;
+      }
+
+      if (compare(array[left], t) === 0) swap(array, left, j);
+      else ++j, swap(array, j, right);
+
+      if (j <= k) left = j + 1;
+      if (k <= j) right = j - 1;
+    }
+
+    return array;
+  }
+
+  function swap(array, i, j) {
+    const t = array[i];
+    array[i] = array[j];
+    array[j] = t;
+  }
+
+  function quantile(values, p, valueof) {
+    values = Float64Array.from(numbers(values, valueof));
+    if (!(n = values.length) || isNaN(p = +p)) return;
+    if (p <= 0 || n < 2) return min(values);
+    if (p >= 1) return max(values);
+    var n,
+        i = (n - 1) * p,
+        i0 = Math.floor(i),
+        value0 = max(quickselect(values, i0).subarray(0, i0 + 1)),
+        value1 = min(values.subarray(i0 + 1));
+    return value0 + (value1 - value0) * (i - i0);
+  }
+
+  function mean(values, valueof) {
+    let count = 0;
+    let sum = 0;
+    if (valueof === undefined) {
+      for (let value of values) {
+        if (value != null && (value = +value) >= value) {
+          ++count, sum += value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
+          ++count, sum += value;
+        }
+      }
+    }
+    if (count) return sum / count;
+  }
+
+  function median(values, valueof) {
+    return quantile(values, 0.5, valueof);
+  }
+
+  function sum(values, valueof) {
+    let sum = 0;
+    if (valueof === undefined) {
+      for (let value of values) {
+        if (value = +value) {
+          sum += value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if (value = +valueof(value, ++index, values)) {
+          sum += value;
+        }
+      }
+    }
+    return sum;
   }
 
   function initRange(domain, range) {
@@ -3485,8 +3373,6 @@
     axisBottom: axisBottom,
     axisLeft: axisLeft,
     drag: drag,
-    groups: groups,
-    leastIndex: leastIndex,
     line: line,
     scaleLinear: linear,
     select: select,
@@ -5178,7 +5064,7 @@
                   ylimit_tick_rotation: {
                       displayName: "Tick Rotation (Degrees)",
                       type: "NumUpDown",
-                      default: -35,
+                      default: 0,
                       options: { minValue: { value: -360 }, maxValue: { value: 360 } }
                   }
               },
@@ -18081,725 +17967,6 @@
       return Object.fromEntries(formatOpts);
   }
 
-  /*
-   *  Power BI Visualizations
-   *
-   *  Copyright (c) Microsoft Corporation
-   *  All rights reserved.
-   *  MIT License
-   *
-   *  Permission is hereby granted, free of charge, to any person obtaining a copy
-   *  of this software and associated documentation files (the ""Software""), to deal
-   *  in the Software without restriction, including without limitation the rights
-   *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   *  copies of the Software, and to permit persons to whom the Software is
-   *  furnished to do so, subject to the following conditions:
-   *
-   *  The above copyright notice and this permission notice shall be included in
-   *  all copies or substantial portions of the Software.
-   *
-   *  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   *  THE SOFTWARE.
-   */
-  // NOTE: this file includes standalone utilities that should have no dependencies on external libraries, including jQuery.
-  /**
-   * Extensions for Enumerations.
-   */
-  /**
-   * Gets a value indicating whether the value has the bit flags set.
-   */
-  function hasFlag(value, flag) {
-      return (value & flag) === flag;
-  }
-
-  /*
-   *  Power BI Visualizations
-   *
-   *  Copyright (c) Microsoft Corporation
-   *  All rights reserved.
-   *  MIT License
-   *
-   *  Permission is hereby granted, free of charge, to any person obtaining a copy
-   *  of this software and associated documentation files (the ""Software""), to deal
-   *  in the Software without restriction, including without limitation the rights
-   *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   *  copies of the Software, and to permit persons to whom the Software is
-   *  furnished to do so, subject to the following conditions:
-   *
-   *  The above copyright notice and this permission notice shall be included in
-   *  all copies or substantial portions of the Software.
-   *
-   *  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   *  THE SOFTWARE.
-   */
-  // NOTE: this file includes standalone utilities that should have no dependencies on external libraries, including jQuery.
-  /**
-   * Performs JSON-style comparison of two objects.
-   */
-  function equals(x, y) {
-      if (x === y)
-          return true;
-      return JSON.stringify(x) === JSON.stringify(y);
-  }
-
-  /*
-   *  Power BI Visualizations
-   *
-   *  Copyright (c) Microsoft Corporation
-   *  All rights reserved.
-   *  MIT License
-   *
-   *  Permission is hereby granted, free of charge, to any person obtaining a copy
-   *  of this software and associated documentation files (the ""Software""), to deal
-   *  in the Software without restriction, including without limitation the rights
-   *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-   *  copies of the Software, and to permit persons to whom the Software is
-   *  furnished to do so, subject to the following conditions:
-   *
-   *  The above copyright notice and this permission notice shall be included in
-   *  all copies or substantial portions of the Software.
-   *
-   *  THE SOFTWARE IS PROVIDED *AS IS*, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-   *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-   *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-   *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   *  THE SOFTWARE.
-   */
-  // powerbi.extensibility.utils.type
-  /** Describes a data value type, including a primitive type and extended type if any (derived from data category). */
-  class ValueType {
-      /** Do not call the ValueType constructor directly. Use the ValueType.fromXXX methods. */
-      constructor(underlyingType, category, enumType, variantTypes) {
-          this.underlyingType = underlyingType;
-          this.category = category;
-          if (hasFlag(underlyingType, ExtendedType.Temporal)) {
-              this.temporalType = new TemporalType(underlyingType);
-          }
-          if (hasFlag(underlyingType, ExtendedType.Geography)) {
-              this.geographyType = new GeographyType(underlyingType);
-          }
-          if (hasFlag(underlyingType, ExtendedType.Miscellaneous)) {
-              this.miscType = new MiscellaneousType(underlyingType);
-          }
-          if (hasFlag(underlyingType, ExtendedType.Formatting)) {
-              this.formattingType = new FormattingType(underlyingType);
-          }
-          if (hasFlag(underlyingType, ExtendedType.Enumeration)) {
-              this.enumType = enumType;
-          }
-          if (hasFlag(underlyingType, ExtendedType.Scripting)) {
-              this.scriptingType = new ScriptType(underlyingType);
-          }
-          if (hasFlag(underlyingType, ExtendedType.Variant)) {
-              this.variationTypes = variantTypes;
-          }
-      }
-      /** Creates or retrieves a ValueType object based on the specified ValueTypeDescriptor. */
-      static fromDescriptor(descriptor) {
-          descriptor = descriptor || {};
-          // Simplified primitive types
-          if (descriptor.text)
-              return ValueType.fromExtendedType(ExtendedType.Text);
-          if (descriptor.integer)
-              return ValueType.fromExtendedType(ExtendedType.Integer);
-          if (descriptor.numeric)
-              return ValueType.fromExtendedType(ExtendedType.Double);
-          if (descriptor.bool)
-              return ValueType.fromExtendedType(ExtendedType.Boolean);
-          if (descriptor.dateTime)
-              return ValueType.fromExtendedType(ExtendedType.DateTime);
-          if (descriptor.duration)
-              return ValueType.fromExtendedType(ExtendedType.Duration);
-          if (descriptor.binary)
-              return ValueType.fromExtendedType(ExtendedType.Binary);
-          if (descriptor.none)
-              return ValueType.fromExtendedType(ExtendedType.None);
-          // Extended types
-          if (descriptor.scripting) {
-              if (descriptor.scripting.source)
-                  return ValueType.fromExtendedType(ExtendedType.ScriptSource);
-          }
-          if (descriptor.enumeration)
-              return ValueType.fromEnum(descriptor.enumeration);
-          if (descriptor.temporal) {
-              if (descriptor.temporal.year)
-                  return ValueType.fromExtendedType(ExtendedType.Years_Integer);
-              if (descriptor.temporal.quarter)
-                  return ValueType.fromExtendedType(ExtendedType.Quarters_Integer);
-              if (descriptor.temporal.month)
-                  return ValueType.fromExtendedType(ExtendedType.Months_Integer);
-              if (descriptor.temporal.day)
-                  return ValueType.fromExtendedType(ExtendedType.DayOfMonth_Integer);
-              if (descriptor.temporal.paddedDateTableDate)
-                  return ValueType.fromExtendedType(ExtendedType.PaddedDateTableDates);
-          }
-          if (descriptor.geography) {
-              if (descriptor.geography.address)
-                  return ValueType.fromExtendedType(ExtendedType.Address);
-              if (descriptor.geography.city)
-                  return ValueType.fromExtendedType(ExtendedType.City);
-              if (descriptor.geography.continent)
-                  return ValueType.fromExtendedType(ExtendedType.Continent);
-              if (descriptor.geography.country)
-                  return ValueType.fromExtendedType(ExtendedType.Country);
-              if (descriptor.geography.county)
-                  return ValueType.fromExtendedType(ExtendedType.County);
-              if (descriptor.geography.region)
-                  return ValueType.fromExtendedType(ExtendedType.Region);
-              if (descriptor.geography.postalCode)
-                  return ValueType.fromExtendedType(ExtendedType.PostalCode_Text);
-              if (descriptor.geography.stateOrProvince)
-                  return ValueType.fromExtendedType(ExtendedType.StateOrProvince);
-              if (descriptor.geography.place)
-                  return ValueType.fromExtendedType(ExtendedType.Place);
-              if (descriptor.geography.latitude)
-                  return ValueType.fromExtendedType(ExtendedType.Latitude_Double);
-              if (descriptor.geography.longitude)
-                  return ValueType.fromExtendedType(ExtendedType.Longitude_Double);
-          }
-          if (descriptor.misc) {
-              if (descriptor.misc.image)
-                  return ValueType.fromExtendedType(ExtendedType.Image);
-              if (descriptor.misc.imageUrl)
-                  return ValueType.fromExtendedType(ExtendedType.ImageUrl);
-              if (descriptor.misc.webUrl)
-                  return ValueType.fromExtendedType(ExtendedType.WebUrl);
-              if (descriptor.misc.barcode)
-                  return ValueType.fromExtendedType(ExtendedType.Barcode_Text);
-          }
-          if (descriptor.formatting) {
-              if (descriptor.formatting.color)
-                  return ValueType.fromExtendedType(ExtendedType.Color);
-              if (descriptor.formatting.formatString)
-                  return ValueType.fromExtendedType(ExtendedType.FormatString);
-              if (descriptor.formatting.alignment)
-                  return ValueType.fromExtendedType(ExtendedType.Alignment);
-              if (descriptor.formatting.labelDisplayUnits)
-                  return ValueType.fromExtendedType(ExtendedType.LabelDisplayUnits);
-              if (descriptor.formatting.fontSize)
-                  return ValueType.fromExtendedType(ExtendedType.FontSize);
-              if (descriptor.formatting.labelDensity)
-                  return ValueType.fromExtendedType(ExtendedType.LabelDensity);
-          }
-          if (descriptor.extendedType) {
-              return ValueType.fromExtendedType(descriptor.extendedType);
-          }
-          if (descriptor.operations) {
-              if (descriptor.operations.searchEnabled)
-                  return ValueType.fromExtendedType(ExtendedType.SearchEnabled);
-          }
-          if (descriptor.variant) {
-              const variantTypes = descriptor.variant.map((variantType) => ValueType.fromDescriptor(variantType));
-              return ValueType.fromVariant(variantTypes);
-          }
-          return ValueType.fromExtendedType(ExtendedType.Null);
-      }
-      /** Advanced: Generally use fromDescriptor instead. Creates or retrieves a ValueType object for the specified ExtendedType. */
-      static fromExtendedType(extendedType) {
-          extendedType = extendedType || ExtendedType.Null;
-          const primitiveType = getPrimitiveType(extendedType), category = getCategoryFromExtendedType(extendedType);
-          return ValueType.fromPrimitiveTypeAndCategory(primitiveType, category);
-      }
-      /** Creates or retrieves a ValueType object for the specified PrimitiveType and data category. */
-      static fromPrimitiveTypeAndCategory(primitiveType, category) {
-          primitiveType = primitiveType || PrimitiveType.Null;
-          category = category || null;
-          let id = primitiveType.toString();
-          if (category)
-              id += "|" + category;
-          return ValueType.typeCache[id] || (ValueType.typeCache[id] = new ValueType(toExtendedType(primitiveType, category), category));
-      }
-      /** Creates a ValueType to describe the given IEnumType. */
-      static fromEnum(enumType) {
-          return new ValueType(ExtendedType.Enumeration, null, enumType);
-      }
-      /** Creates a ValueType to describe the given Variant type. */
-      static fromVariant(variantTypes) {
-          return new ValueType(ExtendedType.Variant, /* category */ null, /* enumType */ null, variantTypes);
-      }
-      /** Determines if the specified type is compatible from at least one of the otherTypes. */
-      static isCompatibleTo(typeDescriptor, otherTypes) {
-          const valueType = ValueType.fromDescriptor(typeDescriptor);
-          for (const otherType of otherTypes) {
-              const otherValueType = ValueType.fromDescriptor(otherType);
-              if (otherValueType.isCompatibleFrom(valueType))
-                  return true;
-          }
-          return false;
-      }
-      /** Determines if the instance ValueType is convertable from the 'other' ValueType. */
-      isCompatibleFrom(other) {
-          const otherPrimitiveType = other.primitiveType;
-          if (this === other ||
-              this.primitiveType === otherPrimitiveType ||
-              otherPrimitiveType === PrimitiveType.Null ||
-              // Return true if both types are numbers
-              (this.numeric && other.numeric))
-              return true;
-          return false;
-      }
-      /**
-       * Determines if the instance ValueType is equal to the 'other' ValueType
-       * @param {ValueType} other the other ValueType to check equality against
-       * @returns True if the instance ValueType is equal to the 'other' ValueType
-       */
-      equals(other) {
-          return equals(this, other);
-      }
-      /** Gets the exact primitive type of this ValueType. */
-      get primitiveType() {
-          return getPrimitiveType(this.underlyingType);
-      }
-      /** Gets the exact extended type of this ValueType. */
-      get extendedType() {
-          return this.underlyingType;
-      }
-      /** Gets the data category string (if any) for this ValueType. */
-      get categoryString() {
-          return this.category;
-      }
-      // Simplified primitive types
-      /** Indicates whether the type represents text values. */
-      get text() {
-          return this.primitiveType === PrimitiveType.Text;
-      }
-      /** Indicates whether the type represents any numeric value. */
-      get numeric() {
-          return hasFlag(this.underlyingType, ExtendedType.Numeric);
-      }
-      /** Indicates whether the type represents integer numeric values. */
-      get integer() {
-          return this.primitiveType === PrimitiveType.Integer;
-      }
-      /** Indicates whether the type represents Boolean values. */
-      get bool() {
-          return this.primitiveType === PrimitiveType.Boolean;
-      }
-      /** Indicates whether the type represents any date/time values. */
-      get dateTime() {
-          return this.primitiveType === PrimitiveType.DateTime ||
-              this.primitiveType === PrimitiveType.Date ||
-              this.primitiveType === PrimitiveType.Time;
-      }
-      /** Indicates whether the type represents duration values. */
-      get duration() {
-          return this.primitiveType === PrimitiveType.Duration;
-      }
-      /** Indicates whether the type represents binary values. */
-      get binary() {
-          return this.primitiveType === PrimitiveType.Binary;
-      }
-      /** Indicates whether the type represents none values. */
-      get none() {
-          return this.primitiveType === PrimitiveType.None;
-      }
-      // Extended types
-      /** Returns an object describing temporal values represented by the type, if it represents a temporal type. */
-      get temporal() {
-          return this.temporalType;
-      }
-      /** Returns an object describing geographic values represented by the type, if it represents a geographic type. */
-      get geography() {
-          return this.geographyType;
-      }
-      /** Returns an object describing the specific values represented by the type, if it represents a miscellaneous extended type. */
-      get misc() {
-          return this.miscType;
-      }
-      /** Returns an object describing the formatting values represented by the type, if it represents a formatting type. */
-      get formatting() {
-          return this.formattingType;
-      }
-      /** Returns an object describing the enum values represented by the type, if it represents an enumeration type. */
-      get enumeration() {
-          return this.enumType;
-      }
-      get scripting() {
-          return this.scriptingType;
-      }
-      /** Returns an array describing the variant values represented by the type, if it represents an Variant type. */
-      get variant() {
-          return this.variationTypes;
-      }
-  }
-  ValueType.typeCache = {};
-  class ScriptType {
-      constructor(underlyingType) {
-          this.underlyingType = underlyingType;
-      }
-      get source() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.ScriptSource);
-      }
-  }
-  class TemporalType {
-      constructor(underlyingType) {
-          this.underlyingType = underlyingType;
-      }
-      get year() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Years);
-      }
-      get quarter() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Quarters);
-      }
-      get month() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Months);
-      }
-      get day() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.DayOfMonth);
-      }
-      get paddedDateTableDate() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.PaddedDateTableDates);
-      }
-  }
-  class GeographyType {
-      constructor(underlyingType) {
-          this.underlyingType = underlyingType;
-      }
-      get address() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Address);
-      }
-      get city() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.City);
-      }
-      get continent() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Continent);
-      }
-      get country() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Country);
-      }
-      get county() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.County);
-      }
-      get region() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Region);
-      }
-      get postalCode() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.PostalCode);
-      }
-      get stateOrProvince() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.StateOrProvince);
-      }
-      get place() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Place);
-      }
-      get latitude() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Latitude);
-      }
-      get longitude() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Longitude);
-      }
-  }
-  class MiscellaneousType {
-      constructor(underlyingType) {
-          this.underlyingType = underlyingType;
-      }
-      get image() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Image);
-      }
-      get imageUrl() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.ImageUrl);
-      }
-      get webUrl() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.WebUrl);
-      }
-      get barcode() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Barcode);
-      }
-  }
-  class FormattingType {
-      constructor(underlyingType) {
-          this.underlyingType = underlyingType;
-      }
-      get color() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Color);
-      }
-      get formatString() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.FormatString);
-      }
-      get alignment() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.Alignment);
-      }
-      get labelDisplayUnits() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.LabelDisplayUnits);
-      }
-      get fontSize() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.FontSize);
-      }
-      get labelDensity() {
-          return matchesExtendedTypeWithAnyPrimitive(this.underlyingType, ExtendedType.LabelDensity);
-      }
-  }
-  /** Defines primitive value types. Must be consistent with types defined by server conceptual schema. */
-  var PrimitiveType;
-  (function (PrimitiveType) {
-      PrimitiveType[PrimitiveType["Null"] = 0] = "Null";
-      PrimitiveType[PrimitiveType["Text"] = 1] = "Text";
-      PrimitiveType[PrimitiveType["Decimal"] = 2] = "Decimal";
-      PrimitiveType[PrimitiveType["Double"] = 3] = "Double";
-      PrimitiveType[PrimitiveType["Integer"] = 4] = "Integer";
-      PrimitiveType[PrimitiveType["Boolean"] = 5] = "Boolean";
-      PrimitiveType[PrimitiveType["Date"] = 6] = "Date";
-      PrimitiveType[PrimitiveType["DateTime"] = 7] = "DateTime";
-      PrimitiveType[PrimitiveType["DateTimeZone"] = 8] = "DateTimeZone";
-      PrimitiveType[PrimitiveType["Time"] = 9] = "Time";
-      PrimitiveType[PrimitiveType["Duration"] = 10] = "Duration";
-      PrimitiveType[PrimitiveType["Binary"] = 11] = "Binary";
-      PrimitiveType[PrimitiveType["None"] = 12] = "None";
-      PrimitiveType[PrimitiveType["Variant"] = 13] = "Variant";
-  })(PrimitiveType || (PrimitiveType = {}));
-  var PrimitiveTypeStrings;
-  (function (PrimitiveTypeStrings) {
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Null"] = 0] = "Null";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Text"] = 1] = "Text";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Decimal"] = 2] = "Decimal";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Double"] = 3] = "Double";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Integer"] = 4] = "Integer";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Boolean"] = 5] = "Boolean";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Date"] = 6] = "Date";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["DateTime"] = 7] = "DateTime";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["DateTimeZone"] = 8] = "DateTimeZone";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Time"] = 9] = "Time";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Duration"] = 10] = "Duration";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Binary"] = 11] = "Binary";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["None"] = 12] = "None";
-      PrimitiveTypeStrings[PrimitiveTypeStrings["Variant"] = 13] = "Variant";
-  })(PrimitiveTypeStrings || (PrimitiveTypeStrings = {}));
-  /** Defines extended value types, which include primitive types and known data categories constrained to expected primitive types. */
-  var ExtendedType;
-  (function (ExtendedType) {
-      // Flags (1 << 8-15 range [0xFF00])
-      // Important: Enum members must be declared before they are used in TypeScript.
-      ExtendedType[ExtendedType["Numeric"] = 256] = "Numeric";
-      ExtendedType[ExtendedType["Temporal"] = 512] = "Temporal";
-      ExtendedType[ExtendedType["Geography"] = 1024] = "Geography";
-      ExtendedType[ExtendedType["Miscellaneous"] = 2048] = "Miscellaneous";
-      ExtendedType[ExtendedType["Formatting"] = 4096] = "Formatting";
-      ExtendedType[ExtendedType["Scripting"] = 8192] = "Scripting";
-      // Primitive types (0-255 range [0xFF] | flags)
-      // The member names and base values must match those in PrimitiveType.
-      ExtendedType[ExtendedType["Null"] = 0] = "Null";
-      ExtendedType[ExtendedType["Text"] = 1] = "Text";
-      ExtendedType[ExtendedType["Decimal"] = 258] = "Decimal";
-      ExtendedType[ExtendedType["Double"] = 259] = "Double";
-      ExtendedType[ExtendedType["Integer"] = 260] = "Integer";
-      ExtendedType[ExtendedType["Boolean"] = 5] = "Boolean";
-      ExtendedType[ExtendedType["Date"] = 518] = "Date";
-      ExtendedType[ExtendedType["DateTime"] = 519] = "DateTime";
-      ExtendedType[ExtendedType["DateTimeZone"] = 520] = "DateTimeZone";
-      ExtendedType[ExtendedType["Time"] = 521] = "Time";
-      ExtendedType[ExtendedType["Duration"] = 10] = "Duration";
-      ExtendedType[ExtendedType["Binary"] = 11] = "Binary";
-      ExtendedType[ExtendedType["None"] = 12] = "None";
-      ExtendedType[ExtendedType["Variant"] = 13] = "Variant";
-      // Extended types (0-32767 << 16 range [0xFFFF0000] | corresponding primitive type | flags)
-      // Temporal
-      ExtendedType[ExtendedType["Years"] = 66048] = "Years";
-      ExtendedType[ExtendedType["Years_Text"] = 66049] = "Years_Text";
-      ExtendedType[ExtendedType["Years_Integer"] = 66308] = "Years_Integer";
-      ExtendedType[ExtendedType["Years_Date"] = 66054] = "Years_Date";
-      ExtendedType[ExtendedType["Years_DateTime"] = 66055] = "Years_DateTime";
-      ExtendedType[ExtendedType["Months"] = 131584] = "Months";
-      ExtendedType[ExtendedType["Months_Text"] = 131585] = "Months_Text";
-      ExtendedType[ExtendedType["Months_Integer"] = 131844] = "Months_Integer";
-      ExtendedType[ExtendedType["Months_Date"] = 131590] = "Months_Date";
-      ExtendedType[ExtendedType["Months_DateTime"] = 131591] = "Months_DateTime";
-      ExtendedType[ExtendedType["PaddedDateTableDates"] = 197127] = "PaddedDateTableDates";
-      ExtendedType[ExtendedType["Quarters"] = 262656] = "Quarters";
-      ExtendedType[ExtendedType["Quarters_Text"] = 262657] = "Quarters_Text";
-      ExtendedType[ExtendedType["Quarters_Integer"] = 262916] = "Quarters_Integer";
-      ExtendedType[ExtendedType["Quarters_Date"] = 262662] = "Quarters_Date";
-      ExtendedType[ExtendedType["Quarters_DateTime"] = 262663] = "Quarters_DateTime";
-      ExtendedType[ExtendedType["DayOfMonth"] = 328192] = "DayOfMonth";
-      ExtendedType[ExtendedType["DayOfMonth_Text"] = 328193] = "DayOfMonth_Text";
-      ExtendedType[ExtendedType["DayOfMonth_Integer"] = 328452] = "DayOfMonth_Integer";
-      ExtendedType[ExtendedType["DayOfMonth_Date"] = 328198] = "DayOfMonth_Date";
-      ExtendedType[ExtendedType["DayOfMonth_DateTime"] = 328199] = "DayOfMonth_DateTime";
-      // Geography
-      ExtendedType[ExtendedType["Address"] = 6554625] = "Address";
-      ExtendedType[ExtendedType["City"] = 6620161] = "City";
-      ExtendedType[ExtendedType["Continent"] = 6685697] = "Continent";
-      ExtendedType[ExtendedType["Country"] = 6751233] = "Country";
-      ExtendedType[ExtendedType["County"] = 6816769] = "County";
-      ExtendedType[ExtendedType["Region"] = 6882305] = "Region";
-      ExtendedType[ExtendedType["PostalCode"] = 6947840] = "PostalCode";
-      ExtendedType[ExtendedType["PostalCode_Text"] = 6947841] = "PostalCode_Text";
-      ExtendedType[ExtendedType["PostalCode_Integer"] = 6948100] = "PostalCode_Integer";
-      ExtendedType[ExtendedType["StateOrProvince"] = 7013377] = "StateOrProvince";
-      ExtendedType[ExtendedType["Place"] = 7078913] = "Place";
-      ExtendedType[ExtendedType["Latitude"] = 7144448] = "Latitude";
-      ExtendedType[ExtendedType["Latitude_Decimal"] = 7144706] = "Latitude_Decimal";
-      ExtendedType[ExtendedType["Latitude_Double"] = 7144707] = "Latitude_Double";
-      ExtendedType[ExtendedType["Longitude"] = 7209984] = "Longitude";
-      ExtendedType[ExtendedType["Longitude_Decimal"] = 7210242] = "Longitude_Decimal";
-      ExtendedType[ExtendedType["Longitude_Double"] = 7210243] = "Longitude_Double";
-      // Miscellaneous
-      ExtendedType[ExtendedType["Image"] = 13109259] = "Image";
-      ExtendedType[ExtendedType["ImageUrl"] = 13174785] = "ImageUrl";
-      ExtendedType[ExtendedType["WebUrl"] = 13240321] = "WebUrl";
-      ExtendedType[ExtendedType["Barcode"] = 13305856] = "Barcode";
-      ExtendedType[ExtendedType["Barcode_Text"] = 13305857] = "Barcode_Text";
-      ExtendedType[ExtendedType["Barcode_Integer"] = 13306116] = "Barcode_Integer";
-      // Formatting
-      ExtendedType[ExtendedType["Color"] = 19664897] = "Color";
-      ExtendedType[ExtendedType["FormatString"] = 19730433] = "FormatString";
-      ExtendedType[ExtendedType["Alignment"] = 20058113] = "Alignment";
-      ExtendedType[ExtendedType["LabelDisplayUnits"] = 20123649] = "LabelDisplayUnits";
-      ExtendedType[ExtendedType["FontSize"] = 20189443] = "FontSize";
-      ExtendedType[ExtendedType["LabelDensity"] = 20254979] = "LabelDensity";
-      // Enumeration
-      ExtendedType[ExtendedType["Enumeration"] = 26214401] = "Enumeration";
-      // Scripting
-      ExtendedType[ExtendedType["ScriptSource"] = 32776193] = "ScriptSource";
-      // NOTE: To avoid confusion, underscores should be used only to delimit primitive type variants of an extended type
-      // (e.g. Year_Integer or Latitude_Double above)
-      // Operations
-      ExtendedType[ExtendedType["SearchEnabled"] = 65541] = "SearchEnabled";
-  })(ExtendedType || (ExtendedType = {}));
-  var ExtendedTypeStrings;
-  (function (ExtendedTypeStrings) {
-      ExtendedTypeStrings[ExtendedTypeStrings["Numeric"] = 256] = "Numeric";
-      ExtendedTypeStrings[ExtendedTypeStrings["Temporal"] = 512] = "Temporal";
-      ExtendedTypeStrings[ExtendedTypeStrings["Geography"] = 1024] = "Geography";
-      ExtendedTypeStrings[ExtendedTypeStrings["Miscellaneous"] = 2048] = "Miscellaneous";
-      ExtendedTypeStrings[ExtendedTypeStrings["Formatting"] = 4096] = "Formatting";
-      ExtendedTypeStrings[ExtendedTypeStrings["Scripting"] = 8192] = "Scripting";
-      ExtendedTypeStrings[ExtendedTypeStrings["Null"] = 0] = "Null";
-      ExtendedTypeStrings[ExtendedTypeStrings["Text"] = 1] = "Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["Decimal"] = 258] = "Decimal";
-      ExtendedTypeStrings[ExtendedTypeStrings["Double"] = 259] = "Double";
-      ExtendedTypeStrings[ExtendedTypeStrings["Integer"] = 260] = "Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["Boolean"] = 5] = "Boolean";
-      ExtendedTypeStrings[ExtendedTypeStrings["Date"] = 518] = "Date";
-      ExtendedTypeStrings[ExtendedTypeStrings["DateTime"] = 519] = "DateTime";
-      ExtendedTypeStrings[ExtendedTypeStrings["DateTimeZone"] = 520] = "DateTimeZone";
-      ExtendedTypeStrings[ExtendedTypeStrings["Time"] = 521] = "Time";
-      ExtendedTypeStrings[ExtendedTypeStrings["Duration"] = 10] = "Duration";
-      ExtendedTypeStrings[ExtendedTypeStrings["Binary"] = 11] = "Binary";
-      ExtendedTypeStrings[ExtendedTypeStrings["None"] = 12] = "None";
-      ExtendedTypeStrings[ExtendedTypeStrings["Variant"] = 13] = "Variant";
-      ExtendedTypeStrings[ExtendedTypeStrings["Years"] = 66048] = "Years";
-      ExtendedTypeStrings[ExtendedTypeStrings["Years_Text"] = 66049] = "Years_Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["Years_Integer"] = 66308] = "Years_Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["Years_Date"] = 66054] = "Years_Date";
-      ExtendedTypeStrings[ExtendedTypeStrings["Years_DateTime"] = 66055] = "Years_DateTime";
-      ExtendedTypeStrings[ExtendedTypeStrings["Months"] = 131584] = "Months";
-      ExtendedTypeStrings[ExtendedTypeStrings["Months_Text"] = 131585] = "Months_Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["Months_Integer"] = 131844] = "Months_Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["Months_Date"] = 131590] = "Months_Date";
-      ExtendedTypeStrings[ExtendedTypeStrings["Months_DateTime"] = 131591] = "Months_DateTime";
-      ExtendedTypeStrings[ExtendedTypeStrings["PaddedDateTableDates"] = 197127] = "PaddedDateTableDates";
-      ExtendedTypeStrings[ExtendedTypeStrings["Quarters"] = 262656] = "Quarters";
-      ExtendedTypeStrings[ExtendedTypeStrings["Quarters_Text"] = 262657] = "Quarters_Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["Quarters_Integer"] = 262916] = "Quarters_Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["Quarters_Date"] = 262662] = "Quarters_Date";
-      ExtendedTypeStrings[ExtendedTypeStrings["Quarters_DateTime"] = 262663] = "Quarters_DateTime";
-      ExtendedTypeStrings[ExtendedTypeStrings["DayOfMonth"] = 328192] = "DayOfMonth";
-      ExtendedTypeStrings[ExtendedTypeStrings["DayOfMonth_Text"] = 328193] = "DayOfMonth_Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["DayOfMonth_Integer"] = 328452] = "DayOfMonth_Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["DayOfMonth_Date"] = 328198] = "DayOfMonth_Date";
-      ExtendedTypeStrings[ExtendedTypeStrings["DayOfMonth_DateTime"] = 328199] = "DayOfMonth_DateTime";
-      ExtendedTypeStrings[ExtendedTypeStrings["Address"] = 6554625] = "Address";
-      ExtendedTypeStrings[ExtendedTypeStrings["City"] = 6620161] = "City";
-      ExtendedTypeStrings[ExtendedTypeStrings["Continent"] = 6685697] = "Continent";
-      ExtendedTypeStrings[ExtendedTypeStrings["Country"] = 6751233] = "Country";
-      ExtendedTypeStrings[ExtendedTypeStrings["County"] = 6816769] = "County";
-      ExtendedTypeStrings[ExtendedTypeStrings["Region"] = 6882305] = "Region";
-      ExtendedTypeStrings[ExtendedTypeStrings["PostalCode"] = 6947840] = "PostalCode";
-      ExtendedTypeStrings[ExtendedTypeStrings["PostalCode_Text"] = 6947841] = "PostalCode_Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["PostalCode_Integer"] = 6948100] = "PostalCode_Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["StateOrProvince"] = 7013377] = "StateOrProvince";
-      ExtendedTypeStrings[ExtendedTypeStrings["Place"] = 7078913] = "Place";
-      ExtendedTypeStrings[ExtendedTypeStrings["Latitude"] = 7144448] = "Latitude";
-      ExtendedTypeStrings[ExtendedTypeStrings["Latitude_Decimal"] = 7144706] = "Latitude_Decimal";
-      ExtendedTypeStrings[ExtendedTypeStrings["Latitude_Double"] = 7144707] = "Latitude_Double";
-      ExtendedTypeStrings[ExtendedTypeStrings["Longitude"] = 7209984] = "Longitude";
-      ExtendedTypeStrings[ExtendedTypeStrings["Longitude_Decimal"] = 7210242] = "Longitude_Decimal";
-      ExtendedTypeStrings[ExtendedTypeStrings["Longitude_Double"] = 7210243] = "Longitude_Double";
-      ExtendedTypeStrings[ExtendedTypeStrings["Image"] = 13109259] = "Image";
-      ExtendedTypeStrings[ExtendedTypeStrings["ImageUrl"] = 13174785] = "ImageUrl";
-      ExtendedTypeStrings[ExtendedTypeStrings["WebUrl"] = 13240321] = "WebUrl";
-      ExtendedTypeStrings[ExtendedTypeStrings["Barcode"] = 13305856] = "Barcode";
-      ExtendedTypeStrings[ExtendedTypeStrings["Barcode_Text"] = 13305857] = "Barcode_Text";
-      ExtendedTypeStrings[ExtendedTypeStrings["Barcode_Integer"] = 13306116] = "Barcode_Integer";
-      ExtendedTypeStrings[ExtendedTypeStrings["Color"] = 19664897] = "Color";
-      ExtendedTypeStrings[ExtendedTypeStrings["FormatString"] = 19730433] = "FormatString";
-      ExtendedTypeStrings[ExtendedTypeStrings["Alignment"] = 20058113] = "Alignment";
-      ExtendedTypeStrings[ExtendedTypeStrings["LabelDisplayUnits"] = 20123649] = "LabelDisplayUnits";
-      ExtendedTypeStrings[ExtendedTypeStrings["FontSize"] = 20189443] = "FontSize";
-      ExtendedTypeStrings[ExtendedTypeStrings["LabelDensity"] = 20254979] = "LabelDensity";
-      ExtendedTypeStrings[ExtendedTypeStrings["Enumeration"] = 26214401] = "Enumeration";
-      ExtendedTypeStrings[ExtendedTypeStrings["ScriptSource"] = 32776193] = "ScriptSource";
-      ExtendedTypeStrings[ExtendedTypeStrings["SearchEnabled"] = 65541] = "SearchEnabled";
-  })(ExtendedTypeStrings || (ExtendedTypeStrings = {}));
-  const PrimitiveTypeMask = 0xFF;
-  const PrimitiveTypeWithFlagsMask = 0xFFFF;
-  const PrimitiveTypeFlagsExcludedMask = 0xFFFF0000;
-  function getPrimitiveType(extendedType) {
-      return extendedType & PrimitiveTypeMask;
-  }
-  function isPrimitiveType(extendedType) {
-      return (extendedType & PrimitiveTypeWithFlagsMask) === extendedType;
-  }
-  function getCategoryFromExtendedType(extendedType) {
-      if (isPrimitiveType(extendedType))
-          return null;
-      let category = ExtendedTypeStrings[extendedType];
-      if (category) {
-          // Check for ExtendedType declaration without a primitive type.
-          // If exists, use it as category (e.g. Longitude rather than Longitude_Double)
-          // Otherwise use the ExtendedType declaration with a primitive type (e.g. Address)
-          const delimIdx = category.lastIndexOf("_");
-          if (delimIdx > 0) {
-              const baseCategory = category.slice(0, delimIdx);
-              if (ExtendedTypeStrings[baseCategory]) {
-                  category = baseCategory;
-              }
-          }
-      }
-      return category || null;
-  }
-  function toExtendedType(primitiveType, category) {
-      const primitiveString = PrimitiveTypeStrings[primitiveType];
-      let t = ExtendedTypeStrings[primitiveString];
-      if (t == null) {
-          t = ExtendedType.Null;
-      }
-      if (primitiveType && category) {
-          let categoryType = ExtendedTypeStrings[category];
-          if (categoryType) {
-              const categoryPrimitiveType = getPrimitiveType(categoryType);
-              if (categoryPrimitiveType === PrimitiveType.Null) {
-                  // Category supports multiple primitive types, check if requested primitive type is supported
-                  // (note: important to use t here rather than primitiveType as it may include primitive type flags)
-                  categoryType = t | categoryType;
-                  if (ExtendedTypeStrings[categoryType]) {
-                      t = categoryType;
-                  }
-              }
-              else if (categoryPrimitiveType === primitiveType) {
-                  // Primitive type matches the single supported type for the category
-                  t = categoryType;
-              }
-          }
-      }
-      return t;
-  }
-  function matchesExtendedTypeWithAnyPrimitive(a, b) {
-      return (a & PrimitiveTypeFlagsExcludedMask) === (b & PrimitiveTypeFlagsExcludedMask);
-  }
-
   const monthNameToNumber = {
       "January": 0,
       "February": 1,
@@ -18815,17 +17982,19 @@
       "December": 11
   };
   function temporalTypeToKey(inputType, inputValue) {
-      const temporalType = ValueType.fromExtendedType(inputType['underlyingType']);
-      if (temporalType.temporal.day) {
+      if (!inputType.temporal) {
+          return null;
+      }
+      if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "DayOfMonth") {
           return ["day", (inputValue)];
       }
-      else if (temporalType.temporal.month) {
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Months") {
           return ["month", monthNameToNumber[(inputValue)]];
       }
-      else if (temporalType.temporal.quarter) {
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Quarters") {
           return ["quarter", inputValue];
       }
-      else if (temporalType.temporal.year) {
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Years") {
           return ["year", (inputValue)];
       }
       else {
@@ -18913,6 +18082,34 @@
       return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
   }
 
+  function groupBy(data, key) {
+      const groupedData = new Map();
+      data.forEach(item => {
+          var _a;
+          const keyValue = item[key];
+          if (!groupedData.has(keyValue)) {
+              groupedData.set(keyValue, []);
+          }
+          (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
+      });
+      return Array.from(groupedData);
+  }
+
+  function leastIndex(array, compareFn) {
+      if (array.length === 0) {
+          return -1;
+      }
+      let leastIndex = 0;
+      let leastValue = array[0];
+      for (let i = 1; i < array.length; i++) {
+          if (compareFn(array[i], leastValue) < 0) {
+              leastValue = array[i];
+              leastIndex = i;
+          }
+      }
+      return leastIndex;
+  }
+
   class plotPropertiesClass {
       initialiseScale(svgWidth, svgHeight) {
           this.xScale = linear()
@@ -18951,9 +18148,9 @@
               const targets = (_g = controlLimits.targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
               const maxValue = max(values);
               const maxValueOrLimit = max(values.concat(ul99).concat(speclimits_upper).concat(alt_targets));
-              const minValueOrLimit = min$1(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
+              const minValueOrLimit = min(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
               const maxTarget = (_h = max(targets)) !== null && _h !== void 0 ? _h : 0;
-              const minTarget = (_j = min$1(targets)) !== null && _j !== void 0 ? _j : 0;
+              const minTarget = (_j = min(targets)) !== null && _j !== void 0 ? _j : 0;
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
               const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
               const multiplier = derivedSettings.multiplier;
@@ -18966,7 +18163,7 @@
               const keysToPlot = controlLimits.keys.map(d => d.x);
               xLowerLimit = !isNullOrUndefined(xLowerLimit)
                   ? xLowerLimit
-                  : min$1(keysToPlot);
+                  : min(keysToPlot);
               xUpperLimit = !isNullOrUndefined(xUpperLimit)
                   ? xUpperLimit
                   : max(keysToPlot);
@@ -24473,7 +23670,7 @@
                   });
               });
           }
-          this.groupedLines = groups(formattedLines, d => d.group);
+          this.groupedLines = groupBy(formattedLines, "group");
       }
       scaleAndTruncateLimits(controlLimits, inputSettings, derivedSettings) {
           const multiplier = derivedSettings.multiplier;
@@ -39062,6 +38259,7 @@
   exports.formatPrimitiveValue = formatPrimitiveValue;
   exports.g = gLimits;
   exports.getAesthetic = getAesthetic;
+  exports.groupBy = groupBy;
   exports.i = iLimits;
   exports.i_m = imLimits$1;
   exports.i_mm = imLimits;
@@ -39069,11 +38267,12 @@
   exports.initialiseSVG = initialiseSVG;
   exports.isNullOrUndefined = isNullOrUndefined;
   exports.isValidNumber = isValidNumber;
+  exports.leastIndex = leastIndex;
   exports.lgamma = lgamma;
   exports.max = max;
   exports.mean = mean;
   exports.median = median;
-  exports.min = min$1;
+  exports.min = min;
   exports.mr = mrLimits;
   exports.multiply = multiply;
   exports.p = pLimits;
