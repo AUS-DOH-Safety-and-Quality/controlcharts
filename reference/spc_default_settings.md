@@ -72,7 +72,7 @@ spc_default_settings()
 #> [1] TRUE
 #> 
 #> $spc$ttip_label_date
-#> [1] "Date"
+#> [1] "Automatic"
 #> 
 #> $spc$ttip_show_numerator
 #> [1] TRUE
@@ -795,7 +795,7 @@ spc_default_settings()
 #> [1] "#000000"
 #> 
 #> $y_axis$ylimit_tick_rotation
-#> [1] -35
+#> [1] 0
 #> 
 #> $y_axis$ylimit_label
 #> NULL
