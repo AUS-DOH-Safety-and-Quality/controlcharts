@@ -6691,7 +6691,7 @@
   function requireDebug$1 () {
   	if (hasRequiredDebug$1) return debug.exports;
   	hasRequiredDebug$1 = 1;
-  	(function (module, exports) {
+  	(function (module, exports$1) {
   		/**
   		 * This is the common logic for both the Node.js and web browser
   		 * implementations of `debug()`.
@@ -6699,19 +6699,19 @@
   		 * Expose `debug()` as the module.
   		 */
 
-  		exports = module.exports = createDebug.debug = createDebug['default'] = createDebug;
-  		exports.coerce = coerce;
-  		exports.disable = disable;
-  		exports.enable = enable;
-  		exports.enabled = enabled;
-  		exports.humanize = requireMs();
+  		exports$1 = module.exports = createDebug.debug = createDebug['default'] = createDebug;
+  		exports$1.coerce = coerce;
+  		exports$1.disable = disable;
+  		exports$1.enable = enable;
+  		exports$1.enabled = enabled;
+  		exports$1.humanize = requireMs();
 
   		/**
   		 * The currently active debug mode names, and names to skip.
   		 */
 
-  		exports.names = [];
-  		exports.skips = [];
+  		exports$1.names = [];
+  		exports$1.skips = [];
 
   		/**
   		 * Map of special "%n" handling functions, for the debug "format" argument.
@@ -6719,7 +6719,7 @@
   		 * Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
   		 */
 
-  		exports.formatters = {};
+  		exports$1.formatters = {};
 
   		/**
   		 * Previous log timestamp.
@@ -6742,7 +6742,7 @@
   		    hash |= 0; // Convert to 32bit integer
   		  }
 
-  		  return exports.colors[Math.abs(hash) % exports.colors.length];
+  		  return exports$1.colors[Math.abs(hash) % exports$1.colors.length];
   		}
 
   		/**
@@ -6775,7 +6775,7 @@
   		      args[i] = arguments[i];
   		    }
 
-  		    args[0] = exports.coerce(args[0]);
+  		    args[0] = exports$1.coerce(args[0]);
 
   		    if ('string' !== typeof args[0]) {
   		      // anything else let's inspect with %O
@@ -6788,7 +6788,7 @@
   		      // if we encounter an escaped % then don't increase the array index
   		      if (match === '%%') return match;
   		      index++;
-  		      var formatter = exports.formatters[format];
+  		      var formatter = exports$1.formatters[format];
   		      if ('function' === typeof formatter) {
   		        var val = args[index];
   		        match = formatter.call(self, val);
@@ -6801,20 +6801,20 @@
   		    });
 
   		    // apply env-specific formatting (colors, etc.)
-  		    exports.formatArgs.call(self, args);
+  		    exports$1.formatArgs.call(self, args);
 
-  		    var logFn = debug.log || exports.log || console.log.bind(console);
+  		    var logFn = debug.log || exports$1.log || console.log.bind(console);
   		    logFn.apply(self, args);
   		  }
 
   		  debug.namespace = namespace;
-  		  debug.enabled = exports.enabled(namespace);
-  		  debug.useColors = exports.useColors();
+  		  debug.enabled = exports$1.enabled(namespace);
+  		  debug.useColors = exports$1.useColors();
   		  debug.color = selectColor(namespace);
 
   		  // env-specific initialization logic for debug instances
-  		  if ('function' === typeof exports.init) {
-  		    exports.init(debug);
+  		  if ('function' === typeof exports$1.init) {
+  		    exports$1.init(debug);
   		  }
 
   		  return debug;
@@ -6829,10 +6829,10 @@
   		 */
 
   		function enable(namespaces) {
-  		  exports.save(namespaces);
+  		  exports$1.save(namespaces);
 
-  		  exports.names = [];
-  		  exports.skips = [];
+  		  exports$1.names = [];
+  		  exports$1.skips = [];
 
   		  var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
   		  var len = split.length;
@@ -6841,9 +6841,9 @@
   		    if (!split[i]) continue; // ignore empty strings
   		    namespaces = split[i].replace(/\*/g, '.*?');
   		    if (namespaces[0] === '-') {
-  		      exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+  		      exports$1.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
   		    } else {
-  		      exports.names.push(new RegExp('^' + namespaces + '$'));
+  		      exports$1.names.push(new RegExp('^' + namespaces + '$'));
   		    }
   		  }
   		}
@@ -6855,7 +6855,7 @@
   		 */
 
   		function disable() {
-  		  exports.enable('');
+  		  exports$1.enable('');
   		}
 
   		/**
@@ -6868,13 +6868,13 @@
 
   		function enabled(name) {
   		  var i, len;
-  		  for (i = 0, len = exports.skips.length; i < len; i++) {
-  		    if (exports.skips[i].test(name)) {
+  		  for (i = 0, len = exports$1.skips.length; i < len; i++) {
+  		    if (exports$1.skips[i].test(name)) {
   		      return false;
   		    }
   		  }
-  		  for (i = 0, len = exports.names.length; i < len; i++) {
-  		    if (exports.names[i].test(name)) {
+  		  for (i = 0, len = exports$1.names.length; i < len; i++) {
+  		    if (exports$1.names[i].test(name)) {
   		      return true;
   		    }
   		  }
@@ -6908,14 +6908,14 @@
   function requireBrowser () {
   	if (hasRequiredBrowser) return browser.exports;
   	hasRequiredBrowser = 1;
-  	(function (module, exports) {
-  		exports = module.exports = requireDebug$1();
-  		exports.log = log;
-  		exports.formatArgs = formatArgs;
-  		exports.save = save;
-  		exports.load = load;
-  		exports.useColors = useColors;
-  		exports.storage = 'undefined' != typeof chrome
+  	(function (module, exports$1) {
+  		exports$1 = module.exports = requireDebug$1();
+  		exports$1.log = log;
+  		exports$1.formatArgs = formatArgs;
+  		exports$1.save = save;
+  		exports$1.load = load;
+  		exports$1.useColors = useColors;
+  		exports$1.storage = 'undefined' != typeof chrome
   		               && 'undefined' != typeof chrome.storage
   		                  ? chrome.storage.local
   		                  : localstorage();
@@ -6924,7 +6924,7 @@
   		 * Colors.
   		 */
 
-  		exports.colors = [
+  		exports$1.colors = [
   		  'lightseagreen',
   		  'forestgreen',
   		  'goldenrod',
@@ -6965,7 +6965,7 @@
   		 * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
   		 */
 
-  		exports.formatters.j = function(v) {
+  		exports$1.formatters.j = function(v) {
   		  try {
   		    return JSON.stringify(v);
   		  } catch (err) {
@@ -6988,7 +6988,7 @@
   		    + (useColors ? ' %c' : ' ')
   		    + args[0]
   		    + (useColors ? '%c ' : ' ')
-  		    + '+' + exports.humanize(this.diff);
+  		    + '+' + exports$1.humanize(this.diff);
 
   		  if (!useColors) return;
 
@@ -7038,9 +7038,9 @@
   		function save(namespaces) {
   		  try {
   		    if (null == namespaces) {
-  		      exports.storage.removeItem('debug');
+  		      exports$1.storage.removeItem('debug');
   		    } else {
-  		      exports.storage.debug = namespaces;
+  		      exports$1.storage.debug = namespaces;
   		    }
   		  } catch(e) {}
   		}
@@ -7055,7 +7055,7 @@
   		function load() {
   		  var r;
   		  try {
-  		    r = exports.storage.debug;
+  		    r = exports$1.storage.debug;
   		  } catch(e) {}
 
   		  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
@@ -7070,7 +7070,7 @@
   		 * Enable namespaces listed in `localStorage.debug` initially.
   		 */
 
-  		exports.enable(load());
+  		exports$1.enable(load());
 
   		/**
   		 * Localstorage attempts to return the localstorage.
@@ -35810,20 +35810,20 @@
   function requireRe () {
   	if (hasRequiredRe) return re.exports;
   	hasRequiredRe = 1;
-  	(function (module, exports) {
+  	(function (module, exports$1) {
   		const {
   		  MAX_SAFE_COMPONENT_LENGTH,
   		  MAX_SAFE_BUILD_LENGTH,
   		  MAX_LENGTH,
   		} = requireConstants();
   		const debug = requireDebug();
-  		exports = module.exports = {};
+  		exports$1 = module.exports = {};
 
   		// The actual regexps go on exports.re
-  		const re = exports.re = [];
-  		const safeRe = exports.safeRe = [];
-  		const src = exports.src = [];
-  		const t = exports.t = {};
+  		const re = exports$1.re = [];
+  		const safeRe = exports$1.safeRe = [];
+  		const src = exports$1.src = [];
+  		const t = exports$1.t = {};
   		let R = 0;
 
   		const LETTERDASHNUMBER = '[a-zA-Z0-9-]';
@@ -35984,7 +35984,7 @@
   		createToken('LONETILDE', '(?:~>?)');
 
   		createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
-  		exports.tildeTrimReplace = '$1~';
+  		exports$1.tildeTrimReplace = '$1~';
 
   		createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
   		createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
@@ -35994,7 +35994,7 @@
   		createToken('LONECARET', '(?:\\^)');
 
   		createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
-  		exports.caretTrimReplace = '$1^';
+  		exports$1.caretTrimReplace = '$1^';
 
   		createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
   		createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
@@ -36007,7 +36007,7 @@
   		// it modifies, so that `> 1.2.3` ==> `>1.2.3`
   		createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
 		}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
-  		exports.comparatorTrimReplace = '$1$2$3';
+  		exports$1.comparatorTrimReplace = '$1$2$3';
 
   		// Something like `1.2.3 - 1.2.4`
   		// Note that these all use the loose form, because they'll be
