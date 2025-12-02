@@ -3581,7 +3581,7 @@
                   ttip_label_date: {
                       displayName: "Date Tooltip Label",
                       type: "TextInput",
-                      default: "Date"
+                      default: "Automatic"
                   },
                   ttip_show_numerator: {
                       displayName: "Show Numerator in Tooltip",
@@ -17147,8 +17147,9 @@
       const formatValues = valueFormatter(inputSettings, derivedSettings);
       const tooltip = new Array();
       if (inputSettings.spc.ttip_show_date) {
+          const ttip_label_date = inputSettings.spc.ttip_label_date;
           tooltip.push({
-              displayName: inputSettings.spc.ttip_label_date,
+              displayName: ttip_label_date === "Automatic" ? derivedSettings.chart_type_props.date_name : ttip_label_date,
               value: table_row.date
           });
       }
@@ -17548,10 +17549,11 @@
       const groupVarName = inputView.categories[0].source.displayName;
       const settingsMessages = validationMessages;
       let valid_x = 0;
+      const x_axis_use_date = derivedSettings.chart_type_props.x_axis_use_date;
       idxs.forEach((i, idx) => {
           if (inputValidStatus.messages[idx] === "") {
               valid_ids.push(idx);
-              valid_keys.push({ x: valid_x, id: i, label: keys[idx] });
+              valid_keys.push({ x: valid_x, id: i, label: x_axis_use_date ? keys[idx] : valid_x.toString() });
               valid_x += 1;
               if (settingsMessages[i].length > 0) {
                   settingsMessages[i].forEach(setting_removal_message => {
@@ -18095,21 +18097,6 @@
       return Array.from(groupedData);
   }
 
-  function leastIndex(array, compareFn) {
-      if (array.length === 0) {
-          return -1;
-      }
-      let leastIndex = 0;
-      let leastValue = array[0];
-      for (let i = 1; i < array.length; i++) {
-          if (compareFn(array[i], leastValue) < 0) {
-              leastValue = array[i];
-              leastIndex = i;
-          }
-      }
-      return leastIndex;
-  }
-
   class plotPropertiesClass {
       initialiseScale(svgWidth, svgHeight) {
           this.xScale = linear()
@@ -18285,20 +18272,20 @@
   function requireRe () {
   	if (hasRequiredRe) return re.exports;
   	hasRequiredRe = 1;
-  	(function (module, exports) {
+  	(function (module, exports$1) {
   		const {
   		  MAX_SAFE_COMPONENT_LENGTH,
   		  MAX_SAFE_BUILD_LENGTH,
   		  MAX_LENGTH,
   		} = requireConstants();
   		const debug = requireDebug();
-  		exports = module.exports = {};
+  		exports$1 = module.exports = {};
 
   		// The actual regexps go on exports.re
-  		const re = exports.re = [];
-  		const safeRe = exports.safeRe = [];
-  		const src = exports.src = [];
-  		const t = exports.t = {};
+  		const re = exports$1.re = [];
+  		const safeRe = exports$1.safeRe = [];
+  		const src = exports$1.src = [];
+  		const t = exports$1.t = {};
   		let R = 0;
 
   		const LETTERDASHNUMBER = '[a-zA-Z0-9-]';
@@ -18459,7 +18446,7 @@
   		createToken('LONETILDE', '(?:~>?)');
 
   		createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
-  		exports.tildeTrimReplace = '$1~';
+  		exports$1.tildeTrimReplace = '$1~';
 
   		createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
   		createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
@@ -18469,7 +18456,7 @@
   		createToken('LONECARET', '(?:\\^)');
 
   		createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
-  		exports.caretTrimReplace = '$1^';
+  		exports$1.caretTrimReplace = '$1^';
 
   		createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
   		createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
@@ -18482,7 +18469,7 @@
   		// it modifies, so that `> 1.2.3` ==> `>1.2.3`
   		createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
 		}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
-  		exports.comparatorTrimReplace = '$1$2$3';
+  		exports$1.comparatorTrimReplace = '$1$2$3';
 
   		// Something like `1.2.3 - 1.2.4`
   		// Note that these all use the loose form, because they'll be
@@ -22631,7 +22618,9 @@
               has_control_limits: !(["run"].includes(chartType)),
               needs_sd: ["xbar"].includes(chartType),
               integer_num_den: ["c", "p", "pp"].includes(chartType),
-              value_name: valueNames[chartType]
+              value_name: valueNames[chartType],
+              x_axis_use_date: !(["g", "t"].includes(chartType)),
+              date_name: !(["g", "t"].includes(chartType)) ? "Date" : "Event"
           };
           this.multiplier = multiplier;
           this.percentLabels = percentLabels;
@@ -23202,7 +23191,7 @@
           this.frontend = false;
       }
       update(options, host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
           if (isNullOrUndefined(this.colourPalette)) {
               this.colourPalette = {
                   isHighContrast: host.colorPalette.isHighContrast,
@@ -23218,7 +23207,7 @@
           this.frontend = (_b = options === null || options === void 0 ? void 0 : options["frontend"]) !== null && _b !== void 0 ? _b : false;
           const indicator_cols = (_e = (_d = (_c = options.dataViews[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories) === null || _e === void 0 ? void 0 : _e.filter(d => d.source.roles.indicator);
           this.indicatorVarNames = (_f = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _f !== void 0 ? _f : [];
-          const n_indicators = (indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length) - 1;
+          const n_indicators = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length;
           const n_values = (_m = (_l = (_k = (_j = (_h = (_g = options.dataViews[0]) === null || _g === void 0 ? void 0 : _g.categorical) === null || _h === void 0 ? void 0 : _h.categories) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.length) !== null && _m !== void 0 ? _m : 1;
           const res = { status: true };
           const idx_per_indicator = new Array();
@@ -23227,12 +23216,16 @@
           this.groupNames.push((_o = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _o !== void 0 ? _o : []);
           let curr_grp = 0;
           for (let i = 1; i < n_values; i++) {
-              if (((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[n_indicators]) === null || _p === void 0 ? void 0 : _p.values[i]) === ((_q = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[n_indicators]) === null || _q === void 0 ? void 0 : _q.values[i - 1])) {
+              let same_indicator = true;
+              for (let j = 0; j < n_indicators; j++) {
+                  same_indicator = same_indicator && ((indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[j].values[i]) === (indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[j].values[i - 1]));
+              }
+              if (same_indicator) {
                   idx_per_indicator[curr_grp].push(i);
               }
               else {
                   idx_per_indicator.push([i]);
-                  this.groupNames.push((_r = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _r !== void 0 ? _r : []);
+                  this.groupNames.push((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _p !== void 0 ? _p : []);
                   curr_grp += 1;
               }
           }
@@ -23285,7 +23278,7 @@
                   this.inputDataGrouped = null;
                   this.groupStartEndIndexesGrouped = null;
                   this.controlLimitsGrouped = null;
-                  const split_indexes_str = (_w = ((_v = (_u = (_t = (_s = options.dataViews[0]) === null || _s === void 0 ? void 0 : _s.metadata) === null || _t === void 0 ? void 0 : _t.objects) === null || _u === void 0 ? void 0 : _u.split_indexes_storage) === null || _v === void 0 ? void 0 : _v.split_indexes)) !== null && _w !== void 0 ? _w : "[]";
+                  const split_indexes_str = (_u = ((_t = (_s = (_r = (_q = options.dataViews[0]) === null || _q === void 0 ? void 0 : _q.metadata) === null || _r === void 0 ? void 0 : _r.objects) === null || _s === void 0 ? void 0 : _s.split_indexes_storage) === null || _t === void 0 ? void 0 : _t.split_indexes)) !== null && _u !== void 0 ? _u : "[]";
                   const split_indexes = JSON.parse(split_indexes_str);
                   this.splitIndexes = split_indexes;
                   this.inputData = extractInputData(options.dataViews[0].categorical, this.inputSettings.settings, this.inputSettings.derivedSettings, this.inputSettings.validationStatus.messages, idx_per_indicator[0]);
@@ -24754,12 +24747,21 @@
           }
           const plotPoints = visualObj.viewModel.plotPoints;
           const boundRect = visualObj.svg.node().getBoundingClientRect();
-          const xValue = plotProperties.xScale.invert(event.pageX - boundRect.left);
-          const yValue = plotProperties.yScale.invert(event.pageY - boundRect.top);
-          const distances = plotPoints.map(d => Math.sqrt(Math.pow(d.x - xValue, 2) + Math.pow(d.value - yValue, 2)));
-          const indexNearestValue = leastIndex(distances, (a, b) => a - b);
-          const x_coord = plotProperties.xScale(plotPoints[indexNearestValue].x);
-          const y_coord = plotProperties.yScale(plotPoints[indexNearestValue].value);
+          const xValue = (event.pageX - boundRect.left);
+          let indexNearestValue;
+          let nearestDistance = Infinity;
+          let x_coord;
+          let y_coord;
+          for (let i = 0; i < plotPoints.length; i++) {
+              const curr_x = plotProperties.xScale(plotPoints[i].x);
+              const curr_diff = Math.abs(curr_x - xValue);
+              if (curr_diff < nearestDistance) {
+                  nearestDistance = curr_diff;
+                  indexNearestValue = i;
+                  x_coord = curr_x;
+                  y_coord = plotProperties.yScale(plotPoints[i].value);
+              }
+          }
           visualObj.host.tooltipService.show({
               dataItems: plotPoints[indexNearestValue].tooltip,
               identities: [plotPoints[indexNearestValue].identity],
@@ -38267,7 +38269,6 @@
   exports.initialiseSVG = initialiseSVG;
   exports.isNullOrUndefined = isNullOrUndefined;
   exports.isValidNumber = isValidNumber;
-  exports.leastIndex = leastIndex;
   exports.lgamma = lgamma;
   exports.max = max;
   exports.mean = mean;

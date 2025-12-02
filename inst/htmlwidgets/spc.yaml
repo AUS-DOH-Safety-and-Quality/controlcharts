@@ -1,7 +1,7 @@
 
 dependencies:
   - name: PBISPC
-    version: 1.7.3.0
+    version: 1.7.4.2
     src: htmlwidgets/lib/PBISPC
     script:
       - PBISPC.js
