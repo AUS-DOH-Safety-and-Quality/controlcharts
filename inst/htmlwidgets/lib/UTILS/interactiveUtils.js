@@ -41,6 +41,9 @@ function makeFactory(chartType) {
 
     return {
       renderValue: function(x) {
+        // Add title to the visual
+        updateChartTitle(visual.svg, x.title_settings);
+
         // Aggregate the raw data into the format expected by the visual
         var updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories);
         visualUpdateArgs.dataViews = updateValues.dataViews;
