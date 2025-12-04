@@ -955,429 +955,6 @@
         : new Selection([array$1(selector)], root);
   }
 
-  function ascending(a, b) {
-    return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
-  }
-
-  function descending(a, b) {
-    return a == null || b == null ? NaN
-      : b < a ? -1
-      : b > a ? 1
-      : b >= a ? 0
-      : NaN;
-  }
-
-  function bisector(f) {
-    let compare1, compare2, delta;
-
-    // If an accessor is specified, promote it to a comparator. In this case we
-    // can test whether the search value is (self-) comparable. We can’t do this
-    // for a comparator (except for specific, known comparators) because we can’t
-    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
-    // used to test whether a single value is comparable.
-    if (f.length !== 2) {
-      compare1 = ascending;
-      compare2 = (d, x) => ascending(f(d), x);
-      delta = (d, x) => f(d) - x;
-    } else {
-      compare1 = f === ascending || f === descending ? f : zero$1;
-      compare2 = f;
-      delta = f;
-    }
-
-    function left(a, x, lo = 0, hi = a.length) {
-      if (lo < hi) {
-        if (compare1(x, x) !== 0) return hi;
-        do {
-          const mid = (lo + hi) >>> 1;
-          if (compare2(a[mid], x) < 0) lo = mid + 1;
-          else hi = mid;
-        } while (lo < hi);
-      }
-      return lo;
-    }
-
-    function right(a, x, lo = 0, hi = a.length) {
-      if (lo < hi) {
-        if (compare1(x, x) !== 0) return hi;
-        do {
-          const mid = (lo + hi) >>> 1;
-          if (compare2(a[mid], x) <= 0) lo = mid + 1;
-          else hi = mid;
-        } while (lo < hi);
-      }
-      return lo;
-    }
-
-    function center(a, x, lo = 0, hi = a.length) {
-      const i = left(a, x, lo, hi - 1);
-      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
-    }
-
-    return {left, center, right};
-  }
-
-  function zero$1() {
-    return 0;
-  }
-
-  function number$2(x) {
-    return x === null ? NaN : +x;
-  }
-
-  function* numbers(values, valueof) {
-    if (valueof === undefined) {
-      for (let value of values) {
-        if (value != null && (value = +value) >= value) {
-          yield value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
-          yield value;
-        }
-      }
-    }
-  }
-
-  const ascendingBisect = bisector(ascending);
-  const bisectRight = ascendingBisect.right;
-  bisector(number$2).center;
-
-  class InternMap extends Map {
-    constructor(entries, key = keyof) {
-      super();
-      Object.defineProperties(this, {_intern: {value: new Map()}, _key: {value: key}});
-      if (entries != null) for (const [key, value] of entries) this.set(key, value);
-    }
-    get(key) {
-      return super.get(intern_get(this, key));
-    }
-    has(key) {
-      return super.has(intern_get(this, key));
-    }
-    set(key, value) {
-      return super.set(intern_set(this, key), value);
-    }
-    delete(key) {
-      return super.delete(intern_delete(this, key));
-    }
-  }
-
-  function intern_get({_intern, _key}, value) {
-    const key = _key(value);
-    return _intern.has(key) ? _intern.get(key) : value;
-  }
-
-  function intern_set({_intern, _key}, value) {
-    const key = _key(value);
-    if (_intern.has(key)) return _intern.get(key);
-    _intern.set(key, value);
-    return value;
-  }
-
-  function intern_delete({_intern, _key}, value) {
-    const key = _key(value);
-    if (_intern.has(key)) {
-      value = _intern.get(key);
-      _intern.delete(key);
-    }
-    return value;
-  }
-
-  function keyof(value) {
-    return value !== null && typeof value === "object" ? value.valueOf() : value;
-  }
-
-  function identity$3(x) {
-    return x;
-  }
-
-  function groups(values, ...keys) {
-    return nest(values, Array.from, identity$3, keys);
-  }
-
-  function nest(values, map, reduce, keys) {
-    return (function regroup(values, i) {
-      if (i >= keys.length) return reduce(values);
-      const groups = new InternMap();
-      const keyof = keys[i++];
-      let index = -1;
-      for (const value of values) {
-        const key = keyof(value, ++index, values);
-        const group = groups.get(key);
-        if (group) group.push(value);
-        else groups.set(key, [value]);
-      }
-      for (const [key, values] of groups) {
-        groups.set(key, regroup(values, i));
-      }
-      return map(groups);
-    })(values, 0);
-  }
-
-  function compareDefined(compare = ascending) {
-    if (compare === ascending) return ascendingDefined;
-    if (typeof compare !== "function") throw new TypeError("compare is not a function");
-    return (a, b) => {
-      const x = compare(a, b);
-      if (x || x === 0) return x;
-      return (compare(b, b) === 0) - (compare(a, a) === 0);
-    };
-  }
-
-  function ascendingDefined(a, b) {
-    return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
-  }
-
-  const e10 = Math.sqrt(50),
-      e5 = Math.sqrt(10),
-      e2 = Math.sqrt(2);
-
-  function tickSpec(start, stop, count) {
-    const step = (stop - start) / Math.max(0, count),
-        power = Math.floor(Math.log10(step)),
-        error = step / Math.pow(10, power),
-        factor = error >= e10 ? 10 : error >= e5 ? 5 : error >= e2 ? 2 : 1;
-    let i1, i2, inc;
-    if (power < 0) {
-      inc = Math.pow(10, -power) / factor;
-      i1 = Math.round(start * inc);
-      i2 = Math.round(stop * inc);
-      if (i1 / inc < start) ++i1;
-      if (i2 / inc > stop) --i2;
-      inc = -inc;
-    } else {
-      inc = Math.pow(10, power) * factor;
-      i1 = Math.round(start / inc);
-      i2 = Math.round(stop / inc);
-      if (i1 * inc < start) ++i1;
-      if (i2 * inc > stop) --i2;
-    }
-    if (i2 < i1 && 0.5 <= count && count < 2) return tickSpec(start, stop, count * 2);
-    return [i1, i2, inc];
-  }
-
-  function ticks(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    if (!(count > 0)) return [];
-    if (start === stop) return [start];
-    const reverse = stop < start, [i1, i2, inc] = reverse ? tickSpec(stop, start, count) : tickSpec(start, stop, count);
-    if (!(i2 >= i1)) return [];
-    const n = i2 - i1 + 1, ticks = new Array(n);
-    if (reverse) {
-      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) / -inc;
-      else for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) * inc;
-    } else {
-      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) / -inc;
-      else for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) * inc;
-    }
-    return ticks;
-  }
-
-  function tickIncrement(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    return tickSpec(start, stop, count)[2];
-  }
-
-  function tickStep(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
-    return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
-  }
-
-  function max(values, valueof) {
-    let max;
-    if (valueof === undefined) {
-      for (const value of values) {
-        if (value != null
-            && (max < value || (max === undefined && value >= value))) {
-          max = value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null
-            && (max < value || (max === undefined && value >= value))) {
-          max = value;
-        }
-      }
-    }
-    return max;
-  }
-
-  function min$1(values, valueof) {
-    let min;
-    if (valueof === undefined) {
-      for (const value of values) {
-        if (value != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value;
-        }
-      }
-    }
-    return min;
-  }
-
-  function minIndex(values, valueof) {
-    let min;
-    let minIndex = -1;
-    let index = -1;
-    if (valueof === undefined) {
-      for (const value of values) {
-        ++index;
-        if (value != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value, minIndex = index;
-        }
-      }
-    } else {
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null
-            && (min > value || (min === undefined && value >= value))) {
-          min = value, minIndex = index;
-        }
-      }
-    }
-    return minIndex;
-  }
-
-  // Based on https://github.com/mourner/quickselect
-  // ISC license, Copyright 2018 Vladimir Agafonkin.
-  function quickselect(array, k, left = 0, right = Infinity, compare) {
-    k = Math.floor(k);
-    left = Math.floor(Math.max(0, left));
-    right = Math.floor(Math.min(array.length - 1, right));
-
-    if (!(left <= k && k <= right)) return array;
-
-    compare = compare === undefined ? ascendingDefined : compareDefined(compare);
-
-    while (right > left) {
-      if (right - left > 600) {
-        const n = right - left + 1;
-        const m = k - left + 1;
-        const z = Math.log(n);
-        const s = 0.5 * Math.exp(2 * z / 3);
-        const sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
-        const newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
-        const newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
-        quickselect(array, k, newLeft, newRight, compare);
-      }
-
-      const t = array[k];
-      let i = left;
-      let j = right;
-
-      swap(array, left, k);
-      if (compare(array[right], t) > 0) swap(array, left, right);
-
-      while (i < j) {
-        swap(array, i, j), ++i, --j;
-        while (compare(array[i], t) < 0) ++i;
-        while (compare(array[j], t) > 0) --j;
-      }
-
-      if (compare(array[left], t) === 0) swap(array, left, j);
-      else ++j, swap(array, j, right);
-
-      if (j <= k) left = j + 1;
-      if (k <= j) right = j - 1;
-    }
-
-    return array;
-  }
-
-  function swap(array, i, j) {
-    const t = array[i];
-    array[i] = array[j];
-    array[j] = t;
-  }
-
-  function quantile(values, p, valueof) {
-    values = Float64Array.from(numbers(values, valueof));
-    if (!(n = values.length) || isNaN(p = +p)) return;
-    if (p <= 0 || n < 2) return min$1(values);
-    if (p >= 1) return max(values);
-    var n,
-        i = (n - 1) * p,
-        i0 = Math.floor(i),
-        value0 = max(quickselect(values, i0).subarray(0, i0 + 1)),
-        value1 = min$1(values.subarray(i0 + 1));
-    return value0 + (value1 - value0) * (i - i0);
-  }
-
-  function mean(values, valueof) {
-    let count = 0;
-    let sum = 0;
-    if (valueof === undefined) {
-      for (let value of values) {
-        if (value != null && (value = +value) >= value) {
-          ++count, sum += value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
-          ++count, sum += value;
-        }
-      }
-    }
-    if (count) return sum / count;
-  }
-
-  function median(values, valueof) {
-    return quantile(values, 0.5, valueof);
-  }
-
-  function leastIndex(values, compare = ascending) {
-    if (compare.length === 1) return minIndex(values, compare);
-    let minValue;
-    let min = -1;
-    let index = -1;
-    for (const value of values) {
-      ++index;
-      if (min < 0
-          ? compare(value, value) === 0
-          : compare(value, minValue) < 0) {
-        minValue = value;
-        min = index;
-      }
-    }
-    return min;
-  }
-
-  function sum(values, valueof) {
-    let sum = 0;
-    if (valueof === undefined) {
-      for (let value of values) {
-        if (value = +value) {
-          sum += value;
-        }
-      }
-    } else {
-      let index = -1;
-      for (let value of values) {
-        if (value = +valueof(value, ++index, values)) {
-          sum += value;
-        }
-      }
-    }
-    return sum;
-  }
-
   function constant$2(x) {
     return function constant() {
       return x;
@@ -1385,7 +962,7 @@
   }
 
   const cos = Math.cos;
-  const min = Math.min;
+  const min$1 = Math.min;
   const sin = Math.sin;
   const sqrt$1 = Math.sqrt;
   const pi$1 = Math.PI;
@@ -1658,7 +1235,7 @@
 
   var asterisk = {
     draw(context, size) {
-      const r = sqrt$1(size + min(size / 28, 0.75)) * 0.59436;
+      const r = sqrt$1(size + min$1(size / 28, 0.75)) * 0.59436;
       const t = r / 2;
       const u = t * sqrt3$1;
       context.moveTo(0, r);
@@ -1826,7 +1403,7 @@
     return "translate(0," + y + ")";
   }
 
-  function number$1(scale) {
+  function number$2(scale) {
     return d => +scale(d);
   }
 
@@ -1859,7 +1436,7 @@
           range = scale.range(),
           range0 = +range[0] + offset,
           range1 = +range[range.length - 1] + offset,
-          position = (scale.bandwidth ? center : number$1)(scale.copy(), offset),
+          position = (scale.bandwidth ? center : number$2)(scale.copy(), offset),
           selection = context.selection ? context.selection() : context,
           path = selection.selectAll(".domain").data([null]),
           tick = selection.selectAll(".tick").data(values, scale).order(),
@@ -1975,6 +1552,317 @@
 
   function axisLeft(scale) {
     return axis(left, scale);
+  }
+
+  function ascending(a, b) {
+    return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+  }
+
+  function descending(a, b) {
+    return a == null || b == null ? NaN
+      : b < a ? -1
+      : b > a ? 1
+      : b >= a ? 0
+      : NaN;
+  }
+
+  function bisector(f) {
+    let compare1, compare2, delta;
+
+    // If an accessor is specified, promote it to a comparator. In this case we
+    // can test whether the search value is (self-) comparable. We can’t do this
+    // for a comparator (except for specific, known comparators) because we can’t
+    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
+    // used to test whether a single value is comparable.
+    if (f.length !== 2) {
+      compare1 = ascending;
+      compare2 = (d, x) => ascending(f(d), x);
+      delta = (d, x) => f(d) - x;
+    } else {
+      compare1 = f === ascending || f === descending ? f : zero$1;
+      compare2 = f;
+      delta = f;
+    }
+
+    function left(a, x, lo = 0, hi = a.length) {
+      if (lo < hi) {
+        if (compare1(x, x) !== 0) return hi;
+        do {
+          const mid = (lo + hi) >>> 1;
+          if (compare2(a[mid], x) < 0) lo = mid + 1;
+          else hi = mid;
+        } while (lo < hi);
+      }
+      return lo;
+    }
+
+    function right(a, x, lo = 0, hi = a.length) {
+      if (lo < hi) {
+        if (compare1(x, x) !== 0) return hi;
+        do {
+          const mid = (lo + hi) >>> 1;
+          if (compare2(a[mid], x) <= 0) lo = mid + 1;
+          else hi = mid;
+        } while (lo < hi);
+      }
+      return lo;
+    }
+
+    function center(a, x, lo = 0, hi = a.length) {
+      const i = left(a, x, lo, hi - 1);
+      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
+    }
+
+    return {left, center, right};
+  }
+
+  function zero$1() {
+    return 0;
+  }
+
+  function number$1(x) {
+    return x === null ? NaN : +x;
+  }
+
+  function* numbers(values, valueof) {
+    if (valueof === undefined) {
+      for (let value of values) {
+        if (value != null && (value = +value) >= value) {
+          yield value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
+          yield value;
+        }
+      }
+    }
+  }
+
+  const ascendingBisect = bisector(ascending);
+  const bisectRight = ascendingBisect.right;
+  bisector(number$1).center;
+
+  function compareDefined(compare = ascending) {
+    if (compare === ascending) return ascendingDefined;
+    if (typeof compare !== "function") throw new TypeError("compare is not a function");
+    return (a, b) => {
+      const x = compare(a, b);
+      if (x || x === 0) return x;
+      return (compare(b, b) === 0) - (compare(a, a) === 0);
+    };
+  }
+
+  function ascendingDefined(a, b) {
+    return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
+  }
+
+  const e10 = Math.sqrt(50),
+      e5 = Math.sqrt(10),
+      e2 = Math.sqrt(2);
+
+  function tickSpec(start, stop, count) {
+    const step = (stop - start) / Math.max(0, count),
+        power = Math.floor(Math.log10(step)),
+        error = step / Math.pow(10, power),
+        factor = error >= e10 ? 10 : error >= e5 ? 5 : error >= e2 ? 2 : 1;
+    let i1, i2, inc;
+    if (power < 0) {
+      inc = Math.pow(10, -power) / factor;
+      i1 = Math.round(start * inc);
+      i2 = Math.round(stop * inc);
+      if (i1 / inc < start) ++i1;
+      if (i2 / inc > stop) --i2;
+      inc = -inc;
+    } else {
+      inc = Math.pow(10, power) * factor;
+      i1 = Math.round(start / inc);
+      i2 = Math.round(stop / inc);
+      if (i1 * inc < start) ++i1;
+      if (i2 * inc > stop) --i2;
+    }
+    if (i2 < i1 && 0.5 <= count && count < 2) return tickSpec(start, stop, count * 2);
+    return [i1, i2, inc];
+  }
+
+  function ticks(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    if (!(count > 0)) return [];
+    if (start === stop) return [start];
+    const reverse = stop < start, [i1, i2, inc] = reverse ? tickSpec(stop, start, count) : tickSpec(start, stop, count);
+    if (!(i2 >= i1)) return [];
+    const n = i2 - i1 + 1, ticks = new Array(n);
+    if (reverse) {
+      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) / -inc;
+      else for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) * inc;
+    } else {
+      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) / -inc;
+      else for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) * inc;
+    }
+    return ticks;
+  }
+
+  function tickIncrement(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    return tickSpec(start, stop, count)[2];
+  }
+
+  function tickStep(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
+    return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
+  }
+
+  function max(values, valueof) {
+    let max;
+    if (valueof === undefined) {
+      for (const value of values) {
+        if (value != null
+            && (max < value || (max === undefined && value >= value))) {
+          max = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
+            && (max < value || (max === undefined && value >= value))) {
+          max = value;
+        }
+      }
+    }
+    return max;
+  }
+
+  function min(values, valueof) {
+    let min;
+    if (valueof === undefined) {
+      for (const value of values) {
+        if (value != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null
+            && (min > value || (min === undefined && value >= value))) {
+          min = value;
+        }
+      }
+    }
+    return min;
+  }
+
+  // Based on https://github.com/mourner/quickselect
+  // ISC license, Copyright 2018 Vladimir Agafonkin.
+  function quickselect(array, k, left = 0, right = Infinity, compare) {
+    k = Math.floor(k);
+    left = Math.floor(Math.max(0, left));
+    right = Math.floor(Math.min(array.length - 1, right));
+
+    if (!(left <= k && k <= right)) return array;
+
+    compare = compare === undefined ? ascendingDefined : compareDefined(compare);
+
+    while (right > left) {
+      if (right - left > 600) {
+        const n = right - left + 1;
+        const m = k - left + 1;
+        const z = Math.log(n);
+        const s = 0.5 * Math.exp(2 * z / 3);
+        const sd = 0.5 * Math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
+        const newLeft = Math.max(left, Math.floor(k - m * s / n + sd));
+        const newRight = Math.min(right, Math.floor(k + (n - m) * s / n + sd));
+        quickselect(array, k, newLeft, newRight, compare);
+      }
+
+      const t = array[k];
+      let i = left;
+      let j = right;
+
+      swap(array, left, k);
+      if (compare(array[right], t) > 0) swap(array, left, right);
+
+      while (i < j) {
+        swap(array, i, j), ++i, --j;
+        while (compare(array[i], t) < 0) ++i;
+        while (compare(array[j], t) > 0) --j;
+      }
+
+      if (compare(array[left], t) === 0) swap(array, left, j);
+      else ++j, swap(array, j, right);
+
+      if (j <= k) left = j + 1;
+      if (k <= j) right = j - 1;
+    }
+
+    return array;
+  }
+
+  function swap(array, i, j) {
+    const t = array[i];
+    array[i] = array[j];
+    array[j] = t;
+  }
+
+  function quantile(values, p, valueof) {
+    values = Float64Array.from(numbers(values, valueof));
+    if (!(n = values.length) || isNaN(p = +p)) return;
+    if (p <= 0 || n < 2) return min(values);
+    if (p >= 1) return max(values);
+    var n,
+        i = (n - 1) * p,
+        i0 = Math.floor(i),
+        value0 = max(quickselect(values, i0).subarray(0, i0 + 1)),
+        value1 = min(values.subarray(i0 + 1));
+    return value0 + (value1 - value0) * (i - i0);
+  }
+
+  function mean(values, valueof) {
+    let count = 0;
+    let sum = 0;
+    if (valueof === undefined) {
+      for (let value of values) {
+        if (value != null && (value = +value) >= value) {
+          ++count, sum += value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (value = +value) >= value) {
+          ++count, sum += value;
+        }
+      }
+    }
+    if (count) return sum / count;
+  }
+
+  function median(values, valueof) {
+    return quantile(values, 0.5, valueof);
+  }
+
+  function sum(values, valueof) {
+    let sum = 0;
+    if (valueof === undefined) {
+      for (let value of values) {
+        if (value = +value) {
+          sum += value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if (value = +valueof(value, ++index, values)) {
+          sum += value;
+        }
+      }
+    }
+    return sum;
   }
 
   function initRange(domain, range) {
@@ -3485,8 +3373,6 @@
     axisBottom: axisBottom,
     axisLeft: axisLeft,
     drag: drag,
-    groups: groups,
-    leastIndex: leastIndex,
     line: line,
     scaleLinear: linear,
     select: select,
@@ -34573,37 +34459,6 @@
       return numeratorValid && denominatorValid && proportionDenominatorValid;
   }
 
-  function getValue$1(object, propertyName, defaultValue) {
-      if (!object) {
-          return defaultValue;
-      }
-      const propertyValue = object[propertyName];
-      if (propertyValue === undefined) {
-          return defaultValue;
-      }
-      return propertyValue;
-  }
-
-  /** Gets the value of the given object/property pair. */
-  function getValue(objects, propertyId, defaultValue) {
-      if (!objects) {
-          return defaultValue;
-      }
-      return getValue$1(objects[propertyId.objectName], propertyId.propertyName, defaultValue);
-  }
-  function getCommonValue(objects, propertyId, defaultValue) {
-      const value = getValue(objects, propertyId, defaultValue);
-      if (value && value.solid) {
-          return value.solid.color;
-      }
-      if (value === undefined
-          || value === null
-          || (typeof value === "object" && !value.solid)) {
-          return defaultValue;
-      }
-      return value;
-  }
-
   function rep(x, n) {
       return Array(n).fill(x);
   }
@@ -34612,6 +34467,15 @@
       return value === null || value === undefined;
   }
 
+  function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
+      var _a;
+      const propertyValue = (_a = settingObject === null || settingObject === void 0 ? void 0 : settingObject[settingGroup]) === null || _a === void 0 ? void 0 : _a[settingName];
+      if (isNullOrUndefined(propertyValue)) {
+          return defaultValue;
+      }
+      return (propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) ? propertyValue.solid.color
+          : propertyValue;
+  }
   function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings) {
       if (isNullOrUndefined(categoricalView)) {
           return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
@@ -34628,7 +34492,7 @@
           return Object.fromEntries(settingNames.map(settingName => {
               var _a, _b, _c, _d, _e, _f, _g;
               const defaultSetting = defaultSettings[settingGroupName][settingName]["default"];
-              let extractedSetting = getCommonValue(inpObjects, { objectName: settingGroupName, propertyName: settingName }, defaultSettings[settingGroupName][settingName]["default"]);
+              let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
               // PBI passes empty string when clearing conditional formatting
               // for dropdown setting using the eraser button, so just reset to default
               extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
@@ -35109,6 +34973,19 @@
 
   function isValidNumber(value) {
       return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
+  }
+
+  function groupBy(data, key) {
+      const groupedData = new Map();
+      data.forEach(item => {
+          var _a;
+          const keyValue = item[key];
+          if (!groupedData.has(keyValue)) {
+              groupedData.set(keyValue, []);
+          }
+          (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
+      });
+      return Array.from(groupedData);
   }
 
   /**
@@ -35721,7 +35598,7 @@
                   });
               });
           });
-          this.groupedLines = groups(formattedLines, d => d.group);
+          this.groupedLines = groupBy(formattedLines, "group");
       }
       scaleAndTruncateLimits() {
           // Scale limits using provided multiplier
@@ -41185,12 +41062,23 @@
           }
           const plotPoints = visualObj.viewModel.plotPoints;
           const boundRect = visualObj.svg.node().getBoundingClientRect();
-          const xValue = plotProperties.xScale.invert(event.pageX - boundRect.left);
-          const yValue = plotProperties.yScale.invert(event.pageY - boundRect.top);
-          const distances = plotPoints.map(d => Math.sqrt(Math.pow(d.x - xValue, 2) + Math.pow(d.value - yValue, 2)));
-          const indexNearestValue = leastIndex(distances, (a, b) => a - b);
-          const x_coord = plotProperties.xScale(plotPoints[indexNearestValue].x);
-          const y_coord = plotProperties.yScale(plotPoints[indexNearestValue].value);
+          const xValue = (event.pageX - boundRect.left);
+          const yValue = (event.pageY - boundRect.top);
+          let indexNearestValue;
+          let nearestDistance = Infinity;
+          let x_coord;
+          let y_coord;
+          for (let i = 0; i < plotPoints.length; i++) {
+              const curr_x = plotProperties.xScale(plotPoints[i].x);
+              const curr_y = plotProperties.yScale(plotPoints[i].value);
+              const curr_diff = Math.abs(curr_x - xValue) + Math.abs(curr_y - yValue);
+              if (curr_diff < nearestDistance) {
+                  nearestDistance = curr_diff;
+                  indexNearestValue = i;
+                  x_coord = curr_x;
+                  y_coord = curr_y;
+              }
+          }
           visualObj.host.tooltipService.show({
               dataItems: plotPoints[indexNearestValue].tooltip,
               identities: [plotPoints[indexNearestValue].identity],
@@ -54428,6 +54316,7 @@
   exports.getTau2 = getTau2;
   exports.getTransformation = getTransformation;
   exports.getZScores = getZScores;
+  exports.groupBy = groupBy;
   exports.identitySelected = identitySelected;
   exports.initialiseSVG = initialiseSVG;
   exports.inv = inv;
@@ -54437,7 +54326,7 @@
   exports.max = max;
   exports.mean = mean;
   exports.median = median;
-  exports.min = min$1;
+  exports.min = min;
   exports.multiply = multiply;
   exports.normal_cdf = normal_cdf;
   exports.normal_quantile = normal_quantile;
