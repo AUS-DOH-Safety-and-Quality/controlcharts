@@ -27,11 +27,11 @@ const makeConstructorArgs = function(element) {
                                       .text(d => `${d.displayName}: ${d.value}`);
           var tooltipBoundRect = tooltipGroup.node().getBoundingClientRect();
 
-          // Calculate coordinates to position the tooltip
-          var coordinates = [
-            Math.min(Math.max(boundRect.left + x.coordinates[0], 0), window.innerWidth - tooltipBoundRect.width - 50),
-            Math.min(Math.max(boundRect.top + x.coordinates[1], 0), window.innerHeight - tooltipBoundRect.height)
-          ];
+          var coordinates = x.coordinates;
+          if (coordinates[0] + (tooltipBoundRect.width + 25) > boundRect.right) {
+            // If the tooltip would overflow the right edge of the viewport, adjust its position
+            coordinates[0] = coordinates[0] - tooltipBoundRect.width;
+          }
           // Set the position of the tooltip group
           tooltipGroup.attr("transform", `translate(${coordinates[0]}, ${coordinates[1]})`);
 
