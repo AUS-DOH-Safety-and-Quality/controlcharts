@@ -18,13 +18,13 @@ const makeConstructorArgs = function(element) {
           var tooltipGroup = d3.select(element).select(".chart-tooltip-group");
 
           tooltipGroup.selectAll("text")
-                                      .data(x.dataItems)
-                                      .join("text")
-                                      .attr("fill", "black")
-                                      .style("text-anchor", "left")
-                                      .attr("x", 5)
-                                      .attr("y", (_, i) => 0 + 15*i)
-                                      .text(d => `${d.displayName}: ${d.value}`);
+                      .data(x.dataItems)
+                      .join("text")
+                      .attr("fill", "black")
+                      .style("text-anchor", "left")
+                      .attr("x", 5)
+                      .attr("y", (_, i) => 0 + 15*i)
+                      .text(d => `${d.displayName}: ${d.value}`);
           var tooltipBoundRect = tooltipGroup.node().getBoundingClientRect();
 
           var coordinates = x.coordinates;
