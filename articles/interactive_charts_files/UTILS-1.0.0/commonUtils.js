@@ -14,13 +14,8 @@ const makeConstructorArgs = function(element) {
       }),
       tooltipService: {
         show: (x) => {
+          var boundRect = element.getBoundingClientRect();
           var tooltipGroup = d3.select(element).select(".chart-tooltip-group");
-          tooltipGroup.selectAll("rect")
-                    .data([0])
-                    .join("rect")
-                    .attr("fill", "#ffffff")
-                    .attr("width", 50)
-                    .attr("height", 50);
 
           tooltipGroup.selectAll("text")
                       .data(x.dataItems)
@@ -30,7 +25,16 @@ const makeConstructorArgs = function(element) {
                       .attr("x", 5)
                       .attr("y", (_, i) => 0 + 15*i)
                       .text(d => `${d.displayName}: ${d.value}`);
-          tooltipGroup.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
+          var tooltipBoundRect = tooltipGroup.node().getBoundingClientRect();
+
+          var coordinates = x.coordinates;
+          if (coordinates[0] + (tooltipBoundRect.width + 25) > boundRect.right) {
+            // If the tooltip would overflow the right edge of the viewport, adjust its position
+            coordinates[0] = coordinates[0] - tooltipBoundRect.width;
+          }
+          // Set the position of the tooltip group
+          tooltipGroup.attr("transform", `translate(${coordinates[0]}, ${coordinates[1]})`);
+
         },
         hide: () => {
           d3.select(element)
