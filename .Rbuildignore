@@ -14,3 +14,4 @@ update-lib.sh
 ^docs$
 ^pkgdown$
 ^\.github$
+inst/bundle
