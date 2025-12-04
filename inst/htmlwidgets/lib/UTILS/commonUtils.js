@@ -14,23 +14,27 @@ const makeConstructorArgs = function(element) {
       }),
       tooltipService: {
         show: (x) => {
+          var boundRect = element.getBoundingClientRect();
           var tooltipGroup = d3.select(element).select(".chart-tooltip-group");
-          tooltipGroup.selectAll("rect")
-                    .data([0])
-                    .join("rect")
-                    .attr("fill", "#ffffff")
-                    .attr("width", 50)
-                    .attr("height", 50);
 
           tooltipGroup.selectAll("text")
-                      .data(x.dataItems)
-                      .join("text")
-                      .attr("fill", "black")
-                      .style("text-anchor", "left")
-                      .attr("x", 5)
-                      .attr("y", (_, i) => 0 + 15*i)
-                      .text(d => `${d.displayName}: ${d.value}`);
-          tooltipGroup.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
+                                      .data(x.dataItems)
+                                      .join("text")
+                                      .attr("fill", "black")
+                                      .style("text-anchor", "left")
+                                      .attr("x", 5)
+                                      .attr("y", (_, i) => 0 + 15*i)
+                                      .text(d => `${d.displayName}: ${d.value}`);
+          var tooltipBoundRect = tooltipGroup.node().getBoundingClientRect();
+
+          // Calculate coordinates to position the tooltip
+          var coordinates = [
+            Math.min(Math.max(boundRect.left + x.coordinates[0], 0), window.innerWidth - tooltipBoundRect.width - 50),
+            Math.min(Math.max(boundRect.top + x.coordinates[1], 0), window.innerHeight - tooltipBoundRect.height)
+          ];
+          // Set the position of the tooltip group
+          tooltipGroup.attr("transform", `translate(${coordinates[0]}, ${coordinates[1]})`);
+
         },
         hide: () => {
           d3.select(element)

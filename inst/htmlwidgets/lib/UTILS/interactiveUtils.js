@@ -37,8 +37,7 @@ function makeFactory(chartType) {
 
     // Add a group for rendering tooltips in place of PowerBI tooltips
     visual.svg.append("g")
-              .classed("chart-tooltip-group", true)
-              .append("rect");
+              .classed("chart-tooltip-group", true);
 
     return {
       renderValue: function(x) {
