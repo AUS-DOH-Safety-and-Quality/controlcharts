@@ -76,9 +76,8 @@ function makeFactory(chartType) {
         })
 
         visual.host.tooltipService.show = (tooltipArgs) => {
-          var d3 = (globalThis?.spc?.d3 ?? globalThis?.funnel?.d3);
-          var boundRect = el.getBoundingClientRect();
-          var tooltipGroup = d3.select(el).select(".chart-tooltip-group");
+          var boundRect = visual.svg.node().getBoundingClientRect();
+          var tooltipGroup = visual.svg.select(".chart-tooltip-group");
           var maxTextLength = 0;
 
           var rectGroup = tooltipGroup.selectAll("rect")
@@ -105,22 +104,21 @@ function makeFactory(chartType) {
 
           // Add a rectangle behind the text for better visibility
           rectGroup.attr("fill", "white")
-                      .attr("stroke", "black")
-                      .attr("x", 0)
-                      .attr("y", 0)
-                      .attr("width", maxTextLength + 10) // Add some padding
-                      .attr("height", 15 * tooltipArgs.dataItems.length + 5); // Add some padding
+                    .attr("stroke", "black")
+                    .attr("x", 0)
+                    .attr("y", 0)
+                    .attr("width", maxTextLength + 10) // Add some padding
+                    .attr("height", 15 * tooltipArgs.dataItems.length + 5); // Add some padding
 
           // Set the position of the tooltip group
           tooltipGroup.attr("transform", `translate(${coordinates[0]}, ${coordinates[1]})`);
         };
 
         visual.host.tooltipService.hide = () => {
-          var d3 = (globalThis?.spc?.d3 ?? globalThis?.funnel?.d3);
-          d3.select(el)
-            .select(".chart-tooltip-group")
-            .selectChildren()
-            .remove();
+          visual.svg
+                .select(".chart-tooltip-group")
+                .selectChildren()
+                .remove();
         }
 
         // Trigger the calculation of limits and the rendering of the visual
