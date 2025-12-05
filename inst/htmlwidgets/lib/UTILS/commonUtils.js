@@ -1,5 +1,4 @@
 const makeConstructorArgs = function(element) {
-  var d3 = (globalThis?.spc?.d3 ?? globalThis?.funnel?.d3);
   return {
     element: element,
     host: {
@@ -13,37 +12,8 @@ const makeConstructorArgs = function(element) {
         withCategory: () => ({ createSelectionId: () => {} })
       }),
       tooltipService: {
-        show: (x) => {
-          var boundRect = element.getBoundingClientRect();
-          var tooltipGroup = d3.select(element).select(".chart-tooltip-group");
-          var maxTextLength = 0;
-          tooltipGroup.selectAll("text")
-                      .data(x.dataItems)
-                      .join("text")
-                      .attr("fill", "black")
-                      .style("text-anchor", "left")
-                      .attr("x", 5)
-                      .attr("y", (_, i) => 0 + 15*i)
-                      .text(d => `${d.displayName}: ${d.value}`)
-                      .each(function() {
-                        var textLength = this.getComputedTextLength();
-                        maxTextLength = Math.max(maxTextLength, textLength);
-                      });
-          var coordinates = x.coordinates;
-          if (coordinates[0] + maxTextLength > boundRect.width) {
-            // If the tooltip would overflow the right edge of the viewport, adjust its position
-            coordinates[0] = coordinates[0] - maxTextLength;
-          }
-          // Set the position of the tooltip group
-          tooltipGroup.attr("transform", `translate(${coordinates[0]}, ${coordinates[1]})`);
-
-        },
-        hide: () => {
-          d3.select(element)
-            .select(".chart-tooltip-group")
-            .selectChildren()
-            .remove();
-        }
+        show: () => {},
+        hide: () => {}
       },
       eventService: {
         renderingStarted: () => {},
