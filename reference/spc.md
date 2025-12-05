@@ -26,6 +26,7 @@ spc(
   y_axis_settings = NULL,
   date_settings = NULL,
   label_settings = NULL,
+  tooltip_settings = NULL,
   width = NULL,
   height = NULL,
   elementId = NULL
@@ -140,6 +141,11 @@ spc(
 
   Optional list of settings for labels, see
   `spc_default_settings('labels')` for valid options.
+
+- tooltip_settings:
+
+  Optional list of settings for tooltips, see
+  `spc_default_settings('tooltips')` for valid options.
 
 - width:
 

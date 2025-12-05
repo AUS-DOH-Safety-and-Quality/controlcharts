@@ -1007,6 +1007,32 @@ spc_default_settings()
 #> [1] "#000000"
 #> 
 #> 
+#> $tooltips
+#> $tooltips$ttip_font_size
+#> [1] 12
+#> 
+#> $tooltips$ttip_font
+#> [1] "Arial, sans-serif"
+#> 
+#> $tooltips$ttip_font_color
+#> [1] "#000000"
+#> 
+#> $tooltips$ttip_background_color
+#> [1] "#E0E0E0"
+#> 
+#> $tooltips$ttip_opacity
+#> [1] 1
+#> 
+#> $tooltips$ttip_border_radius
+#> [1] 5
+#> 
+#> $tooltips$ttip_border_color
+#> [1] "#000000"
+#> 
+#> $tooltips$ttip_border_width
+#> [1] 1
+#> 
+#> 
 # # Get default settings for a specific group
 spc_default_settings("x_axis")
 #> $xlimit_colour

@@ -22,6 +22,7 @@ funnel(
   x_axis_settings = NULL,
   y_axis_settings = NULL,
   label_settings = NULL,
+  tooltip_settings = NULL,
   width = NULL,
   height = NULL,
   elementId = NULL
@@ -116,6 +117,11 @@ funnel(
 
   Optional list of settings for labels, see
   `funnel_default_settings('labels')` for valid options.
+
+- tooltip_settings:
+
+  Optional list of settings for tooltips, see
+  `funnel_default_settings('tooltips')` for valid options.
 
 - width:
 
