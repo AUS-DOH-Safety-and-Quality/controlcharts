@@ -1,5 +1,4 @@
 const makeConstructorArgs = function(element) {
-  var d3 = (globalThis?.spc?.d3 ?? globalThis?.funnel?.d3);
   return {
     element: element,
     host: {
@@ -13,51 +12,8 @@ const makeConstructorArgs = function(element) {
         withCategory: () => ({ createSelectionId: () => {} })
       }),
       tooltipService: {
-        show: (x) => {
-          var boundRect = element.getBoundingClientRect();
-          var tooltipGroup = d3.select(element).select(".chart-tooltip-group");
-          var maxTextLength = 0;
-
-          var rectGroup = tooltipGroup.selectAll("rect")
-                                      .data([0])
-                                      .join("rect");
-
-          tooltipGroup.selectAll("text")
-                      .data(x.dataItems)
-                      .join("text")
-                      .attr("fill", "black")
-                      .style("text-anchor", "left")
-                      .attr("x", 5)
-                      .attr("y", (_, i) => 15 + 15*i)
-                      .text(d => `${d.displayName}: ${d.value}`)
-                      .each(function() {
-                        var textLength = this.getComputedTextLength();
-                        maxTextLength = Math.max(maxTextLength, textLength);
-                      });
-          var coordinates = x.coordinates;
-          if (coordinates[0] + maxTextLength > boundRect.width) {
-            // If the tooltip would overflow the right edge of the viewport, adjust its position
-            coordinates[0] = coordinates[0] - maxTextLength - 10;
-          }
-
-          // Add a rectangle behind the text for better visibility
-          rectGroup.attr("fill", "white")
-                      .attr("stroke", "black")
-                      .attr("x", 0)
-                      .attr("y", 0)
-                      .attr("width", maxTextLength + 10) // Add some padding
-                      .attr("height", 15 * x.dataItems.length + 5); // Add some padding
-
-          // Set the position of the tooltip group
-          tooltipGroup.attr("transform", `translate(${coordinates[0]}, ${coordinates[1]})`);
-
-        },
-        hide: () => {
-          d3.select(element)
-            .select(".chart-tooltip-group")
-            .selectChildren()
-            .remove();
-        }
+        show: () => {},
+        hide: () => {}
       },
       eventService: {
         renderingStarted: () => {},
