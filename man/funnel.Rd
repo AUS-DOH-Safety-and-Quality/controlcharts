@@ -68,7 +68,7 @@ funnel(
 
 \item{label_settings}{Optional list of settings for labels, see \code{funnel_default_settings('labels')} for valid options.}
 
-\item{tooltip_settings}{Optional list of settings for tooltips, see \code{spc_default_settings('tooltips')} for valid options.}
+\item{tooltip_settings}{Optional list of settings for tooltips, see \code{funnel_default_settings('tooltips')} for valid options.}
 
 \item{width}{Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.}
 

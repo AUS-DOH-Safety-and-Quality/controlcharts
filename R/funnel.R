@@ -25,7 +25,7 @@
 #' @param x_axis_settings Optional list of settings for the x-axis, see \code{funnel_default_settings('x_axis')} for valid options.
 #' @param y_axis_settings Optional list of settings for the y-axis, see \code{funnel_default_settings('y_axis')} for valid options.
 #' @param label_settings Optional list of settings for labels, see \code{funnel_default_settings('labels')} for valid options.
-#' @param tooltip_settings Optional list of settings for tooltips, see \code{spc_default_settings('tooltips')} for valid options.
+#' @param tooltip_settings Optional list of settings for tooltips, see \code{funnel_default_settings('tooltips')} for valid options.
 #' @param width Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.
 #' @param height Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.
 #' @param elementId Optional HTML element ID for the chart.

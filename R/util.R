@@ -24,8 +24,8 @@ validate_tooltips <- function(tooltip_settings) {
 .default_settings_impl <- function(type, group = NULL) {
   settings <- switch(
     type,
-    spc = .spc_default_settings_internal,
-    funnel = .funnel_default_settings_internal
+    spc = append(.spc_default_settings_internal, list(tooltips = .default_tooltip_settings)),
+    funnel = append(.funnel_default_settings_internal, list(tooltips = .default_tooltip_settings))
   )
   if (is.null(group)) {
     return(settings)
