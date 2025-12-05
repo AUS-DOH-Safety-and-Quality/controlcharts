@@ -84,14 +84,20 @@ function makeFactory(chartType) {
                                       .data([0])
                                       .join("rect");
 
+          var ttip_size = x.tooltip_settings.ttip_font_size;
+          var ttip_font = x.tooltip_settings.ttip_font;
+          var ttip_colour = x.tooltip_settings.ttip_font_color;
+
           tooltipGroup.selectAll("text")
                       .data(tooltipArgs.dataItems)
                       .join("text")
-                      .attr("fill", "black")
-                      .style("text-anchor", "left")
                       .attr("x", 5)
                       .attr("y", (_, i) => 15 + 15*i)
                       .text(d => `${d.displayName}: ${d.value}`)
+                      .style("text-anchor", "left")
+                      .style("font-size", `${ttip_size}px`)
+                      .style("font-family", ttip_font)
+                      .style("fill", ttip_colour)
                       .each(function() {
                         var textLength = this.getComputedTextLength();
                         maxTextLength = Math.max(maxTextLength, textLength);
@@ -103,8 +109,12 @@ function makeFactory(chartType) {
           }
 
           // Add a rectangle behind the text for better visibility
-          rectGroup.attr("fill", "white")
-                    .attr("stroke", "black")
+          rectGroup.attr("fill", x.tooltip_settings.ttip_background_color)
+                    .attr("stroke", x.tooltip_settings.ttip_border_color)
+                    .attr("stroke-width", x.tooltip_settings.ttip_border_width)
+                    .attr("opacity", x.tooltip_settings.ttip_opacity)
+                    .attr("rx", x.tooltip_settings.ttip_border_radius) // Rounded corners
+                    .attr("ry", x.tooltip_settings.ttip_border_radius) // Rounded corners
                     .attr("x", 0)
                     .attr("y", 0)
                     .attr("width", maxTextLength + 10) // Add some padding

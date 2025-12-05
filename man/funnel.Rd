@@ -21,6 +21,7 @@ funnel(
   x_axis_settings = NULL,
   y_axis_settings = NULL,
   label_settings = NULL,
+  tooltip_settings = NULL,
   width = NULL,
   height = NULL,
   elementId = NULL
@@ -66,6 +67,8 @@ funnel(
 \item{y_axis_settings}{Optional list of settings for the y-axis, see \code{funnel_default_settings('y_axis')} for valid options.}
 
 \item{label_settings}{Optional list of settings for labels, see \code{funnel_default_settings('labels')} for valid options.}
+
+\item{tooltip_settings}{Optional list of settings for tooltips, see \code{spc_default_settings('tooltips')} for valid options.}
 
 \item{width}{Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.}
 

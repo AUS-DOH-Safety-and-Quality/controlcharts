@@ -1,3 +1,26 @@
+.default_tooltip_settings <- list(
+  ttip_font_size = 12,
+  ttip_font = "Arial, sans-serif",
+  ttip_font_color = "#000000",
+  ttip_background_color = "#E0E0E0",
+  ttip_opacity = 1,
+  ttip_border_radius = 5,
+  ttip_border_color = "#000000",
+  ttip_border_width = 1
+)
+
+validate_tooltips <- function(tooltip_settings) {
+  if (is.null(tooltip_settings)) {
+    return(.default_tooltip_settings)
+  }
+  for (setting in names(tooltip_settings)) {
+    if (!(setting %in% names(.default_tooltip_settings))) {
+      stop("'", setting, "' is not a valid tooltip setting! Valid options are: ", paste0(names(.default_tooltip_settings), collapse = ', '), ".", call. = FALSE)
+    }
+  }
+  tooltip_settings <- modifyList(.default_tooltip_settings, tooltip_settings)
+}
+
 .default_settings_impl <- function(type, group = NULL) {
   settings <- switch(
     type,
