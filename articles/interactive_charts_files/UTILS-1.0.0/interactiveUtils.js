@@ -107,6 +107,10 @@ function makeFactory(chartType) {
             // If the tooltip would overflow the right edge of the viewport, adjust its position
             coordinates[0] = coordinates[0] - maxTextLength - 10;
           }
+          if (coordinates[1] + 15 * tooltipArgs.dataItems.length > boundRect.height) {
+            // If the tooltip would overflow the bottom edge of the viewport, adjust its position
+            coordinates[1] = coordinates[1] - 15 * tooltipArgs.dataItems.length - 5;
+          }
 
           // Add a rectangle behind the text for better visibility
           rectGroup.attr("fill", x.tooltip_settings.ttip_background_color)
