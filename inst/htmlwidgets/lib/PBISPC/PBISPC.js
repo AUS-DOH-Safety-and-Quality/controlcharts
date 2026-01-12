@@ -1,1 +1,14425 @@
-var spc=function(t){"use strict";var e="http://www.w3.org/1999/xhtml",i={svg:"http://www.w3.org/2000/svg",xhtml:e,xlink:"http://www.w3.org/1999/xlink",xml:"http://www.w3.org/XML/1998/namespace",xmlns:"http://www.w3.org/2000/xmlns/"};function a(t){var e=t+="",a=e.indexOf(":");return a>=0&&"xmlns"!==(e=t.slice(0,a))&&(t=t.slice(a+1)),i.hasOwnProperty(e)?{space:i[e],local:t}:t}function r(t){return function(){var i=this.ownerDocument,a=this.namespaceURI;return a===e&&i.documentElement.namespaceURI===e?i.createElement(t):i.createElementNS(a,t)}}function o(t){return function(){return this.ownerDocument.createElementNS(t.space,t.local)}}function l(t){var e=a(t);return(e.local?o:r)(e)}function n(){}function s(t){return null==t?n:function(){return this.querySelector(t)}}function u(t){return null==t?[]:Array.isArray(t)?t:Array.from(t)}function p(){return[]}function d(t){return function(e){return e.matches(t)}}var c=Array.prototype.find;function h(){return this.firstElementChild}var m=Array.prototype.filter;function f(){return Array.from(this.children)}function y(t){return new Array(t.length)}function g(t,e){this.ownerDocument=t.ownerDocument,this.namespaceURI=t.namespaceURI,this._next=null,this._parent=t,this.__data__=e}function v(t,e,i,a,r,o){for(var l,n=0,s=e.length,u=o.length;n<u;++n)(l=e[n])?(l.__data__=o[n],a[n]=l):i[n]=new g(t,o[n]);for(;n<s;++n)(l=e[n])&&(r[n]=l)}function _(t,e,i,a,r,o,l){var n,s,u,p=new Map,d=e.length,c=o.length,h=new Array(d);for(n=0;n<d;++n)(s=e[n])&&(h[n]=u=l.call(s,s.__data__,n,e)+"",p.has(u)?r[n]=s:p.set(u,s));for(n=0;n<c;++n)u=l.call(t,o[n],n,o)+"",(s=p.get(u))?(a[n]=s,s.__data__=o[n],p.delete(u)):i[n]=new g(t,o[n]);for(n=0;n<d;++n)(s=e[n])&&p.get(h[n])===s&&(r[n]=s)}function w(t){return t.__data__}function b(t){return"object"==typeof t&&"length"in t?t:Array.from(t)}function N(t,e){return t<e?-1:t>e?1:t>=e?0:NaN}function x(t){return function(){this.removeAttribute(t)}}function S(t){return function(){this.removeAttributeNS(t.space,t.local)}}function k(t,e){return function(){this.setAttribute(t,e)}}function A(t,e){return function(){this.setAttributeNS(t.space,t.local,e)}}function F(t,e){return function(){var i=e.apply(this,arguments);null==i?this.removeAttribute(t):this.setAttribute(t,i)}}function M(t,e){return function(){var i=e.apply(this,arguments);null==i?this.removeAttributeNS(t.space,t.local):this.setAttributeNS(t.space,t.local,i)}}function E(t){return t.ownerDocument&&t.ownerDocument.defaultView||t.document&&t||t.defaultView}function T(t){return function(){this.style.removeProperty(t)}}function $(t,e,i){return function(){this.style.setProperty(t,e,i)}}function D(t,e,i){return function(){var a=e.apply(this,arguments);null==a?this.style.removeProperty(t):this.style.setProperty(t,a,i)}}function L(t){return function(){delete this[t]}}function C(t,e){return function(){this[t]=e}}function P(t,e){return function(){var i=e.apply(this,arguments);null==i?delete this[t]:this[t]=i}}function I(t){return t.trim().split(/^|\s+/)}function R(t){return t.classList||new V(t)}function V(t){this._node=t,this._names=I(t.getAttribute("class")||"")}function O(t,e){for(var i=R(t),a=-1,r=e.length;++a<r;)i.add(e[a])}function j(t,e){for(var i=R(t),a=-1,r=e.length;++a<r;)i.remove(e[a])}function U(t){return function(){O(this,t)}}function G(t){return function(){j(this,t)}}function z(t,e){return function(){(e.apply(this,arguments)?O:j)(this,t)}}function B(){this.textContent=""}function q(t){return function(){this.textContent=t}}function H(t){return function(){var e=t.apply(this,arguments);this.textContent=null==e?"":e}}function Z(){this.innerHTML=""}function Y(t){return function(){this.innerHTML=t}}function X(t){return function(){var e=t.apply(this,arguments);this.innerHTML=null==e?"":e}}function W(){this.nextSibling&&this.parentNode.appendChild(this)}function K(){this.previousSibling&&this.parentNode.insertBefore(this,this.parentNode.firstChild)}function J(){return null}function Q(){var t=this.parentNode;t&&t.removeChild(this)}function tt(){var t=this.cloneNode(!1),e=this.parentNode;return e?e.insertBefore(t,this.nextSibling):t}function et(){var t=this.cloneNode(!0),e=this.parentNode;return e?e.insertBefore(t,this.nextSibling):t}function it(t){return function(){var e=this.__on;if(e){for(var i,a=0,r=-1,o=e.length;a<o;++a)i=e[a],t.type&&i.type!==t.type||i.name!==t.name?e[++r]=i:this.removeEventListener(i.type,i.listener,i.options);++r?e.length=r:delete this.__on}}}function at(t,e,i){return function(){var a,r=this.__on,o=function(t){return function(e){t.call(this,e,this.__data__)}}(e);if(r)for(var l=0,n=r.length;l<n;++l)if((a=r[l]).type===t.type&&a.name===t.name)return this.removeEventListener(a.type,a.listener,a.options),this.addEventListener(a.type,a.listener=o,a.options=i),void(a.value=e);this.addEventListener(t.type,o,i),a={type:t.type,name:t.name,value:e,listener:o,options:i},r?r.push(a):this.__on=[a]}}function rt(t,e,i){var a=E(t),r=a.CustomEvent;"function"==typeof r?r=new r(e,i):(r=a.document.createEvent("Event"),i?(r.initEvent(e,i.bubbles,i.cancelable),r.detail=i.detail):r.initEvent(e,!1,!1)),t.dispatchEvent(r)}function ot(t,e){return function(){return rt(this,t,e)}}function lt(t,e){return function(){return rt(this,t,e.apply(this,arguments))}}g.prototype={constructor:g,appendChild:function(t){return this._parent.insertBefore(t,this._next)},insertBefore:function(t,e){return this._parent.insertBefore(t,e)},querySelector:function(t){return this._parent.querySelector(t)},querySelectorAll:function(t){return this._parent.querySelectorAll(t)}},V.prototype={add:function(t){this._names.indexOf(t)<0&&(this._names.push(t),this._node.setAttribute("class",this._names.join(" ")))},remove:function(t){var e=this._names.indexOf(t);e>=0&&(this._names.splice(e,1),this._node.setAttribute("class",this._names.join(" ")))},contains:function(t){return this._names.indexOf(t)>=0}};var nt=[null];function st(t,e){this._groups=t,this._parents=e}function ut(t){return"string"==typeof t?new st([[document.querySelector(t)]],[document.documentElement]):new st([[t]],nt)}function pt(t,e){if(t=function(t){let e;for(;e=t.sourceEvent;)t=e;return t}(t),void 0===e&&(e=t.currentTarget),e){var i=e.ownerSVGElement||e;if(i.createSVGPoint){var a=i.createSVGPoint();return a.x=t.clientX,a.y=t.clientY,[(a=a.matrixTransform(e.getScreenCTM().inverse())).x,a.y]}if(e.getBoundingClientRect){var r=e.getBoundingClientRect();return[t.clientX-r.left-e.clientLeft,t.clientY-r.top-e.clientTop]}}return[t.pageX,t.pageY]}function dt(t){return function(){return t}}st.prototype={constructor:st,select:function(t){"function"!=typeof t&&(t=s(t));for(var e=this._groups,i=e.length,a=new Array(i),r=0;r<i;++r)for(var o,l,n=e[r],u=n.length,p=a[r]=new Array(u),d=0;d<u;++d)(o=n[d])&&(l=t.call(o,o.__data__,d,n))&&("__data__"in o&&(l.__data__=o.__data__),p[d]=l);return new st(a,this._parents)},selectAll:function(t){t="function"==typeof t?function(t){return function(){return u(t.apply(this,arguments))}}(t):function(t){return null==t?p:function(){return this.querySelectorAll(t)}}(t);for(var e=this._groups,i=e.length,a=[],r=[],o=0;o<i;++o)for(var l,n=e[o],s=n.length,d=0;d<s;++d)(l=n[d])&&(a.push(t.call(l,l.__data__,d,n)),r.push(l));return new st(a,r)},selectChild:function(t){return this.select(null==t?h:function(t){return function(){return c.call(this.children,t)}}("function"==typeof t?t:d(t)))},selectChildren:function(t){return this.selectAll(null==t?f:function(t){return function(){return m.call(this.children,t)}}("function"==typeof t?t:d(t)))},filter:function(t){"function"!=typeof t&&(t=function(t){return function(){return this.matches(t)}}(t));for(var e=this._groups,i=e.length,a=new Array(i),r=0;r<i;++r)for(var o,l=e[r],n=l.length,s=a[r]=[],u=0;u<n;++u)(o=l[u])&&t.call(o,o.__data__,u,l)&&s.push(o);return new st(a,this._parents)},data:function(t,e){if(!arguments.length)return Array.from(this,w);var i=e?_:v,a=this._parents,r=this._groups;"function"!=typeof t&&(t=function(t){return function(){return t}}(t));for(var o=r.length,l=new Array(o),n=new Array(o),s=new Array(o),u=0;u<o;++u){var p=a[u],d=r[u],c=d.length,h=b(t.call(p,p&&p.__data__,u,a)),m=h.length,f=n[u]=new Array(m),y=l[u]=new Array(m);i(p,d,f,y,s[u]=new Array(c),h,e);for(var g,N,x=0,S=0;x<m;++x)if(g=f[x]){for(x>=S&&(S=x+1);!(N=y[S])&&++S<m;);g._next=N||null}}return(l=new st(l,a))._enter=n,l._exit=s,l},enter:function(){return new st(this._enter||this._groups.map(y),this._parents)},exit:function(){return new st(this._exit||this._groups.map(y),this._parents)},join:function(t,e,i){var a=this.enter(),r=this,o=this.exit();return"function"==typeof t?(a=t(a))&&(a=a.selection()):a=a.append(t+""),null!=e&&(r=e(r))&&(r=r.selection()),null==i?o.remove():i(o),a&&r?a.merge(r).order():r},merge:function(t){for(var e=t.selection?t.selection():t,i=this._groups,a=e._groups,r=i.length,o=a.length,l=Math.min(r,o),n=new Array(r),s=0;s<l;++s)for(var u,p=i[s],d=a[s],c=p.length,h=n[s]=new Array(c),m=0;m<c;++m)(u=p[m]||d[m])&&(h[m]=u);for(;s<r;++s)n[s]=i[s];return new st(n,this._parents)},selection:function(){return this},order:function(){for(var t=this._groups,e=-1,i=t.length;++e<i;)for(var a,r=t[e],o=r.length-1,l=r[o];--o>=0;)(a=r[o])&&(l&&4^a.compareDocumentPosition(l)&&l.parentNode.insertBefore(a,l),l=a);return this},sort:function(t){function e(e,i){return e&&i?t(e.__data__,i.__data__):!e-!i}t||(t=N);for(var i=this._groups,a=i.length,r=new Array(a),o=0;o<a;++o){for(var l,n=i[o],s=n.length,u=r[o]=new Array(s),p=0;p<s;++p)(l=n[p])&&(u[p]=l);u.sort(e)}return new st(r,this._parents).order()},call:function(){var t=arguments[0];return arguments[0]=this,t.apply(null,arguments),this},nodes:function(){return Array.from(this)},node:function(){for(var t=this._groups,e=0,i=t.length;e<i;++e)for(var a=t[e],r=0,o=a.length;r<o;++r){var l=a[r];if(l)return l}return null},size:function(){let t=0;for(const e of this)++t;return t},empty:function(){return!this.node()},each:function(t){for(var e=this._groups,i=0,a=e.length;i<a;++i)for(var r,o=e[i],l=0,n=o.length;l<n;++l)(r=o[l])&&t.call(r,r.__data__,l,o);return this},attr:function(t,e){var i=a(t);if(arguments.length<2){var r=this.node();return i.local?r.getAttributeNS(i.space,i.local):r.getAttribute(i)}return this.each((null==e?i.local?S:x:"function"==typeof e?i.local?M:F:i.local?A:k)(i,e))},style:function(t,e,i){return arguments.length>1?this.each((null==e?T:"function"==typeof e?D:$)(t,e,null==i?"":i)):function(t,e){return t.style.getPropertyValue(e)||E(t).getComputedStyle(t,null).getPropertyValue(e)}(this.node(),t)},property:function(t,e){return arguments.length>1?this.each((null==e?L:"function"==typeof e?P:C)(t,e)):this.node()[t]},classed:function(t,e){var i=I(t+"");if(arguments.length<2){for(var a=R(this.node()),r=-1,o=i.length;++r<o;)if(!a.contains(i[r]))return!1;return!0}return this.each(("function"==typeof e?z:e?U:G)(i,e))},text:function(t){return arguments.length?this.each(null==t?B:("function"==typeof t?H:q)(t)):this.node().textContent},html:function(t){return arguments.length?this.each(null==t?Z:("function"==typeof t?X:Y)(t)):this.node().innerHTML},raise:function(){return this.each(W)},lower:function(){return this.each(K)},append:function(t){var e="function"==typeof t?t:l(t);return this.select((function(){return this.appendChild(e.apply(this,arguments))}))},insert:function(t,e){var i="function"==typeof t?t:l(t),a=null==e?J:"function"==typeof e?e:s(e);return this.select((function(){return this.insertBefore(i.apply(this,arguments),a.apply(this,arguments)||null)}))},remove:function(){return this.each(Q)},clone:function(t){return this.select(t?et:tt)},datum:function(t){return arguments.length?this.property("__data__",t):this.node().__data__},on:function(t,e,i){var a,r,o=function(t){return t.trim().split(/^|\s+/).map((function(t){var e="",i=t.indexOf(".");return i>=0&&(e=t.slice(i+1),t=t.slice(0,i)),{type:t,name:e}}))}(t+""),l=o.length;if(!(arguments.length<2)){for(n=e?at:it,a=0;a<l;++a)this.each(n(o[a],e,i));return this}var n=this.node().__on;if(n)for(var s,u=0,p=n.length;u<p;++u)for(a=0,s=n[u];a<l;++a)if((r=o[a]).type===s.type&&r.name===s.name)return s.value},dispatch:function(t,e){return this.each(("function"==typeof e?lt:ot)(t,e))},[Symbol.iterator]:function*(){for(var t=this._groups,e=0,i=t.length;e<i;++e)for(var a,r=t[e],o=0,l=r.length;o<l;++o)(a=r[o])&&(yield a)}};const ct=Math.cos,ht=Math.min,mt=Math.sin,ft=Math.sqrt,yt=Math.PI,gt=2*yt,vt=Math.PI,_t=2*vt,wt=1e-6,bt=_t-wt;function Nt(t){this._+=t[0];for(let e=1,i=t.length;e<i;++e)this._+=arguments[e]+t[e]}class xt{constructor(t){this._x0=this._y0=this._x1=this._y1=null,this._="",this._append=null==t?Nt:function(t){let e=Math.floor(t);if(!(e>=0))throw new Error(`invalid digits: ${t}`);if(e>15)return Nt;const i=10**e;return function(t){this._+=t[0];for(let e=1,a=t.length;e<a;++e)this._+=Math.round(arguments[e]*i)/i+t[e]}}(t)}moveTo(t,e){this._append`M${this._x0=this._x1=+t},${this._y0=this._y1=+e}`}closePath(){null!==this._x1&&(this._x1=this._x0,this._y1=this._y0,this._append`Z`)}lineTo(t,e){this._append`L${this._x1=+t},${this._y1=+e}`}quadraticCurveTo(t,e,i,a){this._append`Q${+t},${+e},${this._x1=+i},${this._y1=+a}`}bezierCurveTo(t,e,i,a,r,o){this._append`C${+t},${+e},${+i},${+a},${this._x1=+r},${this._y1=+o}`}arcTo(t,e,i,a,r){if(t=+t,e=+e,i=+i,a=+a,(r=+r)<0)throw new Error(`negative radius: ${r}`);let o=this._x1,l=this._y1,n=i-t,s=a-e,u=o-t,p=l-e,d=u*u+p*p;if(null===this._x1)this._append`M${this._x1=t},${this._y1=e}`;else if(d>wt)if(Math.abs(p*n-s*u)>wt&&r){let c=i-o,h=a-l,m=n*n+s*s,f=c*c+h*h,y=Math.sqrt(m),g=Math.sqrt(d),v=r*Math.tan((vt-Math.acos((m+d-f)/(2*y*g)))/2),_=v/g,w=v/y;Math.abs(_-1)>wt&&this._append`L${t+_*u},${e+_*p}`,this._append`A${r},${r},0,0,${+(p*c>u*h)},${this._x1=t+w*n},${this._y1=e+w*s}`}else this._append`L${this._x1=t},${this._y1=e}`;else;}arc(t,e,i,a,r,o){if(t=+t,e=+e,o=!!o,(i=+i)<0)throw new Error(`negative radius: ${i}`);let l=i*Math.cos(a),n=i*Math.sin(a),s=t+l,u=e+n,p=1^o,d=o?a-r:r-a;null===this._x1?this._append`M${s},${u}`:(Math.abs(this._x1-s)>wt||Math.abs(this._y1-u)>wt)&&this._append`L${s},${u}`,i&&(d<0&&(d=d%_t+_t),d>bt?this._append`A${i},${i},0,1,${p},${t-l},${e-n}A${i},${i},0,1,${p},${this._x1=s},${this._y1=u}`:d>wt&&this._append`A${i},${i},0,${+(d>=vt)},${p},${this._x1=t+i*Math.cos(r)},${this._y1=e+i*Math.sin(r)}`)}rect(t,e,i,a){this._append`M${this._x0=this._x1=+t},${this._y0=this._y1=+e}h${i=+i}v${+a}h${-i}Z`}toString(){return this._}}function St(t){let e=3;return t.digits=function(i){if(!arguments.length)return e;if(null==i)e=null;else{const t=Math.floor(i);if(!(t>=0))throw new RangeError(`invalid digits: ${i}`);e=t}return t},()=>new xt(e)}function kt(t){this._context=t}function At(t){return new kt(t)}function Ft(t){return t[0]}function Mt(t){return t[1]}kt.prototype={areaStart:function(){this._line=0},areaEnd:function(){this._line=NaN},lineStart:function(){this._point=0},lineEnd:function(){(this._line||0!==this._line&&1===this._point)&&this._context.closePath(),this._line=1-this._line},point:function(t,e){switch(t=+t,e=+e,this._point){case 0:this._point=1,this._line?this._context.lineTo(t,e):this._context.moveTo(t,e);break;case 1:this._point=2;default:this._context.lineTo(t,e)}}};const Et=ft(3);var Tt={draw(t,e){const i=.59436*ft(e+ht(e/28,.75)),a=i/2,r=a*Et;t.moveTo(0,i),t.lineTo(0,-i),t.moveTo(-r,-a),t.lineTo(r,a),t.moveTo(-r,a),t.lineTo(r,-a)}},$t={draw(t,e){const i=ft(e/yt);t.moveTo(i,0),t.arc(0,0,i,0,gt)}},Dt={draw(t,e){const i=ft(e/5)/2;t.moveTo(-3*i,-i),t.lineTo(-i,-i),t.lineTo(-i,-3*i),t.lineTo(i,-3*i),t.lineTo(i,-i),t.lineTo(3*i,-i),t.lineTo(3*i,i),t.lineTo(i,i),t.lineTo(i,3*i),t.lineTo(-i,3*i),t.lineTo(-i,i),t.lineTo(-3*i,i),t.closePath()}};const Lt=ft(1/3),Ct=2*Lt;var Pt={draw(t,e){const i=ft(e/Ct),a=i*Lt;t.moveTo(0,-i),t.lineTo(a,0),t.lineTo(0,i),t.lineTo(-a,0),t.closePath()}},It={draw(t,e){const i=ft(e),a=-i/2;t.rect(a,a,i,i)}};const Rt=mt(yt/10)/mt(7*yt/10),Vt=mt(gt/10)*Rt,Ot=-ct(gt/10)*Rt;var jt={draw(t,e){const i=ft(.8908130915292852*e),a=Vt*i,r=Ot*i;t.moveTo(0,-i),t.lineTo(a,r);for(let e=1;e<5;++e){const o=gt*e/5,l=ct(o),n=mt(o);t.lineTo(n*i,-l*i),t.lineTo(l*a-n*r,n*a+l*r)}t.closePath()}};const Ut=ft(3);var Gt={draw(t,e){const i=-ft(e/(3*Ut));t.moveTo(0,2*i),t.lineTo(-Ut*i,-i),t.lineTo(Ut*i,-i),t.closePath()}};const zt=-.5,Bt=ft(3)/2,qt=1/ft(12),Ht=3*(qt/2+1);var Zt={draw(t,e){const i=ft(e/Ht),a=i/2,r=i*qt,o=a,l=i*qt+i,n=-o,s=l;t.moveTo(a,r),t.lineTo(o,l),t.lineTo(n,s),t.lineTo(zt*a-Bt*r,Bt*a+zt*r),t.lineTo(zt*o-Bt*l,Bt*o+zt*l),t.lineTo(zt*n-Bt*s,Bt*n+zt*s),t.lineTo(zt*a+Bt*r,zt*r-Bt*a),t.lineTo(zt*o+Bt*l,zt*l-Bt*o),t.lineTo(zt*n+Bt*s,zt*s-Bt*n),t.closePath()}};function Yt(t,e){let i=null,a=St(r);function r(){let r;if(i||(i=r=a()),t.apply(this,arguments).draw(i,+e.apply(this,arguments)),r)return i=null,r+""||null}return t="function"==typeof t?t:dt(t||$t),e="function"==typeof e?e:dt(void 0===e?64:+e),r.type=function(e){return arguments.length?(t="function"==typeof e?e:dt(e),r):t},r.size=function(t){return arguments.length?(e="function"==typeof t?t:dt(+t),r):e},r.context=function(t){return arguments.length?(i=null==t?null:t,r):i},r}function Xt(t){return t}var Wt=1e-6;function Kt(t){return"translate("+t+",0)"}function Jt(t){return"translate(0,"+t+")"}function Qt(t){return e=>+t(e)}function te(t,e){return e=Math.max(0,t.bandwidth()-2*e)/2,t.round()&&(e=Math.round(e)),i=>+t(i)+e}function ee(){return!this.__axis}function ie(t,e){var i=[],a=null,r=null,o=6,l=6,n=3,s="undefined"!=typeof window&&window.devicePixelRatio>1?0:.5,u=1===t||4===t?-1:1,p=4===t||2===t?"x":"y",d=1===t||3===t?Kt:Jt;function c(c){var h=null==a?e.ticks?e.ticks.apply(e,i):e.domain():a,m=null==r?e.tickFormat?e.tickFormat.apply(e,i):Xt:r,f=Math.max(o,0)+n,y=e.range(),g=+y[0]+s,v=+y[y.length-1]+s,_=(e.bandwidth?te:Qt)(e.copy(),s),w=c.selection?c.selection():c,b=w.selectAll(".domain").data([null]),N=w.selectAll(".tick").data(h,e).order(),x=N.exit(),S=N.enter().append("g").attr("class","tick"),k=N.select("line"),A=N.select("text");b=b.merge(b.enter().insert("path",".tick").attr("class","domain").attr("stroke","currentColor")),N=N.merge(S),k=k.merge(S.append("line").attr("stroke","currentColor").attr(p+"2",u*o)),A=A.merge(S.append("text").attr("fill","currentColor").attr(p,u*f).attr("dy",1===t?"0em":3===t?"0.71em":"0.32em")),c!==w&&(b=b.transition(c),N=N.transition(c),k=k.transition(c),A=A.transition(c),x=x.transition(c).attr("opacity",Wt).attr("transform",(function(t){return isFinite(t=_(t))?d(t+s):this.getAttribute("transform")})),S.attr("opacity",Wt).attr("transform",(function(t){var e=this.parentNode.__axis;return d((e&&isFinite(e=e(t))?e:_(t))+s)}))),x.remove(),b.attr("d",4===t||2===t?l?"M"+u*l+","+g+"H"+s+"V"+v+"H"+u*l:"M"+s+","+g+"V"+v:l?"M"+g+","+u*l+"V"+s+"H"+v+"V"+u*l:"M"+g+","+s+"H"+v),N.attr("opacity",1).attr("transform",(function(t){return d(_(t)+s)})),k.attr(p+"2",u*o),A.attr(p,u*f).text(m),w.filter(ee).attr("fill","none").attr("font-size",10).attr("font-family","sans-serif").attr("text-anchor",2===t?"start":4===t?"end":"middle"),w.each((function(){this.__axis=_}))}return c.scale=function(t){return arguments.length?(e=t,c):e},c.ticks=function(){return i=Array.from(arguments),c},c.tickArguments=function(t){return arguments.length?(i=null==t?[]:Array.from(t),c):i.slice()},c.tickValues=function(t){return arguments.length?(a=null==t?null:Array.from(t),c):a&&a.slice()},c.tickFormat=function(t){return arguments.length?(r=t,c):r},c.tickSize=function(t){return arguments.length?(o=l=+t,c):o},c.tickSizeInner=function(t){return arguments.length?(o=+t,c):o},c.tickSizeOuter=function(t){return arguments.length?(l=+t,c):l},c.tickPadding=function(t){return arguments.length?(n=+t,c):n},c.offset=function(t){return arguments.length?(s=+t,c):s},c}function ae(t){return ie(3,t)}function re(t){return ie(4,t)}function oe(t,e){return null==t||null==e?NaN:t<e?-1:t>e?1:t>=e?0:NaN}function le(t,e){return null==t||null==e?NaN:e<t?-1:e>t?1:e>=t?0:NaN}function ne(t){let e,i,a;function r(t,a,r=0,o=t.length){if(r<o){if(0!==e(a,a))return o;do{const e=r+o>>>1;i(t[e],a)<0?r=e+1:o=e}while(r<o)}return r}return 2!==t.length?(e=oe,i=(e,i)=>oe(t(e),i),a=(e,i)=>t(e)-i):(e=t===oe||t===le?t:se,i=t,a=t),{left:r,center:function(t,e,i=0,o=t.length){const l=r(t,e,i,o-1);return l>i&&a(t[l-1],e)>-a(t[l],e)?l-1:l},right:function(t,a,r=0,o=t.length){if(r<o){if(0!==e(a,a))return o;do{const e=r+o>>>1;i(t[e],a)<=0?r=e+1:o=e}while(r<o)}return r}}}function se(){return 0}const ue=ne(oe).right;ne((function(t){return null===t?NaN:+t})).center;const pe=Math.sqrt(50),de=Math.sqrt(10),ce=Math.sqrt(2);function he(t,e,i){const a=(e-t)/Math.max(0,i),r=Math.floor(Math.log10(a)),o=a/Math.pow(10,r),l=o>=pe?10:o>=de?5:o>=ce?2:1;let n,s,u;return r<0?(u=Math.pow(10,-r)/l,n=Math.round(t*u),s=Math.round(e*u),n/u<t&&++n,s/u>e&&--s,u=-u):(u=Math.pow(10,r)*l,n=Math.round(t/u),s=Math.round(e/u),n*u<t&&++n,s*u>e&&--s),s<n&&.5<=i&&i<2?he(t,e,2*i):[n,s,u]}function me(t,e,i){return he(t=+t,e=+e,i=+i)[2]}function fe(t,e){switch(arguments.length){case 0:break;case 1:this.range(t);break;default:this.range(e).domain(t)}return this}function ye(t,e,i){t.prototype=e.prototype=i,i.constructor=t}function ge(t,e){var i=Object.create(t.prototype);for(var a in e)i[a]=e[a];return i}function ve(){}var _e=.7,we=1/_e,be="\\s*([+-]?\\d+)\\s*",Ne="\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*",xe="\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*",Se=/^#([0-9a-f]{3,8})$/,ke=new RegExp(`^rgb\\(${be},${be},${be}\\)$`),Ae=new RegExp(`^rgb\\(${xe},${xe},${xe}\\)$`),Fe=new RegExp(`^rgba\\(${be},${be},${be},${Ne}\\)$`),Me=new RegExp(`^rgba\\(${xe},${xe},${xe},${Ne}\\)$`),Ee=new RegExp(`^hsl\\(${Ne},${xe},${xe}\\)$`),Te=new RegExp(`^hsla\\(${Ne},${xe},${xe},${Ne}\\)$`),$e={aliceblue:15792383,antiquewhite:16444375,aqua:65535,aquamarine:8388564,azure:15794175,beige:16119260,bisque:16770244,black:0,blanchedalmond:16772045,blue:255,blueviolet:9055202,brown:10824234,burlywood:14596231,cadetblue:6266528,chartreuse:8388352,chocolate:13789470,coral:16744272,cornflowerblue:6591981,cornsilk:16775388,crimson:14423100,cyan:65535,darkblue:139,darkcyan:35723,darkgoldenrod:12092939,darkgray:11119017,darkgreen:25600,darkgrey:11119017,darkkhaki:12433259,darkmagenta:9109643,darkolivegreen:5597999,darkorange:16747520,darkorchid:10040012,darkred:9109504,darksalmon:15308410,darkseagreen:9419919,darkslateblue:4734347,darkslategray:3100495,darkslategrey:3100495,darkturquoise:52945,darkviolet:9699539,deeppink:16716947,deepskyblue:49151,dimgray:6908265,dimgrey:6908265,dodgerblue:2003199,firebrick:11674146,floralwhite:16775920,forestgreen:2263842,fuchsia:16711935,gainsboro:14474460,ghostwhite:16316671,gold:16766720,goldenrod:14329120,gray:8421504,green:32768,greenyellow:11403055,grey:8421504,honeydew:15794160,hotpink:16738740,indianred:13458524,indigo:4915330,ivory:16777200,khaki:15787660,lavender:15132410,lavenderblush:16773365,lawngreen:8190976,lemonchiffon:16775885,lightblue:11393254,lightcoral:15761536,lightcyan:14745599,lightgoldenrodyellow:16448210,lightgray:13882323,lightgreen:9498256,lightgrey:13882323,lightpink:16758465,lightsalmon:16752762,lightseagreen:2142890,lightskyblue:8900346,lightslategray:7833753,lightslategrey:7833753,lightsteelblue:11584734,lightyellow:16777184,lime:65280,limegreen:3329330,linen:16445670,magenta:16711935,maroon:8388608,mediumaquamarine:6737322,mediumblue:205,mediumorchid:12211667,mediumpurple:9662683,mediumseagreen:3978097,mediumslateblue:8087790,mediumspringgreen:64154,mediumturquoise:4772300,mediumvioletred:13047173,midnightblue:1644912,mintcream:16121850,mistyrose:16770273,moccasin:16770229,navajowhite:16768685,navy:128,oldlace:16643558,olive:8421376,olivedrab:7048739,orange:16753920,orangered:16729344,orchid:14315734,palegoldenrod:15657130,palegreen:10025880,paleturquoise:11529966,palevioletred:14381203,papayawhip:16773077,peachpuff:16767673,peru:13468991,pink:16761035,plum:14524637,powderblue:11591910,purple:8388736,rebeccapurple:6697881,red:16711680,rosybrown:12357519,royalblue:4286945,saddlebrown:9127187,salmon:16416882,sandybrown:16032864,seagreen:3050327,seashell:16774638,sienna:10506797,silver:12632256,skyblue:8900331,slateblue:6970061,slategray:7372944,slategrey:7372944,snow:16775930,springgreen:65407,steelblue:4620980,tan:13808780,teal:32896,thistle:14204888,tomato:16737095,turquoise:4251856,violet:15631086,wheat:16113331,white:16777215,whitesmoke:16119285,yellow:16776960,yellowgreen:10145074};function De(){return this.rgb().formatHex()}function Le(){return this.rgb().formatRgb()}function Ce(t){var e,i;return t=(t+"").trim().toLowerCase(),(e=Se.exec(t))?(i=e[1].length,e=parseInt(e[1],16),6===i?Pe(e):3===i?new Ve(e>>8&15|e>>4&240,e>>4&15|240&e,(15&e)<<4|15&e,1):8===i?Ie(e>>24&255,e>>16&255,e>>8&255,(255&e)/255):4===i?Ie(e>>12&15|e>>8&240,e>>8&15|e>>4&240,e>>4&15|240&e,((15&e)<<4|15&e)/255):null):(e=ke.exec(t))?new Ve(e[1],e[2],e[3],1):(e=Ae.exec(t))?new Ve(255*e[1]/100,255*e[2]/100,255*e[3]/100,1):(e=Fe.exec(t))?Ie(e[1],e[2],e[3],e[4]):(e=Me.exec(t))?Ie(255*e[1]/100,255*e[2]/100,255*e[3]/100,e[4]):(e=Ee.exec(t))?Be(e[1],e[2]/100,e[3]/100,1):(e=Te.exec(t))?Be(e[1],e[2]/100,e[3]/100,e[4]):$e.hasOwnProperty(t)?Pe($e[t]):"transparent"===t?new Ve(NaN,NaN,NaN,0):null}function Pe(t){return new Ve(t>>16&255,t>>8&255,255&t,1)}function Ie(t,e,i,a){return a<=0&&(t=e=i=NaN),new Ve(t,e,i,a)}function Re(t,e,i,a){return 1===arguments.length?((r=t)instanceof ve||(r=Ce(r)),r?new Ve((r=r.rgb()).r,r.g,r.b,r.opacity):new Ve):new Ve(t,e,i,null==a?1:a);var r}function Ve(t,e,i,a){this.r=+t,this.g=+e,this.b=+i,this.opacity=+a}function Oe(){return`#${ze(this.r)}${ze(this.g)}${ze(this.b)}`}function je(){const t=Ue(this.opacity);return`${1===t?"rgb(":"rgba("}${Ge(this.r)}, ${Ge(this.g)}, ${Ge(this.b)}${1===t?")":`, ${t})`}`}function Ue(t){return isNaN(t)?1:Math.max(0,Math.min(1,t))}function Ge(t){return Math.max(0,Math.min(255,Math.round(t)||0))}function ze(t){return((t=Ge(t))<16?"0":"")+t.toString(16)}function Be(t,e,i,a){return a<=0?t=e=i=NaN:i<=0||i>=1?t=e=NaN:e<=0&&(t=NaN),new He(t,e,i,a)}function qe(t){if(t instanceof He)return new He(t.h,t.s,t.l,t.opacity);if(t instanceof ve||(t=Ce(t)),!t)return new He;if(t instanceof He)return t;var e=(t=t.rgb()).r/255,i=t.g/255,a=t.b/255,r=Math.min(e,i,a),o=Math.max(e,i,a),l=NaN,n=o-r,s=(o+r)/2;return n?(l=e===o?(i-a)/n+6*(i<a):i===o?(a-e)/n+2:(e-i)/n+4,n/=s<.5?o+r:2-o-r,l*=60):n=s>0&&s<1?0:l,new He(l,n,s,t.opacity)}function He(t,e,i,a){this.h=+t,this.s=+e,this.l=+i,this.opacity=+a}function Ze(t){return(t=(t||0)%360)<0?t+360:t}function Ye(t){return Math.max(0,Math.min(1,t||0))}function Xe(t,e,i){return 255*(t<60?e+(i-e)*t/60:t<180?i:t<240?e+(i-e)*(240-t)/60:e)}ye(ve,Ce,{copy(t){return Object.assign(new this.constructor,this,t)},displayable(){return this.rgb().displayable()},hex:De,formatHex:De,formatHex8:function(){return this.rgb().formatHex8()},formatHsl:function(){return qe(this).formatHsl()},formatRgb:Le,toString:Le}),ye(Ve,Re,ge(ve,{brighter(t){return t=null==t?we:Math.pow(we,t),new Ve(this.r*t,this.g*t,this.b*t,this.opacity)},darker(t){return t=null==t?_e:Math.pow(_e,t),new Ve(this.r*t,this.g*t,this.b*t,this.opacity)},rgb(){return this},clamp(){return new Ve(Ge(this.r),Ge(this.g),Ge(this.b),Ue(this.opacity))},displayable(){return-.5<=this.r&&this.r<255.5&&-.5<=this.g&&this.g<255.5&&-.5<=this.b&&this.b<255.5&&0<=this.opacity&&this.opacity<=1},hex:Oe,formatHex:Oe,formatHex8:function(){return`#${ze(this.r)}${ze(this.g)}${ze(this.b)}${ze(255*(isNaN(this.opacity)?1:this.opacity))}`},formatRgb:je,toString:je})),ye(He,(function(t,e,i,a){return 1===arguments.length?qe(t):new He(t,e,i,null==a?1:a)}),ge(ve,{brighter(t){return t=null==t?we:Math.pow(we,t),new He(this.h,this.s,this.l*t,this.opacity)},darker(t){return t=null==t?_e:Math.pow(_e,t),new He(this.h,this.s,this.l*t,this.opacity)},rgb(){var t=this.h%360+360*(this.h<0),e=isNaN(t)||isNaN(this.s)?0:this.s,i=this.l,a=i+(i<.5?i:1-i)*e,r=2*i-a;return new Ve(Xe(t>=240?t-240:t+120,r,a),Xe(t,r,a),Xe(t<120?t+240:t-120,r,a),this.opacity)},clamp(){return new He(Ze(this.h),Ye(this.s),Ye(this.l),Ue(this.opacity))},displayable(){return(0<=this.s&&this.s<=1||isNaN(this.s))&&0<=this.l&&this.l<=1&&0<=this.opacity&&this.opacity<=1},formatHsl(){const t=Ue(this.opacity);return`${1===t?"hsl(":"hsla("}${Ze(this.h)}, ${100*Ye(this.s)}%, ${100*Ye(this.l)}%${1===t?")":`, ${t})`}`}}));var We=t=>()=>t;function Ke(t){return 1==(t=+t)?Je:function(e,i){return i-e?function(t,e,i){return t=Math.pow(t,i),e=Math.pow(e,i)-t,i=1/i,function(a){return Math.pow(t+a*e,i)}}(e,i,t):We(isNaN(e)?i:e)}}function Je(t,e){var i=e-t;return i?function(t,e){return function(i){return t+i*e}}(t,i):We(isNaN(t)?e:t)}var Qe=function t(e){var i=Ke(e);function a(t,e){var a=i((t=Re(t)).r,(e=Re(e)).r),r=i(t.g,e.g),o=i(t.b,e.b),l=Je(t.opacity,e.opacity);return function(e){return t.r=a(e),t.g=r(e),t.b=o(e),t.opacity=l(e),t+""}}return a.gamma=t,a}(1);function ti(t,e){e||(e=[]);var i,a=t?Math.min(e.length,t.length):0,r=e.slice();return function(o){for(i=0;i<a;++i)r[i]=t[i]*(1-o)+e[i]*o;return r}}function ei(t,e){var i,a=e?e.length:0,r=t?Math.min(a,t.length):0,o=new Array(r),l=new Array(a);for(i=0;i<r;++i)o[i]=si(t[i],e[i]);for(;i<a;++i)l[i]=e[i];return function(t){for(i=0;i<r;++i)l[i]=o[i](t);return l}}function ii(t,e){var i=new Date;return t=+t,e=+e,function(a){return i.setTime(t*(1-a)+e*a),i}}function ai(t,e){return t=+t,e=+e,function(i){return t*(1-i)+e*i}}function ri(t,e){var i,a={},r={};for(i in null!==t&&"object"==typeof t||(t={}),null!==e&&"object"==typeof e||(e={}),e)i in t?a[i]=si(t[i],e[i]):r[i]=e[i];return function(t){for(i in a)r[i]=a[i](t);return r}}var oi=/[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g,li=new RegExp(oi.source,"g");function ni(t,e){var i,a,r,o=oi.lastIndex=li.lastIndex=0,l=-1,n=[],s=[];for(t+="",e+="";(i=oi.exec(t))&&(a=li.exec(e));)(r=a.index)>o&&(r=e.slice(o,r),n[l]?n[l]+=r:n[++l]=r),(i=i[0])===(a=a[0])?n[l]?n[l]+=a:n[++l]=a:(n[++l]=null,s.push({i:l,x:ai(i,a)})),o=li.lastIndex;return o<e.length&&(r=e.slice(o),n[l]?n[l]+=r:n[++l]=r),n.length<2?s[0]?function(t){return function(e){return t(e)+""}}(s[0].x):function(t){return function(){return t}}(e):(e=s.length,function(t){for(var i,a=0;a<e;++a)n[(i=s[a]).i]=i.x(t);return n.join("")})}function si(t,e){var i,a=typeof e;return null==e||"boolean"===a?We(e):("number"===a?ai:"string"===a?(i=Ce(e))?(e=i,Qe):ni:e instanceof Ce?Qe:e instanceof Date?ii:function(t){return ArrayBuffer.isView(t)&&!(t instanceof DataView)}(e)?ti:Array.isArray(e)?ei:"function"!=typeof e.valueOf&&"function"!=typeof e.toString||isNaN(e)?ri:ai)(t,e)}function ui(t,e){return t=+t,e=+e,function(i){return Math.round(t*(1-i)+e*i)}}function pi(t){return+t}var di=[0,1];function ci(t){return t}function hi(t,e){return(e-=t=+t)?function(i){return(i-t)/e}:function(t){return function(){return t}}(isNaN(e)?NaN:.5)}function mi(t,e,i){var a=t[0],r=t[1],o=e[0],l=e[1];return r<a?(a=hi(r,a),o=i(l,o)):(a=hi(a,r),o=i(o,l)),function(t){return o(a(t))}}function fi(t,e,i){var a=Math.min(t.length,e.length)-1,r=new Array(a),o=new Array(a),l=-1;for(t[a]<t[0]&&(t=t.slice().reverse(),e=e.slice().reverse());++l<a;)r[l]=hi(t[l],t[l+1]),o[l]=i(e[l],e[l+1]);return function(e){var i=ue(t,e,1,a)-1;return o[i](r[i](e))}}function yi(){var t,e,i,a,r,o,l=di,n=di,s=si,u=ci;function p(){var t=Math.min(l.length,n.length);return u!==ci&&(u=function(t,e){var i;return t>e&&(i=t,t=e,e=i),function(i){return Math.max(t,Math.min(e,i))}}(l[0],l[t-1])),a=t>2?fi:mi,r=o=null,d}function d(e){return null==e||isNaN(e=+e)?i:(r||(r=a(l.map(t),n,s)))(t(u(e)))}return d.invert=function(i){return u(e((o||(o=a(n,l.map(t),ai)))(i)))},d.domain=function(t){return arguments.length?(l=Array.from(t,pi),p()):l.slice()},d.range=function(t){return arguments.length?(n=Array.from(t),p()):n.slice()},d.rangeRound=function(t){return n=Array.from(t),s=ui,p()},d.clamp=function(t){return arguments.length?(u=!!t||ci,p()):u!==ci},d.interpolate=function(t){return arguments.length?(s=t,p()):s},d.unknown=function(t){return arguments.length?(i=t,d):i},function(i,a){return t=i,e=a,p()}}function gi(t,e){if((i=(t=e?t.toExponential(e-1):t.toExponential()).indexOf("e"))<0)return null;var i,a=t.slice(0,i);return[a.length>1?a[0]+a.slice(2):a,+t.slice(i+1)]}function vi(t){return(t=gi(Math.abs(t)))?t[1]:NaN}var _i,wi=/^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;function bi(t){if(!(e=wi.exec(t)))throw new Error("invalid format: "+t);var e;return new Ni({fill:e[1],align:e[2],sign:e[3],symbol:e[4],zero:e[5],width:e[6],comma:e[7],precision:e[8]&&e[8].slice(1),trim:e[9],type:e[10]})}function Ni(t){this.fill=void 0===t.fill?" ":t.fill+"",this.align=void 0===t.align?">":t.align+"",this.sign=void 0===t.sign?"-":t.sign+"",this.symbol=void 0===t.symbol?"":t.symbol+"",this.zero=!!t.zero,this.width=void 0===t.width?void 0:+t.width,this.comma=!!t.comma,this.precision=void 0===t.precision?void 0:+t.precision,this.trim=!!t.trim,this.type=void 0===t.type?"":t.type+""}function xi(t,e){var i=gi(t,e);if(!i)return t+"";var a=i[0],r=i[1];return r<0?"0."+new Array(-r).join("0")+a:a.length>r+1?a.slice(0,r+1)+"."+a.slice(r+1):a+new Array(r-a.length+2).join("0")}bi.prototype=Ni.prototype,Ni.prototype.toString=function(){return this.fill+this.align+this.sign+this.symbol+(this.zero?"0":"")+(void 0===this.width?"":Math.max(1,0|this.width))+(this.comma?",":"")+(void 0===this.precision?"":"."+Math.max(0,0|this.precision))+(this.trim?"~":"")+this.type};var Si={"%":(t,e)=>(100*t).toFixed(e),b:t=>Math.round(t).toString(2),c:t=>t+"",d:function(t){return Math.abs(t=Math.round(t))>=1e21?t.toLocaleString("en").replace(/,/g,""):t.toString(10)},e:(t,e)=>t.toExponential(e),f:(t,e)=>t.toFixed(e),g:(t,e)=>t.toPrecision(e),o:t=>Math.round(t).toString(8),p:(t,e)=>xi(100*t,e),r:xi,s:function(t,e){var i=gi(t,e);if(!i)return t+"";var a=i[0],r=i[1],o=r-(_i=3*Math.max(-8,Math.min(8,Math.floor(r/3))))+1,l=a.length;return o===l?a:o>l?a+new Array(o-l+1).join("0"):o>0?a.slice(0,o)+"."+a.slice(o):"0."+new Array(1-o).join("0")+gi(t,Math.max(0,e+o-1))[0]},X:t=>Math.round(t).toString(16).toUpperCase(),x:t=>Math.round(t).toString(16)};function ki(t){return t}var Ai,Fi,Mi,Ei=Array.prototype.map,Ti=["y","z","a","f","p","n","µ","m","","k","M","G","T","P","E","Z","Y"];function $i(t){var e,i,a=void 0===t.grouping||void 0===t.thousands?ki:(e=Ei.call(t.grouping,Number),i=t.thousands+"",function(t,a){for(var r=t.length,o=[],l=0,n=e[0],s=0;r>0&&n>0&&(s+n+1>a&&(n=Math.max(1,a-s)),o.push(t.substring(r-=n,r+n)),!((s+=n+1)>a));)n=e[l=(l+1)%e.length];return o.reverse().join(i)}),r=void 0===t.currency?"":t.currency[0]+"",o=void 0===t.currency?"":t.currency[1]+"",l=void 0===t.decimal?".":t.decimal+"",n=void 0===t.numerals?ki:function(t){return function(e){return e.replace(/[0-9]/g,(function(e){return t[+e]}))}}(Ei.call(t.numerals,String)),s=void 0===t.percent?"%":t.percent+"",u=void 0===t.minus?"−":t.minus+"",p=void 0===t.nan?"NaN":t.nan+"";function d(t){var e=(t=bi(t)).fill,i=t.align,d=t.sign,c=t.symbol,h=t.zero,m=t.width,f=t.comma,y=t.precision,g=t.trim,v=t.type;"n"===v?(f=!0,v="g"):Si[v]||(void 0===y&&(y=12),g=!0,v="g"),(h||"0"===e&&"="===i)&&(h=!0,e="0",i="=");var _="$"===c?r:"#"===c&&/[boxX]/.test(v)?"0"+v.toLowerCase():"",w="$"===c?o:/[%p]/.test(v)?s:"",b=Si[v],N=/[defgprs%]/.test(v);function x(t){var r,o,s,c=_,x=w;if("c"===v)x=b(t)+x,t="";else{var S=(t=+t)<0||1/t<0;if(t=isNaN(t)?p:b(Math.abs(t),y),g&&(t=function(t){t:for(var e,i=t.length,a=1,r=-1;a<i;++a)switch(t[a]){case".":r=e=a;break;case"0":0===r&&(r=a),e=a;break;default:if(!+t[a])break t;r>0&&(r=0)}return r>0?t.slice(0,r)+t.slice(e+1):t}(t)),S&&0==+t&&"+"!==d&&(S=!1),c=(S?"("===d?d:u:"-"===d||"("===d?"":d)+c,x=("s"===v?Ti[8+_i/3]:"")+x+(S&&"("===d?")":""),N)for(r=-1,o=t.length;++r<o;)if(48>(s=t.charCodeAt(r))||s>57){x=(46===s?l+t.slice(r+1):t.slice(r))+x,t=t.slice(0,r);break}}f&&!h&&(t=a(t,1/0));var k=c.length+t.length+x.length,A=k<m?new Array(m-k+1).join(e):"";switch(f&&h&&(t=a(A+t,A.length?m-x.length:1/0),A=""),i){case"<":t=c+t+x+A;break;case"=":t=c+A+t+x;break;case"^":t=A.slice(0,k=A.length>>1)+c+t+x+A.slice(k);break;default:t=A+c+t+x}return n(t)}return y=void 0===y?6:/[gprs]/.test(v)?Math.max(1,Math.min(21,y)):Math.max(0,Math.min(20,y)),x.toString=function(){return t+""},x}return{format:d,formatPrefix:function(t,e){var i=d(((t=bi(t)).type="f",t)),a=3*Math.max(-8,Math.min(8,Math.floor(vi(e)/3))),r=Math.pow(10,-a),o=Ti[8+a/3];return function(t){return i(r*t)+o}}}}function Di(t,e,i,a){var r,o=function(t,e,i){i=+i;const a=(e=+e)<(t=+t),r=a?me(e,t,i):me(t,e,i);return(a?-1:1)*(r<0?1/-r:r)}(t,e,i);switch((a=bi(null==a?",f":a)).type){case"s":var l=Math.max(Math.abs(t),Math.abs(e));return null!=a.precision||isNaN(r=function(t,e){return Math.max(0,3*Math.max(-8,Math.min(8,Math.floor(vi(e)/3)))-vi(Math.abs(t)))}(o,l))||(a.precision=r),Mi(a,l);case"":case"e":case"g":case"p":case"r":null!=a.precision||isNaN(r=function(t,e){return t=Math.abs(t),e=Math.abs(e)-t,Math.max(0,vi(e)-vi(t))+1}(o,Math.max(Math.abs(t),Math.abs(e))))||(a.precision=r-("e"===a.type));break;case"f":case"%":null!=a.precision||isNaN(r=function(t){return Math.max(0,-vi(Math.abs(t)))}(o))||(a.precision=r-2*("%"===a.type))}return Fi(a)}function Li(t){var e=t.domain;return t.ticks=function(t){var i=e();return function(t,e,i){if(!((i=+i)>0))return[];if((t=+t)==(e=+e))return[t];const a=e<t,[r,o,l]=a?he(e,t,i):he(t,e,i);if(!(o>=r))return[];const n=o-r+1,s=new Array(n);if(a)if(l<0)for(let t=0;t<n;++t)s[t]=(o-t)/-l;else for(let t=0;t<n;++t)s[t]=(o-t)*l;else if(l<0)for(let t=0;t<n;++t)s[t]=(r+t)/-l;else for(let t=0;t<n;++t)s[t]=(r+t)*l;return s}(i[0],i[i.length-1],null==t?10:t)},t.tickFormat=function(t,i){var a=e();return Di(a[0],a[a.length-1],null==t?10:t,i)},t.nice=function(i){null==i&&(i=10);var a,r,o=e(),l=0,n=o.length-1,s=o[l],u=o[n],p=10;for(u<s&&(r=s,s=u,u=r,r=l,l=n,n=r);p-- >0;){if((r=me(s,u,i))===a)return o[l]=s,o[n]=u,e(o);if(r>0)s=Math.floor(s/r)*r,u=Math.ceil(u/r)*r;else{if(!(r<0))break;s=Math.ceil(s*r)/r,u=Math.floor(u*r)/r}a=r}return t},t}function Ci(){var t=yi()(ci,ci);return t.copy=function(){return e=t,Ci().domain(e.domain()).range(e.range()).interpolate(e.interpolate()).clamp(e.clamp()).unknown(e.unknown());var e},fe.apply(t,arguments),Li(t)}Ai=$i({thousands:",",grouping:[3],currency:["$",""]}),Fi=Ai.format,Mi=Ai.formatPrefix;var Pi={value:()=>{}};function Ii(){for(var t,e=0,i=arguments.length,a={};e<i;++e){if(!(t=arguments[e]+"")||t in a||/[\s.]/.test(t))throw new Error("illegal type: "+t);a[t]=[]}return new Ri(a)}function Ri(t){this._=t}function Vi(t,e){for(var i,a=0,r=t.length;a<r;++a)if((i=t[a]).name===e)return i.value}function Oi(t,e,i){for(var a=0,r=t.length;a<r;++a)if(t[a].name===e){t[a]=Pi,t=t.slice(0,a).concat(t.slice(a+1));break}return null!=i&&t.push({name:e,value:i}),t}Ri.prototype=Ii.prototype={constructor:Ri,on:function(t,e){var i,a,r=this._,o=(a=r,(t+"").trim().split(/^|\s+/).map((function(t){var e="",i=t.indexOf(".");if(i>=0&&(e=t.slice(i+1),t=t.slice(0,i)),t&&!a.hasOwnProperty(t))throw new Error("unknown type: "+t);return{type:t,name:e}}))),l=-1,n=o.length;if(!(arguments.length<2)){if(null!=e&&"function"!=typeof e)throw new Error("invalid callback: "+e);for(;++l<n;)if(i=(t=o[l]).type)r[i]=Oi(r[i],t.name,e);else if(null==e)for(i in r)r[i]=Oi(r[i],t.name,null);return this}for(;++l<n;)if((i=(t=o[l]).type)&&(i=Vi(r[i],t.name)))return i},copy:function(){var t={},e=this._;for(var i in e)t[i]=e[i].slice();return new Ri(t)},call:function(t,e){if((i=arguments.length-2)>0)for(var i,a,r=new Array(i),o=0;o<i;++o)r[o]=arguments[o+2];if(!this._.hasOwnProperty(t))throw new Error("unknown type: "+t);for(o=0,i=(a=this._[t]).length;o<i;++o)a[o].value.apply(e,r)},apply:function(t,e,i){if(!this._.hasOwnProperty(t))throw new Error("unknown type: "+t);for(var a=this._[t],r=0,o=a.length;r<o;++r)a[r].value.apply(e,i)}};const ji={passive:!1},Ui={capture:!0,passive:!1};function Gi(t){t.stopImmediatePropagation()}function zi(t){t.preventDefault(),t.stopImmediatePropagation()}var Bi=t=>()=>t;function qi(t,{sourceEvent:e,subject:i,target:a,identifier:r,active:o,x:l,y:n,dx:s,dy:u,dispatch:p}){Object.defineProperties(this,{type:{value:t,enumerable:!0,configurable:!0},sourceEvent:{value:e,enumerable:!0,configurable:!0},subject:{value:i,enumerable:!0,configurable:!0},target:{value:a,enumerable:!0,configurable:!0},identifier:{value:r,enumerable:!0,configurable:!0},active:{value:o,enumerable:!0,configurable:!0},x:{value:l,enumerable:!0,configurable:!0},y:{value:n,enumerable:!0,configurable:!0},dx:{value:s,enumerable:!0,configurable:!0},dy:{value:u,enumerable:!0,configurable:!0},_:{value:p}})}function Hi(t){return!t.ctrlKey&&!t.button}function Zi(){return this.parentNode}function Yi(t,e){return null==e?{x:t.x,y:t.y}:e}function Xi(){return navigator.maxTouchPoints||"ontouchstart"in this}function Wi(){var t,e,i,a,r=Hi,o=Zi,l=Yi,n=Xi,s={},u=Ii("start","drag","end"),p=0,d=0;function c(t){t.on("mousedown.drag",h).filter(n).on("touchstart.drag",y).on("touchmove.drag",g,ji).on("touchend.drag touchcancel.drag",v).style("touch-action","none").style("-webkit-tap-highlight-color","rgba(0,0,0,0)")}function h(l,n){if(!a&&r.call(this,l,n)){var s=_(this,o.call(this,l,n),l,n,"mouse");s&&(ut(l.view).on("mousemove.drag",m,Ui).on("mouseup.drag",f,Ui),function(t){var e=t.document.documentElement,i=ut(t).on("dragstart.drag",zi,Ui);"onselectstart"in e?i.on("selectstart.drag",zi,Ui):(e.__noselect=e.style.MozUserSelect,e.style.MozUserSelect="none")}(l.view),Gi(l),i=!1,t=l.clientX,e=l.clientY,s("start",l))}}function m(a){if(zi(a),!i){var r=a.clientX-t,o=a.clientY-e;i=r*r+o*o>d}s.mouse("drag",a)}function f(t){ut(t.view).on("mousemove.drag mouseup.drag",null),function(t,e){var i=t.document.documentElement,a=ut(t).on("dragstart.drag",null);e&&(a.on("click.drag",zi,Ui),setTimeout((function(){a.on("click.drag",null)}),0)),"onselectstart"in i?a.on("selectstart.drag",null):(i.style.MozUserSelect=i.__noselect,delete i.__noselect)}(t.view,i),zi(t),s.mouse("end",t)}function y(t,e){if(r.call(this,t,e)){var i,a,l=t.changedTouches,n=o.call(this,t,e),s=l.length;for(i=0;i<s;++i)(a=_(this,n,t,e,l[i].identifier,l[i]))&&(Gi(t),a("start",t,l[i]))}}function g(t){var e,i,a=t.changedTouches,r=a.length;for(e=0;e<r;++e)(i=s[a[e].identifier])&&(zi(t),i("drag",t,a[e]))}function v(t){var e,i,r=t.changedTouches,o=r.length;for(a&&clearTimeout(a),a=setTimeout((function(){a=null}),500),e=0;e<o;++e)(i=s[r[e].identifier])&&(Gi(t),i("end",t,r[e]))}function _(t,e,i,a,r,o){var n,d,h,m=u.copy(),f=pt(o||i,e);if(null!=(h=l.call(t,new qi("beforestart",{sourceEvent:i,target:c,identifier:r,active:p,x:f[0],y:f[1],dx:0,dy:0,dispatch:m}),a)))return n=h.x-f[0]||0,d=h.y-f[1]||0,function i(o,l,u){var y,g=f;switch(o){case"start":s[r]=i,y=p++;break;case"end":delete s[r],--p;case"drag":f=pt(u||l,e),y=p}m.call(o,t,new qi(o,{sourceEvent:l,subject:h,target:c,identifier:r,active:y,x:f[0]+n,y:f[1]+d,dx:f[0]-g[0],dy:f[1]-g[1],dispatch:m}),a)}}return c.filter=function(t){return arguments.length?(r="function"==typeof t?t:Bi(!!t),c):r},c.container=function(t){return arguments.length?(o="function"==typeof t?t:Bi(t),c):o},c.subject=function(t){return arguments.length?(l="function"==typeof t?t:Bi(t),c):l},c.touchable=function(t){return arguments.length?(n="function"==typeof t?t:Bi(!!t),c):n},c.on=function(){var t=u.on.apply(u,arguments);return t===u?c:t},c.clickDistance=function(t){return arguments.length?(d=(t=+t)*t,c):Math.sqrt(d)},c}qi.prototype.on=function(){var t=this._.on.apply(this._,arguments);return t===this._?this:t};var Ki=Object.freeze({__proto__:null,axisBottom:ae,axisLeft:re,drag:Wi,line:function(t,e){var i=dt(!0),a=null,r=At,o=null,l=St(n);function n(n){var s,u,p,d=(n=function(t){return"object"==typeof t&&"length"in t?t:Array.from(t)}(n)).length,c=!1;for(null==a&&(o=r(p=l())),s=0;s<=d;++s)!(s<d&&i(u=n[s],s,n))===c&&((c=!c)?o.lineStart():o.lineEnd()),c&&o.point(+t(u,s,n),+e(u,s,n));if(p)return o=null,p+""||null}return t="function"==typeof t?t:void 0===t?Ft:dt(t),e="function"==typeof e?e:void 0===e?Mt:dt(e),n.x=function(e){return arguments.length?(t="function"==typeof e?e:dt(+e),n):t},n.y=function(t){return arguments.length?(e="function"==typeof t?t:dt(+t),n):e},n.defined=function(t){return arguments.length?(i="function"==typeof t?t:dt(!!t),n):i},n.curve=function(t){return arguments.length?(r=t,null!=a&&(o=r(a)),n):r},n.context=function(t){return arguments.length?(null==t?a=o=null:o=r(a=t),n):a},n},scaleLinear:Ci,select:ut,selectAll:function(t){return"string"==typeof t?new st([document.querySelectorAll(t)],[document.documentElement]):new st([u(t)],nt)},symbol:Yt,symbolAsterisk:Tt,symbolCircle:$t,symbolCross:Dt,symbolDiamond:Pt,symbolSquare:It,symbolStar:jt,symbolTriangle:Gt,symbolWye:Zt});const Ji="#00B0F0",Qi="#E46C0A",ta="#490092",ea="#490092",ia="#A6A6A6",aa="#6495ED",ra="#000000",oa={font:{default:"'Arial', sans-serif",valid:["'Arial', sans-serif","Arial","'Arial Black'","'Arial Unicode MS'","Calibri","Cambria","'Cambria Math'","Candara","'Comic Sans MS'","Consolas","Constantia","Corbel","'Courier New'","wf_standard-font, helvetica, arial, sans-serif","wf_standard-font_light, helvetica, arial, sans-serif","Georgia","'Lucida Sans Unicode'","'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif","'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif","'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif","'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif","Symbol","Tahoma","'Times New Roman'","'Trebuchet MS'","Verdana","Wingdings"]},size:{default:10,options:{minValue:{value:0},maxValue:{value:100}}},weight:{default:"normal",valid:["normal","bold","bolder","lighter"]},text_transform:{default:"uppercase",valid:["uppercase","lowercase","capitalize","none"]},text_overflow:{default:"ellipsis",valid:["ellipsis","clip","none"]},text_align:{default:"center",valid:["center","left","right"]}},la={width:{default:1,options:{minValue:{value:0}}},style:{default:"solid",valid:["solid","dotted","dashed","double","groove","ridge","inset","outset","none"]},colour:{default:"#000000"}},na={canvas:{description:"Canvas Settings",displayName:"Canvas Settings",settingsGroups:{all:{show_errors:{displayName:"Show Errors on Canvas",type:"ToggleSwitch",default:!0},lower_padding:{displayName:"Padding Below Plot (pixels):",type:"NumUpDown",default:10},upper_padding:{displayName:"Padding Above Plot (pixels):",type:"NumUpDown",default:10},left_padding:{displayName:"Padding Left of Plot (pixels):",type:"NumUpDown",default:10},right_padding:{displayName:"Padding Right of Plot (pixels):",type:"NumUpDown",default:10}}}},spc:{description:"SPC Settings",displayName:"Data Settings",settingsGroups:{all:{chart_type:{displayName:"Chart Type",type:"Dropdown",default:"i",valid:["run","i","i_m","i_mm","mr","p","pp","u","up","c","xbar","s","g","t"],items:[{displayName:"run - Run Chart",value:"run"},{displayName:"i - Individual Measurements",value:"i"},{displayName:"i_m - Individual Measurements: Median centerline",value:"i_m"},{displayName:"i_mm - Individual Measurements: Median centerline, Median MR Limits",value:"i_mm"},{displayName:"mr - Moving Range of Individual Measurements",value:"mr"},{displayName:"p - Proportions",value:"p"},{displayName:"p prime - Proportions: Large-Sample Corrected",value:"pp"},{displayName:"u - Rates",value:"u"},{displayName:"u prime - Rates: Large-Sample Correction",value:"up"},{displayName:"c - Counts",value:"c"},{displayName:"xbar - Sample Means",value:"xbar"},{displayName:"s - Sample SDs",value:"s"},{displayName:"g - Number of Non-Events Between Events",value:"g"},{displayName:"t - Time Between Events",value:"t"}]},outliers_in_limits:{displayName:"Keep Outliers in Limit Calcs.",type:"ToggleSwitch",default:!1},multiplier:{displayName:"Multiplier",type:"NumUpDown",default:1,options:{minValue:{value:0}}},sig_figs:{displayName:"Decimals to Report:",type:"NumUpDown",default:2,options:{minValue:{value:0},maxValue:{value:20}}},perc_labels:{displayName:"Report as percentage",type:"Dropdown",default:"Automatic",valid:["Automatic","Yes","No"],items:[{displayName:"Automatic",value:"Automatic"},{displayName:"Yes",value:"Yes"},{displayName:"No",value:"No"}]},split_on_click:{displayName:"Split Limits on Click",type:"ToggleSwitch",default:!1},num_points_subset:{displayName:"Subset Number of Points for Limit Calculations",type:"NumUpDown",default:null},subset_points_from:{displayName:"Subset Points From",type:"Dropdown",default:"Start",valid:["Start","End"],items:[{displayName:"Start",value:"Start"},{displayName:"End",value:"End"}]},ttip_show_date:{displayName:"Show Date in Tooltip",type:"ToggleSwitch",default:!0},ttip_label_date:{displayName:"Date Tooltip Label",type:"TextInput",default:"Automatic"},ttip_show_numerator:{displayName:"Show Numerator in Tooltip",type:"ToggleSwitch",default:!0},ttip_label_numerator:{displayName:"Numerator Tooltip Label",type:"TextInput",default:"Numerator"},ttip_show_denominator:{displayName:"Show Denominator in Tooltip",type:"ToggleSwitch",default:!0},ttip_label_denominator:{displayName:"Denominator Tooltip Label",type:"TextInput",default:"Denominator"},ttip_show_value:{displayName:"Show Value in Tooltip",type:"ToggleSwitch",default:!0},ttip_label_value:{displayName:"Value Tooltip Label",type:"TextInput",default:"Automatic"},ll_truncate:{displayName:"Truncate Lower Limits at:",type:"NumUpDown",default:null},ul_truncate:{displayName:"Truncate Upper Limits at:",type:"NumUpDown",default:null}}}},outliers:{description:"Outlier Settings",displayName:"Outlier Settings",settingsGroups:{General:{process_flag_type:{displayName:"Type of Change to Flag",type:"Dropdown",default:"both",valid:["both","improvement","deterioration"],items:[{displayName:"Both",value:"both"},{displayName:"Improvement (Imp.)",value:"improvement"},{displayName:"Deterioration (Det.)",value:"deterioration"}]},improvement_direction:{displayName:"Improvement Direction",type:"Dropdown",default:"increase",valid:["increase","neutral","decrease"],items:[{displayName:"Increase",value:"increase"},{displayName:"Neutral",value:"neutral"},{displayName:"Decrease",value:"decrease"}]}},"Astronomical Points":{astronomical:{displayName:"Highlight Astronomical Points",type:"ToggleSwitch",default:!1},astronomical_limit:{displayName:"Limit for Astronomical Points",type:"Dropdown",default:"3 Sigma",valid:["1 Sigma","2 Sigma","3 Sigma","Specification"],items:[{displayName:"1 Sigma",value:"1 Sigma"},{displayName:"2 Sigma",value:"2 Sigma"},{displayName:"3 Sigma",value:"3 Sigma"},{displayName:"Specification",value:"Specification"}]},ast_colour_improvement:{displayName:"Imp. Ast. Colour",type:"ColorPicker",default:Ji},ast_colour_deterioration:{displayName:"Det. Ast. Colour",type:"ColorPicker",default:Qi},ast_colour_neutral_low:{displayName:"Neutral (Low) Ast. Colour",type:"ColorPicker",default:ta},ast_colour_neutral_high:{displayName:"Neutral (High) Ast. Colour",type:"ColorPicker",default:ea}},Shifts:{shift:{displayName:"Highlight Shifts",type:"ToggleSwitch",default:!1},shift_n:{displayName:"Shift Points",type:"NumUpDown",default:7,options:{minValue:{value:1}}},shift_colour_improvement:{displayName:"Imp. Shift Colour",type:"ColorPicker",default:Ji},shift_colour_deterioration:{displayName:"Det. Shift Colour",type:"ColorPicker",default:Qi},shift_colour_neutral_low:{displayName:"Neutral (Low) Shift Colour",type:"ColorPicker",default:ta},shift_colour_neutral_high:{displayName:"Neutral (High) Shift Colour",type:"ColorPicker",default:ea}},Trends:{trend:{displayName:"Highlight Trends",type:"ToggleSwitch",default:!1},trend_n:{displayName:"Trend Points",type:"NumUpDown",default:5,options:{minValue:{value:1}}},trend_colour_improvement:{displayName:"Imp. Trend Colour",type:"ColorPicker",default:Ji},trend_colour_deterioration:{displayName:"Det. Trend Colour",type:"ColorPicker",default:Qi},trend_colour_neutral_low:{displayName:"Neutral (Low) Trend Colour",type:"ColorPicker",default:ta},trend_colour_neutral_high:{displayName:"Neutral (High) Trend Colour",type:"ColorPicker",default:ea}},"Two-In-Three":{two_in_three:{displayName:"Highlight Two-in-Three",type:"ToggleSwitch",default:!1},two_in_three_highlight_series:{displayName:"Highlight all in Pattern",type:"ToggleSwitch",default:!1},two_in_three_limit:{displayName:"Warning Limit for Two-in-Three",type:"Dropdown",default:"2 Sigma",valid:["1 Sigma","2 Sigma","3 Sigma","Specification"],items:[{displayName:"1 Sigma",value:"1 Sigma"},{displayName:"2 Sigma",value:"2 Sigma"},{displayName:"3 Sigma",value:"3 Sigma"},{displayName:"Specification",value:"Specification"}]},twointhree_colour_improvement:{displayName:"Imp. Two-in-Three Colour",type:"ColorPicker",default:Ji},twointhree_colour_deterioration:{displayName:"Det. Two-in-Three Colour",type:"ColorPicker",default:Qi},twointhree_colour_neutral_low:{displayName:"Neutral (Low) Two-in-Three Colour",type:"ColorPicker",default:ta},twointhree_colour_neutral_high:{displayName:"Neutral (High) Two-in-Three Colour",type:"ColorPicker",default:ea}}}},nhs_icons:{description:"NHS Icons Settings",displayName:"NHS Icons Settings",settingsGroups:{all:{show_variation_icons:{displayName:"Show Variation Icons",type:"ToggleSwitch",default:!1},flag_last_point:{displayName:"Flag Only Last Point",type:"ToggleSwitch",default:!0},variation_icons_locations:{displayName:"Variation Icon Locations",type:"Dropdown",default:"Top Right",valid:["Top Right","Bottom Right","Top Left","Bottom Left"],items:[{displayName:"Top Right",value:"Top Right"},{displayName:"Bottom Right",value:"Bottom Right"},{displayName:"Top Left",value:"Top Left"},{displayName:"Bottom Left",value:"Bottom Left"}]},variation_icons_scaling:{displayName:"Scale Variation Icon Size",type:"NumUpDown",default:1,options:{minValue:{value:0}}},show_assurance_icons:{displayName:"Show Assurance Icons",type:"ToggleSwitch",default:!1},assurance_icons_locations:{displayName:"Assurance Icon Locations",type:"Dropdown",default:"Top Right",valid:["Top Right","Bottom Right","Top Left","Bottom Left"],items:[{displayName:"Top Right",value:"Top Right"},{displayName:"Bottom Right",value:"Bottom Right"},{displayName:"Top Left",value:"Top Left"},{displayName:"Bottom Left",value:"Bottom Left"}]},assurance_icons_scaling:{displayName:"Scale Assurance Icon Size",type:"NumUpDown",default:1,options:{minValue:{value:0}}}}}},scatter:{description:"Scatter Settings",displayName:"Scatter Settings",settingsGroups:{all:{shape:{displayName:"Shape",type:"Dropdown",default:"Circle",valid:["Circle","Cross","Diamond","Square","Star","Triangle","Wye"],items:[{displayName:"Circle",value:"Circle"},{displayName:"Cross",value:"Cross"},{displayName:"Diamond",value:"Diamond"},{displayName:"Square",value:"Square"},{displayName:"Star",value:"Star"},{displayName:"Triangle",value:"Triangle"},{displayName:"Wye",value:"Wye"}]},size:{displayName:"Size",type:"NumUpDown",default:2.5,options:{minValue:{value:0},maxValue:{value:100}}},colour:{displayName:"Colour",type:"ColorPicker",default:ia},colour_outline:{displayName:"Outline Colour",type:"ColorPicker",default:ia},width_outline:{displayName:"Outline Width",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:100}}},opacity:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_selected:{displayName:"Opacity if Selected",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected:{displayName:"Opacity if Unselected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}}}}},lines:{description:"Line Settings",displayName:"Line Settings",settingsGroups:{Main:{show_main:{displayName:"Show Main Line",type:"ToggleSwitch",default:!0},width_main:{displayName:"Main Line Width",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:100}}},type_main:{displayName:"Main Line Type",type:"Dropdown",default:"10 0",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_main:{displayName:"Main Line Colour",type:"ColorPicker",default:ia},opacity_main:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_main:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_main:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},plot_label_show_main:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_main:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_main:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_main:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["above","below","beside"],items:[{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_main:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_main:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_main:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_main:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_main:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_main:{displayName:"Value Prefix",type:"TextInput",default:""}},Target:{show_target:{displayName:"Show Target",type:"ToggleSwitch",default:!0},width_target:{displayName:"Line Width",type:"NumUpDown",default:1.5,options:{minValue:{value:0},maxValue:{value:100}}},type_target:{displayName:"Line Type",type:"Dropdown",default:"10 0",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_target:{displayName:"Line Colour",type:"ColorPicker",default:ra},opacity_target:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_target:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_target:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_target:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_target:{displayName:"Tooltip Label",type:"TextInput",default:"Centerline"},plot_label_show_target:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_target:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_target:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_target:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["above","below","beside"],items:[{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_target:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_target:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_target:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_target:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_target:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_target:{displayName:"Value Prefix",type:"TextInput",default:""}},"Alt. Target":{show_alt_target:{displayName:"Show Alt. Target Line",type:"ToggleSwitch",default:!1},alt_target:{displayName:"Additional Target Value:",type:"NumUpDown",default:null},multiplier_alt_target:{displayName:"Apply Multiplier to Alt. Target",type:"ToggleSwitch",default:!1},width_alt_target:{displayName:"Line Width",type:"NumUpDown",default:1.5,options:{minValue:{value:0},maxValue:{value:100}}},type_alt_target:{displayName:"Line Type",type:"Dropdown",default:"10 0",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_alt_target:{displayName:"Line Colour",type:"ColorPicker",default:ra},opacity_alt_target:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_alt_target:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_alt_target:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_alt_target:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_alt_target:{displayName:"Tooltip Label",type:"TextInput",default:"Alt. Target"},plot_label_show_alt_target:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_alt_target:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_alt_target:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_alt_target:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["above","below","beside"],items:[{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_alt_target:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_alt_target:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_alt_target:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_alt_target:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_alt_target:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_alt_target:{displayName:"Value Prefix",type:"TextInput",default:""}},"68% Limits":{show_68:{displayName:"Show 68% Lines",type:"ToggleSwitch",default:!1},width_68:{displayName:"Line Width",type:"NumUpDown",default:2,options:{minValue:{value:0},maxValue:{value:100}}},type_68:{displayName:"Line Type",type:"Dropdown",default:"2 5",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_68:{displayName:"Line Colour",type:"ColorPicker",default:aa},opacity_68:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_68:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_68:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_68:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_68:{displayName:"Tooltip Label",type:"TextInput",default:"68% Limit"},ttip_label_68_prefix_lower:{displayName:"Tooltip Label - Lower Prefix",type:"TextInput",default:"Lower "},ttip_label_68_prefix_upper:{displayName:"Tooltip Label - Upper Prefix",type:"TextInput",default:"Upper "},plot_label_show_68:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_68:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_68:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_68:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["outside","inside","above","below","beside"],items:[{displayName:"Outside",value:"outside"},{displayName:"Inside",value:"inside"},{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_68:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_68:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_68:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_68:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_68:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_68:{displayName:"Value Prefix",type:"TextInput",default:""}},"95% Limits":{show_95:{displayName:"Show 95% Lines",type:"ToggleSwitch",default:!0},width_95:{displayName:"Line Width",type:"NumUpDown",default:2,options:{minValue:{value:0},maxValue:{value:100}}},type_95:{displayName:"Line Type",type:"Dropdown",default:"2 5",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_95:{displayName:"Line Colour",type:"ColorPicker",default:aa},opacity_95:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_95:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_95:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_95:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_95:{displayName:"Tooltip Label",type:"TextInput",default:"95% Limit"},ttip_label_95_prefix_lower:{displayName:"Tooltip Label - Lower Prefix",type:"TextInput",default:"Lower "},ttip_label_95_prefix_upper:{displayName:"Tooltip Label - Upper Prefix",type:"TextInput",default:"Upper "},plot_label_show_95:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_95:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_95:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_95:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["outside","inside","above","below","beside"],items:[{displayName:"Outside",value:"outside"},{displayName:"Inside",value:"inside"},{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_95:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_95:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_95:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_95:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_95:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_95:{displayName:"Value Prefix",type:"TextInput",default:""}},"99% Limits":{show_99:{displayName:"Show 99% Lines",type:"ToggleSwitch",default:!0},width_99:{displayName:"Line Width",type:"NumUpDown",default:2,options:{minValue:{value:0},maxValue:{value:100}}},type_99:{displayName:"Line Type",type:"Dropdown",default:"10 10",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_99:{displayName:"Line Colour",type:"ColorPicker",default:aa},opacity_99:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_99:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_99:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_99:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_99:{displayName:"Tooltip Label",type:"TextInput",default:"99% Limit"},ttip_label_99_prefix_lower:{displayName:"Tooltip Label - Lower Prefix",type:"TextInput",default:"Lower "},ttip_label_99_prefix_upper:{displayName:"Tooltip Label - Upper Prefix",type:"TextInput",default:"Upper "},plot_label_show_99:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_99:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_99:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_99:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["outside","inside","above","below","beside"],items:[{displayName:"Outside",value:"outside"},{displayName:"Inside",value:"inside"},{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_99:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_99:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_99:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_99:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_99:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_99:{displayName:"Value Prefix",type:"TextInput",default:""}},"Specification Limits":{show_specification:{displayName:"Show Specification Lines",type:"ToggleSwitch",default:!1},specification_upper:{displayName:"Upper Specification Limit:",type:"NumUpDown",default:null},specification_lower:{displayName:"Lower Specification Limit:",type:"NumUpDown",default:null},multiplier_specification:{displayName:"Apply Multiplier to Specification Limits",type:"ToggleSwitch",default:!1},width_specification:{displayName:"Line Width",type:"NumUpDown",default:2,options:{minValue:{value:0},maxValue:{value:100}}},type_specification:{displayName:"Line Type",type:"Dropdown",default:"10 10",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_specification:{displayName:"Line Colour",type:"ColorPicker",default:aa},opacity_specification:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_specification:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_specification:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_specification:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_specification:{displayName:"Tooltip Label",type:"TextInput",default:"specification Limit"},ttip_label_specification_prefix_lower:{displayName:"Tooltip Label - Lower Prefix",type:"TextInput",default:"Lower "},ttip_label_specification_prefix_upper:{displayName:"Tooltip Label - Upper Prefix",type:"TextInput",default:"Upper "},plot_label_show_specification:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_specification:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_specification:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_specification:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["outside","inside","above","below","beside"],items:[{displayName:"Outside",value:"outside"},{displayName:"Inside",value:"inside"},{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_specification:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_specification:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_specification:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_specification:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_specification:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_specification:{displayName:"Value Prefix",type:"TextInput",default:""}},Trend:{show_trend:{displayName:"Show Trend",type:"ToggleSwitch",default:!1},width_trend:{displayName:"Line Width",type:"NumUpDown",default:1.5,options:{minValue:{value:0},maxValue:{value:100}}},type_trend:{displayName:"Line Type",type:"Dropdown",default:"10 0",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},colour_trend:{displayName:"Line Colour",type:"ColorPicker",default:ia},opacity_trend:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},opacity_unselected_trend:{displayName:"Opacity if Any Selected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},join_rebaselines_trend:{displayName:"Connect Rebaselined Limits",type:"ToggleSwitch",default:!1},ttip_show_trend:{displayName:"Show value in tooltip",type:"ToggleSwitch",default:!0},ttip_label_trend:{displayName:"Tooltip Label",type:"TextInput",default:"Centerline"},plot_label_show_trend:{displayName:"Show Value on Plot",type:"ToggleSwitch",default:!1},plot_label_show_all_trend:{displayName:"Show Value at all Re-Baselines",type:"ToggleSwitch",default:!1},plot_label_show_n_trend:{displayName:"Show Value at Last N Re-Baselines",type:"NumUpDown",default:1,options:{minValue:{value:1}}},plot_label_position_trend:{displayName:"Position of Value on Line(s)",type:"Dropdown",default:"beside",valid:["above","below","beside"],items:[{displayName:"Above",value:"above"},{displayName:"Below",value:"below"},{displayName:"Beside",value:"beside"}]},plot_label_vpad_trend:{displayName:"Value Vertical Padding",type:"NumUpDown",default:0},plot_label_hpad_trend:{displayName:"Value Horizontal Padding",type:"NumUpDown",default:10},plot_label_font_trend:{displayName:"Value Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},plot_label_size_trend:{displayName:"Value Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},plot_label_colour_trend:{displayName:"Value Colour",type:"ColorPicker",default:ra},plot_label_prefix_trend:{displayName:"Value Prefix",type:"TextInput",default:""}}}},x_axis:{description:"X Axis Settings",displayName:"X Axis Settings",settingsGroups:{Axis:{xlimit_colour:{displayName:"Axis Colour",type:"ColorPicker",default:ra},xlimit_l:{displayName:"Lower Limit",type:"NumUpDown",default:null},xlimit_u:{displayName:"Upper Limit",type:"NumUpDown",default:null}},Ticks:{xlimit_ticks:{displayName:"Draw Ticks",type:"ToggleSwitch",default:!0},xlimit_tick_count:{displayName:"Maximum Ticks",type:"NumUpDown",default:10,options:{minValue:{value:0},maxValue:{value:100}}},xlimit_tick_font:{displayName:"Tick Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},xlimit_tick_size:{displayName:"Tick Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},xlimit_tick_colour:{displayName:"Tick Font Colour",type:"ColorPicker",default:ra},xlimit_tick_rotation:{displayName:"Tick Rotation (Degrees)",type:"NumUpDown",default:-35,options:{minValue:{value:-360},maxValue:{value:360}}}},Label:{xlimit_label:{displayName:"Label",type:"TextInput",default:null},xlimit_label_font:{displayName:"Label Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},xlimit_label_size:{displayName:"Label Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},xlimit_label_colour:{displayName:"Label Font Colour",type:"ColorPicker",default:ra}}}},y_axis:{description:"Y Axis Settings",displayName:"Y Axis Settings",settingsGroups:{Axis:{ylimit_colour:{displayName:"Axis Colour",type:"ColorPicker",default:ra},limit_multiplier:{displayName:"Axis Scaling Factor",type:"NumUpDown",default:1.5,options:{minValue:{value:0}}},ylimit_sig_figs:{displayName:"Tick Decimal Places",type:"NumUpDown",default:null,options:{minValue:{value:0},maxValue:{value:100}}},ylimit_l:{displayName:"Lower Limit",type:"NumUpDown",default:null},ylimit_u:{displayName:"Upper Limit",type:"NumUpDown",default:null}},Ticks:{ylimit_ticks:{displayName:"Draw Ticks",type:"ToggleSwitch",default:!0},ylimit_tick_count:{displayName:"Maximum Ticks",type:"NumUpDown",default:10,options:{minValue:{value:0},maxValue:{value:100}}},ylimit_tick_font:{displayName:"Tick Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},ylimit_tick_size:{displayName:"Tick Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},ylimit_tick_colour:{displayName:"Tick Font Colour",type:"ColorPicker",default:ra},ylimit_tick_rotation:{displayName:"Tick Rotation (Degrees)",type:"NumUpDown",default:0,options:{minValue:{value:-360},maxValue:{value:360}}}},Label:{ylimit_label:{displayName:"Label",type:"TextInput",default:null},ylimit_label_font:{displayName:"Label Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},ylimit_label_size:{displayName:"Label Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},ylimit_label_colour:{displayName:"Label Font Colour",type:"ColorPicker",default:ra}}}},dates:{description:"Date Settings",displayName:"Date Settings",settingsGroups:{all:{date_format_day:{displayName:"Day Format",type:"Dropdown",default:"DD",valid:["DD","Thurs DD","Thursday DD","(blank)"],items:[{displayName:"DD",value:"DD"},{displayName:"Thurs DD",value:"Thurs DD"},{displayName:"Thursday DD",value:"Thursday DD"},{displayName:"(blank)",value:"(blank)"}]},date_format_month:{displayName:"Month Format",type:"Dropdown",default:"MM",valid:["MM","Mon","Month","(blank)"],items:[{displayName:"MM",value:"MM"},{displayName:"Mon",value:"Mon"},{displayName:"Month",value:"Month"},{displayName:"(blank)",value:"(blank)"}]},date_format_year:{displayName:"Year Format",type:"Dropdown",default:"YYYY",valid:["YYYY","YY","(blank)"],items:[{displayName:"YYYY",value:"YYYY"},{displayName:"YY",value:"YY"},{displayName:"(blank)",value:"(blank)"}]},date_format_delim:{displayName:"Delimiter",type:"Dropdown",default:"/",valid:["/","-"," "],items:[{displayName:"/",value:"/"},{displayName:"-",value:"-"},{displayName:" ",value:" "}]},date_format_locale:{displayName:"Locale",type:"Dropdown",default:"en-GB",valid:["en-GB","en-US"],items:[{displayName:"en-GB",value:"en-GB"},{displayName:"en-US",value:"en-US"}]}}}},summary_table:{description:"Summary Table Settings",displayName:"Summary Table Settings",settingsGroups:{General:{show_table:{displayName:"Show Summary Table",type:"ToggleSwitch",default:!1},table_variation_filter:{displayName:"Filter by Variation Type",type:"Dropdown",default:"all",valid:["all","common","special","improvement","deterioration","neutral"],items:[{displayName:"All",value:"all"},{displayName:"Common Cause",value:"common"},{displayName:"Special Cause - Any",value:"special"},{displayName:"Special Cause - Improvement",value:"improvement"},{displayName:"Special Cause - Deterioration",value:"deterioration"},{displayName:"Special Cause - Neutral",value:"neutral"}]},table_assurance_filter:{displayName:"Filter by Assurance Type",type:"Dropdown",default:"all",valid:["all","any","pass","fail","inconsistent"],items:[{displayName:"All",value:"all"},{displayName:"Consistent - Any",value:"any"},{displayName:"Consistent Pass",value:"pass"},{displayName:"Consistent Fail",value:"fail"},{displayName:"Inconsistent",value:"inconsistent"}]},table_text_overflow:{displayName:"Text Overflow Handling",type:"Dropdown",default:oa.text_overflow.default,valid:oa.text_overflow.valid,items:[{displayName:"Ellipsis",value:"ellipsis"},{displayName:"Truncate",value:"clip"},{displayName:"None",value:"none"}]},table_opacity:{displayName:"Default Opacity",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},table_opacity_selected:{displayName:"Opacity if Selected",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:1}}},table_opacity_unselected:{displayName:"Opacity if Unselected",type:"NumUpDown",default:.2,options:{minValue:{value:0},maxValue:{value:1}}},table_outer_border_style:{displayName:"Outer Border Style",type:"Dropdown",default:la.style.default,valid:la.style.valid,items:[{displayName:"Solid",value:"solid"},{displayName:"Dashed",value:"dashed"},{displayName:"Dotted",value:"dotted"},{displayName:"Double",value:"double"},{displayName:"Groove",value:"groove"},{displayName:"Ridge",value:"ridge"},{displayName:"Inset",value:"inset"},{displayName:"Outset",value:"outset"}]},table_outer_border_width:{displayName:"Outer Border Width",type:"NumUpDown",default:la.width.default,options:la.width.options},table_outer_border_colour:{displayName:"Outer Border Colour",type:"ColorPicker",default:la.colour.default},table_outer_border_top:{displayName:"Outer Border Top",type:"ToggleSwitch",default:!0},table_outer_border_bottom:{displayName:"Outer Border Bottom",type:"ToggleSwitch",default:!0},table_outer_border_left:{displayName:"Outer Border Left",type:"ToggleSwitch",default:!0},table_outer_border_right:{displayName:"Outer Border Right",type:"ToggleSwitch",default:!0}},Header:{table_header_font:{displayName:"Header Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},table_header_size:{displayName:"Header Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},table_header_text_align:{displayName:"Text Alignment",type:"AlignmentGroup",default:oa.text_align.default,valid:oa.text_align.valid},table_header_font_weight:{displayName:"Header Font Weight",type:"Dropdown",default:oa.weight.default,valid:oa.weight.valid,items:[{displayName:"Normal",value:"normal"},{displayName:"Bold",value:"bold"}]},table_header_text_transform:{displayName:"Header Text Transform",type:"Dropdown",default:oa.text_transform.default,valid:oa.text_transform.valid,items:[{displayName:"Uppercase",value:"uppercase"},{displayName:"Lowercase",value:"lowercase"},{displayName:"Capitalise",value:"capitalize"},{displayName:"None",value:"none"}]},table_header_text_padding:{displayName:"Padding Around Text",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:100}}},table_header_colour:{displayName:"Header Font Colour",type:"ColorPicker",default:ra},table_header_bg_colour:{displayName:"Header Background Colour",type:"ColorPicker",default:"#D3D3D3"},table_header_border_style:{displayName:"Header Border Style",type:"Dropdown",default:la.style.default,valid:la.style.valid,items:[{displayName:"Solid",value:"solid"},{displayName:"Dashed",value:"dashed"},{displayName:"Dotted",value:"dotted"},{displayName:"Double",value:"double"},{displayName:"Groove",value:"groove"},{displayName:"Ridge",value:"ridge"},{displayName:"Inset",value:"inset"},{displayName:"Outset",value:"outset"}]},table_header_border_width:{displayName:"Header Border Width",type:"NumUpDown",default:la.width.default,options:la.width.options},table_header_border_colour:{displayName:"Header Border Colour",type:"ColorPicker",default:la.colour.default},table_header_border_bottom:{displayName:"Bottom Border",type:"ToggleSwitch",default:!0},table_header_border_inner:{displayName:"Inner Borders",type:"ToggleSwitch",default:!0}},Body:{table_body_font:{displayName:"Body Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},table_body_size:{displayName:"Body Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},table_body_text_align:{displayName:"Text Alignment",type:"AlignmentGroup",default:oa.text_align.default,valid:oa.text_align.valid},table_body_font_weight:{displayName:"Font Weight",type:"Dropdown",default:oa.weight.default,valid:oa.weight.valid,items:[{displayName:"Normal",value:"normal"},{displayName:"Bold",value:"bold"}]},table_body_text_transform:{displayName:"Text Transform",type:"Dropdown",default:oa.text_transform.default,valid:oa.text_transform.valid,items:[{displayName:"Uppercase",value:"uppercase"},{displayName:"Lowercase",value:"lowercase"},{displayName:"Capitalise",value:"capitalize"},{displayName:"None",value:"none"}]},table_body_text_padding:{displayName:"Padding Around Text",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:100}}},table_body_colour:{displayName:"Body Font Colour",type:"ColorPicker",default:ra},table_body_bg_colour:{displayName:"Body Background Colour",type:"ColorPicker",default:"#FFFFFF"},table_body_border_style:{displayName:"Body Border Style",type:"Dropdown",default:la.style.default,valid:la.style.valid,items:[{displayName:"Solid",value:"solid"},{displayName:"Dashed",value:"dashed"},{displayName:"Dotted",value:"dotted"},{displayName:"Double",value:"double"},{displayName:"Groove",value:"groove"},{displayName:"Ridge",value:"ridge"},{displayName:"Inset",value:"inset"},{displayName:"Outset",value:"outset"}]},table_body_border_width:{displayName:"Body Border Width",type:"NumUpDown",default:la.width.default,options:la.width.options},table_body_border_colour:{displayName:"Body Border Colour",type:"ColorPicker",default:la.colour.default},table_body_border_top_bottom:{displayName:"Top/Bottom Borders",type:"ToggleSwitch",default:!0},table_body_border_left_right:{displayName:"Left/Right Borders",type:"ToggleSwitch",default:!0}}}},download_options:{description:"Download Options",displayName:"Download Options",settingsGroups:{all:{show_button:{displayName:"Show Download Button",type:"ToggleSwitch",default:!1}}}},labels:{description:"Labels Settings",displayName:"Labels Settings",settingsGroups:{all:{show_labels:{displayName:"Show Value Labels",type:"ToggleSwitch",default:!0},label_position:{displayName:"Label Position",type:"Dropdown",default:"top",valid:["top","bottom"],items:[{displayName:"Top",value:"top"},{displayName:"Bottom",value:"bottom"}]},label_y_offset:{displayName:"Label Offset from Top/Bottom (px)",type:"NumUpDown",default:20},label_line_offset:{displayName:"Label Offset from Connecting Line (px)",type:"NumUpDown",default:5},label_angle_offset:{displayName:"Label Angle Offset (degrees)",type:"NumUpDown",default:0,options:{minValue:{value:-90},maxValue:{value:90}}},label_font:{displayName:"Label Font",type:"FontPicker",default:oa.font.default,valid:oa.font.valid},label_size:{displayName:"Label Font Size",type:"NumUpDown",default:oa.size.default,options:oa.size.options},label_colour:{displayName:"Label Font Colour",type:"ColorPicker",default:ra},label_line_colour:{displayName:"Connecting Line Colour",type:"ColorPicker",default:ra},label_line_width:{displayName:"Connecting Line Width",type:"NumUpDown",default:1,options:{minValue:{value:0},maxValue:{value:100}}},label_line_type:{displayName:"Connecting Line Type",type:"Dropdown",default:"10 0",valid:["10 0","10 10","2 5"],items:[{displayName:"Solid",value:"10 0"},{displayName:"Dashed",value:"10 10"},{displayName:"Dotted",value:"2 5"}]},label_line_max_length:{displayName:"Max Connecting Line Length (px)",type:"NumUpDown",default:1e3,options:{minValue:{value:0},maxValue:{value:1e4}}},label_marker_show:{displayName:"Show Line Markers",type:"ToggleSwitch",default:!0},label_marker_offset:{displayName:"Marker Offset from Value (px)",type:"NumUpDown",default:5},label_marker_size:{displayName:"Marker Size",type:"NumUpDown",default:3,options:{minValue:{value:0},maxValue:{value:100}}},label_marker_colour:{displayName:"Marker Fill Colour",type:"ColorPicker",default:ra},label_marker_outline_colour:{displayName:"Marker Outline Colour",type:"ColorPicker",default:ra}}}}},sa=[];for(const t in na){const e=[];for(const i in na[t].settingsGroups)for(const a in na[t].settingsGroups[i])e.push([a,na[t].settingsGroups[i][a]]);sa.push([t,Object.fromEntries(e)])}const ua=Object.fromEntries(sa);function pa(t,e){e.plotProperties.displayPlot||e.viewModel.inputSettings.settings.summary_table.show_table||e.viewModel.showGrouped?t.on("contextmenu",(t=>{const i=ut(t.target).datum();e.selectionManager.showContextMenu(i?i.identity:{},{x:t.clientX,y:t.clientY}),t.preventDefault()})):t.on("contextmenu",(()=>{}))}function da(t,e,i){var a;if(!i.chart_type_props.has_control_limits)return"none";const r=e.outliers.improvement_direction,o=t.ll99.length-1,l=null===(a=null==t?void 0:t.alt_targets)||void 0===a?void 0:a[o];if(ca(l)||"neutral"===r)return"none";const n="increase"===r;return l>t.ul99[o]?n?"consistentFail":"consistentPass":l<t.ll99[o]?n?"consistentPass":"consistentFail":"inconsistent"}function ca(t){return null==t}function ha(t,e,i){let a=!0;return ca(e)||(a=a&&t>=e),ca(i)||(a=a&&t<=i),a}function ma(t){return function(e,i){return Array.isArray(e)&&Array.isArray(i)?e.map(((e,a)=>t(e,i[a]))):Array.isArray(e)&&!Array.isArray(i)?e.map((e=>t(e,i))):!Array.isArray(e)&&Array.isArray(i)?i.map((i=>t(e,i))):t(e,i)}}const fa=ma(((t,e)=>t>=0?Math.pow(t,e):-Math.pow(-t,e))),ya=ma(((t,e)=>t+e)),ga=ma(((t,e)=>t-e)),va=ma(((t,e)=>t/e)),_a=ma(((t,e)=>ca(t)||ca(e)?null:t*e));function wa(t){return function(e){return Array.isArray(e)?e.map((e=>t(e))):t(e)}}const ba=wa(Math.sqrt),Na=wa((t=>t?Math.abs(t):t)),xa=wa(Math.exp),Sa=wa((t=>Math.pow(t,2)));function ka(t,e){return function(i,a){return function(t,e,i,a){const r=a.percentLabels?"%":"",o=i.spc.sig_figs;if(ca(t))return"";switch(e){case"date":return t;case"integer":return t.toFixed(a.chart_type_props.integer_num_den?0:o);default:return t.toFixed(o)+r}}(i,a,t,e)}}function Aa(t,e,i,a){const r=i.outliers.astronomical_limit,o=i.outliers.two_in_three_limit,l=ka(i,a),n=new Array;if(i.spc.ttip_show_date){const e=i.spc.ttip_label_date;n.push({displayName:"Automatic"===e?a.chart_type_props.date_name:e,value:t.date})}if(i.spc.ttip_show_value){const e=i.spc.ttip_label_value;n.push({displayName:"Automatic"===e?a.chart_type_props.value_name:e,value:l(t.value,"value")})}if(i.spc.ttip_show_numerator&&!ca(t.numerator)&&n.push({displayName:i.spc.ttip_label_numerator,value:l(t.numerator,"integer")}),i.spc.ttip_show_denominator&&!ca(t.denominator)&&n.push({displayName:i.spc.ttip_label_denominator,value:l(t.denominator,"integer")}),i.lines.ttip_show_trend&&i.lines.show_trend&&n.push({displayName:i.lines.ttip_label_trend,value:l(t.trend_line,"value")}),i.lines.show_specification&&i.lines.ttip_show_specification&&(ca(t.speclimits_upper)||n.push({displayName:`Upper ${i.lines.ttip_label_specification}`,value:l(t.speclimits_upper,"value")}),ca(t.speclimits_lower)||n.push({displayName:`Lower ${i.lines.ttip_label_specification}`,value:l(t.speclimits_lower,"value")})),a.chart_type_props.has_control_limits&&["99","95","65"].forEach((e=>{i.lines[`ttip_show_${e}`]&&i.lines[`show_${e}`]&&n.push({displayName:`${i.lines[`ttip_label_${e}_prefix_upper`]}${i.lines[`ttip_label_${e}`]}`,value:l(t[`ul${e}`],"value")})})),i.lines.show_target&&i.lines.ttip_show_target&&n.push({displayName:i.lines.ttip_label_target,value:l(t.target,"value")}),i.lines.show_alt_target&&i.lines.ttip_show_alt_target&&!ca(t.alt_target)&&n.push({displayName:i.lines.ttip_label_alt_target,value:l(t.alt_target,"value")}),a.chart_type_props.has_control_limits&&["68","95","99"].forEach((e=>{i.lines[`ttip_show_${e}`]&&i.lines[`show_${e}`]&&n.push({displayName:`${i.lines[`ttip_label_${e}_prefix_lower`]}${i.lines[`ttip_label_${e}`]}`,value:l(t[`ll${e}`],"value")})})),[t.astpoint,t.trend,t.shift,t.two_in_three].some((t=>"none"!==t))){const e=new Array;if("none"!==t.astpoint){let t="Astronomical Point";"3 Sigma"!==r&&(t=`${t} (${r})`),e.push(t)}if("none"!==t.trend&&e.push("Trend"),"none"!==t.shift&&e.push("Shift"),"none"!==t.two_in_three){let t="Two-in-Three";"2 Sigma"!==o&&(t=`${t} (${o})`),e.push(t)}n.push({displayName:"Pattern(s)",value:e.join("\n")})}return!ca(e)&&e.length>0&&e.forEach((t=>n.push(t))),n}const Fa=ma(((t,e)=>{if("none"===t)return t;const i={increase:{upper:"improvement",lower:"deterioration"}[t],decrease:{lower:"improvement",upper:"deterioration"}[t],neutral:{lower:"neutral_low",upper:"neutral_high"}[t]}[e.improvement_direction];return"both"!==e.process_flag_type?i===e.process_flag_type?i:"none":i}));function Ma(t){if(t<=1||ca(t))return null;const e=t-1;return ba(2/e)*xa(pr(t/2)-pr(e/2))}const Ea=wa((t=>ba(1-Sa(Ma(t))))),Ta=wa((t=>{const e=t<=1?null:t;return 3/(Ma(e)*ba(e))})),$a=ma(((t,e)=>e*Ea(t)/Ma(t))),Da=ma(((t,e)=>1-$a(t,e))),La=ma(((t,e)=>1+$a(t,e)));function Ca(t){return t.map(((t,e,i)=>e>0?t-i[e-1]:null))}function Pa(t,e){return Array(e).fill(t)}function Ia(t,e,i,a){var r;const o=null===(r=null==t?void 0:t[e])||void 0===r?void 0:r[i];return ca(o)?a:(null==o?void 0:o.solid)?o.solid.color:o}function Ra(t,e,i,a){var r,o,l;if(ca(null==t?void 0:t.categories))return{values:null,validation:{status:0,messages:Pa(new Array,1)}};if(0===(null===(l=null===(o=null===(r=null==t?void 0:t.categories)||void 0===r?void 0:r[0])||void 0===o?void 0:o.identity)||void 0===l?void 0:l.length))return{values:null,validation:{status:0,messages:Pa(new Array,1)}};const n=t.categories[0],s=Object.keys(i[e]),u=JSON.parse(JSON.stringify({status:0,messages:Pa([],n.values.length)})),p=a.length;let d=new Array(p);for(let t=0;t<p;t++){const i=n.objects?n.objects[a[t]]:null;d[t]=Object.fromEntries(s.map((a=>{var r,o,l,n,s,p,d;const c=ua[e][a].default;let h=Ia(i,e,a,c);h=""===h?c:h;const m=null!==(o=null===(r=ua[e][a])||void 0===r?void 0:r.valid)&&void 0!==o?o:null===(l=ua[e][a])||void 0===l?void 0:l.options,f=!ca(null==m?void 0:m.minValue)||!ca(null==m?void 0:m.maxValue);if(m){let i="";m instanceof Array&&!m.includes(h)?i=`${h} is not a valid value for ${a}. Valid values are: ${m.join(", ")}`:f&&!ha(h,null===(n=null==m?void 0:m.minValue)||void 0===n?void 0:n.value,null===(s=null==m?void 0:m.maxValue)||void 0===s?void 0:s.value)&&(i=`${h} is not a valid value for ${a}. Valid values are between ${null===(p=null==m?void 0:m.minValue)||void 0===p?void 0:p.value} and ${null===(d=null==m?void 0:m.maxValue)||void 0===d?void 0:d.value}`),""!==i&&(h=ua[e][a].default,u.messages[t].push(i))}return[a,h]})))}const c=u.messages.filter((t=>t.length>0));return u.messages.some((t=>0===t.length))||(u.status=1,u.error=`${c[0][0]}`),{values:d,validation:u}}function Va(t){const e=Object.fromEntries(t.filter((t=>"literal"!==t.type)).map((t=>[t.type,t.value])));return["weekday","day","month","year"].forEach((t=>{var i;null!==(i=e[t])&&void 0!==i||(e[t]="")})),e}function Oa(t,e,i){var a,r,o;const l=i.length;let n=new Array(l);if(1===t.length&&!(null===(a=t[0].source.type)||void 0===a?void 0:a.temporal)){for(let e=0;e<l;e++)n[e]=ca(t[0].values[i[e]])?null:String(t[0].values[i[e]]);return n}const s=e.dates.date_format_delim;if(!t.every((t=>{var e,i;return null===(i=null===(e=t.source)||void 0===e?void 0:e.type)||void 0===i?void 0:i.temporal}))){const e=Pa("",t.length).join(s);for(let a=0;a<l;a++){const r=t.map((t=>t.values[i[a]])).join(s);n[a]=r===e?null:r}return n}const u=function(t,e){var i,a,r,o,l;const n=e.length;let s=[];const u=[];if(t.length>1)for(let o=0;o<n;o++){const l=[];for(let i=0;i<t.length;i++)l.push(ar(t[i].source.type,t[i].values[e[o]]));const n=Object.fromEntries(l);(null==n?void 0:n.quarter)&&u.push(n.quarter),s[o]=new Date(null!==(i=null==n?void 0:n.year)&&void 0!==i?i:1970,null!==(a=null==n?void 0:n.month)&&void 0!==a?a:0,null!==(r=null==n?void 0:n.day)&&void 0!==r?r:1)}else for(let i=0;i<n;i++)s[i]=ca(null===(o=null==t?void 0:t[0])||void 0===o?void 0:o.values[e[i]])?null:new Date(null===(l=null==t?void 0:t[0])||void 0===l?void 0:l.values[e[i]]);return{dates:s,quarters:u}}(t,i),p=new Intl.DateTimeFormat(e.dates.date_format_locale,function(t){const e=new Array;return Object.keys(t).forEach((i=>{if("date_format_locale"!==i&&"date_format_delim"!==i){const a=i.replace("date_format_",""),r=er[a][t[i]];ca(r)||(e.push([a,r]),"day"===a&&"DD"!==t[i]&&e.push(["weekday",tr[t[i]]]))}})),Object.fromEntries(e)}(e.dates));let d="en-GB"===e.dates.date_format_locale?"day":"month",c="en-GB"===e.dates.date_format_locale?"month":"day";for(let t=0;t<l;t++)if(ca(u.dates[t]))n[t]=null;else{const e=Va(p.formatToParts(u.dates[t])),i=[e.weekday+" "+e[d],e[c],null!==(o=null===(r=u.quarters)||void 0===r?void 0:r[t])&&void 0!==o?o:"",e.year];n[t]=i.filter((t=>String(t).trim())).join(s)}return n}function ja(t,e,i,a){var r,o,l,n;if("key"===e)return function(t,e,i){const a=t.categories.filter((t=>{var e,i;return null===(i=null===(e=t.source)||void 0===e?void 0:e.roles)||void 0===i?void 0:i.key})),r={};let o=a.map((t=>{var e,i;return null!==(i=null===(e=t.source)||void 0===e?void 0:e.queryName)&&void 0!==i?i:""}));const l=new Set;o=o.map(((t,e)=>(l.has(t)&&(t=`${e}_${t}`),l.add(t),t))),a.forEach(((t,e)=>{let i=o[e];if(i.includes("Date Hierarchy")){const t=i.lastIndexOf(".");-1!==t&&(i=i.substring(0,t))}r[i]||(r[i]=[]),r[i].push(t)}));const n=[];for(const t in r){const a=Oa(r[t],e,i);n.push(a)}const s=[],u=i.length;for(let t=0;t<u;t++){const e=n.map((e=>e[t])).filter((t=>null!=t));s.push(e.length>0?e.join(" "):null)}return s}(t,i,a);if("tooltips"===e)return function(t,e,i){const a=t.values.filter((t=>t.source.roles.tooltips)),r=i.length;let o=new Array(r);for(let t=0;t<r;t++)o[t]=a.map((a=>{var r;const o={valueType:a.source.type,dateSettings:e.dates},l=Qa(null===(r=null==a?void 0:a.values)||void 0===r?void 0:r[i[t]],o);return{displayName:a.source.displayName,value:l}}));return o}(t,i,a);const s=t.values.filter((t=>{var i,a;return null===(a=null===(i=null==t?void 0:t.source)||void 0===i?void 0:i.roles)||void 0===a?void 0:a[e]}));if(0===s.length)return null;const u=a.length;if("groupings"===e||"labels"===e){let t=new Array(u);for(let e=0;e<u;e++)t[e]=ca(null===(o=null===(r=null==s?void 0:s[0])||void 0===r?void 0:r.values)||void 0===o?void 0:o[a[e]])?null:String(s[0].values[a[e]]);return t}let p=new Array(u);for(let t=0;t<u;t++)p[t]=ca(null===(n=null===(l=null==s?void 0:s[0])||void 0===l?void 0:l.values)||void 0===n?void 0:n[a[t]])?null:Number(s[0].values[a[t]]);return p}function Ua(t,e,i,a,r){var o,l,n,s,u,p,d;const c=ja(t,"numerators",e,r),h=ja(t,"denominators",e,r),m=ja(t,"xbar_sds",e,r),f=ja(t,"key",e,r),y=ja(t,"tooltips",e,r),g=ja(t,"groupings",e,r),v=ja(t,"labels",e,r),_=r.map((e=>{var i,a,r;return null===(r=null===(a=null===(i=null==t?void 0:t.values)||void 0===i?void 0:i[0])||void 0===a?void 0:a.highlights)||void 0===r?void 0:r[e]}));let w=null===(o=Ra(t,"scatter",e,r))||void 0===o?void 0:o.values,b=null===(l=Ra(t,"lines",e,r))||void 0===l?void 0:l.values,N=null===(n=Ra(t,"labels",e,r))||void 0===n?void 0:n.values,x=null===(s=Ra(t,"lines",e,r))||void 0===s?void 0:s.values.map((t=>e.lines.show_alt_target?t.alt_target:null)),S=null===(u=Ra(t,"lines",e,r))||void 0===u?void 0:u.values.map((t=>t.show_specification?t.specification_lower:null)),k=null===(p=Ra(t,"lines",e,r))||void 0===p?void 0:p.values.map((t=>t.show_specification?t.specification_upper:null)),A=null===(d=Ra(t,"spc",e,r))||void 0===d?void 0:d.values;const F=function(t,e,i,a,r,o){let l=!1,n=new Array,s=new Array;const u=r.needs_denominator||r.denominator_optional&&!ca(i)&&i.length>0,p=o.length;for(let o=0;o<p;o++){const l=Ja(t[o],null==e?void 0:e[o],null==i?void 0:i[o],null==a?void 0:a[o],r,u);n.push(l.message),s.push(l.type)}let d=new Set(s);l=1===d.size;let c=Array.from(d)[0],h={status:l&&0!==c?1:0,messages:n};if(0===h.status){if(s.every((t=>0!==t)))return h.status=1,h.error="No valid data found!",h}if(l&&0!==c)switch(c){case 1:h.error="Grouping missing";break;case 2:h.error="All dates/IDs are missing or null!";break;case 3:h.error="All numerators are missing or null!";break;case 10:h.error="All numerators are not numbers!";break;case 4:h.error="All numerators are negative!";break;case 5:h.error="All denominators missing or null!";break;case 11:h.error="All denominators are not numbers!";break;case 6:h.error="All denominators are negative!";break;case 7:h.error="All denominators are smaller than numerators!";break;case 8:h.error="All SDs missing or null!";break;case 12:h.error="All SDs are not numbers!";break;case 9:h.error="All SDs are negative!"}return h}(f,c,h,m,i.chart_type_props,r);if(0!==F.status)return function(t){return{limitInputArgs:null,spcSettings:null,highlights:null,anyHighlights:!1,categories:null,groupings:null,groupingIndexes:null,scatter_formatting:null,line_formatting:null,label_formatting:null,tooltips:null,labels:null,anyLabels:!1,warningMessage:t.error,alt_targets:null,speclimits_lower:null,speclimits_upper:null,validationStatus:t}}(F);const M=new Array,E=new Array,T=new Array,$=t.categories[0].source.displayName,D=a;let L=0;const C=i.chart_type_props.x_axis_use_date;r.forEach(((t,e)=>{""===F.messages[e]?(M.push(e),E.push({x:L,id:t,label:C?f[e]:L.toString()}),L+=1,D[t].length>0&&D[t].forEach((t=>{T.push(`Conditional formatting for ${$} ${f[e]} ignored due to: ${t}.`)}))):T.push(`${$} ${f[e]} removed due to: ${F.messages[e]}.`)}));const P=Ga(g,M),I=new Array;let R=P[0];P.forEach(((t,e)=>{t!==R&&(I.push(e-1),R=t)}));const V=Ga(x,M);if(e.nhs_icons.show_assurance_icons){const t=null==V?void 0:V.length;if(t>0){ca(null==V?void 0:V[t-1])&&T.push("NHS Assurance icon requires a valid alt. target at last observation.")}i.chart_type_props.has_control_limits||T.push("NHS Assurance icon requires chart with control limits.")}const O=Ga(_,M),j=A[0].num_points_subset;let U;U=ca(j)||!ha(j,1,M.length)?or(0,M.length-1):"Start"===A[0].subset_points_from?or(0,A[0].num_points_subset-1):or(M.length-A[0].num_points_subset,M.length-1);const G=Ga(v,M);return{limitInputArgs:{keys:E,numerators:Ga(c,M),denominators:Ga(h,M),xbar_sds:Ga(m,M),outliers_in_limits:A[0].outliers_in_limits,subset_points:U},spcSettings:A[0],tooltips:Ga(y,M),labels:G,anyLabels:G.filter((t=>!ca(t)&&""!==t)).length>0,highlights:O,anyHighlights:O.filter((t=>!ca(t))).length>0,categories:t.categories[0],groupings:P,groupingIndexes:I,scatter_formatting:Ga(w,M),line_formatting:Ga(b,M),label_formatting:Ga(N,M),warningMessage:T.length>0?T.join("\n"):"",alt_targets:V,speclimits_lower:Ga(S,M),speclimits_upper:Ga(k,M),validationStatus:F}}function Ga(t,e){return t?t.filter(((t,i)=>-1!=e.indexOf(i))):[]}const za={ll99:"99",ll95:"95",ll68:"68",ul68:"68",ul95:"95",ul99:"99",targets:"target",values:"main",alt_targets:"alt_target",speclimits_lower:"specification",speclimits_upper:"specification",trend_line:"trend"};function Ba(t,e,i,a){const r=i+"_"+(e.includes("line")?za[t]:t);return a[e][r]}const qa=ma(((t,e)=>{let i=t;return(e.lower||0==e.lower)&&(i=i<e.lower?e.lower:i),e.upper&&(i=i>e.upper?e.upper:i),i}));function Ha(t,e){const i={High:"Low",Low:"High","":""},a={increase:"High",decrease:"Low",neutral:""}[e.outliers.improvement_direction];let r;if(e.nhs_icons.flag_last_point){const e=t.astpoint.length-1;r=[t.astpoint[e],t.shift[e],t.trend[e],t.two_in_three[e]]}else r=t.astpoint.concat(t.shift,t.trend,t.two_in_three);const o=new Array;return r.includes("improvement")&&o.push("improvement"+a),r.includes("deterioration")&&o.push("concern"+i[a]),r.includes("neutral_low")&&o.push("neutralLow"),r.includes("neutral_high")&&o.push("neutralHigh"),0===o.length&&o.push("commonCause"),o}function Za(t){const e=t.length;if(0===e)return NaN;const i=[...t].sort(((t,e)=>t-e)),a=Math.floor(e/2);return e%2==0?(i[a-1]+i[a])/2:i[a]}function Ya(t){return Math.max(...t)}function Xa(t){return Math.min(...t)}function Wa(t){const e=t.length;if(0===e)return NaN;let i=0;for(let a=0;a<e;a++)i+=t[a];return i/e}function Ka(t){let e=0;for(let i=0;i<t.length;i++)e+=t[i];return e}function Ja(t,e,i,a,r,o){const l={message:"",type:0};return ca(t)&&(l.message="Date missing",l.type=2),ca(e)&&(l.message="Numerator missing",l.type=3),isNaN(e)&&(l.message="Numerator is not a number",l.type=10),r.numerator_non_negative&&e<0&&(l.message="Numerator negative",l.type=4),o&&(ca(i)?(l.message="Denominator missing",l.type=5):isNaN(i)?(l.message="Denominator is not a number",l.type=11):i<0?(l.message="Denominator negative",l.type=6):r.numerator_leq_denominator&&i<e&&(l.message="Denominator < numerator",l.type=7)),r.needs_sd&&(ca(a)?(l.message="SD missing",l.type=8):isNaN(a)?(l.message="SD is not a number",l.type=12):a<0&&(l.message="SD negative",l.type=9)),l}const Qa=ma(((t,e)=>ca(t)?null:e.valueType.numeric?t.toString():t)),tr={DD:null,"Thurs DD":"short","Thursday DD":"long","(blank)":null},er={weekday:tr,day:{DD:"2-digit","Thurs DD":"2-digit","Thursday DD":"2-digit","(blank)":null},month:{MM:"2-digit",Mon:"short",Month:"long","(blank)":null},year:{YYYY:"numeric",YY:"2-digit","(blank)":null}};const ir={January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};function ar(t,e){return t.temporal?"DayOfMonth"===(null==t?void 0:t.category)?["day",e]:"Months"===(null==t?void 0:t.category)?["month",ir[e]]:"Quarters"===(null==t?void 0:t.category)?["quarter",e]:"Years"===(null==t?void 0:t.category)?["year",e]:null:null}function rr(t,e){const i=e.getSelectionIds();var a=!1;for(const e of i)if(Array.isArray(t)){for(const i of t)if(e===i){a=!0;break}}else if(e===t){a=!0;break}return a}function or(t,e){return Array.from({length:e-t+1},((e,i)=>t+i))}function lr(t){const e=t.length;if(0===e)return[];let i=0,a=0,r=0,o=0;for(let l=0;l<e;l++){const e=l+1,n=t[l];a+=e,i+=n,r+=e*n,o+=e*e}const l=(e*r-a*i)/(e*o-a*a),n=(i-l*a)/e,s=[];for(let t=0;t<e;t++)s.push(l*(t+1)+n);return s}function nr(t){return!ca(t)&&!isNaN(t)&&isFinite(t)}const sr=1.1447298858494002,ur=1.8378770664093456;function pr(t){const e=[.9999999999998099,676.5203681218851,-1259.1392167224028,771.3234287776531,-176.6150291621406,12.507343278686905,-.13857109526572012,9984369578019572e-21,1.5056327351493116e-7];if(Number.isNaN(t))throw new Error("Input must be a valid number.");if(t<=0&&Number.isInteger(t))throw new Error("lgamma is undefined for non-positive integers.");if(t<.5)return sr-Math.log(Math.sin(Math.PI*t))-pr(1-t);let i=e[0];const a=(t-=1)+7+.5;for(let a=1;a<e.length;a++)i+=e[a]/(t+a);return.5*ur+(t+.5)*Math.log(a)-a+Math.log(i)}function dr(t,e){const i=e.plotProperties.yAxis.lower,a=e.plotProperties.yAxis.upper,r=e.plotProperties.xAxis.lower,o=e.plotProperties.xAxis.upper;t.select(".dotsgroup").selectAll("path").data(e.viewModel.plotPoints).join("path").filter((t=>!ca(t.value))).attr("d",(t=>{const e=t.aesthetics.shape,i=t.aesthetics.size;return Yt().type(Ki[`symbol${e}`]).size(i*i*Math.PI)()})).attr("transform",(t=>ha(t.value,i,a)&&ha(t.x,r,o)?`translate(${e.plotProperties.xScale(t.x)}, ${e.plotProperties.yScale(t.value)})`:"translate(0, 0) scale(0)")).style("fill",(t=>t.aesthetics.colour)).style("stroke",(t=>t.aesthetics.colour_outline)).style("stroke-width",(t=>t.aesthetics.width_outline)).on("click",((t,i)=>{if(e.host.hostCapabilities.allowInteractions){if(e.viewModel.inputSettings.settings.spc.split_on_click){const t=e.viewModel.splitIndexes.indexOf(i.x);t>-1?e.viewModel.splitIndexes.splice(t,1):e.viewModel.splitIndexes.push(i.x),e.host.persistProperties({replace:[{objectName:"split_indexes_storage",selector:void 0,properties:{split_indexes:JSON.stringify(e.viewModel.splitIndexes)}}]})}else e.selectionManager.select(i.identity,t.ctrlKey||t.metaKey).then((()=>{e.updateHighlighting()}));t.stopPropagation()}})).on("mouseover",((t,i)=>{const a=t.pageX,r=t.pageY;e.host.tooltipService.show({dataItems:i.tooltip,identities:[i.identity],coordinates:[a,r],isTouchEvent:!1})})).on("mouseout",(()=>{e.host.tooltipService.hide({immediately:!0,isTouchEvent:!1})})),t.on("click",(()=>{e.selectionManager.clear(),e.updateHighlighting()}))}var cr=Object.freeze({__proto__:null,commonCause:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#A6A6A6").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#A6A6A6").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M106.903 196.084 144.607 228.433 138.766 235.241 101.062 202.892Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M146.159 218.909 179.921 159.846 187.708 164.298 153.946 223.361Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M198.708 154.94 239.365 214.134 231.971 219.212 191.314 160.019Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M238.825 216.117 285.383 198.784 288.512 207.19 241.954 224.523Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M76.5001 195C76.5001 183.678 85.6782 174.5 97.0001 174.5 108.322 174.5 117.5 183.678 117.5 195 117.5 206.322 108.322 215.5 97.0001 215.5 85.6782 215.5 76.5001 206.322 76.5001 195Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M123.5 233C123.5 221.678 132.678 212.5 144 212.5 155.322 212.5 164.5 221.678 164.5 233 164.5 244.322 155.322 253.5 144 253.5 132.678 253.5 123.5 244.322 123.5 233Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M170.5 153.5C170.5 141.902 179.902 132.5 191.5 132.5 203.098 132.5 212.5 141.902 212.5 153.5 212.5 165.098 203.098 174.5 191.5 174.5 179.902 174.5 170.5 165.098 170.5 153.5Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M217.5 221.5C217.5 209.902 226.902 200.5 238.5 200.5 250.098 200.5 259.5 209.902 259.5 221.5 259.5 233.098 250.098 242.5 238.5 242.5 226.902 242.5 217.5 233.098 217.5 221.5Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd"),t.append("path").attr("d","M265.5 206.5C265.5 194.902 274.678 185.5 286 185.5 297.322 185.5 306.5 194.902 306.5 206.5 306.5 218.098 297.322 227.5 286 227.5 274.678 227.5 265.5 218.098 265.5 206.5Z").attr("stroke","#A6A6A6").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#A6A6A6").attr("fill-rule","evenodd")},concernHigh:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z").attr("stroke","#E46C0A").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 17.47 328.36)"),t.append("path").attr("d","M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z").attr("stroke","#E46C0A").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 38 340)"),t.append("text").attr("fill","#E46C0A").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(106.228 172) scale(10, 10)").text("H"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)"),t.append("path").attr("d","M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 76.5001 231.5)"),t.append("path").attr("d","M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 123.5 249.5)"),t.append("path").attr("d","M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 170.5 231.5)"),t.append("path").attr("d","M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z").attr("stroke","#E46C0A").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#E46C0A").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 217.5 185.5)"),t.append("path").attr("d","M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z").attr("stroke","#E46C0A").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#E46C0A").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 265.5 200.5)")},concernLow:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#E46C0A").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#E46C0A").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("text").attr("fill","#E46C0A").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(106.228 292) scale(10, 10)").text("L"),t.append("path").attr("d","M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z").attr("stroke","#E46C0A").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#E46C0A").attr("fill-rule","evenodd"),t.append("path").attr("d","M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z").attr("stroke","#E46C0A").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#E46C0A").attr("fill-rule","evenodd")},consistentFail:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#FF6600").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#FF6600").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("text").attr("fill","#FF6600").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(155.851 158) scale(10, 10)").text("F"),t.append("path").attr("d","M38.5001 185.5 340.862 185.5").attr("stroke","#FF6600").attr("stroke-width","8.66667").attr("stroke-miterlimit","8").attr("stroke-dasharray","26 8.66667").attr("fill","none").attr("fill-rule","evenodd"),t.append("path").attr("d","M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212").attr("stroke","#7F7F7F").attr("stroke-width","10.66667").attr("stroke-miterlimit","8").attr("fill","none").attr("fill-rule","evenodd")},consistentPass:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#0072C6").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#0072C6").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("text").attr("fill","#0072C6").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(155.851 158) scale(10, 10)").text("P"),t.append("path").attr("d","M55.5001 257.5 323.847 257.5").attr("stroke","#0072C6").attr("stroke-width","8.66667").attr("stroke-miterlimit","8").attr("stroke-dasharray","26 8.66667").attr("fill","none").attr("fill-rule","evenodd"),t.append("path").attr("d","M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212").attr("stroke","#7F7F7F").attr("stroke-width","10.66667").attr("stroke-miterlimit","8").attr("fill","none").attr("fill-rule","evenodd")},improvementHigh:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z").attr("stroke","#00B0F0").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 17.47 328.36)"),t.append("path").attr("d","M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z").attr("stroke","#00B0F0").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 38 340)"),t.append("text").attr("fill","#00B0F0").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(106.228 172) scale(10, 10)").text("H"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)"),t.append("rect").attr("x","0").attr("y","0").attr("width","49.6797").attr("height","8.97008").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("transform","matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)"),t.append("path").attr("d","M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 76.5001 231.5)"),t.append("path").attr("d","M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 123.5 249.5)"),t.append("path").attr("d","M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 170.5 231.5)"),t.append("path").attr("d","M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z").attr("stroke","#00B0F0").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#00B0F0").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 217.5 185.5)"),t.append("path").attr("d","M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z").attr("stroke","#00B0F0").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#00B0F0").attr("fill-rule","evenodd").attr("transform","matrix(1 0 0 -1 265.5 200.5)")},improvementLow:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#00B0F0").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#00B0F0").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("text").attr("fill","#00B0F0").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(106.228 292) scale(10, 10)").text("L"),t.append("path").attr("d","M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z").attr("stroke","#7F7F7F").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#7F7F7F").attr("fill-rule","evenodd"),t.append("path").attr("d","M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z").attr("stroke","#00B0F0").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#00B0F0").attr("fill-rule","evenodd"),t.append("path").attr("d","M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z").attr("stroke","#00B0F0").attr("stroke-width","2.66667").attr("stroke-miterlimit","8").attr("fill","#00B0F0").attr("fill-rule","evenodd")},inconsistent:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 173.345C17.47 87.1637 87.1031 17.3 173 17.3 258.897 17.3 328.53 87.1637 328.53 173.345 328.53 259.526 258.897 329.39 173 329.39 87.1031 329.39 17.47 259.526 17.47 173.345Z").attr("stroke","#BFBFBF").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189.5C38 105.829 105.605 38 189 38 272.395 38 340 105.829 340 189.5 340 273.171 272.395 341 189 341 105.605 341 38 273.171 38 189.5Z").attr("stroke","#BFBFBF").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("text").attr("fill","#7F7F7F").attr("font-family","Arial,Arial_MSFontService,sans-serif").attr("font-weight","700").attr("font-size","11.7").attr("transform","translate(155.851 158) scale(10, 10)").text("?"),t.append("path").attr("d","M38.5001 222.5 340.862 222.5").attr("stroke","#BFBFBF").attr("stroke-width","8.66667").attr("stroke-miterlimit","8").attr("stroke-dasharray","26 8.66667").attr("fill","none").attr("fill-rule","evenodd"),t.append("path").attr("d","M72.5001 239.762C89.0456 219.168 107.725 201.801 129.638 201.507 152.134 202.459 176.57 239.689 192.563 242.313 206.31 245.118 205.897 218.733 212.814 217.659 217.563 216.414 220.151 239.182 233.066 241.463 248.557 244.786 291.62 235.385 302.5 237.212").attr("stroke","#7F7F7F").attr("stroke-width","10.66667").attr("stroke-miterlimit","8").attr("fill","none").attr("fill-rule","evenodd")},neutralHigh:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#490092").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#490092").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M103.652 242.245 180.02 165.878 151.735 137.593 258.273 119.68 240.359 226.217 212.075 197.933 135.708 274.3Z").attr("fill","#490092").attr("fill-rule","evenodd")},neutralLow:function(t){t.append("g").attr("clip-path","url(#clip2)").append("g").attr("clip-path","url(#clip3)").attr("filter","url(#fx0)").attr("transform","translate(16 25)").append("g").attr("clip-path","url(#clip4)").append("path").attr("d","M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z").attr("stroke","#490092").attr("stroke-width","21").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z").attr("stroke","#490092").attr("stroke-width","20").attr("stroke-miterlimit","8").attr("fill","#FFFFFF").attr("fill-rule","evenodd"),t.append("path").attr("d","M135.708 103.652 212.075 180.02 240.359 151.735 258.273 258.273 151.735 240.359 180.02 212.075 103.652 135.708Z").attr("fill","#490092").attr("fill-rule","evenodd")}});function hr(t,e,i,a,r){const o=e/378*.08*a;return`scale(${o}) translate(${i.includes("Right")?t/o-(378+378*r):i.includes("Centre")?t/o/2-189:378*r}, ${i.includes("Bottom")?e/o-378:i.includes("Centre")?e/o/2-189:0})`}function mr(t,e,i){const a=t.append("g").classed("icongroup",!0);i&&a.attr("transform",i);const r=a.append("defs"),o=r.append("filter").attr("id","fx0").attr("x","-10%").attr("y","-10%").attr("width","120%").attr("height","120%").attr("filterUnits","userSpaceOnUse").attr("userSpaceOnUse","userSpaceOnUse"),l=o.append("feComponentTransfer").attr("color-interpolation-filters","sRGB");l.append("feFuncR").attr("type","discrete").attr("tableValues","0 0"),l.append("feFuncG").attr("type","discrete").attr("tableValues","0 0"),l.append("feFuncB").attr("type","discrete").attr("tableValues","0 0"),l.append("feFuncA").attr("type","linear").attr("slope","0.4").attr("intercept","0"),o.append("feGaussianBlur").attr("stdDeviation","1.77778 1.77778"),r.append("clipPath").attr("id","clip1").append("rect").attr("x","0").attr("y","0").attr("width","378").attr("height","378"),r.append("clipPath").attr("id","clip2").append("path").attr("d","M189 38C105.605 38 38 105.605 38 189 38 272.395 105.605 340 189 340 272.395 340 340 272.395 340 189 340 105.605 272.395 38 189 38ZM5.63264e-06 5.63264e-06 378 5.63264e-06 378 378 5.63264e-06 378Z").attr("fill-rule","evenodd").attr("clip-rule","evenodd"),r.append("clipPath").attr("id","clip3").append("rect").attr("x","-2").attr("y","-2").attr("width","346").attr("height","346"),a.append("g").classed(e,!0).attr("clip-path","url(#clip1)").append("rect").attr("x","0").attr("y","0").attr("width","378").attr("height","378").attr("fill","#FFFFFF")}function fr(t,e){if(t.selectAll(".icongroup").remove(),!e.plotProperties.displayPlot)return;const i=e.viewModel.inputSettings.settings.nhs_icons,a=i.show_variation_icons,r=i.variation_icons_locations,o=e.viewModel.svgWidth,l=e.viewModel.svgHeight;let n=0;if(a){const a=i.variation_icons_scaling,s=Ha(e.viewModel.outliers,e.viewModel.inputSettings.settings);s.forEach(((e,i)=>{t.call(mr,e,hr(o,l,r,a,i)).selectAll(`.${e}`).call(cr[e])})),n=s.length}if(i.show_assurance_icons){const a=i.assurance_icons_locations,s=i.assurance_icons_scaling,u=da(e.viewModel.controlLimits,e.viewModel.inputSettings.settings,e.viewModel.inputSettings.derivedSettings);if("none"===u)return;const p=n>0&&r===a?n:0;t.call(mr,u,hr(o,l,a,s,p)).selectAll(`.${u}`).call(cr[u])}}function yr(t,e){const i=e.plotProperties.yAxis.lower,a=e.plotProperties.yAxis.upper,r=e.plotProperties.xAxis.lower,o=e.plotProperties.xAxis.upper;t.select(".linesgroup").selectAll(".linegroup").data(e.viewModel.groupedLines).join("g").classed("linegroup",!0).each((function(t){const l=t[0],n=t[1].filter((t=>ha(t.x,r,o))),s=n.length;let u=new Array(s),p=!1,d=new Array(s),c=new Array(s);for(let t=0;t<s;t++){const r=n[t];d[t]=e.plotProperties.xScale(r.x),c[t]=e.plotProperties.yScale(r.line_value),u[t]=!ca(r.line_value)&&ha(r.line_value,i,a),p=p||u[t]}p?ut(this).selectAll("line").data(n.slice(1)).join("line").attr("x1",((t,e)=>u[e]?d[e]:d[e+1])).attr("y1",((t,e)=>u[e]?c[e]:c[e+1])).attr("x2",((t,e)=>u[e+1]?d[e+1]:d[e])).attr("y2",((t,e)=>u[e+1]?c[e+1]:c[e])).attr("fill","none").attr("stroke",(t=>e.viewModel.colourPalette.isHighContrast?e.viewModel.colourPalette.foregroundColour:Ba(l,"lines","colour",{lines:t.aesthetics}))).attr("stroke-width",(t=>Ba(l,"lines","width",{lines:t.aesthetics}))).attr("stroke-dasharray",(t=>Ba(l,"lines","type",{lines:t.aesthetics}))).attr("stroke-dashoffset",((t,i)=>{const a=e.plotProperties.xScale(n[0].x);return e.plotProperties.xScale(n[i].x)-a})):ut(this).selectAll("line").remove()}))}function gr(t,e){const i=e.plotProperties,a=e.viewModel.colourPalette.isHighContrast?e.viewModel.colourPalette.foregroundColour:"black",r=t.select(".ttip-line-x").attr("x1",0).attr("x2",0).attr("y1",i.yAxis.end_padding).attr("y2",e.viewModel.svgHeight-i.yAxis.start_padding).attr("stroke-width","1px").attr("stroke",a).style("stroke-opacity",0),o=t.select(".ttip-line-y").attr("x1",i.xAxis.start_padding).attr("x2",e.viewModel.svgWidth-i.xAxis.end_padding).attr("y1",0).attr("y2",0).attr("stroke-width","1px").attr("stroke",a).style("stroke-opacity",0);t.on("mousemove",(t=>{if(!i.displayPlot)return;const a=e.viewModel.plotPoints,l=e.svg.node().getBoundingClientRect(),n=t.pageX-l.left;let s,u,p,d=1/0;for(let t=0;t<a.length;t++){const e=i.xScale(a[t].x),r=Math.abs(e-n);r<d&&(d=r,s=t,u=e,p=i.yScale(a[t].value))}e.host.tooltipService.show({dataItems:a[s].tooltip,identities:[a[s].identity],coordinates:[u,p],isTouchEvent:!1}),r.style("stroke-opacity",.4).attr("x1",u).attr("x2",u),o.style("stroke-opacity",.4).attr("y1",p).attr("y2",p)})).on("mouseleave",(()=>{i.displayPlot&&(e.host.tooltipService.hide({immediately:!0,isTouchEvent:!1}),r.style("stroke-opacity",0),o.style("stroke-opacity",0))}))}function vr(t,e){const i=e.plotProperties.xAxis,a=ae(e.plotProperties.xScale);i.ticks?(i.tick_count&&a.ticks(i.tick_count),e.viewModel.tickLabels&&a.tickFormat((t=>{const i=e.viewModel.tickLabels.filter((e=>e.x==t));return i.length>0?i[0].label:""}))):a.tickValues([]);const r=e.viewModel.svgHeight,o=r-e.plotProperties.yAxis.start_padding,l=e.plotProperties.displayPlot;t.select(".xaxisgroup").call(a).attr("color",l?i.colour:"#FFFFFF").attr("transform",`translate(0, ${o})`).selectAll(".tick text").style("text-anchor",i.tick_rotation<0?"end":"start").attr("dx",i.tick_rotation<0?"-.8em":".8em").attr("dy",i.tick_rotation<0?"-.15em":".15em").attr("transform","rotate("+i.tick_rotation+")").style("font-size",i.tick_size).style("font-family",i.tick_font).style("fill",l?i.tick_colour:"#FFFFFF");const n=e.viewModel.svgWidth/2;let s;if(e.viewModel.frontend)s=r-e.plotProperties.yAxis.start_padding/3;else{const e=t.selectAll(".xaxisgroup").node();if(!e)return void t.select(".xaxislabel").style("fill",l?i.label_colour:"#FFFFFF");s=r-(r-e.getBoundingClientRect().bottom)/2}t.select(".xaxislabel").attr("x",n).attr("y",s).style("text-anchor","middle").text(i.label).style("font-size",i.label_size).style("font-family",i.label_font).style("fill",l?i.label_colour:"#FFFFFF")}function _r(t,e){const i=e.plotProperties.yAxis,a=re(e.plotProperties.yScale),r=e.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs,o=ca(r)?e.viewModel.inputSettings.settings.spc.sig_figs:r,l=e.plotProperties.displayPlot;i.ticks?(i.tick_count&&a.ticks(i.tick_count),e.viewModel.inputData&&a.tickFormat((t=>e.viewModel.inputSettings.derivedSettings.percentLabels?t.toFixed(o)+"%":t.toFixed(o)))):a.tickValues([]);let n;t.select(".yaxisgroup").call(a).attr("color",l?i.colour:"#FFFFFF").attr("transform",`translate(${e.plotProperties.xAxis.start_padding}, 0)`).selectAll(".tick text").style("text-anchor","right").attr("transform",`rotate(${i.tick_rotation})`).style("font-size",i.tick_size).style("font-family",i.tick_font).style("fill",l?i.tick_colour:"#FFFFFF");const s=e.viewModel.svgHeight/2;if(e.viewModel.frontend)n=e.plotProperties.xAxis.start_padding/2;else{const e=t.selectAll(".yaxisgroup").node();if(!e)return void t.select(".yaxislabel").style("fill",l?i.label_colour:"#FFFFFF");n=.7*e.getBoundingClientRect().x}t.select(".yaxislabel").attr("x",n).attr("y",s).attr("transform",`rotate(-90, ${n}, ${s})`).text(i.label).style("text-anchor","middle").style("font-size",i.label_size).style("font-family",i.label_font).style("fill",l?i.label_colour:"#FFFFFF")}function wr(t,e=!1){e&&t.selectChildren().remove(),t.append("line").classed("ttip-line-x",!0),t.append("line").classed("ttip-line-y",!0),t.append("g").classed("xaxisgroup",!0),t.append("text").classed("xaxislabel",!0),t.append("g").classed("yaxisgroup",!0),t.append("text").classed("yaxislabel",!0),t.append("g").classed("linesgroup",!0),t.append("g").classed("dotsgroup",!0)}function br(t,e,i,a,r=null){t.call(wr,!0);const o=t.append("g").classed("errormessage",!0);if(r){const t={internal:"Internal Error! Please file a bug report with the following text:",settings:"Invalid settings provided for all observations! First error:"};o.append("text").attr("x",e.viewport.width/2).attr("y",e.viewport.height/3).style("text-anchor","middle").text(t[r]).style("font-size","10px").style("fill",i.foregroundColour)}o.append("text").attr("x",e.viewport.width/2).attr("y",e.viewport.height/2).style("text-anchor","middle").text(a).style("font-size","10px").style("fill",i.foregroundColour)}function Nr(t,e,i,a){const r=t.select(".table-header").selectAll("th").data(e).join("th");r.selectAll("text").data((t=>[t.label])).join("text").text((t=>t)).style("font-size",`${i.table_header_size}px`).style("font-family",i.table_header_font).style("color",i.table_header_colour),r.style("padding",`${i.table_header_text_padding}px`).style("background-color",i.table_header_bg_colour).style("font-weight",i.table_header_font_weight).style("text-transform",i.table_header_text_transform).style("text-align",i.table_header_text_align).style("border-width",`${i.table_header_border_width}px`).style("border-style",i.table_header_border_style).style("border-color",i.table_header_border_colour).style("border-top","inherit"),i.table_header_border_bottom||r.style("border-bottom","none"),i.table_header_border_inner||r.style("border-left","none").style("border-right","none"),"none"!==i.table_text_overflow?r.style("overflow","hidden").style("max-width",`${a}px`).style("text-overflow",i.table_text_overflow):r.style("overflow","auto").style("max-width","none")}function xr(t,e,i,a,r){const o=t.select(".table-body").selectAll("tr").data(i).join("tr").on("click",((t,i)=>{if(e.host.hostCapabilities.allowInteractions){const a=rr(i.identity,e.selectionManager);e.selectionManager.select(i.identity,a||t.ctrlKey||t.metaKey).then((()=>e.updateHighlighting())),t.stopPropagation()}})).on("mouseover",(t=>{ut(t.target).select((function(){return this.closest("td")})).style("background-color","lightgray")})).on("mouseout",(t=>{var e,i;let a=ut(t.target).select((function(){return this.closest("td")})),r=ut(a.node().parentNode).datum();a.style("background-color",null!==(i=null===(e=r.aesthetics)||void 0===e?void 0:e.table_body_bg_colour)&&void 0!==i?i:"inherit")}));"none"!==a.table_text_overflow?o.style("overflow","hidden").style("max-width",`${r}px`).style("text-overflow",a.table_text_overflow):o.style("overflow","auto").style("max-width","none")}function Sr(t,e){t.select(".table-group").style("border-width",`${e.table_outer_border_width}px`).style("border-style",e.table_outer_border_style).style("border-color",e.table_outer_border_colour),["top","right","bottom","left"].forEach((i=>{e[`table_outer_border_${i}`]||t.select(".table-group").style(`border-${i}`,"none")})),t.selectAll("th:first-child").style("border-left","inherit"),t.selectAll("th:last-child").style("border-right","inherit"),t.selectAll("td:first-child").style("border-left","inherit"),t.selectAll("td:last-child").style("border-right","inherit"),t.selectAll("tr:first-child").selectAll("td").style("border-top","inherit"),t.selectAll("tr:last-child").selectAll("td").style("border-bottom","inherit")}function kr(t,e,i,a){const r=t.select(".table-body").selectAll("tr").selectAll("td").data((t=>e.map((e=>({column:e.name,value:t.table_row[e.name]}))))).join("td"),o=i.nhs_icons.show_variation_icons||i.nhs_icons.show_assurance_icons,l=r.node().getBoundingClientRect();r.each((function(t){var e;const r=ut(this),n=ut(r.property("parentNode")).datum();if(a&&o&&("variation"===t.column||"assurance"===t.column)){if("none"!==t.value){const e=i.nhs_icons[`${t.column}_icons_scaling`];r.append("svg").attr("width",.5*l.width*e+"px").attr("viewBox","0 0 378 378").classed("rowsvg",!0).call(mr,t.value).selectAll(".icongroup").selectAll(`.${t.value}`).call(cr[t.value])}}else{const e="number"==typeof t.value?t.value.toFixed(i.spc.sig_figs):t.value;r.text(e).classed("cell-text",!0)}const s=(null===(e=n.aesthetics)||void 0===e?void 0:e.table_body_bg_colour)?n.aesthetics:i.summary_table;r.style("background-color",s.table_body_bg_colour).style("font-weight",s.table_body_font_weight).style("text-transform",s.table_body_text_transform).style("text-align",s.table_body_text_align).style("font-size",`${s.table_body_size}px`).style("font-family",s.table_body_font).style("color",s.table_body_colour).style("border-width",`${s.table_body_border_width}px`).style("border-style",s.table_body_border_style).style("border-color",s.table_body_border_colour).style("padding",`${s.table_body_text_padding}px`).style("opacity","inherit"),s.table_body_border_left_right||r.style("border-left","none").style("border-right","none"),s.table_body_border_top_bottom||r.style("border-top","none").style("border-bottom","none")}))}function Ar(t,e){let i,a;t.selectAll(".rowsvg").remove(),t.selectAll(".cell-text").remove(),e.viewModel.showGrouped?(i=e.viewModel.plotPointsGrouped,a=e.viewModel.tableColumnsGrouped):(i=e.viewModel.plotPoints,a=e.viewModel.tableColumns);const r=e.viewModel.svgWidth/a.length,o=e.viewModel.inputSettings.settings.summary_table;t.call(Nr,a,o,r).call(xr,e,i,o,r),i.length>0&&t.call(kr,a,e.viewModel.inputSettings.settings,e.viewModel.showGrouped),t.call(Sr,o),t.on("click",(()=>{e.selectionManager.clear(),e.updateHighlighting()}))}function Fr(t,e){if(!e.viewModel.inputSettings.settings.download_options.show_button)return void t.select(".download-btn-group").remove();t.select(".download-btn-group").empty()&&t.append("text").classed("download-btn-group",!0);const i=e.viewModel.plotPoints.map((t=>t.table_row)),a=new Array;a.push(Object.keys(i[0]).join(",")),i.forEach((t=>{a.push(Object.values(t).join(","))})),t.select(".download-btn-group").attr("x",e.viewModel.svgWidth-50).attr("y",e.viewModel.svgHeight-5).text("Download").style("font-size","10px").style("text-decoration","underline").on("click",(()=>{e.host.downloadService.exportVisualsContent(a.join("\n"),"chartdata.csv","csv","csv file")}))}function Mr(t,e){if(!e.viewModel.inputSettings.settings.labels.show_labels||!e.viewModel.inputData.anyLabels)return void t.select(".text-labels").remove();t.select(".text-labels").empty()&&t.append("g").classed("text-labels",!0);const i=Wi().on("drag",(function(t){const i=t.subject,a=e.plotProperties.xScale(i.x),r=e.plotProperties.yScale(i.value),o=180*Math.atan2(t.sourceEvent.y-r,t.sourceEvent.x-a)/Math.PI,l=Math.sqrt(Math.pow(t.sourceEvent.y-r,2)+Math.pow(t.sourceEvent.x-a,2)),n=10*Math.cos(o*Math.PI/180),s=10*Math.sin(o*Math.PI/180);t.subject.label.angle=o,t.subject.label.distance=l,ut(this).select("text").attr("x",t.sourceEvent.x).attr("y",t.sourceEvent.y);let u=i.label.aesthetics.label_line_offset;u="top"===i.label.aesthetics.label_position?u:-(u+i.label.aesthetics.label_size/2),ut(this).select("line").attr("x1",t.sourceEvent.x).attr("y1",t.sourceEvent.y+u).attr("x2",a+n).attr("y2",r+s),ut(this).select("path").attr("transform",`translate(${a+n}, ${r+s}) rotate(${o-90})`)}));t.select(".text-labels").selectAll(".text-group-inner").data(e.viewModel.plotPoints).join("g").classed("text-group-inner",!0).each((function(t){var a;const r=ut(this);if(""===(null!==(a=t.label.text_value)&&void 0!==a?a:""))return void r.remove();r.selectAll("*").remove();const o=r.append("text"),l=r.append("line"),n=r.append("path"),{x:s,y:u,line_offset:p,marker_offset:d,theta:c}=function(t,e){var i,a;const r="top"===t.label.aesthetics.label_position?-1:1,o=e.viewModel.svgHeight-e.plotProperties.yAxis.start_padding,l=t.label.aesthetics.label_position;let n=t.label.aesthetics.label_y_offset;const s="top"===l?0+n:o-n,u=e.plotProperties.yScale(t.value);let p="top"===l?u-s:s-u;const d=e.plotProperties.xScale(t.x),c=e.plotProperties.yScale(t.value),h=null!==(i=t.label.angle)&&void 0!==i?i:t.label.aesthetics.label_angle_offset+90*r;p=null!==(a=t.label.distance)&&void 0!==a?a:Math.min(p,t.label.aesthetics.label_line_max_length);let m=t.label.aesthetics.label_line_offset;m="top"===l?m:-(m+t.label.aesthetics.label_size/2);let f=t.label.aesthetics.label_marker_offset+t.label.aesthetics.label_size/2;f="top"===l?-f:f;const y=d+p*Math.cos(h*Math.PI/180),g=c+p*Math.sin(h*Math.PI/180);return nr(y)&&nr(g)?{x:y,y:g,theta:h,line_offset:m,marker_offset:f}:{x:0,y:0,theta:0,line_offset:0,marker_offset:0}}(t,e);if(0===s&&0===u)return void r.remove();const h=c-("top"===t.label.aesthetics.label_position?180:0),m=h*Math.PI/180;o.attr("x",s).attr("y",u).text(t.label.text_value).style("text-anchor","middle").style("font-size",`${t.label.aesthetics.label_size}px`).style("font-family",t.label.aesthetics.label_font).style("fill",t.label.aesthetics.label_colour);const f=Math.pow(t.label.aesthetics.label_marker_size,2),y=e.plotProperties.xScale(t.x)+d*Math.cos(m),g=e.plotProperties.yScale(t.value)+d*Math.sin(m);l.attr("x1",s).attr("y1",u+p).attr("x2",y).attr("y2",g).style("stroke",e.viewModel.inputSettings.settings.labels.label_line_colour).style("stroke-width",e.viewModel.inputSettings.settings.labels.label_line_width).style("stroke-dasharray",e.viewModel.inputSettings.settings.labels.label_line_type);const v=h+("top"===t.label.aesthetics.label_position?90:270);n.attr("d",Yt().type(Gt).size(f)()).attr("transform",`translate(${y}, ${g}) rotate(${v})`).style("fill",t.label.aesthetics.label_marker_colour).style("stroke",t.label.aesthetics.label_marker_outline_colour),e.viewModel.headless||r.call(i)}))}const Er={above:-1,below:1,beside:-1},Tr={ll99:"below",ll95:"below",ll68:"below",ul68:"above",ul95:"above",ul99:"above",speclimits_lower:"below",speclimits_upper:"above"},$r={ll99:"above",ll95:"above",ll68:"above",ul68:"below",ul95:"below",ul99:"below",speclimits_lower:"above",speclimits_upper:"below"};function Dr(t,e){const i=e.viewModel.inputSettings.settings.lines,a=new Array;e.viewModel.groupedLines[0][1].forEach(((t,i)=>{null===t.line_value&&a.push(i-1),i===e.viewModel.groupedLines[0][1].length-1&&a.push(i)}));const r=e.viewModel.groupedLines.map((t=>t[0])),o=new Array;a.forEach(((t,e)=>{r.forEach(((r,l)=>{const n=a[a.length-1],s=a.length-Math.min(a.length,i[`plot_label_show_n_${za[r]}`]),u=i[`plot_label_show_all_${za[r]}`]||t==n;(e>=s||u)&&o.push({index:t,limit:l})}))}));const l=ka(e.viewModel.inputSettings.settings,e.viewModel.inputSettings.derivedSettings);t.select(".linesgroup").selectAll("text").data(o).join("text").text((t=>{const a=e.viewModel.groupedLines[t.limit];return i[`plot_label_show_${za[a[0]]}`]?i[`plot_label_prefix_${za[a[0]]}`]+l(a[1][t.index].line_value,"value"):""})).attr("x",(t=>{const i=e.viewModel.groupedLines[t.limit];return e.plotProperties.xScale(i[1][t.index].x)})).attr("y",(t=>{const i=e.viewModel.groupedLines[t.limit];return e.plotProperties.yScale(i[1][t.index].line_value)})).attr("fill",(t=>{const a=e.viewModel.groupedLines[t.limit];return i[`plot_label_colour_${za[a[0]]}`]})).attr("font-size",(t=>{const a=e.viewModel.groupedLines[t.limit];return`${i[`plot_label_size_${za[a[0]]}`]}px`})).attr("font-family",(t=>{const a=e.viewModel.groupedLines[t.limit];return i[`plot_label_font_${za[a[0]]}`]})).attr("text-anchor",(t=>{const a=e.viewModel.groupedLines[t.limit];return"beside"===i[`plot_label_position_${za[a[0]]}`]?"start":"end"})).attr("dx",(t=>{const a=e.viewModel.groupedLines[t.limit];return`${("beside"===i[`plot_label_position_${za[a[0]]}`]?1:-1)*i[`plot_label_hpad_${za[a[0]]}`]}px`})).attr("dy",(function(t){const a=e.viewModel.groupedLines[t.limit],r=ut(this).node().getBoundingClientRect();let o=i[`plot_label_position_${za[a[0]]}`],l=i[`plot_label_vpad_${za[a[0]]}`];["outside","inside"].includes(o)&&(o="outside"===o?Tr[a[0]]:$r[a[0]]);const n={above:-i[`width_${za[a[0]]}`],below:i[`plot_label_size_${za[a[0]]}`],beside:r.height/4};return`${Er[o]*l+n[o]}px`}))}class Lr{initialiseScale(t,e){this.xScale=Ci().domain([this.xAxis.lower,this.xAxis.upper]).range([this.xAxis.start_padding,t-this.xAxis.end_padding]),this.yScale=Ci().domain([this.yAxis.lower,this.yAxis.upper]).range([e-this.yAxis.start_padding,this.yAxis.end_padding])}update(t,e){var i,a,r,o,l,n,s,u,p;const d=e.plotPoints,c=e.controlLimits,h=e.inputData,m=e.inputSettings.settings,f=e.inputSettings.derivedSettings,y=e.colourPalette;this.displayPlot=d?d.length>1:null;let g=m.x_axis.xlimit_l,v=m.x_axis.xlimit_u,_=m.y_axis.ylimit_l,w=m.y_axis.ylimit_u;if(0==(null===(i=null==h?void 0:h.validationStatus)||void 0===i?void 0:i.status)&&c){v=ca(v)?Ya(c.keys.map((t=>t.x))):v;const t=m.y_axis.limit_multiplier,e=c.values.filter((t=>nr(t))),i=null===(a=null==c?void 0:c.ul99)||void 0===a?void 0:a.filter((t=>nr(t))),d=null===(r=null==c?void 0:c.speclimits_upper)||void 0===r?void 0:r.filter((t=>nr(t))),h=null===(o=null==c?void 0:c.ll99)||void 0===o?void 0:o.filter((t=>nr(t))),y=null===(l=null==c?void 0:c.speclimits_lower)||void 0===l?void 0:l.filter((t=>nr(t))),b=null===(n=c.alt_targets)||void 0===n?void 0:n.filter((t=>nr(t))),N=null===(s=c.targets)||void 0===s?void 0:s.filter((t=>nr(t))),x=Ya(e),S=Ya(e.concat(i).concat(d).concat(b)),k=Xa(e.concat(h).concat(y).concat(b)),A=null!==(u=Ya(N))&&void 0!==u?u:0,F=null!==(p=Xa(N))&&void 0!==p?p:0,M=A+(S-A)*t,E=F-(F-k)*t,T=f.multiplier;null!=w||(w=!f.percentLabels||x>1*T?M:qa(M,{upper:1*T})),null!=_||(_=f.percentLabels?qa(E,{lower:0*T}):E);const $=c.keys.map((t=>t.x));g=ca(g)?Xa($):g,v=ca(v)?Ya($):v}const b=m.x_axis.xlimit_tick_size,N=m.y_axis.ylimit_tick_size,x=m.y_axis.ylimit_label?m.y_axis.ylimit_label_size:0,S=m.x_axis.xlimit_label?m.x_axis.xlimit_label_size:0;this.xAxis={lower:ca(g)?0:g,upper:v,start_padding:m.canvas.left_padding+x,end_padding:m.canvas.right_padding,colour:y.isHighContrast?y.foregroundColour:m.x_axis.xlimit_colour,ticks:m.x_axis.xlimit_ticks,tick_size:`${b}px`,tick_font:m.x_axis.xlimit_tick_font,tick_colour:y.isHighContrast?y.foregroundColour:m.x_axis.xlimit_tick_colour,tick_rotation:m.x_axis.xlimit_tick_rotation,tick_count:m.x_axis.xlimit_tick_count,label:m.x_axis.xlimit_label,label_size:`${m.x_axis.xlimit_label_size}px`,label_font:m.x_axis.xlimit_label_font,label_colour:y.isHighContrast?y.foregroundColour:m.x_axis.xlimit_label_colour},this.yAxis={lower:_,upper:w,start_padding:m.canvas.lower_padding+S,end_padding:m.canvas.upper_padding,colour:y.isHighContrast?y.foregroundColour:m.y_axis.ylimit_colour,ticks:m.y_axis.ylimit_ticks,tick_size:`${N}px`,tick_font:m.y_axis.ylimit_tick_font,tick_colour:y.isHighContrast?y.foregroundColour:m.y_axis.ylimit_tick_colour,tick_rotation:m.y_axis.ylimit_tick_rotation,tick_count:m.y_axis.ylimit_tick_count,label:m.y_axis.ylimit_label,label_size:`${m.y_axis.ylimit_label_size}px`,label_font:m.y_axis.ylimit_label_font,label_colour:y.isHighContrast?y.foregroundColour:m.y_axis.ylimit_label_colour},this.initialiseScale(t.viewport.width,t.viewport.height)}}var Cr,Pr,Ir,Rr,Vr,Or,jr,Ur,Gr,zr,Br,qr,Hr,Zr,Yr,Xr,Wr,Kr,Jr,Qr,to,eo,io,ao,ro,oo,lo,no,so,uo,po,co,ho,mo,fo,yo,go,vo,_o,wo,bo,No,xo,So,ko,Ao,Fo,Mo,Eo,To,$o,Do,Lo,Co,Po,Io,Ro,Vo,Oo,jo,Uo,Go,zo,Bo,qo,Ho,Zo,Yo,Xo,Wo,Ko,Jo,Qo,tl,el,il,al,rl,ol,ll,nl,sl,ul,pl,dl,cl,hl,ml,fl,yl={},gl={exports:{}};function vl(){if(Pr)return Cr;Pr=1;const t=Number.MAX_SAFE_INTEGER||9007199254740991;return Cr={MAX_LENGTH:256,MAX_SAFE_COMPONENT_LENGTH:16,MAX_SAFE_BUILD_LENGTH:250,MAX_SAFE_INTEGER:t,RELEASE_TYPES:["major","premajor","minor","preminor","patch","prepatch","prerelease"],SEMVER_SPEC_VERSION:"2.0.0",FLAG_INCLUDE_PRERELEASE:1,FLAG_LOOSE:2}}function _l(){if(Rr)return Ir;Rr=1;const t="object"==typeof process&&process.env&&process.env.NODE_DEBUG&&/\bsemver\b/i.test(process.env.NODE_DEBUG)?(...t)=>console.error("SEMVER",...t):()=>{};return Ir=t}function wl(){return Vr||(Vr=1,function(t,e){const{MAX_SAFE_COMPONENT_LENGTH:i,MAX_SAFE_BUILD_LENGTH:a,MAX_LENGTH:r}=vl(),o=_l(),l=(e=t.exports={}).re=[],n=e.safeRe=[],s=e.src=[],u=e.t={};let p=0;const d="[a-zA-Z0-9-]",c=[["\\s",1],["\\d",r],[d,a]],h=(t,e,i)=>{const a=(t=>{for(const[e,i]of c)t=t.split(`${e}*`).join(`${e}{0,${i}}`).split(`${e}+`).join(`${e}{1,${i}}`);return t})(e),r=p++;o(t,r,e),u[t]=r,s[r]=e,l[r]=new RegExp(e,i?"g":void 0),n[r]=new RegExp(a,i?"g":void 0)};h("NUMERICIDENTIFIER","0|[1-9]\\d*"),h("NUMERICIDENTIFIERLOOSE","\\d+"),h("NONNUMERICIDENTIFIER",`\\d*[a-zA-Z-]${d}*`),h("MAINVERSION",`(${s[u.NUMERICIDENTIFIER]})\\.(${s[u.NUMERICIDENTIFIER]})\\.(${s[u.NUMERICIDENTIFIER]})`),h("MAINVERSIONLOOSE",`(${s[u.NUMERICIDENTIFIERLOOSE]})\\.(${s[u.NUMERICIDENTIFIERLOOSE]})\\.(${s[u.NUMERICIDENTIFIERLOOSE]})`),h("PRERELEASEIDENTIFIER",`(?:${s[u.NUMERICIDENTIFIER]}|${s[u.NONNUMERICIDENTIFIER]})`),h("PRERELEASEIDENTIFIERLOOSE",`(?:${s[u.NUMERICIDENTIFIERLOOSE]}|${s[u.NONNUMERICIDENTIFIER]})`),h("PRERELEASE",`(?:-(${s[u.PRERELEASEIDENTIFIER]}(?:\\.${s[u.PRERELEASEIDENTIFIER]})*))`),h("PRERELEASELOOSE",`(?:-?(${s[u.PRERELEASEIDENTIFIERLOOSE]}(?:\\.${s[u.PRERELEASEIDENTIFIERLOOSE]})*))`),h("BUILDIDENTIFIER",`${d}+`),h("BUILD",`(?:\\+(${s[u.BUILDIDENTIFIER]}(?:\\.${s[u.BUILDIDENTIFIER]})*))`),h("FULLPLAIN",`v?${s[u.MAINVERSION]}${s[u.PRERELEASE]}?${s[u.BUILD]}?`),h("FULL",`^${s[u.FULLPLAIN]}$`),h("LOOSEPLAIN",`[v=\\s]*${s[u.MAINVERSIONLOOSE]}${s[u.PRERELEASELOOSE]}?${s[u.BUILD]}?`),h("LOOSE",`^${s[u.LOOSEPLAIN]}$`),h("GTLT","((?:<|>)?=?)"),h("XRANGEIDENTIFIERLOOSE",`${s[u.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`),h("XRANGEIDENTIFIER",`${s[u.NUMERICIDENTIFIER]}|x|X|\\*`),h("XRANGEPLAIN",`[v=\\s]*(${s[u.XRANGEIDENTIFIER]})(?:\\.(${s[u.XRANGEIDENTIFIER]})(?:\\.(${s[u.XRANGEIDENTIFIER]})(?:${s[u.PRERELEASE]})?${s[u.BUILD]}?)?)?`),h("XRANGEPLAINLOOSE",`[v=\\s]*(${s[u.XRANGEIDENTIFIERLOOSE]})(?:\\.(${s[u.XRANGEIDENTIFIERLOOSE]})(?:\\.(${s[u.XRANGEIDENTIFIERLOOSE]})(?:${s[u.PRERELEASELOOSE]})?${s[u.BUILD]}?)?)?`),h("XRANGE",`^${s[u.GTLT]}\\s*${s[u.XRANGEPLAIN]}$`),h("XRANGELOOSE",`^${s[u.GTLT]}\\s*${s[u.XRANGEPLAINLOOSE]}$`),h("COERCEPLAIN",`(^|[^\\d])(\\d{1,${i}})(?:\\.(\\d{1,${i}}))?(?:\\.(\\d{1,${i}}))?`),h("COERCE",`${s[u.COERCEPLAIN]}(?:$|[^\\d])`),h("COERCEFULL",s[u.COERCEPLAIN]+`(?:${s[u.PRERELEASE]})?`+`(?:${s[u.BUILD]})?(?:$|[^\\d])`),h("COERCERTL",s[u.COERCE],!0),h("COERCERTLFULL",s[u.COERCEFULL],!0),h("LONETILDE","(?:~>?)"),h("TILDETRIM",`(\\s*)${s[u.LONETILDE]}\\s+`,!0),e.tildeTrimReplace="$1~",h("TILDE",`^${s[u.LONETILDE]}${s[u.XRANGEPLAIN]}$`),h("TILDELOOSE",`^${s[u.LONETILDE]}${s[u.XRANGEPLAINLOOSE]}$`),h("LONECARET","(?:\\^)"),h("CARETTRIM",`(\\s*)${s[u.LONECARET]}\\s+`,!0),e.caretTrimReplace="$1^",h("CARET",`^${s[u.LONECARET]}${s[u.XRANGEPLAIN]}$`),h("CARETLOOSE",`^${s[u.LONECARET]}${s[u.XRANGEPLAINLOOSE]}$`),h("COMPARATORLOOSE",`^${s[u.GTLT]}\\s*(${s[u.LOOSEPLAIN]})$|^$`),h("COMPARATOR",`^${s[u.GTLT]}\\s*(${s[u.FULLPLAIN]})$|^$`),h("COMPARATORTRIM",`(\\s*)${s[u.GTLT]}\\s*(${s[u.LOOSEPLAIN]}|${s[u.XRANGEPLAIN]})`,!0),e.comparatorTrimReplace="$1$2$3",h("HYPHENRANGE",`^\\s*(${s[u.XRANGEPLAIN]})\\s+-\\s+(${s[u.XRANGEPLAIN]})\\s*$`),h("HYPHENRANGELOOSE",`^\\s*(${s[u.XRANGEPLAINLOOSE]})\\s+-\\s+(${s[u.XRANGEPLAINLOOSE]})\\s*$`),h("STAR","(<|>)?=?\\s*\\*"),h("GTE0","^\\s*>=\\s*0\\.0\\.0\\s*$"),h("GTE0PRE","^\\s*>=\\s*0\\.0\\.0-0\\s*$")}(gl,gl.exports)),gl.exports}function bl(){if(jr)return Or;jr=1;const t=Object.freeze({loose:!0}),e=Object.freeze({});return Or=i=>i?"object"!=typeof i?t:i:e}function Nl(){if(Gr)return Ur;Gr=1;const t=/^[0-9]+$/,e=(e,i)=>{const a=t.test(e),r=t.test(i);return a&&r&&(e=+e,i=+i),e===i?0:a&&!r?-1:r&&!a?1:e<i?-1:1};return Ur={compareIdentifiers:e,rcompareIdentifiers:(t,i)=>e(i,t)},Ur}function xl(){if(Br)return zr;Br=1;const t=_l(),{MAX_LENGTH:e,MAX_SAFE_INTEGER:i}=vl(),{safeRe:a,t:r}=wl(),o=bl(),{compareIdentifiers:l}=Nl();class n{constructor(l,s){if(s=o(s),l instanceof n){if(l.loose===!!s.loose&&l.includePrerelease===!!s.includePrerelease)return l;l=l.version}else if("string"!=typeof l)throw new TypeError(`Invalid version. Must be a string. Got type "${typeof l}".`);if(l.length>e)throw new TypeError(`version is longer than ${e} characters`);t("SemVer",l,s),this.options=s,this.loose=!!s.loose,this.includePrerelease=!!s.includePrerelease;const u=l.trim().match(s.loose?a[r.LOOSE]:a[r.FULL]);if(!u)throw new TypeError(`Invalid Version: ${l}`);if(this.raw=l,this.major=+u[1],this.minor=+u[2],this.patch=+u[3],this.major>i||this.major<0)throw new TypeError("Invalid major version");if(this.minor>i||this.minor<0)throw new TypeError("Invalid minor version");if(this.patch>i||this.patch<0)throw new TypeError("Invalid patch version");u[4]?this.prerelease=u[4].split(".").map((t=>{if(/^[0-9]+$/.test(t)){const e=+t;if(e>=0&&e<i)return e}return t})):this.prerelease=[],this.build=u[5]?u[5].split("."):[],this.format()}format(){return this.version=`${this.major}.${this.minor}.${this.patch}`,this.prerelease.length&&(this.version+=`-${this.prerelease.join(".")}`),this.version}toString(){return this.version}compare(e){if(t("SemVer.compare",this.version,this.options,e),!(e instanceof n)){if("string"==typeof e&&e===this.version)return 0;e=new n(e,this.options)}return e.version===this.version?0:this.compareMain(e)||this.comparePre(e)}compareMain(t){return t instanceof n||(t=new n(t,this.options)),l(this.major,t.major)||l(this.minor,t.minor)||l(this.patch,t.patch)}comparePre(e){if(e instanceof n||(e=new n(e,this.options)),this.prerelease.length&&!e.prerelease.length)return-1;if(!this.prerelease.length&&e.prerelease.length)return 1;if(!this.prerelease.length&&!e.prerelease.length)return 0;let i=0;do{const a=this.prerelease[i],r=e.prerelease[i];if(t("prerelease compare",i,a,r),void 0===a&&void 0===r)return 0;if(void 0===r)return 1;if(void 0===a)return-1;if(a!==r)return l(a,r)}while(++i)}compareBuild(e){e instanceof n||(e=new n(e,this.options));let i=0;do{const a=this.build[i],r=e.build[i];if(t("build compare",i,a,r),void 0===a&&void 0===r)return 0;if(void 0===r)return 1;if(void 0===a)return-1;if(a!==r)return l(a,r)}while(++i)}inc(t,e,i){switch(t){case"premajor":this.prerelease.length=0,this.patch=0,this.minor=0,this.major++,this.inc("pre",e,i);break;case"preminor":this.prerelease.length=0,this.patch=0,this.minor++,this.inc("pre",e,i);break;case"prepatch":this.prerelease.length=0,this.inc("patch",e,i),this.inc("pre",e,i);break;case"prerelease":0===this.prerelease.length&&this.inc("patch",e,i),this.inc("pre",e,i);break;case"major":0===this.minor&&0===this.patch&&0!==this.prerelease.length||this.major++,this.minor=0,this.patch=0,this.prerelease=[];break;case"minor":0===this.patch&&0!==this.prerelease.length||this.minor++,this.patch=0,this.prerelease=[];break;case"patch":0===this.prerelease.length&&this.patch++,this.prerelease=[];break;case"pre":{const t=Number(i)?1:0;if(!e&&!1===i)throw new Error("invalid increment argument: identifier is empty");if(0===this.prerelease.length)this.prerelease=[t];else{let a=this.prerelease.length;for(;--a>=0;)"number"==typeof this.prerelease[a]&&(this.prerelease[a]++,a=-2);if(-1===a){if(e===this.prerelease.join(".")&&!1===i)throw new Error("invalid increment argument: identifier already exists");this.prerelease.push(t)}}if(e){let a=[e,t];!1===i&&(a=[e]),0===l(this.prerelease[0],e)?isNaN(this.prerelease[1])&&(this.prerelease=a):this.prerelease=a}break}default:throw new Error(`invalid increment argument: ${t}`)}return this.raw=this.format(),this.build.length&&(this.raw+=`+${this.build.join(".")}`),this}}return zr=n}function Sl(){if(Hr)return qr;Hr=1;const t=xl();return qr=(e,i,a=!1)=>{if(e instanceof t)return e;try{return new t(e,i)}catch(t){if(!a)return null;throw t}},qr}function kl(){if(po)return uo;po=1;const t=xl();return uo=(e,i,a)=>new t(e,a).compare(new t(i,a)),uo}function Al(){if(go)return yo;go=1;const t=xl();return yo=(e,i,a)=>{const r=new t(e,a),o=new t(i,a);return r.compare(o)||r.compareBuild(o)},yo}function Fl(){if(xo)return No;xo=1;const t=kl();return No=(e,i,a)=>t(e,i,a)>0,No}function Ml(){if(ko)return So;ko=1;const t=kl();return So=(e,i,a)=>t(e,i,a)<0,So}function El(){if(Fo)return Ao;Fo=1;const t=kl();return Ao=(e,i,a)=>0===t(e,i,a),Ao}function Tl(){if(Eo)return Mo;Eo=1;const t=kl();return Mo=(e,i,a)=>0!==t(e,i,a),Mo}function $l(){if($o)return To;$o=1;const t=kl();return To=(e,i,a)=>t(e,i,a)>=0,To}function Dl(){if(Lo)return Do;Lo=1;const t=kl();return Do=(e,i,a)=>t(e,i,a)<=0,Do}function Ll(){if(Po)return Co;Po=1;const t=El(),e=Tl(),i=Fl(),a=$l(),r=Ml(),o=Dl();return Co=(l,n,s,u)=>{switch(n){case"===":return"object"==typeof l&&(l=l.version),"object"==typeof s&&(s=s.version),l===s;case"!==":return"object"==typeof l&&(l=l.version),"object"==typeof s&&(s=s.version),l!==s;case"":case"=":case"==":return t(l,s,u);case"!=":return e(l,s,u);case">":return i(l,s,u);case">=":return a(l,s,u);case"<":return r(l,s,u);case"<=":return o(l,s,u);default:throw new TypeError(`Invalid operator: ${n}`)}},Co}function Cl(){if(Uo)return jo;Uo=1;const t=/\s+/g;class e{constructor(i,o){if(o=a(o),i instanceof e)return i.loose===!!o.loose&&i.includePrerelease===!!o.includePrerelease?i:new e(i.raw,o);if(i instanceof r)return this.raw=i.value,this.set=[[i]],this.formatted=void 0,this;if(this.options=o,this.loose=!!o.loose,this.includePrerelease=!!o.includePrerelease,this.raw=i.trim().replace(t," "),this.set=this.raw.split("||").map((t=>this.parseRange(t.trim()))).filter((t=>t.length)),!this.set.length)throw new TypeError(`Invalid SemVer Range: ${this.raw}`);if(this.set.length>1){const t=this.set[0];if(this.set=this.set.filter((t=>!m(t[0]))),0===this.set.length)this.set=[t];else if(this.set.length>1)for(const t of this.set)if(1===t.length&&f(t[0])){this.set=[t];break}}this.formatted=void 0}get range(){if(void 0===this.formatted){this.formatted="";for(let t=0;t<this.set.length;t++){t>0&&(this.formatted+="||");const e=this.set[t];for(let t=0;t<e.length;t++)t>0&&(this.formatted+=" "),this.formatted+=e[t].toString().trim()}}return this.formatted}format(){return this.range}toString(){return this.range}parseRange(t){const e=((this.options.includePrerelease&&c)|(this.options.loose&&h))+":"+t,a=i.get(e);if(a)return a;const l=this.options.loose,f=l?n[s.HYPHENRANGELOOSE]:n[s.HYPHENRANGE];t=t.replace(f,F(this.options.includePrerelease)),o("hyphen replace",t),t=t.replace(n[s.COMPARATORTRIM],u),o("comparator trim",t),t=t.replace(n[s.TILDETRIM],p),o("tilde trim",t),t=t.replace(n[s.CARETTRIM],d),o("caret trim",t);let y=t.split(" ").map((t=>g(t,this.options))).join(" ").split(/\s+/).map((t=>A(t,this.options)));l&&(y=y.filter((t=>(o("loose invalid filter",t,this.options),!!t.match(n[s.COMPARATORLOOSE]))))),o("range list",y);const v=new Map,_=y.map((t=>new r(t,this.options)));for(const t of _){if(m(t))return[t];v.set(t.value,t)}v.size>1&&v.has("")&&v.delete("");const w=[...v.values()];return i.set(e,w),w}intersects(t,i){if(!(t instanceof e))throw new TypeError("a Range is required");return this.set.some((e=>y(e,i)&&t.set.some((t=>y(t,i)&&e.every((e=>t.every((t=>e.intersects(t,i)))))))))}test(t){if(!t)return!1;if("string"==typeof t)try{t=new l(t,this.options)}catch(t){return!1}for(let e=0;e<this.set.length;e++)if(M(this.set[e],t,this.options))return!0;return!1}}jo=e;const i=new(Oo?Vo:(Oo=1,Vo=class{constructor(){this.max=1e3,this.map=new Map}get(t){const e=this.map.get(t);return void 0===e?void 0:(this.map.delete(t),this.map.set(t,e),e)}delete(t){return this.map.delete(t)}set(t,e){if(!this.delete(t)&&void 0!==e){if(this.map.size>=this.max){const t=this.map.keys().next().value;this.delete(t)}this.map.set(t,e)}return this}})),a=bl(),r=Pl(),o=_l(),l=xl(),{safeRe:n,t:s,comparatorTrimReplace:u,tildeTrimReplace:p,caretTrimReplace:d}=wl(),{FLAG_INCLUDE_PRERELEASE:c,FLAG_LOOSE:h}=vl(),m=t=>"<0.0.0-0"===t.value,f=t=>""===t.value,y=(t,e)=>{let i=!0;const a=t.slice();let r=a.pop();for(;i&&a.length;)i=a.every((t=>r.intersects(t,e))),r=a.pop();return i},g=(t,e)=>(o("comp",t,e),t=b(t,e),o("caret",t),t=_(t,e),o("tildes",t),t=x(t,e),o("xrange",t),t=k(t,e),o("stars",t),t),v=t=>!t||"x"===t.toLowerCase()||"*"===t,_=(t,e)=>t.trim().split(/\s+/).map((t=>w(t,e))).join(" "),w=(t,e)=>{const i=e.loose?n[s.TILDELOOSE]:n[s.TILDE];return t.replace(i,((e,i,a,r,l)=>{let n;return o("tilde",t,e,i,a,r,l),v(i)?n="":v(a)?n=`>=${i}.0.0 <${+i+1}.0.0-0`:v(r)?n=`>=${i}.${a}.0 <${i}.${+a+1}.0-0`:l?(o("replaceTilde pr",l),n=`>=${i}.${a}.${r}-${l} <${i}.${+a+1}.0-0`):n=`>=${i}.${a}.${r} <${i}.${+a+1}.0-0`,o("tilde return",n),n}))},b=(t,e)=>t.trim().split(/\s+/).map((t=>N(t,e))).join(" "),N=(t,e)=>{o("caret",t,e);const i=e.loose?n[s.CARETLOOSE]:n[s.CARET],a=e.includePrerelease?"-0":"";return t.replace(i,((e,i,r,l,n)=>{let s;return o("caret",t,e,i,r,l,n),v(i)?s="":v(r)?s=`>=${i}.0.0${a} <${+i+1}.0.0-0`:v(l)?s="0"===i?`>=${i}.${r}.0${a} <${i}.${+r+1}.0-0`:`>=${i}.${r}.0${a} <${+i+1}.0.0-0`:n?(o("replaceCaret pr",n),s="0"===i?"0"===r?`>=${i}.${r}.${l}-${n} <${i}.${r}.${+l+1}-0`:`>=${i}.${r}.${l}-${n} <${i}.${+r+1}.0-0`:`>=${i}.${r}.${l}-${n} <${+i+1}.0.0-0`):(o("no pr"),s="0"===i?"0"===r?`>=${i}.${r}.${l}${a} <${i}.${r}.${+l+1}-0`:`>=${i}.${r}.${l}${a} <${i}.${+r+1}.0-0`:`>=${i}.${r}.${l} <${+i+1}.0.0-0`),o("caret return",s),s}))},x=(t,e)=>(o("replaceXRanges",t,e),t.split(/\s+/).map((t=>S(t,e))).join(" ")),S=(t,e)=>{t=t.trim();const i=e.loose?n[s.XRANGELOOSE]:n[s.XRANGE];return t.replace(i,((i,a,r,l,n,s)=>{o("xRange",t,i,a,r,l,n,s);const u=v(r),p=u||v(l),d=p||v(n),c=d;return"="===a&&c&&(a=""),s=e.includePrerelease?"-0":"",u?i=">"===a||"<"===a?"<0.0.0-0":"*":a&&c?(p&&(l=0),n=0,">"===a?(a=">=",p?(r=+r+1,l=0,n=0):(l=+l+1,n=0)):"<="===a&&(a="<",p?r=+r+1:l=+l+1),"<"===a&&(s="-0"),i=`${a+r}.${l}.${n}${s}`):p?i=`>=${r}.0.0${s} <${+r+1}.0.0-0`:d&&(i=`>=${r}.${l}.0${s} <${r}.${+l+1}.0-0`),o("xRange return",i),i}))},k=(t,e)=>(o("replaceStars",t,e),t.trim().replace(n[s.STAR],"")),A=(t,e)=>(o("replaceGTE0",t,e),t.trim().replace(n[e.includePrerelease?s.GTE0PRE:s.GTE0],"")),F=t=>(e,i,a,r,o,l,n,s,u,p,d,c)=>`${i=v(a)?"":v(r)?`>=${a}.0.0${t?"-0":""}`:v(o)?`>=${a}.${r}.0${t?"-0":""}`:l?`>=${i}`:`>=${i}${t?"-0":""}`} ${s=v(u)?"":v(p)?`<${+u+1}.0.0-0`:v(d)?`<${u}.${+p+1}.0-0`:c?`<=${u}.${p}.${d}-${c}`:t?`<${u}.${p}.${+d+1}-0`:`<=${s}`}`.trim(),M=(t,e,i)=>{for(let i=0;i<t.length;i++)if(!t[i].test(e))return!1;if(e.prerelease.length&&!i.includePrerelease){for(let i=0;i<t.length;i++)if(o(t[i].semver),t[i].semver!==r.ANY&&t[i].semver.prerelease.length>0){const a=t[i].semver;if(a.major===e.major&&a.minor===e.minor&&a.patch===e.patch)return!0}return!1}return!0};return jo}function Pl(){if(zo)return Go;zo=1;const t=Symbol("SemVer ANY");class e{static get ANY(){return t}constructor(a,r){if(r=i(r),a instanceof e){if(a.loose===!!r.loose)return a;a=a.value}a=a.trim().split(/\s+/).join(" "),l("comparator",a,r),this.options=r,this.loose=!!r.loose,this.parse(a),this.semver===t?this.value="":this.value=this.operator+this.semver.version,l("comp",this)}parse(e){const i=this.options.loose?a[r.COMPARATORLOOSE]:a[r.COMPARATOR],o=e.match(i);if(!o)throw new TypeError(`Invalid comparator: ${e}`);this.operator=void 0!==o[1]?o[1]:"","="===this.operator&&(this.operator=""),o[2]?this.semver=new n(o[2],this.options.loose):this.semver=t}toString(){return this.value}test(e){if(l("Comparator.test",e,this.options.loose),this.semver===t||e===t)return!0;if("string"==typeof e)try{e=new n(e,this.options)}catch(t){return!1}return o(e,this.operator,this.semver,this.options)}intersects(t,a){if(!(t instanceof e))throw new TypeError("a Comparator is required");return""===this.operator?""===this.value||new s(t.value,a).test(this.value):""===t.operator?""===t.value||new s(this.value,a).test(t.semver):(!(a=i(a)).includePrerelease||"<0.0.0-0"!==this.value&&"<0.0.0-0"!==t.value)&&(!(!a.includePrerelease&&(this.value.startsWith("<0.0.0")||t.value.startsWith("<0.0.0")))&&(!(!this.operator.startsWith(">")||!t.operator.startsWith(">"))||(!(!this.operator.startsWith("<")||!t.operator.startsWith("<"))||(!(this.semver.version!==t.semver.version||!this.operator.includes("=")||!t.operator.includes("="))||(!!(o(this.semver,"<",t.semver,a)&&this.operator.startsWith(">")&&t.operator.startsWith("<"))||!!(o(this.semver,">",t.semver,a)&&this.operator.startsWith("<")&&t.operator.startsWith(">")))))))}}Go=e;const i=bl(),{safeRe:a,t:r}=wl(),o=Ll(),l=_l(),n=xl(),s=Cl();return Go}function Il(){if(qo)return Bo;qo=1;const t=Cl();return Bo=(e,i,a)=>{try{i=new t(i,a)}catch(t){return!1}return i.test(e)},Bo}function Rl(){if(el)return tl;el=1;const t=Cl();return tl=(e,i)=>{try{return new t(e,i).range||"*"}catch(t){return null}},tl}function Vl(){if(al)return il;al=1;const t=xl(),e=Pl(),{ANY:i}=e,a=Cl(),r=Il(),o=Fl(),l=Ml(),n=Dl(),s=$l();return il=(u,p,d,c)=>{let h,m,f,y,g;switch(u=new t(u,c),p=new a(p,c),d){case">":h=o,m=n,f=l,y=">",g=">=";break;case"<":h=l,m=s,f=o,y="<",g="<=";break;default:throw new TypeError('Must provide a hilo val of "<" or ">"')}if(r(u,p,c))return!1;for(let t=0;t<p.set.length;++t){const a=p.set[t];let r=null,o=null;if(a.forEach((t=>{t.semver===i&&(t=new e(">=0.0.0")),r=r||t,o=o||t,h(t.semver,r.semver,c)?r=t:f(t.semver,o.semver,c)&&(o=t)})),r.operator===y||r.operator===g)return!1;if((!o.operator||o.operator===y)&&m(u,o.semver))return!1;if(o.operator===g&&f(u,o.semver))return!1}return!0},il}function Ol(){if(fl)return ml;fl=1;const t=wl(),e=vl(),i=xl(),a=Nl(),r=Sl(),o=function(){if(Yr)return Zr;Yr=1;const t=Sl();return Zr=(e,i)=>{const a=t(e,i);return a?a.version:null},Zr}(),l=function(){if(Wr)return Xr;Wr=1;const t=Sl();return Xr=(e,i)=>{const a=t(e.trim().replace(/^[=v]+/,""),i);return a?a.version:null},Xr}(),n=function(){if(Jr)return Kr;Jr=1;const t=xl();return Kr=(e,i,a,r,o)=>{"string"==typeof a&&(o=r,r=a,a=void 0);try{return new t(e instanceof t?e.version:e,a).inc(i,r,o).version}catch(t){return null}},Kr}(),s=function(){if(to)return Qr;to=1;const t=Sl();return Qr=(e,i)=>{const a=t(e,null,!0),r=t(i,null,!0),o=a.compare(r);if(0===o)return null;const l=o>0,n=l?a:r,s=l?r:a,u=!!n.prerelease.length;if(s.prerelease.length&&!u)return s.patch||s.minor?n.patch?"patch":n.minor?"minor":"major":"major";const p=u?"pre":"";return a.major!==r.major?p+"major":a.minor!==r.minor?p+"minor":a.patch!==r.patch?p+"patch":"prerelease"}}(),u=function(){if(io)return eo;io=1;const t=xl();return eo=(e,i)=>new t(e,i).major,eo}(),p=function(){if(ro)return ao;ro=1;const t=xl();return ao=(e,i)=>new t(e,i).minor,ao}(),d=function(){if(lo)return oo;lo=1;const t=xl();return oo=(e,i)=>new t(e,i).patch,oo}(),c=function(){if(so)return no;so=1;const t=Sl();return no=(e,i)=>{const a=t(e,i);return a&&a.prerelease.length?a.prerelease:null},no}(),h=kl(),m=function(){if(ho)return co;ho=1;const t=kl();return co=(e,i,a)=>t(i,e,a),co}(),f=function(){if(fo)return mo;fo=1;const t=kl();return mo=(e,i)=>t(e,i,!0),mo}(),y=Al(),g=function(){if(_o)return vo;_o=1;const t=Al();return vo=(e,i)=>e.sort(((e,a)=>t(e,a,i))),vo}(),v=function(){if(bo)return wo;bo=1;const t=Al();return wo=(e,i)=>e.sort(((e,a)=>t(a,e,i))),wo}(),_=Fl(),w=Ml(),b=El(),N=Tl(),x=$l(),S=Dl(),k=Ll(),A=function(){if(Ro)return Io;Ro=1;const t=xl(),e=Sl(),{safeRe:i,t:a}=wl();return Io=(r,o)=>{if(r instanceof t)return r;if("number"==typeof r&&(r=String(r)),"string"!=typeof r)return null;let l=null;if((o=o||{}).rtl){const t=o.includePrerelease?i[a.COERCERTLFULL]:i[a.COERCERTL];let e;for(;(e=t.exec(r))&&(!l||l.index+l[0].length!==r.length);)l&&e.index+e[0].length===l.index+l[0].length||(l=e),t.lastIndex=e.index+e[1].length+e[2].length;t.lastIndex=-1}else l=r.match(o.includePrerelease?i[a.COERCEFULL]:i[a.COERCE]);if(null===l)return null;const n=l[2],s=l[3]||"0",u=l[4]||"0",p=o.includePrerelease&&l[5]?`-${l[5]}`:"",d=o.includePrerelease&&l[6]?`+${l[6]}`:"";return e(`${n}.${s}.${u}${p}${d}`,o)},Io}(),F=Pl(),M=Cl(),E=Il(),T=function(){if(Zo)return Ho;Zo=1;const t=Cl();return Ho=(e,i)=>new t(e,i).set.map((t=>t.map((t=>t.value)).join(" ").trim().split(" "))),Ho}(),$=function(){if(Xo)return Yo;Xo=1;const t=xl(),e=Cl();return Yo=(i,a,r)=>{let o=null,l=null,n=null;try{n=new e(a,r)}catch(t){return null}return i.forEach((e=>{n.test(e)&&(o&&-1!==l.compare(e)||(o=e,l=new t(o,r)))})),o},Yo}(),D=function(){if(Ko)return Wo;Ko=1;const t=xl(),e=Cl();return Wo=(i,a,r)=>{let o=null,l=null,n=null;try{n=new e(a,r)}catch(t){return null}return i.forEach((e=>{n.test(e)&&(o&&1!==l.compare(e)||(o=e,l=new t(o,r)))})),o},Wo}(),L=function(){if(Qo)return Jo;Qo=1;const t=xl(),e=Cl(),i=Fl();return Jo=(a,r)=>{a=new e(a,r);let o=new t("0.0.0");if(a.test(o))return o;if(o=new t("0.0.0-0"),a.test(o))return o;o=null;for(let e=0;e<a.set.length;++e){const r=a.set[e];let l=null;r.forEach((e=>{const a=new t(e.semver.version);switch(e.operator){case">":0===a.prerelease.length?a.patch++:a.prerelease.push(0),a.raw=a.format();case"":case">=":l&&!i(a,l)||(l=a);break;case"<":case"<=":break;default:throw new Error(`Unexpected operation: ${e.operator}`)}})),!l||o&&!i(o,l)||(o=l)}return o&&a.test(o)?o:null},Jo}(),C=Rl(),P=Vl(),I=function(){if(ol)return rl;ol=1;const t=Vl();return rl=(e,i,a)=>t(e,i,">",a),rl}(),R=function(){if(nl)return ll;nl=1;const t=Vl();return ll=(e,i,a)=>t(e,i,"<",a),ll}(),V=function(){if(ul)return sl;ul=1;const t=Cl();return sl=(e,i,a)=>(e=new t(e,a),i=new t(i,a),e.intersects(i,a))}(),O=function(){if(dl)return pl;dl=1;const t=Il(),e=kl();return pl=(i,a,r)=>{const o=[];let l=null,n=null;const s=i.sort(((t,i)=>e(t,i,r)));for(const e of s)t(e,a,r)?(n=e,l||(l=e)):(n&&o.push([l,n]),n=null,l=null);l&&o.push([l,null]);const u=[];for(const[t,e]of o)t===e?u.push(t):e||t!==s[0]?e?t===s[0]?u.push(`<=${e}`):u.push(`${t} - ${e}`):u.push(`>=${t}`):u.push("*");const p=u.join(" || "),d="string"==typeof a.raw?a.raw:String(a);return p.length<d.length?p:a},pl}(),j=function(){if(hl)return cl;hl=1;const t=Cl(),e=Pl(),{ANY:i}=e,a=Il(),r=kl(),o=[new e(">=0.0.0-0")],l=[new e(">=0.0.0")],n=(t,e,n)=>{if(t===e)return!0;if(1===t.length&&t[0].semver===i){if(1===e.length&&e[0].semver===i)return!0;t=n.includePrerelease?o:l}if(1===e.length&&e[0].semver===i){if(n.includePrerelease)return!0;e=l}const p=new Set;let d,c,h,m,f,y,g;for(const e of t)">"===e.operator||">="===e.operator?d=s(d,e,n):"<"===e.operator||"<="===e.operator?c=u(c,e,n):p.add(e.semver);if(p.size>1)return null;if(d&&c){if(h=r(d.semver,c.semver,n),h>0)return null;if(0===h&&(">="!==d.operator||"<="!==c.operator))return null}for(const t of p){if(d&&!a(t,String(d),n))return null;if(c&&!a(t,String(c),n))return null;for(const i of e)if(!a(t,String(i),n))return!1;return!0}let v=!(!c||n.includePrerelease||!c.semver.prerelease.length)&&c.semver,_=!(!d||n.includePrerelease||!d.semver.prerelease.length)&&d.semver;v&&1===v.prerelease.length&&"<"===c.operator&&0===v.prerelease[0]&&(v=!1);for(const t of e){if(g=g||">"===t.operator||">="===t.operator,y=y||"<"===t.operator||"<="===t.operator,d)if(_&&t.semver.prerelease&&t.semver.prerelease.length&&t.semver.major===_.major&&t.semver.minor===_.minor&&t.semver.patch===_.patch&&(_=!1),">"===t.operator||">="===t.operator){if(m=s(d,t,n),m===t&&m!==d)return!1}else if(">="===d.operator&&!a(d.semver,String(t),n))return!1;if(c)if(v&&t.semver.prerelease&&t.semver.prerelease.length&&t.semver.major===v.major&&t.semver.minor===v.minor&&t.semver.patch===v.patch&&(v=!1),"<"===t.operator||"<="===t.operator){if(f=u(c,t,n),f===t&&f!==c)return!1}else if("<="===c.operator&&!a(c.semver,String(t),n))return!1;if(!t.operator&&(c||d)&&0!==h)return!1}return!(d&&y&&!c&&0!==h||c&&g&&!d&&0!==h||_||v)},s=(t,e,i)=>{if(!t)return e;const a=r(t.semver,e.semver,i);return a>0?t:a<0||">"===e.operator&&">="===t.operator?e:t},u=(t,e,i)=>{if(!t)return e;const a=r(t.semver,e.semver,i);return a<0?t:a>0||"<"===e.operator&&"<="===t.operator?e:t};return cl=(e,i,a={})=>{if(e===i)return!0;e=new t(e,a),i=new t(i,a);let r=!1;t:for(const t of e.set){for(const e of i.set){const i=n(t,e,a);if(r=r||null!==i,i)continue t}if(r)return!1}return!0}}();return ml={parse:r,valid:o,clean:l,inc:n,diff:s,major:u,minor:p,patch:d,prerelease:c,compare:h,rcompare:m,compareLoose:f,compareBuild:y,sort:g,rsort:v,gt:_,lt:w,eq:b,neq:N,gte:x,lte:S,cmp:k,coerce:A,Comparator:F,Range:M,satisfies:E,toComparators:T,maxSatisfying:$,minSatisfying:D,minVersion:L,validRange:C,outside:P,gtr:I,ltr:R,intersects:V,simplifyRange:O,subset:j,SemVer:i,re:t.re,src:t.src,tokens:t.t,SEMVER_SPEC_VERSION:e.SEMVER_SPEC_VERSION,RELEASE_TYPES:e.RELEASE_TYPES,compareIdentifiers:a.compareIdentifiers,rcompareIdentifiers:a.rcompareIdentifiers}}var jl,Ul="5.1.0",Gl={type:"object",properties:{privileges:{type:"array",description:"Defines required privileges for the visual",items:{$ref:"#/definitions/privilege"}},dataRoles:{type:"array",description:"Defines data roles for the visual",items:{$ref:"#/definitions/dataRole"}},dataViewMappings:{type:"array",description:"Defines data mappings for the visual",items:{$ref:"#/definitions/dataViewMapping"}},objects:{$ref:"#/definitions/objects"},tooltips:{$ref:"#/definitions/tooltips"},sorting:{$ref:"#/definitions/sorting"},drilldown:{$ref:"#/definitions/drilldown"},expandCollapse:{$ref:"#/definitions/expandCollapse"},suppressDefaultTitle:{type:"boolean",description:"Indicates whether the visual should show a default title"},supportsKeyboardFocus:{type:"boolean",description:"Allows the visual to receive focus through keyboard navigation"},supportsHighlight:{type:"boolean",description:"Tells the host to include highlight data"},supportsSynchronizingFilterState:{type:"boolean",description:"Indicates whether the visual supports synchronization across report pages (for slicer visuals only)"},advancedEditModeSupport:{type:"number",description:"Indicates the action requested from the host when this visual enters Advanced Edit mode."},supportsLandingPage:{type:"boolean",description:"Indicates whether the visual supports a landing page"},supportsEmptyDataView:{type:"boolean",description:"Indicates whether the visual can receive formatting pane properties when it has no dataroles"},supportsMultiVisualSelection:{type:"boolean",description:"Indicates whether the visual supports multi selection"},subtotals:{description:"Specifies the subtotal customizations applied in the customizeQuery method",$ref:"#/definitions/subtotals"},migration:{$ref:"#/definitions/migration"},keepAllMetadataColumns:{type:"boolean",description:"Indicates that visual is going to receive all metadata columns, no matter what the active projections are"}},required:["privileges"],additionalProperties:!1,definitions:{privilege:{type:"object",description:"privilege - Defines the name, essentiality, and optional parameters for a privilege",properties:{name:{type:"string",description:"The internal name of the privilege",enum:["WebAccess","LocalStorage","ExportContent"]},essential:{type:"boolean",description:"Determines if the privilege is essential for the visual. Default value is false"},parameters:{type:"array",description:"Determines a list of privilege parameters if any",items:{type:"string",description:"The privilege parameter"}}},required:["name"]},dataRole:{type:"object",description:"dataRole - Defines the name, displayName, and kind of a data role",properties:{name:{type:"string",description:"The internal name for this data role used for all references to this role"},displayName:{type:"string",description:"The name of this data role that is shown to the user"},displayNameKey:{type:"string",description:"The localization key for the displayed name in the stringResourced file"},kind:{description:"The kind of data that can be bound do this role",$ref:"#/definitions/dataRole.kind"},description:{type:"string",description:"A description of this role shown to the user as a tooltip"},descriptionKey:{type:"string",description:"The localization key for the description in the stringResourced file"},preferredTypes:{type:"array",description:"Defines the preferred type of data for this data role",items:{$ref:"#/definitions/valueType"}},requiredTypes:{type:"array",description:"Defines the required type of data for this data role. Any values that do not match will be set to null",items:{$ref:"#/definitions/valueType"}}},required:["name","displayName","kind"],additionalProperties:!1},dataViewMapping:{type:"object",description:"dataMapping - Defines how data is mapped to data roles",properties:{conditions:{type:"array",description:"List of conditions that must be met for this data mapping",items:{type:"object",description:"condition - Defines conditions for a data mapping (each key needs to be a valid data role)",patternProperties:{"^[\\w\\s-]+$":{description:"Specifies the number of values that can be assigned to this data role in this mapping",$ref:"#/definitions/dataViewMapping.numberRangeWithKind"}},additionalProperties:!1}},single:{$ref:"#/definitions/dataViewMapping.single"},categorical:{$ref:"#/definitions/dataViewMapping.categorical"},table:{$ref:"#/definitions/dataViewMapping.table"},matrix:{$ref:"#/definitions/dataViewMapping.matrix"},scriptResult:{$ref:"#/definitions/dataViewMapping.scriptResult"}},anyOf:[{required:["single"]},{required:["categorical"]},{required:["table"]},{required:["matrix"]},{required:["scriptResult"]}],additionalProperties:!1},"dataViewMapping.single":{type:"object",description:"single - Defines a single data mapping",properties:{role:{type:"string",description:"The data role to bind to this mapping"}},required:["role"],additionalProperties:!1},"dataViewMapping.categorical":{type:"object",description:"categorical - Defines a categorical data mapping",properties:{categories:{type:"object",description:"Defines data roles to be used as categories",properties:{bind:{$ref:"#/definitions/dataViewMapping.bindTo"},for:{$ref:"#/definitions/dataViewMapping.forIn"},select:{$ref:"#/definitions/dataViewMapping.select"},dataReductionAlgorithm:{$ref:"#/definitions/dataViewMapping.dataReductionAlgorithm"}},oneOf:[{required:["for"]},{required:["bind"]},{required:["select"]}]},values:{type:"object",description:"Defines data roles to be used as values",properties:{bind:{$ref:"#/definitions/dataViewMapping.bindTo"},for:{$ref:"#/definitions/dataViewMapping.forIn"},select:{$ref:"#/definitions/dataViewMapping.select"},group:{type:"object",description:"Groups on a a specific data role",properties:{by:{description:"Specifies a data role to use for grouping",type:"string"},select:{$ref:"#/definitions/dataViewMapping.select"},dataReductionAlgorithm:{$ref:"#/definitions/dataViewMapping.dataReductionAlgorithm"}},required:["by","select"]}},oneOf:[{required:["for"]},{required:["bind"]},{required:["select"]},{required:["group"]}]},dataVolume:{$ref:"#/definitions/dataViewMapping.dataVolume"}},additionalProperties:!1},"dataViewMapping.table":{type:"object",description:"table - Defines a table data mapping",properties:{rows:{type:"object",description:"Rows to use for the table",properties:{bind:{$ref:"#/definitions/dataViewMapping.bindTo"},for:{$ref:"#/definitions/dataViewMapping.forIn"},select:{$ref:"#/definitions/dataViewMapping.select"},dataReductionAlgorithm:{$ref:"#/definitions/dataViewMapping.dataReductionAlgorithm"}},oneOf:[{required:["for"]},{required:["bind"]},{required:["select"]}]},rowCount:{type:"object",description:"Specifies a constraint on the number of data rows supported by the visual",properties:{preferred:{description:"Specifies a preferred range of values for the constraint",$ref:"#/definitions/dataViewMapping.numberRange"},supported:{description:"Specifies a supported range of values for the constraint. Defaults to preferred if not specified.",$ref:"#/definitions/dataViewMapping.numberRange"}}},dataVolume:{$ref:"#/definitions/dataViewMapping.dataVolume"}},requires:["rows"]},"dataViewMapping.matrix":{type:"object",description:"matrix - Defines a matrix data mapping",properties:{rows:{type:"object",description:"Defines the rows used for the matrix",properties:{for:{$ref:"#/definitions/dataViewMapping.forIn"},select:{$ref:"#/definitions/dataViewMapping.select"},dataReductionAlgorithm:{$ref:"#/definitions/dataViewMapping.dataReductionAlgorithm"}},oneOf:[{required:["for"]},{required:["select"]}]},columns:{type:"object",description:"Defines the columns used for the matrix",properties:{for:{$ref:"#/definitions/dataViewMapping.forIn"},dataReductionAlgorithm:{$ref:"#/definitions/dataViewMapping.dataReductionAlgorithm"}},required:["for"]},values:{type:"object",description:"Defines the values used for the matrix",properties:{for:{$ref:"#/definitions/dataViewMapping.forIn"},select:{$ref:"#/definitions/dataViewMapping.select"}},oneOf:[{required:["for"]},{required:["select"]}]},dataVolume:{$ref:"#/definitions/dataViewMapping.dataVolume"}}},"dataViewMapping.scriptResult":{type:"object",description:"scriptResult - Defines a scriptResult data mapping",properties:{dataInput:{type:"object",description:"dataInput - Defines how data is mapped to data roles",properties:{table:{$ref:"#/definitions/dataViewMapping.table"}}},script:{type:"object",description:"script - Defines where the script text and provider are stored",properties:{scriptSourceDefault:{type:"string",description:"scriptSourceDefault - Defines the default script source value to be used when no script object is defined"},scriptProviderDefault:{type:"string",description:"scriptProviderDefault - Defines the default script provider value to be used when no provider object is defined"},scriptOutputType:{type:"string",description:"scriptOutputType - Defines the output type that the R script will generate"},source:{$ref:"#/definitions/dataViewObjectPropertyIdentifier"},provider:{$ref:"#/definitions/dataViewObjectPropertyIdentifier"}}}}},dataViewObjectPropertyIdentifier:{type:"object",description:"Points to an object property",properties:{objectName:{type:"string",description:"The name of a object"},propertyName:{type:"string",description:"The name of a property inside the object"}}},"dataViewMapping.bindTo":{type:"object",description:"Binds this data mapping to a single value",properties:{to:{type:"string",description:"The name of a data role to bind to"}},additionalProperties:!1,required:["to"]},"dataViewMapping.numberRange":{type:"object",description:"A number range from min to max",properties:{min:{type:"number",description:"Minimum value supported"},max:{type:"number",description:"Maximum value supported"}}},"dataViewMapping.numberRangeWithKind":{allOf:[{$ref:"#/definitions/dataViewMapping.numberRange"},{properties:{kind:{$ref:"#/definitions/dataRole.kind"}}}]},"dataRole.kind":{type:"string",enum:["Grouping","Measure","GroupingOrMeasure"]},"dataViewMapping.select":{type:"array",description:"Defines a list of properties to bind",items:{type:"object",properties:{bind:{$ref:"#/definitions/dataViewMapping.bindTo"},for:{$ref:"#/definitions/dataViewMapping.forIn"}},oneOf:[{required:["for"]},{required:["bind"]}]}},"dataViewMapping.dataReductionAlgorithm":{type:"object",description:"Describes how to reduce the amount of data exposed to the visual",properties:{top:{type:"object",description:"Reduce the data to the Top count items",properties:{count:{type:"number"}}},bottom:{type:"object",description:"Reduce the data to the Bottom count items",properties:{count:{type:"number"}}},sample:{type:"object",description:"Reduce the data using a simple Sample of count items",properties:{count:{type:"number"}}},window:{type:"object",description:"Allow the data to be loaded one window, containing count items, at a time",properties:{count:{type:"number"}}}},additionalProperties:!1,oneOf:[{required:["top"]},{required:["bottom"]},{required:["sample"]},{required:["window"]}]},"dataViewMapping.dataVolume":{description:"Specifies the volume of data the query should return (1-6)",type:"number",enum:[1,2,3,4,5,6]},"dataViewMapping.forIn":{type:"object",description:"Binds this data mapping for all items in a collection",properties:{in:{type:"string",description:"The name of a data role to iterate over"}},additionalProperties:!1,required:["in"]},objects:{type:"object",description:"A list of unique property groups",patternProperties:{"^[\\w\\s-]+$":{type:"object",description:"Settings for a group of properties",properties:{displayName:{type:"string",description:"The name shown to the user to describe this group of properties"},displayNameKey:{type:"string",description:"The localization key for the displayed name in the stringResourced file"},objectCategory:{type:"number",description:"What aspect of the visual this object controlls (1 = Formatting, 2 = Analytics). Formatting: look & feel, colors, axes, labels etc. Analytics: forcasts, trendlines, reference lines and shapes etc."},description:{type:"string",description:"A description of this object shown to the user as a tooltip"},descriptionKey:{type:"string",description:"The localization key for the description in the stringResourced file"},properties:{type:"object",description:"A list of unique properties contained in this group",patternProperties:{"^[\\w\\s-]+$":{$ref:"#/definitions/object.propertySettings"}},additionalProperties:!1}},additionalProperties:!1}},additionalProperties:!1},tooltips:{type:"object",description:"Instructs the host to include tooltips ability",properties:{supportedTypes:{type:"object",description:"Instructs the host what tooltip types to support",properties:{default:{type:"boolean",description:"Instructs the host to support showing default tooltips"},canvas:{type:"boolean",description:"Instructs the host to support showing canvas tooltips"}}},roles:{type:"array",items:{type:"string",description:"The name of the data role to bind the tooltips selected info to"}},supportEnhancedTooltips:{type:"boolean",description:"Indicates whether the visual support modern tooltip feature"}}},"object.propertySettings":{type:"object",description:"Settings for a property",properties:{displayName:{type:"string",description:"The name shown to the user to describe this property"},displayNameKey:{type:"string",description:"The localization key for the displayed name in the stringResourced file"},description:{type:"string",description:"A description of this property shown to the user as a tooltip"},descriptionKey:{type:"string",description:"The localization key for the description in the stringResourced file"},placeHolderText:{type:"string",description:"Text to display if the field is empty"},placeHolderTextKey:{type:"string",description:"The localization key for the placeHolderText in the stringResources file"},suppressFormatPainterCopy:{type:"boolean",description:"Indicates whether the Format Painter should ignore this property"},type:{description:"Describes what type of property this is and how it should be displayed to the user",$ref:"#/definitions/valueType"},rule:{type:"object",description:"Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",$ref:"#/definitions/substitutionRule"},filterState:{type:"boolean",description:"Indicates whether the property is a part of filtration information"}},additionalProperties:!1},substitutionRule:{type:"object",description:"Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",properties:{inputRole:{type:"string",description:"The name of role. If this role is set, the substitution will be applied"},output:{type:"object",description:"Describes what exactly is necessary to replace",properties:{property:{type:"string",description:"The name of property object that will be replaced"},selector:{type:"array",description:"The array of selector names. Usually, it contains only one selector -- 'Category'",items:{type:"string",description:"The name of selector"}}}}}},sorting:{type:"object",description:"Specifies the default sorting behavior for the visual",properties:{default:{type:"object",additionalProperties:!1},custom:{type:"object",additionalProperties:!1},implicit:{type:"object",description:"implicit sort",properties:{clauses:{type:"array",items:{type:"object",properties:{role:{type:"string"},direction:{type:"number",description:"Determines sort direction (1 = Ascending, 2 = Descending)",enum:[1,2]}},additionalProperties:!1}}},additionalProperties:!1}},additionalProperties:!1,anyOf:[{required:["default"]},{required:["custom"]},{required:["implicit"]}]},drilldown:{type:"object",description:"Defines the visual's drill capability",properties:{roles:{type:"array",description:"The drillable role names for this visual",items:{type:"string",description:"The name of the role"}}}},expandCollapse:{type:"object",description:"Defines the visual's expandCollapse capability",properties:{roles:{type:"array",description:"The expandCollapsed role names for this visual",items:{type:"string",description:"The name of the role"}},addDataViewFlags:{type:"object",description:"The data view flags",defaultValue:{type:"boolean",description:"Indicates if the DataViewTreeNode will contain the isCollapsed flag by default"}},supportsMerge:{type:"boolean",description:"Indicates that the expansion state should be updated when query projections change, instead of being reset."},restoreProjectionsOrderFromBookmark:{type:"boolean",description:"Indicates that the bookmarked expansion state should be restored even if the query projections order no longer matches the expansion state levels."}}},valueType:{type:"object",properties:{bool:{type:"boolean",description:"A boolean value that will be displayed to the user as a toggle switch"},enumeration:{type:"array",description:"A list of values that will be displayed as a drop down list",items:{type:"object",description:"Describes an item in the enumeration list",properties:{displayName:{type:"string",description:"The name shown to the user to describe this item"},displayNameKey:{type:"string",description:"The localization key for the displayed name in the stringResourced file"},value:{type:"string",description:"The internal value of this property when this item is selected"}}}},fill:{type:"object",description:"A color value that will be displayed to the user as a color picker",properties:{solid:{type:"object",description:"A solid color value that will be displayed to the user as a color picker",properties:{color:{oneOf:[{type:"boolean"},{type:"object",properties:{nullable:{description:"Allows the user to select 'no fill' for the color",type:"boolean"}}}]}}}}},fillRule:{type:"object",description:"A color gradient that will be dispalyed to the user as a minimum (,medium) and maximum color pickers",properties:{linearGradient2:{type:"object",description:"Two color gradient",properties:{max:{type:"object",description:"Maximum color for gradient",properties:{color:{type:"string"},value:{type:"number"}}},min:{type:"object",description:"Minimum color for gradient",properties:{color:{type:"string"},value:{type:"number"}}},nullColoringStrategy:{type:"object",description:"Null color strategy"}}},linearGradient3:{type:"object",description:"Three color gradient",properties:{max:{type:"object",description:"Maximum color for gradient",properties:{color:{type:"string"},value:{type:"number"}}},min:{type:"object",description:"Minimum color for gradient",properties:{color:{type:"string"},value:{type:"number"}}},mid:{type:"object",description:"Middle color for gradient",properties:{color:{type:"string"},value:{type:"number"}}},nullColoringStrategy:{type:"object",description:"Null color strategy"}}}}},formatting:{type:"object",description:"A numeric value that will be displayed to the user as a text input",properties:{labelDisplayUnits:{type:"boolean",description:"Displays a dropdown with common display units (Auto, None, Thousands, Millions, Billions, Trillions)"},alignment:{type:"boolean",description:"Displays a selector to allow the user to choose left, center, or right alignment"},fontSize:{type:"boolean",description:"Displays a slider that allows the user to choose a font size in points"},fontFamily:{type:"boolean",description:"Displays a dropdown with font families"},formatString:{type:"boolean",description:"Displays dynamic format string"}},additionalProperties:!1,oneOf:[{required:["labelDisplayUnits"]},{required:["alignment"]},{required:["fontSize"]},{required:["fontFamily"]},{required:["formatString"]}]},integer:{type:"boolean",description:"An integer (whole number) value that will be displayed to the user as a text input"},numeric:{type:"boolean",description:"A numeric value that will be displayed to the user as a text input"},filter:{oneOf:[{type:"boolean"},{type:"object",properties:{selfFilter:{type:"boolean"}}}],description:"A filter"},operations:{type:"object",description:"A visual operation",properties:{searchEnabled:{type:"boolean",description:"Turns search ability on"}}},text:{type:"boolean",description:"A text value that will be displayed to the user as a text input"},scripting:{type:"object",description:"A text value that will be displayed to the user as a script",properties:{source:{type:"boolean",description:"A source code"}}},geography:{type:"object",description:"Geographical data",properties:{address:{type:"boolean"},city:{type:"boolean"},continent:{type:"boolean"},country:{type:"boolean"},county:{type:"boolean"},region:{type:"boolean"},postalCode:{type:"boolean"},stateOrProvince:{type:"boolean"},place:{type:"boolean"},latitude:{type:"boolean"},longitude:{type:"boolean"}}}},additionalProperties:!1,oneOf:[{required:["bool"]},{required:["enumeration"]},{required:["fill"]},{required:["fillRule"]},{required:["formatting"]},{required:["integer"]},{required:["numeric"]},{required:["text"]},{required:["geography"]},{required:["scripting"]},{required:["filter"]},{required:["operations"]}]},subtotals:{type:"object",description:"Specifies the subtotal request customizations applied to the outgoing data query",properties:{matrix:{description:"Defines the subtotal customizations of the outgoing data query of a matrix-dataview visual",$ref:"#/definitions/subtotals.matrix"}},requires:["matrix"]},"subtotals.matrix":{type:"object",description:"Specifies the subtotal customizations of the outgoing data query of a matrix-dataview visual",properties:{rowSubtotals:{type:"object",description:"Indicates if the subtotal data should be requested for all fields in the rows field well",properties:{propertyIdentifier:{type:"object",properties:{objectName:{type:"string"},propertyName:{type:"string"}}},defaultValue:{type:"boolean"}}},rowSubtotalsPerLevel:{type:"object",description:"Indicates if the subtotal data can be toggled for individual fields in the rows field well",properties:{propertyIdentifier:{type:"object",properties:{objectName:{type:"string"},propertyName:{type:"string"}}},defaultValue:{type:"boolean"}}},columnSubtotals:{type:"object",description:"Indicates if the subtotal data should be requested for all fields in the columns field well",properties:{propertyIdentifier:{type:"object",properties:{objectName:{type:"string"},propertyName:{type:"string"}}},defaultValue:{type:"boolean"}}},columnSubtotalsPerLevel:{type:"object",description:"Indicates if the subtotal data can be toggled for individual fields in the columns field well",properties:{propertyIdentifier:{type:"object",properties:{objectName:{type:"string"},propertyName:{type:"string"}}},defaultValue:{type:"boolean"}}},levelSubtotalEnabled:{type:"object",description:"Unlike all other properites, this property is applied to individual rows/columns. The property indicates if the subtotals are requested for the row/column",properties:{propertyIdentifier:{type:"object",properties:{objectName:{type:"string"},propertyName:{type:"string"}}},defaultValue:{type:"boolean"}}},rowSubtotalsType:{type:"object",description:"Indicates location of row subtotals locations (Top, Bottom). Top means subtotals located at the start of datasource and calculated even before all datasource rows fetched, Bottom means subtotals located at the end of datasource and shown only after all rows are fetched",properties:{propertyIdentifier:{type:"object",properties:{objectName:{type:"string"},propertyName:{type:"string"}}},defaultValue:{type:"string",enum:["Top","Bottom"]}}}},requires:["matrix"]},migration:{type:"object",description:"Defines the supported APIs for migration",properties:{filter:{$ref:"#/definitions/migration.filter"}}},"migration.filter":{type:"object",description:"Defines the capabilities for migrating the filter API",properties:{shouldUseIdentityFilter:{type:"boolean",description:"Indicates whether the new filter should migrate to an identity filter"}}}}},zl={type:"object",properties:{apiVersion:{type:"string",description:"Version of the IVisual API"},author:{type:"object",description:"Information about the author of the visual",properties:{name:{type:"string",description:"Name of the visual author. This is displayed to users."},email:{type:"string",description:"E-mail of the visual author. This is displayed to users for support."}}},assets:{type:"object",description:"Assets used by the visual",properties:{icon:{type:"string",description:"A 20x20 png icon used to represent the visual"}}},externalJS:{type:"array",description:"An array of relative paths to 3rd party javascript libraries to load",items:{type:"string"}},stringResources:{type:"array",description:"An array of relative paths to string resources to load",items:{type:"string"},uniqueItems:!0},style:{type:"string",description:"Relative path to the stylesheet (less) for the visual"},capabilities:{type:"string",description:"Relative path to the visual capabilities json file"},visual:{type:"object",description:"Details about this visual",properties:{description:{type:"string",description:"What does this visual do?"},name:{type:"string",description:"Internal visual name"},displayName:{type:"string",description:"A friendly name"},externals:{type:"array",description:"External files (such as JavaScript) that you would like to include"},guid:{type:"string",description:"Unique identifier for the visual"},visualClassName:{type:"string",description:"Class of your IVisual"},icon:{type:"string",description:"Icon path"},version:{type:"string",description:"Visual version"},gitHubUrl:{type:"string",description:"Url to the github repository for this visual"},supportUrl:{type:"string",description:"Url to the support page for this visual"}}}}},Bl={type:"object",properties:{cranPackages:{type:"array",description:"An array of the Cran packages required for the custom R visual script to operate",items:{$ref:"#/definitions/cranPackage"}}},definitions:{cranPackage:{type:"object",description:"cranPackage - Defines the name and displayName of a required Cran package",properties:{name:{type:"string",description:"The name for this Cran package"},displayName:{type:"string",description:"The name for this Cran package that is shown to the user"},url:{type:"string",description:"A url for package documentation in Cran website"}},required:["name","url"],additionalProperties:!1}}},ql={type:"object",properties:{locale:{$ref:"#/definitions/localeOptions"},values:{type:"object",description:"translations for the display name keys in the capabilities",additionalProperties:{type:"string"}}},required:["locale"],definitions:{localeOptions:{description:"Specifies the locale key from a list of supported locales",type:"string",enum:["ar-SA","bg-BG","ca-ES","cs-CZ","da-DK","de-DE","el-GR","en-US","es-ES","et-EE","eu-ES","fi-FI","fr-FR","gl-ES","he-IL","hi-IN","hr-HR","hu-HU","id-ID","it-IT","ja-JP","kk-KZ","ko-KR","lt-LT","lv-LV","ms-MY","nb-NO","nl-NL","pl-PL","pt-BR","pt-PT","ro-RO","ru-RU","sk-SK","sl-SI","sr-Cyrl-RS","sr-Latn-RS","sv-SE","th-TH","tr-TR","uk-UA","vi-VN","zh-CN","zh-TW"]}}};!function(){if(jl)return yl;jl=1;const t=Ol();let e=Ul,i=`${t.major(e)}.${t.minor(e)}.0`;yl.version=i,yl.schemas={capabilities:Gl,pbiviz:zl,dependencies:Bl,stringResources:ql}}();const Hl={i:"Observation",i_m:"Observation",i_mm:"Observation",c:"Count",t:"Time",xbar:"Group Mean",s:"Group SD",g:"Non-Events",run:"Observation",mr:"Moving Range",p:"Proportion",pp:"Proportion",u:"Rate",up:"Rate"};class Zl{update(t){const e=t.chart_type,i=["p","pp"].includes(e),a=t.perc_labels;let r,o=t.multiplier;"Yes"===a&&(o=100),i&&"No"!==a&&(o=1===o?100:o),r="Automatic"===a?i&&100===o:"Yes"===a,this.chart_type_props={name:e,needs_denominator:["p","pp","u","up","xbar","s"].includes(e),denominator_optional:["i","i_m","i_mm","run","mr"].includes(e),numerator_non_negative:["p","pp","u","up","s","c","g","t"].includes(e),numerator_leq_denominator:["p","pp","u","up"].includes(e),has_control_limits:!["run"].includes(e),needs_sd:["xbar"].includes(e),integer_num_den:["c","p","pp"].includes(e),value_name:Hl[e],x_axis_use_date:!["g","t"].includes(e),date_name:["g","t"].includes(e)?"Event":"Date"},this.multiplier=o,this.percentLabels=r}}class Yl{update(t,e){var i,a,r;this.validationStatus=JSON.parse(JSON.stringify({status:0,messages:new Array,error:""}));const o=Object.keys(this.settings),l=null!==(r=null===(a=null===(i=null==t?void 0:t.categorical)||void 0===i?void 0:i.categories)||void 0===a?void 0:a.some((t=>t.source.roles.indicator)))&&void 0!==r&&r;this.settingsGrouped=new Array,l&&e.forEach((()=>{this.settingsGrouped.push(Object.fromEntries(Object.keys(ua).map((t=>[t,Object.fromEntries(Object.keys(ua[t]).map((e=>[e,ua[t][e]])))]))))}));const n=e.flat();if(o.forEach((i=>{const a=Ra(null==t?void 0:t.categorical,i,this.settings,n);0!==a.validation.status&&(this.validationStatus.status=a.validation.status,this.validationStatus.error=a.validation.error),0===this.validationStatus.messages.length?this.validationStatus.messages=a.validation.messages:a.validation.messages.every((t=>0===t.length))||a.validation.messages.forEach(((t,e)=>{t.length>0&&(this.validationStatus.messages[e]=this.validationStatus.messages[e].concat(t))}));Object.keys(this.settings[i]).forEach((t=>{this.settings[i][t]=(null==a?void 0:a.values)?null==a?void 0:a.values[0][t]:ua[i][t].default,l&&e.forEach(((e,r)=>{this.settingsGrouped[r][i][t]=(null==a?void 0:a.values)?null==a?void 0:a.values[e[0]][t]:ua[i][t].default}))}))})),this.settings.nhs_icons.show_variation_icons){["astronomical","shift","trend","two_in_three"].some((t=>this.settings.outliers[t]))||(this.validationStatus.status=1,this.validationStatus.error="Variation icons require at least one outlier pattern to be selected")}this.derivedSettings.update(this.settings.spc),this.derivedSettingsGrouped=new Array,l&&this.settingsGrouped.forEach((t=>{const e=new Zl;e.update(t.spc),this.derivedSettingsGrouped.push(e)}))}getFormattingModel(){var t,e;const i={cards:[]};for(const a in na){let r={description:na[a].description,displayName:na[a].displayName,uid:a+"_card_uid",groups:[],revertToDefaultDescriptors:[]};for(const i in na[a].settingsGroups){let o={displayName:"all"===i?na[a].displayName:i,uid:a+"_"+i+"_uid",slices:[]};for(const l in na[a].settingsGroups[i]){r.revertToDefaultDescriptors.push({objectName:a,propertyName:l});let n={uid:a+"_"+i+"_"+l+"_slice_uid",displayName:na[a].settingsGroups[i][l].displayName,control:{type:na[a].settingsGroups[i][l].type,properties:{descriptor:{objectName:a,propertyName:l,selector:{data:[{dataViewWildcard:{matchingOption:0}}]},instanceKind:"boolean"!=typeof this.settings[a][l]?3:null},value:this.valueLookup(a,i,l),items:null===(t=na[a].settingsGroups[i][l])||void 0===t?void 0:t.items,options:null===(e=na[a].settingsGroups[i][l])||void 0===e?void 0:e.options}}};o.slices.push(n)}r.groups.push(o)}i.cards.push(r)}return i}valueLookup(t,e,i){var a;if(i.includes("colour"))return{value:this.settings[t][i]};if(!ca(null===(a=na[t].settingsGroups[e][i])||void 0===a?void 0:a.items)){const a=na[t].settingsGroups[e][i].items,r=this.settings[t][i];return a.find((t=>t.value===r))}return this.settings[t][i]}constructor(){this.settings=Object.fromEntries(Object.keys(ua).map((t=>[t,Object.fromEntries(Object.keys(ua[t]).map((e=>[e,ua[t][e]])))]))),this.derivedSettings=new Zl}}function Xl(t){const e=t.denominators&&t.denominators.length>0,i=e?va(t.numerators,t.denominators):t.numerators,a=Ga(i,t.subset_points),r=Wa(a),o=Na(Ca(a)),l=3.267*Wa(o),n=Wa(t.outliers_in_limits?o:o.filter((t=>t<l)))/1.128;return{keys:t.keys,values:i.map((t=>isNaN(t)?0:t)),numerators:e?t.numerators:void 0,denominators:e?t.denominators:void 0,targets:Pa(r,t.keys.length),ll99:Pa(r-3*n,t.keys.length),ll95:Pa(r-2*n,t.keys.length),ll68:Pa(r-1*n,t.keys.length),ul68:Pa(r+1*n,t.keys.length),ul95:Pa(r+2*n,t.keys.length),ul99:Pa(r+3*n,t.keys.length)}}function Wl(t){const e=t.denominators&&t.denominators.length>0,i=e?va(t.numerators,t.denominators):t.numerators,a=Za(Ga(i,t.subset_points));return{keys:t.keys,values:i.map((t=>isNaN(t)?0:t)),numerators:e?t.numerators:void 0,denominators:e?t.denominators:void 0,targets:Pa(a,t.keys.length)}}var Kl=Object.freeze({__proto__:null,c:function(t){const e=Wa(Ga(t.numerators,t.subset_points)),i=Math.sqrt(e);return{keys:t.keys,values:t.numerators,targets:Pa(e,t.keys.length),ll99:Pa(qa(e-3*i,{lower:0}),t.keys.length),ll95:Pa(qa(e-2*i,{lower:0}),t.keys.length),ll68:Pa(qa(e-1*i,{lower:0}),t.keys.length),ul68:Pa(e+1*i,t.keys.length),ul95:Pa(e+2*i,t.keys.length),ul99:Pa(e+3*i,t.keys.length)}},g:function(t){const e=Wa(Ga(t.numerators,t.subset_points)),i=ba(e*(e+1));return{keys:t.keys,values:t.numerators,targets:Pa(Za(Ga(t.numerators,t.subset_points)),t.keys.length),ll99:Pa(0,t.keys.length),ll95:Pa(0,t.keys.length),ll68:Pa(0,t.keys.length),ul68:Pa(e+1*i,t.keys.length),ul95:Pa(e+2*i,t.keys.length),ul99:Pa(e+3*i,t.keys.length)}},i:Xl,i_m:function(t){const e=t.denominators&&t.denominators.length>0,i=e?va(t.numerators,t.denominators):t.numerators,a=Ga(i,t.subset_points),r=Za(a),o=Na(Ca(a)),l=3.267*Wa(o),n=Wa(t.outliers_in_limits?o:o.filter((t=>t<l)))/1.128;return{keys:t.keys,values:i.map((t=>isNaN(t)?0:t)),numerators:e?t.numerators:void 0,denominators:e?t.denominators:void 0,targets:Pa(r,t.keys.length),ll99:Pa(r-3*n,t.keys.length),ll95:Pa(r-2*n,t.keys.length),ll68:Pa(r-1*n,t.keys.length),ul68:Pa(r+1*n,t.keys.length),ul95:Pa(r+2*n,t.keys.length),ul99:Pa(r+3*n,t.keys.length)}},i_mm:function(t){const e=t.denominators&&t.denominators.length>0,i=e?va(t.numerators,t.denominators):t.numerators,a=Ga(i,t.subset_points),r=Za(a),o=Na(Ca(a)),l=3.267*Za(o),n=Za(t.outliers_in_limits?o:o.filter((t=>t<l)))/1.128;return{keys:t.keys,values:i.map((t=>isNaN(t)?0:t)),numerators:e?t.numerators:void 0,denominators:e?t.denominators:void 0,targets:Pa(r,t.keys.length),ll99:Pa(r-3*n,t.keys.length),ll95:Pa(r-2*n,t.keys.length),ll68:Pa(r-1*n,t.keys.length),ul68:Pa(r+1*n,t.keys.length),ul95:Pa(r+2*n,t.keys.length),ul99:Pa(r+3*n,t.keys.length)}},mr:function(t){const e=t.denominators&&t.denominators.length>0,i=e?va(t.numerators,t.denominators):t.numerators,a=Na(Ca(i)),r=Wa(Ga(a,t.subset_points));return{keys:t.keys.slice(1),values:a.slice(1),numerators:e?t.numerators.slice(1):void 0,denominators:e?t.denominators.slice(1):void 0,targets:Pa(r,t.keys.length-1),ll99:Pa(0,t.keys.length-1),ll95:Pa(0,t.keys.length-1),ll68:Pa(0,t.keys.length-1),ul68:Pa(1.089*r,t.keys.length-1),ul95:Pa(2.178*r,t.keys.length-1),ul99:Pa(3.267*r,t.keys.length-1)}},p:function(t){const e=Ka(Ga(t.numerators,t.subset_points))/Ka(Ga(t.denominators,t.subset_points)),i=ba(va(e*(1-e),t.denominators));return{keys:t.keys,values:va(t.numerators,t.denominators),numerators:t.numerators,denominators:t.denominators,targets:Pa(e,t.keys.length),ll99:qa(ga(e,_a(3,i)),{lower:0}),ll95:qa(ga(e,_a(2,i)),{lower:0}),ll68:qa(ga(e,_a(1,i)),{lower:0}),ul68:qa(ya(e,_a(1,i)),{upper:1}),ul95:qa(ya(e,_a(2,i)),{upper:1}),ul99:qa(ya(e,_a(3,i)),{upper:1})}},pp:function(t){const e=va(t.numerators,t.denominators),i=Ka(Ga(t.numerators,t.subset_points))/Ka(Ga(t.denominators,t.subset_points)),a=ba(va(i*(1-i),t.denominators)),r=Ga(va(ga(e,i),a),t.subset_points),o=Na(Ca(r)),l=3.267*Wa(o),n=t.outliers_in_limits?o:o.filter((t=>t<l)),s=_a(a,Wa(n)/1.128);return{keys:t.keys,values:e,numerators:t.numerators,denominators:t.denominators,targets:Pa(i,t.keys.length),ll99:qa(ga(i,_a(3,s)),{lower:0}),ll95:qa(ga(i,_a(2,s)),{lower:0}),ll68:qa(ga(i,_a(1,s)),{lower:0}),ul68:qa(ya(i,_a(1,s)),{upper:1}),ul95:qa(ya(i,_a(2,s)),{upper:1}),ul99:qa(ya(i,_a(3,s)),{upper:1})}},r:Wl,run:Wl,s:function(t){const e=t.numerators,i=t.denominators,a=ga(Ga(i,t.subset_points),1),r=ba(Ka(_a(a,fa(Ga(e,t.subset_points),2)))/Ka(a));return{keys:t.keys,values:e,targets:Pa(r,t.keys.length),ll99:_a(r,Da(i,3)),ll95:_a(r,Da(i,2)),ll68:_a(r,Da(i,1)),ul68:_a(r,La(i,1)),ul95:_a(r,La(i,2)),ul99:_a(r,La(i,3))}},t:function(t){const e=fa(t.numerators,1/3.6),i=JSON.parse(JSON.stringify(t));i.numerators=e,i.denominators=null;const a=Xl(i);return a.targets=fa(a.targets,3.6),a.values=fa(a.values,3.6),a.ll99=qa(fa(a.ll99,3.6),{lower:0}),a.ll95=qa(fa(a.ll95,3.6),{lower:0}),a.ll68=qa(fa(a.ll68,3.6),{lower:0}),a.ul68=fa(a.ul68,3.6),a.ul95=fa(a.ul95,3.6),a.ul99=fa(a.ul99,3.6),a},u:function(t){const e=Ka(Ga(t.numerators,t.subset_points))/Ka(Ga(t.denominators,t.subset_points)),i=ba(va(e,t.denominators));return{keys:t.keys,values:va(t.numerators,t.denominators),numerators:t.numerators,denominators:t.denominators,targets:Pa(e,t.keys.length),ll99:qa(ga(e,_a(3,i)),{lower:0}),ll95:qa(ga(e,_a(2,i)),{lower:0}),ll68:qa(ga(e,_a(1,i)),{lower:0}),ul68:ya(e,_a(1,i)),ul95:ya(e,_a(2,i)),ul99:ya(e,_a(3,i))}},up:function(t){const e=va(t.numerators,t.denominators),i=Ka(Ga(t.numerators,t.subset_points))/Ka(Ga(t.denominators,t.subset_points)),a=ba(va(i,t.denominators)),r=Ga(va(ga(e,i),a),t.subset_points),o=Na(Ca(r)),l=3.267*Wa(o),n=t.outliers_in_limits?o:o.filter((t=>t<l)),s=_a(a,Wa(n)/1.128);return{keys:t.keys,values:e,numerators:t.numerators,denominators:t.denominators,targets:Pa(i,t.keys.length),ll99:qa(ga(i,_a(3,s)),{lower:0}),ll95:qa(ga(i,_a(2,s)),{lower:0}),ll68:qa(ga(i,_a(1,s)),{lower:0}),ul68:ya(i,_a(1,s)),ul95:ya(i,_a(2,s)),ul99:ya(i,_a(3,s))}},xbar:function(t){const e=t.denominators,i=Ga(e,t.subset_points),a=t.numerators,r=Ga(a,t.subset_points),o=Ga(t.xbar_sds,t.subset_points),l=ga(i,1),n=ba(Ka(_a(l,Sa(o)))/Ka(l)),s=Ka(_a(i,r))/Ka(i),u=Ta(e);return{keys:t.keys,values:a,targets:Pa(s,t.keys.length),ll99:ga(s,_a(u,n)),ll95:ga(s,_a(_a(va(u,3),2),n)),ll68:ga(s,_a(va(u,3),n)),ul68:ya(s,_a(va(u,3),n)),ul95:ya(s,_a(_a(va(u,3),2),n)),ul99:ya(s,_a(u,n)),count:e}}});function Jl(t,e,i){return t.map(((t,a)=>ha(t,e[a],i[a])?"none":t>i[a]?"upper":"lower"))}function Ql(t,e,i){const a=t.map(((t,i)=>Math.sign(t-e[i]))),r=a.map(((t,e)=>Ka(a.slice(Math.max(0,e-(i-1)),e+1)))).map((t=>Na(t)>=i?t>=i?"upper":"lower":"none"));for(let t=0;t<r.length;t++)if("none"!==r[t])for(let e=t-1;e>=t-(i-1);e--)r[e]=r[t];return r}function tn(t,e){const i=t.map(((e,i)=>0==i?i:Math.sign(e-t[i-1]))),a=i.map(((t,a)=>Ka(i.slice(Math.max(0,a-(e-2)),a+1)))).map((t=>Na(t)>=e-1?t>=e-1?"upper":"lower":"none"));for(let t=0;t<a.length;t++)if("none"!==a[t])for(let i=t-1;i>=t-(e-1);i--)a[i]=a[t];return a}function en(t,e,i,a){const r=t.map(((t,a)=>t>i[a]?1:t<e[a]?-1:0)),o=r.map(((t,e)=>Ka(r.slice(Math.max(0,e-2),e+1)))).map((t=>Na(t)>=2?t>=2?"upper":"lower":"none"));for(let t=0;t<o.length;t++)if("none"!==o[t]){for(let e=t-1;e>=t-2;e--)(0!==r[e]||a)&&(o[e]=o[t]);0!==r[t]||a||(o[t]="none")}return o}class an{constructor(){this.inputData=null,this.inputSettings=new Yl,this.controlLimits=null,this.plotPoints=new Array,this.groupedLines=new Array,this.firstRun=!0,this.splitIndexes=new Array,this.colourPalette=null,this.headless=!1,this.frontend=!1}update(t,e){var i,a,r,o,l,n,s,u,p,d,c,h,m,f,y,g,v,_,w;ca(this.colourPalette)&&(this.colourPalette={isHighContrast:e.colorPalette.isHighContrast,foregroundColour:e.colorPalette.foreground.value,backgroundColour:e.colorPalette.background.value,foregroundSelectedColour:e.colorPalette.foregroundSelected.value,hyperlinkColour:e.colorPalette.hyperlink.value}),this.svgWidth=t.viewport.width,this.svgHeight=t.viewport.height,this.headless=null!==(i=null==t?void 0:t.headless)&&void 0!==i&&i,this.frontend=null!==(a=null==t?void 0:t.frontend)&&void 0!==a&&a;const b=null===(l=null===(o=null===(r=t.dataViews[0])||void 0===r?void 0:r.categorical)||void 0===o?void 0:o.categories)||void 0===l?void 0:l.filter((t=>t.source.roles.indicator));this.indicatorVarNames=null!==(n=null==b?void 0:b.map((t=>t.source.displayName)))&&void 0!==n?n:[];const N=null==b?void 0:b.length,x=null!==(h=null===(c=null===(d=null===(p=null===(u=null===(s=t.dataViews[0])||void 0===s?void 0:s.categorical)||void 0===u?void 0:u.categories)||void 0===p?void 0:p[0])||void 0===d?void 0:d.values)||void 0===c?void 0:c.length)&&void 0!==h?h:1,S={status:!0},k=new Array;k.push([0]),this.groupNames=new Array,this.groupNames.push(null!==(m=null==b?void 0:b.map((t=>t.values[0])))&&void 0!==m?m:[]);let A=0;for(let t=1;t<x;t++){let e=!0;for(let i=0;i<N;i++)e=e&&(null==b?void 0:b[i].values[t])===(null==b?void 0:b[i].values[t-1]);e?k[A].push(t):(k.push([t]),this.groupNames.push(null!==(f=null==b?void 0:b.map((e=>e.values[t])))&&void 0!==f?f:[]),A+=1)}if((2===t.type||this.firstRun)&&this.inputSettings.update(t.dataViews[0],k),""!==this.inputSettings.validationStatus.error)return S.status=!1,S.error=this.inputSettings.validationStatus.error,S.type="settings",S;const F=function(t,e){var i,a,r,o,l,n,s,u,p,d,c,h,m,f,y;if(ca(null==t?void 0:t[0])||0===(null===(l=null===(o=null===(r=null===(a=null===(i=null==t?void 0:t[0])||void 0===i?void 0:i.categorical)||void 0===a?void 0:a.categories)||void 0===r?void 0:r[0])||void 0===o?void 0:o.identity)||void 0===l?void 0:l.length))return"";if(ca(null===(s=null===(n=t[0])||void 0===n?void 0:n.categorical)||void 0===s?void 0:s.categories)||ca(null===(p=null===(u=t[0])||void 0===u?void 0:u.categorical)||void 0===p?void 0:p.categories.some((t=>{var e,i;return null===(i=null===(e=t.source)||void 0===e?void 0:e.roles)||void 0===i?void 0:i.key}))))return"";const g=null===(c=null===(d=t[0].categorical)||void 0===d?void 0:d.values)||void 0===c?void 0:c.some((t=>{var e,i;return null===(i=null===(e=t.source)||void 0===e?void 0:e.roles)||void 0===i?void 0:i.numerators}));if(!g)return"No Numerators passed!";let v,_,w;if((null==e?void 0:e.derivedSettingsGrouped.length)>0?null==e||e.derivedSettingsGrouped.forEach((t=>{t.chart_type_props.needs_denominator&&(w=t.chart_type_props.name,v=!0),t.chart_type_props.needs_sd&&(w=t.chart_type_props.name,_=!0)})):(w=e.settings.spc.chart_type,v=e.derivedSettings.chart_type_props.needs_denominator,_=e.derivedSettings.chart_type_props.needs_sd),v){const e=null===(m=null===(h=t[0].categorical)||void 0===h?void 0:h.values)||void 0===m?void 0:m.some((t=>{var e,i;return null===(i=null===(e=t.source)||void 0===e?void 0:e.roles)||void 0===i?void 0:i.denominators}));if(!e)return`Chart type '${w}' requires denominators!`}if(_){const e=null===(y=null===(f=t[0].categorical)||void 0===f?void 0:f.values)||void 0===y?void 0:y.some((t=>{var e,i;return null===(i=null===(e=t.source)||void 0===e?void 0:e.roles)||void 0===i?void 0:i.xbar_sds}));if(!e)return`Chart type '${w}' requires SDs!`}return"valid"}(t.dataViews,this.inputSettings);if("valid"!==F)return S.status=!1,S.error=F,S;if(2===t.type||this.firstRun)if(t.dataViews[0].categorical.categories.some((t=>t.source.roles.indicator)))this.showGrouped=!0,this.inputDataGrouped=new Array,this.groupStartEndIndexesGrouped=new Array,this.controlLimitsGrouped=new Array,this.outliersGrouped=new Array,this.identitiesGrouped=new Array,k.forEach(((i,a)=>{const r=Ua(t.dataViews[0].categorical,this.inputSettings.settingsGrouped[a],this.inputSettings.derivedSettingsGrouped[a],this.inputSettings.validationStatus.messages,i),o=0!==r.validationStatus.status,l=o?new Array:this.getGroupingIndexes(r),n=o?null:this.calculateLimits(r,l,this.inputSettings.settingsGrouped[a]),s=o?null:this.flagOutliers(n,l,this.inputSettings.settingsGrouped[a],this.inputSettings.derivedSettingsGrouped[a]);o||this.scaleAndTruncateLimits(n,this.inputSettings.settingsGrouped[a],this.inputSettings.derivedSettingsGrouped[a]);const u=i.map((i=>e.createSelectionIdBuilder().withCategory(t.dataViews[0].categorical.categories[0],i).createSelectionId()));this.identitiesGrouped.push(u),this.inputDataGrouped.push(r),this.groupStartEndIndexesGrouped.push(l),this.controlLimitsGrouped.push(n),this.outliersGrouped.push(s)})),this.initialisePlotDataGrouped();else{this.showGrouped=!1,this.groupNames=null,this.inputDataGrouped=null,this.groupStartEndIndexesGrouped=null,this.controlLimitsGrouped=null;const i=null!==(w=null===(_=null===(v=null===(g=null===(y=t.dataViews[0])||void 0===y?void 0:y.metadata)||void 0===g?void 0:g.objects)||void 0===v?void 0:v.split_indexes_storage)||void 0===_?void 0:_.split_indexes)&&void 0!==w?w:"[]",a=JSON.parse(i);this.splitIndexes=a,this.inputData=Ua(t.dataViews[0].categorical,this.inputSettings.settings,this.inputSettings.derivedSettings,this.inputSettings.validationStatus.messages,k[0]),0===this.inputData.validationStatus.status&&(this.groupStartEndIndexes=this.getGroupingIndexes(this.inputData,this.splitIndexes),this.controlLimits=this.calculateLimits(this.inputData,this.groupStartEndIndexes,this.inputSettings.settings),this.scaleAndTruncateLimits(this.controlLimits,this.inputSettings.settings,this.inputSettings.derivedSettings),this.outliers=this.flagOutliers(this.controlLimits,this.groupStartEndIndexes,this.inputSettings.settings,this.inputSettings.derivedSettings),this.initialisePlotData(e),this.initialiseGroupedLines())}if(this.firstRun=!1,this.showGrouped){if(this.inputDataGrouped.map((t=>t.validationStatus.status)).some((t=>0!==t)))return S.status=!1,S.error=this.inputDataGrouped.map((t=>t.validationStatus.error)).join("\n"),S;this.inputDataGrouped.some((t=>""!==t.warningMessage))&&(S.warning=this.inputDataGrouped.map((t=>t.warningMessage)).join("\n"))}else{if(0!==this.inputData.validationStatus.status)return S.status=!1,S.error=this.inputData.validationStatus.error,S;""!==this.inputData.warningMessage&&(S.warning=this.inputData.warningMessage)}return S}getGroupingIndexes(t,e){const i=(null!=e?e:[]).concat([-1]).concat(t.groupingIndexes).concat([t.limitInputArgs.keys.length-1]).filter(((t,e,i)=>i.indexOf(t)===e)).sort(((t,e)=>t-e)),a=new Array;for(let t=0;t<i.length-1;t++)a.push([i[t]+1,i[t+1]+1]);return a}calculateLimits(t,e,i){var a;const r=Kl[i.spc.chart_type];let o;if(t.limitInputArgs.outliers_in_limits=i.spc.outliers_in_limits,e.length>1){o=e.map((e=>{const i=JSON.parse(JSON.stringify(t));return i.limitInputArgs.denominators=i.limitInputArgs.denominators.slice(e[0],e[1]),i.limitInputArgs.numerators=i.limitInputArgs.numerators.slice(e[0],e[1]),i.limitInputArgs.keys=i.limitInputArgs.keys.slice(e[0],e[1]),i})).map((t=>{const e=r(t.limitInputArgs);return e.trend_line=lr(e.values),e})).reduce(((t,e)=>{const i=t;return Object.entries(t).forEach(((t,a)=>{var r;const o=Object.entries(e)[a][1];i[t[0]]=null===(r=t[1])||void 0===r?void 0:r.concat(o)})),i}))}else o=r(t.limitInputArgs),o.trend_line=lr(o.values);o.alt_targets=t.alt_targets,o.speclimits_lower=t.speclimits_lower,o.speclimits_upper=t.speclimits_upper;for(const t of Object.keys(o))"keys"!==t&&(o[t]=null===(a=o[t])||void 0===a?void 0:a.map((t=>isNaN(t)?null:t)));return o}initialisePlotDataGrouped(){var t,e,i,a,r,o,l,n,s,u,p,d,c,h,m;this.plotPointsGrouped=new Array,this.tableColumnsGrouped=new Array,this.indicatorVarNames.forEach((t=>{this.tableColumnsGrouped.push({name:t,label:t})})),this.tableColumnsGrouped.push({name:"latest_date",label:"Latest Date"});const f=this.inputSettings.settings.lines;f.show_main&&this.tableColumnsGrouped.push({name:"value",label:"Value"}),this.inputSettings.settings.spc.ttip_show_numerator&&this.tableColumnsGrouped.push({name:"numerator",label:"Numerator"}),this.inputSettings.settings.spc.ttip_show_denominator&&this.tableColumnsGrouped.push({name:"denominator",label:"Denominator"}),f.show_target&&this.tableColumnsGrouped.push({name:"target",label:f.ttip_label_target}),f.show_alt_target&&this.tableColumnsGrouped.push({name:"alt_target",label:f.ttip_label_alt_target}),["99","95","68"].forEach((t=>{f[`show_${t}`]&&this.tableColumnsGrouped.push({name:`ucl${t}`,label:`${f[`ttip_label_${t}_prefix_upper`]}${f[`ttip_label_${t}`]}`})})),["68","95","99"].forEach((t=>{f[`show_${t}`]&&this.tableColumnsGrouped.push({name:`lcl${t}`,label:`${f[`ttip_label_${t}_prefix_lower`]}${f[`ttip_label_${t}`]}`})}));const y=this.inputSettings.settings.nhs_icons;y.show_variation_icons&&this.tableColumnsGrouped.push({name:"variation",label:"Variation"}),y.show_assurance_icons&&this.tableColumnsGrouped.push({name:"assurance",label:"Assurance"});const g=this.inputDataGrouped.some((t=>{var e;return null===(e=null==t?void 0:t.tooltips)||void 0===e?void 0:e.some((t=>t.length>0))}));g&&(null===(e=null===(t=this.inputDataGrouped)||void 0===t?void 0:t[0].tooltips)||void 0===e||e[0].forEach((t=>{this.tableColumnsGrouped.push({name:t.displayName,label:t.displayName})})));for(let t=0;t<this.groupNames.length;t++){if(ca(null===(i=this.inputDataGrouped[t])||void 0===i?void 0:i.categories))continue;const e=ka(this.inputSettings.settingsGrouped[t],this.inputSettings.derivedSettingsGrouped[t]),f=this.inputSettings.settingsGrouped[t].summary_table.table_variation_filter,y=this.inputSettings.settingsGrouped[t].summary_table.table_assurance_filter,v=this.controlLimitsGrouped[t],_=this.outliersGrouped[t],w=v.keys.length-1,b=Ha(_,this.inputSettings.settingsGrouped[t]);if("all"!==f){if("improvement"===f&&!["improvementHigh","improvementLow"].includes(b[0]))continue;if("deterioration"===f&&!["concernHigh","concernLow"].includes(b[0]))continue;if("neutral"===f&&!["neutralHigh","neutralLow"].includes(b[0]))continue;if("common"===f&&"commonCause"!==b[0])continue;if("special"===f&&"commonCause"===b[0])continue}const N=da(v,this.inputSettings.settingsGrouped[t],this.inputSettings.derivedSettingsGrouped[t]);if("all"!==y){if("any"===y&&"inconsistent"===N)continue;if("pass"===y&&"consistentPass"!==N)continue;if("fail"===y&&"consistentFail"!==N)continue;if("inconsistent"===y&&"inconsistent"!==N)continue}const x=new Array;this.indicatorVarNames.forEach(((e,i)=>{x.push([e,this.groupNames[t][i]])})),x.push(["latest_date",null===(a=v.keys)||void 0===a?void 0:a[w].label]),x.push(["value",e(null===(r=v.values)||void 0===r?void 0:r[w],"value")]),x.push(["numerator",e(null===(o=v.numerators)||void 0===o?void 0:o[w],"integer")]),x.push(["denominator",e(null===(l=v.denominators)||void 0===l?void 0:l[w],"integer")]),x.push(["target",e(null===(n=v.targets)||void 0===n?void 0:n[w],"value")]),x.push(["alt_target",e(null===(s=v.alt_targets)||void 0===s?void 0:s[w],"value")]),x.push(["ucl99",e(null===(u=v.ul99)||void 0===u?void 0:u[w],"value")]),x.push(["ucl95",e(null===(p=v.ul95)||void 0===p?void 0:p[w],"value")]),x.push(["ucl68",e(null===(d=v.ul68)||void 0===d?void 0:d[w],"value")]),x.push(["lcl68",e(null===(c=v.ll68)||void 0===c?void 0:c[w],"value")]),x.push(["lcl95",e(null===(h=v.ll95)||void 0===h?void 0:h[w],"value")]),x.push(["lcl99",e(null===(m=v.ll99)||void 0===m?void 0:m[w],"value")]),x.push(["variation",b[0]]),x.push(["assurance",N]),g&&this.inputDataGrouped[t].tooltips[w].forEach((t=>{x.push([t.displayName,t.value])})),this.plotPointsGrouped.push({table_row:Object.fromEntries(x),identity:this.identitiesGrouped[t],aesthetics:this.inputSettings.settingsGrouped[t].summary_table,highlighted:this.inputDataGrouped[t].anyHighlights})}}initialisePlotData(t){var e,i,a,r,o,l,n,s,u,p,d,c,h,m,f,y,g,v,_,w,b,N,x,S;this.plotPoints=new Array,this.tickLabels=new Array,this.tableColumns=new Array,this.tableColumns.push({name:"date",label:"Date"}),this.tableColumns.push({name:"value",label:"Value"}),ca(this.controlLimits.numerators)||this.tableColumns.push({name:"numerator",label:"Numerator"}),ca(this.controlLimits.denominators)||this.tableColumns.push({name:"denominator",label:"Denominator"}),this.inputSettings.settings.lines.show_target&&this.tableColumns.push({name:"target",label:"Target"}),this.inputSettings.settings.lines.show_alt_target&&this.tableColumns.push({name:"alt_target",label:"Alt. Target"}),this.inputSettings.settings.lines.show_specification&&this.tableColumns.push({name:"speclimits_lower",label:"Spec. Lower"},{name:"speclimits_upper",label:"Spec. Upper"}),this.inputSettings.settings.lines.show_trend&&this.tableColumns.push({name:"trend_line",label:"Trend Line"}),this.inputSettings.derivedSettings.chart_type_props.has_control_limits&&(this.inputSettings.settings.lines.show_99&&this.tableColumns.push({name:"ll99",label:"LL 99%"},{name:"ul99",label:"UL 99%"}),this.inputSettings.settings.lines.show_95&&this.tableColumns.push({name:"ll95",label:"LL 95%"},{name:"ul95",label:"UL 95%"}),this.inputSettings.settings.lines.show_68&&this.tableColumns.push({name:"ll68",label:"LL 68%"},{name:"ul68",label:"UL 68%"})),this.inputSettings.settings.outliers.astronomical&&this.tableColumns.push({name:"astpoint",label:"Ast. Point"}),this.inputSettings.settings.outliers.trend&&this.tableColumns.push({name:"trend",label:"Trend"}),this.inputSettings.settings.outliers.shift&&this.tableColumns.push({name:"shift",label:"Shift"});for(let k=0;k<this.controlLimits.keys.length;k++){const A=this.controlLimits.keys[k].x,F=this.inputData.scatter_formatting[k];this.colourPalette.isHighContrast&&(F.colour=this.colourPalette.foregroundColour),"none"!==this.outliers.shift[k]&&(F.colour=Ba(this.outliers.shift[k],"outliers","shift_colour",this.inputSettings.settings),F.colour_outline=Ba(this.outliers.shift[k],"outliers","shift_colour",this.inputSettings.settings)),"none"!==this.outliers.trend[k]&&(F.colour=Ba(this.outliers.trend[k],"outliers","trend_colour",this.inputSettings.settings),F.colour_outline=Ba(this.outliers.trend[k],"outliers","trend_colour",this.inputSettings.settings)),"none"!==this.outliers.two_in_three[k]&&(F.colour=Ba(this.outliers.two_in_three[k],"outliers","twointhree_colour",this.inputSettings.settings),F.colour_outline=Ba(this.outliers.two_in_three[k],"outliers","twointhree_colour",this.inputSettings.settings)),"none"!==this.outliers.astpoint[k]&&(F.colour=Ba(this.outliers.astpoint[k],"outliers","ast_colour",this.inputSettings.settings),F.colour_outline=Ba(this.outliers.astpoint[k],"outliers","ast_colour",this.inputSettings.settings));const M={date:this.controlLimits.keys[k].label,numerator:null===(e=this.controlLimits.numerators)||void 0===e?void 0:e[k],denominator:null===(i=this.controlLimits.denominators)||void 0===i?void 0:i[k],value:this.controlLimits.values[k],target:this.controlLimits.targets[k],alt_target:this.controlLimits.alt_targets[k],ll99:null===(r=null===(a=this.controlLimits)||void 0===a?void 0:a.ll99)||void 0===r?void 0:r[k],ll95:null===(l=null===(o=this.controlLimits)||void 0===o?void 0:o.ll95)||void 0===l?void 0:l[k],ll68:null===(s=null===(n=this.controlLimits)||void 0===n?void 0:n.ll68)||void 0===s?void 0:s[k],ul68:null===(p=null===(u=this.controlLimits)||void 0===u?void 0:u.ul68)||void 0===p?void 0:p[k],ul95:null===(c=null===(d=this.controlLimits)||void 0===d?void 0:d.ul95)||void 0===c?void 0:c[k],ul99:null===(m=null===(h=this.controlLimits)||void 0===h?void 0:h.ul99)||void 0===m?void 0:m[k],speclimits_lower:null===(y=null===(f=this.controlLimits)||void 0===f?void 0:f.speclimits_lower)||void 0===y?void 0:y[k],speclimits_upper:null===(v=null===(g=this.controlLimits)||void 0===g?void 0:g.speclimits_upper)||void 0===v?void 0:v[k],trend_line:null===(w=null===(_=this.controlLimits)||void 0===_?void 0:_.trend_line)||void 0===w?void 0:w[k],astpoint:this.outliers.astpoint[k],trend:this.outliers.trend[k],shift:this.outliers.shift[k],two_in_three:this.outliers.two_in_three[k]};this.plotPoints.push({x:A,value:this.controlLimits.values[k],aesthetics:F,table_row:M,identity:t.createSelectionIdBuilder().withCategory(this.inputData.categories,this.inputData.limitInputArgs.keys[k].id).createSelectionId(),highlighted:!ca(null===(b=this.inputData.highlights)||void 0===b?void 0:b[A]),tooltip:Aa(M,null===(x=null===(N=this.inputData)||void 0===N?void 0:N.tooltips)||void 0===x?void 0:x[A],this.inputSettings.settings,this.inputSettings.derivedSettings),label:{text_value:null===(S=this.inputData.labels)||void 0===S?void 0:S[A],aesthetics:this.inputData.label_formatting[A],angle:null,distance:null,line_offset:null,marker_offset:null}}),this.tickLabels.push({x:A,label:this.controlLimits.keys[k].label})}}initialiseGroupedLines(){const t=new Array;this.inputSettings.settings.lines.show_main&&t.push("values"),this.inputSettings.settings.lines.show_target&&t.push("targets"),this.inputSettings.settings.lines.show_alt_target&&t.push("alt_targets"),this.inputSettings.settings.lines.show_specification&&t.push("speclimits_lower","speclimits_upper"),this.inputSettings.settings.lines.show_trend&&t.push("trend_line"),this.inputSettings.derivedSettings.chart_type_props.has_control_limits&&(this.inputSettings.settings.lines.show_99&&t.push("ll99","ul99"),this.inputSettings.settings.lines.show_95&&t.push("ll95","ul95"),this.inputSettings.settings.lines.show_68&&t.push("ll68","ul68"));const e=new Array,i=this.controlLimits.keys.length;for(let a=0;a<i;a++){const i=this.splitIndexes.includes(a-1)||this.inputData.groupingIndexes.includes(a-1);let r=!1;a>0&&this.inputSettings.settings.lines.show_alt_target&&(r=this.controlLimits.alt_targets[a]!==this.controlLimits.alt_targets[a-1]),t.forEach((t=>{var o,l;const n=this.inputSettings.settings.lines[`join_rebaselines_${za[t]}`];if(i||r){const l="alt_targets"===t&&r,s="alt_targets"!==t&&i;e.push({x:this.controlLimits.keys[a].x,line_value:n||!l&&!s?null===(o=this.controlLimits[t])||void 0===o?void 0:o[a]:null,group:t,aesthetics:this.inputData.line_formatting[a]})}e.push({x:this.controlLimits.keys[a].x,line_value:null===(l=this.controlLimits[t])||void 0===l?void 0:l[a],group:t,aesthetics:this.inputData.line_formatting[a]})}))}this.groupedLines=function(t,e){const i=new Map;return t.forEach((t=>{var a;const r=t[e];i.has(r)||i.set(r,[]),null===(a=i.get(r))||void 0===a||a.push(t)})),Array.from(i)}(e,"group")}scaleAndTruncateLimits(t,e,i){const a=i.multiplier;let r=["values","targets"];i.chart_type_props.has_control_limits&&(r=r.concat(["ll99","ll95","ll68","ul68","ul95","ul99"]));let o=r;e.lines.show_alt_target&&(o=o.concat(["alt_targets"]),e.lines.multiplier_alt_target&&(r=r.concat(["alt_targets"]))),e.lines.show_specification&&(o=o.concat(["speclimits_lower","speclimits_upper"]),e.lines.multiplier_specification&&(r=r.concat(["speclimits_lower","speclimits_upper"])));const l={lower:e.spc.ll_truncate,upper:e.spc.ul_truncate};r.forEach((e=>{t[e]=_a(t[e],a)})),o.forEach((e=>{t[e]=qa(t[e],l)}))}flagOutliers(t,e,i,a){var r,o,l,n;const s=i.outliers.process_flag_type,u=i.outliers.improvement_direction,p=i.outliers.trend_n,d=i.outliers.shift_n,c="Specification"===i.outliers.astronomical_limit,h="Specification"===i.outliers.two_in_three_limit,m={astpoint:Pa("none",t.values.length),two_in_three:Pa("none",t.values.length),trend:Pa("none",t.values.length),shift:Pa("none",t.values.length)};for(let s=0;s<e.length;s++){const u=e[s][0],f=e[s][1],y=t.values.slice(u,f),g=t.targets.slice(u,f);if(a.chart_type_props.has_control_limits||c||h){const e={"1 Sigma":"68","2 Sigma":"95","3 Sigma":"99",Specification:""};if(i.outliers.astronomical){const a=e[i.outliers.astronomical_limit],l=c?"speclimits_upper":"ul";Jl(y,null===(r=null==t?void 0:t[`${c?"speclimits_lower":"ll"}${a}`])||void 0===r?void 0:r.slice(u,f),null===(o=null==t?void 0:t[`${l}${a}`])||void 0===o?void 0:o.slice(u,f)).forEach(((t,e)=>m.astpoint[u+e]=t))}if(i.outliers.two_in_three){const a=i.outliers.two_in_three_highlight_series,r=e[i.outliers.two_in_three_limit],o=h?"speclimits_upper":"ul";en(y,null===(l=null==t?void 0:t[`${h?"speclimits_lower":"ll"}${r}`])||void 0===l?void 0:l.slice(u,f),null===(n=null==t?void 0:t[`${o}${r}`])||void 0===n?void 0:n.slice(u,f),a).forEach(((t,e)=>m.two_in_three[u+e]=t))}}i.outliers.trend&&tn(y,p).forEach(((t,e)=>m.trend[u+e]=t)),i.outliers.shift&&Ql(y,g,d).forEach(((t,e)=>m.shift[u+e]=t))}return Object.keys(m).forEach((t=>{m[t]=Fa(m[t],{process_flag_type:s,improvement_direction:u})})),m}}return t.Visual=class{constructor(t){this.tableDiv=ut(t.element).append("div").style("overflow","auto"),this.svg=ut(t.element).append("svg"),this.host=t.host,this.viewModel=new an,this.plotProperties=new Lr,this.selectionManager=this.host.createSelectionManager(),this.selectionManager.registerOnSelectCallback((()=>this.updateHighlighting())),this.svg.call(wr);const e=this.tableDiv.append("table").classed("table-group",!0).style("border-collapse","collapse").style("width","100%").style("height","100%");e.append("thead").append("tr").classed("table-header",!0),e.append("tbody").classed("table-body",!0)}update(t){var e,i,a,r,o;try{this.host.eventService.renderingStarted(t),this.svg.select(".errormessage").remove();const l=this.viewModel.update(t,this.host);if(!l.status)return this.resizeCanvas(t.viewport.width,t.viewport.height),null===(o=null===(r=null===(a=null===(i=null===(e=this.viewModel)||void 0===e?void 0:e.inputSettings)||void 0===i?void 0:i.settings)||void 0===a?void 0:a.canvas)||void 0===r?void 0:r.show_errors)||void 0===o||o?this.svg.call(br,t,this.viewModel.colourPalette,null==l?void 0:l.error,null==l?void 0:l.type):this.svg.call(wr,!0),void this.host.eventService.renderingFailed(t);this.plotProperties.update(t,this.viewModel),l.warning&&this.host.displayWarningIcon("Invalid inputs or settings ignored.\n",l.warning),this.viewModel.showGrouped||this.viewModel.inputSettings.settings.summary_table.show_table?(this.resizeCanvas(0,0),this.tableDiv.call(Ar,this).call(pa,this)):(this.resizeCanvas(t.viewport.width,t.viewport.height),this.drawVisual(),this.adjustPaddingForOverflow()),this.updateHighlighting(),this.host.eventService.renderingFinished(t)}catch(e){this.resizeCanvas(t.viewport.width,t.viewport.height),this.svg.call(br,t,this.viewModel.colourPalette,e.message,"internal"),console.error(e),this.host.eventService.renderingFailed(t)}}drawVisual(){this.svg.call(vr,this).call(_r,this).call(gr,this).call(yr,this).call(Dr,this).call(dr,this).call(fr,this).call(pa,this).call(Fr,this).call(Mr,this)}adjustPaddingForOverflow(){if(this.viewModel.headless)return;const t=this.viewModel.svgWidth,e=this.viewModel.svgHeight,i=this.svg.node().getBBox(),a=Math.abs(Math.min(0,i.x)),r=Math.max(0,i.width+i.x-t),o=Math.abs(Math.min(0,i.y)),l=Math.max(0,i.height+i.y-e);a>0&&(this.plotProperties.xAxis.start_padding+=a+this.plotProperties.xAxis.start_padding),r>0&&(this.plotProperties.xAxis.end_padding+=r+this.plotProperties.xAxis.end_padding),o>0&&(this.plotProperties.yAxis.end_padding+=o+this.plotProperties.yAxis.end_padding),l>0&&(this.plotProperties.yAxis.start_padding+=l+this.plotProperties.yAxis.start_padding),(a>0||r>0||o>0||l>0)&&(this.plotProperties.initialiseScale(t,e),this.drawVisual())}resizeCanvas(t,e){this.svg.attr("width",t).attr("height",e),0===t&&0===e?this.tableDiv.style("width","100%").style("height","100%"):this.tableDiv.style("width","0%").style("height","0%")}updateHighlighting(){const t=!!this.viewModel.inputData&&this.viewModel.inputData.anyHighlights,e=!!this.viewModel.inputDataGrouped&&this.viewModel.inputDataGrouped.some((t=>t.anyHighlights)),i=this.selectionManager.getSelectionIds(),a=this.svg.selectAll(".dotsgroup").selectChildren(),r=this.svg.selectAll(".linesgroup").selectChildren(),o=this.tableDiv.selectAll(".table-body").selectChildren();r.style("stroke-opacity",(t=>Ba(t[0],"lines","opacity",this.viewModel.inputSettings.settings))),a.style("fill-opacity",(t=>t.aesthetics.opacity)),a.style("stroke-opacity",(t=>t.aesthetics.opacity)),o.style("opacity",(t=>t.aesthetics.table_opacity)),(t||i.length>0||e)&&(r.style("stroke-opacity",(t=>Ba(t[0],"lines","opacity_unselected",this.viewModel.inputSettings.settings))),a.nodes().forEach((t=>{const e=ut(t).datum(),i=rr(e.identity,this.selectionManager),a=e.highlighted,r=i||a?e.aesthetics.opacity_selected:e.aesthetics.opacity_unselected;ut(t).style("fill-opacity",r),ut(t).style("stroke-opacity",r)})),o.nodes().forEach((t=>{const e=ut(t).datum(),i=rr(e.identity,this.selectionManager),a=e.highlighted,r=i||a?e.aesthetics.table_opacity_selected:e.aesthetics.table_opacity_unselected;ut(t).style("opacity",r)})))}getFormattingModel(){return this.viewModel.inputSettings.getFormattingModel()}},t.d3=Ki,t.defaultSettings=ua,t}({});
+var spc = (function (exports) {
+  'use strict';
+
+  var xhtml = "http://www.w3.org/1999/xhtml";
+
+  var namespaces = {
+    svg: "http://www.w3.org/2000/svg",
+    xhtml: xhtml,
+    xlink: "http://www.w3.org/1999/xlink",
+    xml: "http://www.w3.org/XML/1998/namespace",
+    xmlns: "http://www.w3.org/2000/xmlns/"
+  };
+
+  function namespace(name) {
+    var prefix = name += "", i = prefix.indexOf(":");
+    if (i >= 0 && (prefix = name.slice(0, i)) !== "xmlns") name = name.slice(i + 1);
+    return namespaces.hasOwnProperty(prefix) ? {space: namespaces[prefix], local: name} : name; // eslint-disable-line no-prototype-builtins
+  }
+
+  function creatorInherit(name) {
+    return function() {
+      var document = this.ownerDocument,
+          uri = this.namespaceURI;
+      return uri === xhtml && document.documentElement.namespaceURI === xhtml
+          ? document.createElement(name)
+          : document.createElementNS(uri, name);
+    };
+  }
+
+  function creatorFixed(fullname) {
+    return function() {
+      return this.ownerDocument.createElementNS(fullname.space, fullname.local);
+    };
+  }
+
+  function creator(name) {
+    var fullname = namespace(name);
+    return (fullname.local
+        ? creatorFixed
+        : creatorInherit)(fullname);
+  }
+
+  function none() {}
+
+  function selector(selector) {
+    return selector == null ? none : function() {
+      return this.querySelector(selector);
+    };
+  }
+
+  function selection_select(select) {
+    if (typeof select !== "function") select = selector(select);
+
+    for (var groups = this._groups, m = groups.length, subgroups = new Array(m), j = 0; j < m; ++j) {
+      for (var group = groups[j], n = group.length, subgroup = subgroups[j] = new Array(n), node, subnode, i = 0; i < n; ++i) {
+        if ((node = group[i]) && (subnode = select.call(node, node.__data__, i, group))) {
+          if ("__data__" in node) subnode.__data__ = node.__data__;
+          subgroup[i] = subnode;
+        }
+      }
+    }
+
+    return new Selection(subgroups, this._parents);
+  }
+
+  // Given something array like (or null), returns something that is strictly an
+  // array. This is used to ensure that array-like objects passed to d3.selectAll
+  // or selection.selectAll are converted into proper arrays when creating a
+  // selection; we don’t ever want to create a selection backed by a live
+  // HTMLCollection or NodeList. However, note that selection.selectAll will use a
+  // static NodeList as a group, since it safely derived from querySelectorAll.
+  function array$1(x) {
+    return x == null ? [] : Array.isArray(x) ? x : Array.from(x);
+  }
+
+  function empty() {
+    return [];
+  }
+
+  function selectorAll(selector) {
+    return selector == null ? empty : function() {
+      return this.querySelectorAll(selector);
+    };
+  }
+
+  function arrayAll(select) {
+    return function() {
+      return array$1(select.apply(this, arguments));
+    };
+  }
+
+  function selection_selectAll(select) {
+    if (typeof select === "function") select = arrayAll(select);
+    else select = selectorAll(select);
+
+    for (var groups = this._groups, m = groups.length, subgroups = [], parents = [], j = 0; j < m; ++j) {
+      for (var group = groups[j], n = group.length, node, i = 0; i < n; ++i) {
+        if (node = group[i]) {
+          subgroups.push(select.call(node, node.__data__, i, group));
+          parents.push(node);
+        }
+      }
+    }
+
+    return new Selection(subgroups, parents);
+  }
+
+  function matcher(selector) {
+    return function() {
+      return this.matches(selector);
+    };
+  }
+
+  function childMatcher(selector) {
+    return function(node) {
+      return node.matches(selector);
+    };
+  }
+
+  var find = Array.prototype.find;
+
+  function childFind(match) {
+    return function() {
+      return find.call(this.children, match);
+    };
+  }
+
+  function childFirst() {
+    return this.firstElementChild;
+  }
+
+  function selection_selectChild(match) {
+    return this.select(match == null ? childFirst
+        : childFind(typeof match === "function" ? match : childMatcher(match)));
+  }
+
+  var filter = Array.prototype.filter;
+
+  function children() {
+    return Array.from(this.children);
+  }
+
+  function childrenFilter(match) {
+    return function() {
+      return filter.call(this.children, match);
+    };
+  }
+
+  function selection_selectChildren(match) {
+    return this.selectAll(match == null ? children
+        : childrenFilter(typeof match === "function" ? match : childMatcher(match)));
+  }
+
+  function selection_filter(match) {
+    if (typeof match !== "function") match = matcher(match);
+
+    for (var groups = this._groups, m = groups.length, subgroups = new Array(m), j = 0; j < m; ++j) {
+      for (var group = groups[j], n = group.length, subgroup = subgroups[j] = [], node, i = 0; i < n; ++i) {
+        if ((node = group[i]) && match.call(node, node.__data__, i, group)) {
+          subgroup.push(node);
+        }
+      }
+    }
+
+    return new Selection(subgroups, this._parents);
+  }
+
+  function sparse(update) {
+    return new Array(update.length);
+  }
+
+  function selection_enter() {
+    return new Selection(this._enter || this._groups.map(sparse), this._parents);
+  }
+
+  function EnterNode(parent, datum) {
+    this.ownerDocument = parent.ownerDocument;
+    this.namespaceURI = parent.namespaceURI;
+    this._next = null;
+    this._parent = parent;
+    this.__data__ = datum;
+  }
+
+  EnterNode.prototype = {
+    constructor: EnterNode,
+    appendChild: function(child) { return this._parent.insertBefore(child, this._next); },
+    insertBefore: function(child, next) { return this._parent.insertBefore(child, next); },
+    querySelector: function(selector) { return this._parent.querySelector(selector); },
+    querySelectorAll: function(selector) { return this._parent.querySelectorAll(selector); }
+  };
+
+  function constant$3(x) {
+    return function() {
+      return x;
+    };
+  }
+
+  function bindIndex(parent, group, enter, update, exit, data) {
+    var i = 0,
+        node,
+        groupLength = group.length,
+        dataLength = data.length;
+
+    // Put any non-null nodes that fit into update.
+    // Put any null nodes into enter.
+    // Put any remaining data into enter.
+    for (; i < dataLength; ++i) {
+      if (node = group[i]) {
+        node.__data__ = data[i];
+        update[i] = node;
+      } else {
+        enter[i] = new EnterNode(parent, data[i]);
+      }
+    }
+
+    // Put any non-null nodes that don’t fit into exit.
+    for (; i < groupLength; ++i) {
+      if (node = group[i]) {
+        exit[i] = node;
+      }
+    }
+  }
+
+  function bindKey(parent, group, enter, update, exit, data, key) {
+    var i,
+        node,
+        nodeByKeyValue = new Map,
+        groupLength = group.length,
+        dataLength = data.length,
+        keyValues = new Array(groupLength),
+        keyValue;
+
+    // Compute the key for each node.
+    // If multiple nodes have the same key, the duplicates are added to exit.
+    for (i = 0; i < groupLength; ++i) {
+      if (node = group[i]) {
+        keyValues[i] = keyValue = key.call(node, node.__data__, i, group) + "";
+        if (nodeByKeyValue.has(keyValue)) {
+          exit[i] = node;
+        } else {
+          nodeByKeyValue.set(keyValue, node);
+        }
+      }
+    }
+
+    // Compute the key for each datum.
+    // If there a node associated with this key, join and add it to update.
+    // If there is not (or the key is a duplicate), add it to enter.
+    for (i = 0; i < dataLength; ++i) {
+      keyValue = key.call(parent, data[i], i, data) + "";
+      if (node = nodeByKeyValue.get(keyValue)) {
+        update[i] = node;
+        node.__data__ = data[i];
+        nodeByKeyValue.delete(keyValue);
+      } else {
+        enter[i] = new EnterNode(parent, data[i]);
+      }
+    }
+
+    // Add any remaining nodes that were not bound to data to exit.
+    for (i = 0; i < groupLength; ++i) {
+      if ((node = group[i]) && (nodeByKeyValue.get(keyValues[i]) === node)) {
+        exit[i] = node;
+      }
+    }
+  }
+
+  function datum(node) {
+    return node.__data__;
+  }
+
+  function selection_data(value, key) {
+    if (!arguments.length) return Array.from(this, datum);
+
+    var bind = key ? bindKey : bindIndex,
+        parents = this._parents,
+        groups = this._groups;
+
+    if (typeof value !== "function") value = constant$3(value);
+
+    for (var m = groups.length, update = new Array(m), enter = new Array(m), exit = new Array(m), j = 0; j < m; ++j) {
+      var parent = parents[j],
+          group = groups[j],
+          groupLength = group.length,
+          data = arraylike(value.call(parent, parent && parent.__data__, j, parents)),
+          dataLength = data.length,
+          enterGroup = enter[j] = new Array(dataLength),
+          updateGroup = update[j] = new Array(dataLength),
+          exitGroup = exit[j] = new Array(groupLength);
+
+      bind(parent, group, enterGroup, updateGroup, exitGroup, data, key);
+
+      // Now connect the enter nodes to their following update node, such that
+      // appendChild can insert the materialized enter node before this node,
+      // rather than at the end of the parent node.
+      for (var i0 = 0, i1 = 0, previous, next; i0 < dataLength; ++i0) {
+        if (previous = enterGroup[i0]) {
+          if (i0 >= i1) i1 = i0 + 1;
+          while (!(next = updateGroup[i1]) && ++i1 < dataLength);
+          previous._next = next || null;
+        }
+      }
+    }
+
+    update = new Selection(update, parents);
+    update._enter = enter;
+    update._exit = exit;
+    return update;
+  }
+
+  // Given some data, this returns an array-like view of it: an object that
+  // exposes a length property and allows numeric indexing. Note that unlike
+  // selectAll, this isn’t worried about “live” collections because the resulting
+  // array will only be used briefly while data is being bound. (It is possible to
+  // cause the data to change while iterating by using a key function, but please
+  // don’t; we’d rather avoid a gratuitous copy.)
+  function arraylike(data) {
+    return typeof data === "object" && "length" in data
+      ? data // Array, TypedArray, NodeList, array-like
+      : Array.from(data); // Map, Set, iterable, string, or anything else
+  }
+
+  function selection_exit() {
+    return new Selection(this._exit || this._groups.map(sparse), this._parents);
+  }
+
+  function selection_join(onenter, onupdate, onexit) {
+    var enter = this.enter(), update = this, exit = this.exit();
+    if (typeof onenter === "function") {
+      enter = onenter(enter);
+      if (enter) enter = enter.selection();
+    } else {
+      enter = enter.append(onenter + "");
+    }
+    if (onupdate != null) {
+      update = onupdate(update);
+      if (update) update = update.selection();
+    }
+    if (onexit == null) exit.remove(); else onexit(exit);
+    return enter && update ? enter.merge(update).order() : update;
+  }
+
+  function selection_merge(context) {
+    var selection = context.selection ? context.selection() : context;
+
+    for (var groups0 = this._groups, groups1 = selection._groups, m0 = groups0.length, m1 = groups1.length, m = Math.min(m0, m1), merges = new Array(m0), j = 0; j < m; ++j) {
+      for (var group0 = groups0[j], group1 = groups1[j], n = group0.length, merge = merges[j] = new Array(n), node, i = 0; i < n; ++i) {
+        if (node = group0[i] || group1[i]) {
+          merge[i] = node;
+        }
+      }
+    }
+
+    for (; j < m0; ++j) {
+      merges[j] = groups0[j];
+    }
+
+    return new Selection(merges, this._parents);
+  }
+
+  function selection_order() {
+
+    for (var groups = this._groups, j = -1, m = groups.length; ++j < m;) {
+      for (var group = groups[j], i = group.length - 1, next = group[i], node; --i >= 0;) {
+        if (node = group[i]) {
+          if (next && node.compareDocumentPosition(next) ^ 4) next.parentNode.insertBefore(node, next);
+          next = node;
+        }
+      }
+    }
+
+    return this;
+  }
+
+  function selection_sort(compare) {
+    if (!compare) compare = ascending$1;
+
+    function compareNode(a, b) {
+      return a && b ? compare(a.__data__, b.__data__) : !a - !b;
+    }
+
+    for (var groups = this._groups, m = groups.length, sortgroups = new Array(m), j = 0; j < m; ++j) {
+      for (var group = groups[j], n = group.length, sortgroup = sortgroups[j] = new Array(n), node, i = 0; i < n; ++i) {
+        if (node = group[i]) {
+          sortgroup[i] = node;
+        }
+      }
+      sortgroup.sort(compareNode);
+    }
+
+    return new Selection(sortgroups, this._parents).order();
+  }
+
+  function ascending$1(a, b) {
+    return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+  }
+
+  function selection_call() {
+    var callback = arguments[0];
+    arguments[0] = this;
+    callback.apply(null, arguments);
+    return this;
+  }
+
+  function selection_nodes() {
+    return Array.from(this);
+  }
+
+  function selection_node() {
+
+    for (var groups = this._groups, j = 0, m = groups.length; j < m; ++j) {
+      for (var group = groups[j], i = 0, n = group.length; i < n; ++i) {
+        var node = group[i];
+        if (node) return node;
+      }
+    }
+
+    return null;
+  }
+
+  function selection_size() {
+    let size = 0;
+    for (const node of this) ++size; // eslint-disable-line no-unused-vars
+    return size;
+  }
+
+  function selection_empty() {
+    return !this.node();
+  }
+
+  function selection_each(callback) {
+
+    for (var groups = this._groups, j = 0, m = groups.length; j < m; ++j) {
+      for (var group = groups[j], i = 0, n = group.length, node; i < n; ++i) {
+        if (node = group[i]) callback.call(node, node.__data__, i, group);
+      }
+    }
+
+    return this;
+  }
+
+  function attrRemove(name) {
+    return function() {
+      this.removeAttribute(name);
+    };
+  }
+
+  function attrRemoveNS(fullname) {
+    return function() {
+      this.removeAttributeNS(fullname.space, fullname.local);
+    };
+  }
+
+  function attrConstant(name, value) {
+    return function() {
+      this.setAttribute(name, value);
+    };
+  }
+
+  function attrConstantNS(fullname, value) {
+    return function() {
+      this.setAttributeNS(fullname.space, fullname.local, value);
+    };
+  }
+
+  function attrFunction(name, value) {
+    return function() {
+      var v = value.apply(this, arguments);
+      if (v == null) this.removeAttribute(name);
+      else this.setAttribute(name, v);
+    };
+  }
+
+  function attrFunctionNS(fullname, value) {
+    return function() {
+      var v = value.apply(this, arguments);
+      if (v == null) this.removeAttributeNS(fullname.space, fullname.local);
+      else this.setAttributeNS(fullname.space, fullname.local, v);
+    };
+  }
+
+  function selection_attr(name, value) {
+    var fullname = namespace(name);
+
+    if (arguments.length < 2) {
+      var node = this.node();
+      return fullname.local
+          ? node.getAttributeNS(fullname.space, fullname.local)
+          : node.getAttribute(fullname);
+    }
+
+    return this.each((value == null
+        ? (fullname.local ? attrRemoveNS : attrRemove) : (typeof value === "function"
+        ? (fullname.local ? attrFunctionNS : attrFunction)
+        : (fullname.local ? attrConstantNS : attrConstant)))(fullname, value));
+  }
+
+  function defaultView(node) {
+    return (node.ownerDocument && node.ownerDocument.defaultView) // node is a Node
+        || (node.document && node) // node is a Window
+        || node.defaultView; // node is a Document
+  }
+
+  function styleRemove(name) {
+    return function() {
+      this.style.removeProperty(name);
+    };
+  }
+
+  function styleConstant(name, value, priority) {
+    return function() {
+      this.style.setProperty(name, value, priority);
+    };
+  }
+
+  function styleFunction(name, value, priority) {
+    return function() {
+      var v = value.apply(this, arguments);
+      if (v == null) this.style.removeProperty(name);
+      else this.style.setProperty(name, v, priority);
+    };
+  }
+
+  function selection_style(name, value, priority) {
+    return arguments.length > 1
+        ? this.each((value == null
+              ? styleRemove : typeof value === "function"
+              ? styleFunction
+              : styleConstant)(name, value, priority == null ? "" : priority))
+        : styleValue(this.node(), name);
+  }
+
+  function styleValue(node, name) {
+    return node.style.getPropertyValue(name)
+        || defaultView(node).getComputedStyle(node, null).getPropertyValue(name);
+  }
+
+  function propertyRemove(name) {
+    return function() {
+      delete this[name];
+    };
+  }
+
+  function propertyConstant(name, value) {
+    return function() {
+      this[name] = value;
+    };
+  }
+
+  function propertyFunction(name, value) {
+    return function() {
+      var v = value.apply(this, arguments);
+      if (v == null) delete this[name];
+      else this[name] = v;
+    };
+  }
+
+  function selection_property(name, value) {
+    return arguments.length > 1
+        ? this.each((value == null
+            ? propertyRemove : typeof value === "function"
+            ? propertyFunction
+            : propertyConstant)(name, value))
+        : this.node()[name];
+  }
+
+  function classArray(string) {
+    return string.trim().split(/^|\s+/);
+  }
+
+  function classList(node) {
+    return node.classList || new ClassList(node);
+  }
+
+  function ClassList(node) {
+    this._node = node;
+    this._names = classArray(node.getAttribute("class") || "");
+  }
+
+  ClassList.prototype = {
+    add: function(name) {
+      var i = this._names.indexOf(name);
+      if (i < 0) {
+        this._names.push(name);
+        this._node.setAttribute("class", this._names.join(" "));
+      }
+    },
+    remove: function(name) {
+      var i = this._names.indexOf(name);
+      if (i >= 0) {
+        this._names.splice(i, 1);
+        this._node.setAttribute("class", this._names.join(" "));
+      }
+    },
+    contains: function(name) {
+      return this._names.indexOf(name) >= 0;
+    }
+  };
+
+  function classedAdd(node, names) {
+    var list = classList(node), i = -1, n = names.length;
+    while (++i < n) list.add(names[i]);
+  }
+
+  function classedRemove(node, names) {
+    var list = classList(node), i = -1, n = names.length;
+    while (++i < n) list.remove(names[i]);
+  }
+
+  function classedTrue(names) {
+    return function() {
+      classedAdd(this, names);
+    };
+  }
+
+  function classedFalse(names) {
+    return function() {
+      classedRemove(this, names);
+    };
+  }
+
+  function classedFunction(names, value) {
+    return function() {
+      (value.apply(this, arguments) ? classedAdd : classedRemove)(this, names);
+    };
+  }
+
+  function selection_classed(name, value) {
+    var names = classArray(name + "");
+
+    if (arguments.length < 2) {
+      var list = classList(this.node()), i = -1, n = names.length;
+      while (++i < n) if (!list.contains(names[i])) return false;
+      return true;
+    }
+
+    return this.each((typeof value === "function"
+        ? classedFunction : value
+        ? classedTrue
+        : classedFalse)(names, value));
+  }
+
+  function textRemove() {
+    this.textContent = "";
+  }
+
+  function textConstant(value) {
+    return function() {
+      this.textContent = value;
+    };
+  }
+
+  function textFunction(value) {
+    return function() {
+      var v = value.apply(this, arguments);
+      this.textContent = v == null ? "" : v;
+    };
+  }
+
+  function selection_text(value) {
+    return arguments.length
+        ? this.each(value == null
+            ? textRemove : (typeof value === "function"
+            ? textFunction
+            : textConstant)(value))
+        : this.node().textContent;
+  }
+
+  function htmlRemove() {
+    this.innerHTML = "";
+  }
+
+  function htmlConstant(value) {
+    return function() {
+      this.innerHTML = value;
+    };
+  }
+
+  function htmlFunction(value) {
+    return function() {
+      var v = value.apply(this, arguments);
+      this.innerHTML = v == null ? "" : v;
+    };
+  }
+
+  function selection_html(value) {
+    return arguments.length
+        ? this.each(value == null
+            ? htmlRemove : (typeof value === "function"
+            ? htmlFunction
+            : htmlConstant)(value))
+        : this.node().innerHTML;
+  }
+
+  function raise() {
+    if (this.nextSibling) this.parentNode.appendChild(this);
+  }
+
+  function selection_raise() {
+    return this.each(raise);
+  }
+
+  function lower() {
+    if (this.previousSibling) this.parentNode.insertBefore(this, this.parentNode.firstChild);
+  }
+
+  function selection_lower() {
+    return this.each(lower);
+  }
+
+  function selection_append(name) {
+    var create = typeof name === "function" ? name : creator(name);
+    return this.select(function() {
+      return this.appendChild(create.apply(this, arguments));
+    });
+  }
+
+  function constantNull() {
+    return null;
+  }
+
+  function selection_insert(name, before) {
+    var create = typeof name === "function" ? name : creator(name),
+        select = before == null ? constantNull : typeof before === "function" ? before : selector(before);
+    return this.select(function() {
+      return this.insertBefore(create.apply(this, arguments), select.apply(this, arguments) || null);
+    });
+  }
+
+  function remove() {
+    var parent = this.parentNode;
+    if (parent) parent.removeChild(this);
+  }
+
+  function selection_remove() {
+    return this.each(remove);
+  }
+
+  function selection_cloneShallow() {
+    var clone = this.cloneNode(false), parent = this.parentNode;
+    return parent ? parent.insertBefore(clone, this.nextSibling) : clone;
+  }
+
+  function selection_cloneDeep() {
+    var clone = this.cloneNode(true), parent = this.parentNode;
+    return parent ? parent.insertBefore(clone, this.nextSibling) : clone;
+  }
+
+  function selection_clone(deep) {
+    return this.select(deep ? selection_cloneDeep : selection_cloneShallow);
+  }
+
+  function selection_datum(value) {
+    return arguments.length
+        ? this.property("__data__", value)
+        : this.node().__data__;
+  }
+
+  function contextListener(listener) {
+    return function(event) {
+      listener.call(this, event, this.__data__);
+    };
+  }
+
+  function parseTypenames$1(typenames) {
+    return typenames.trim().split(/^|\s+/).map(function(t) {
+      var name = "", i = t.indexOf(".");
+      if (i >= 0) name = t.slice(i + 1), t = t.slice(0, i);
+      return {type: t, name: name};
+    });
+  }
+
+  function onRemove(typename) {
+    return function() {
+      var on = this.__on;
+      if (!on) return;
+      for (var j = 0, i = -1, m = on.length, o; j < m; ++j) {
+        if (o = on[j], (!typename.type || o.type === typename.type) && o.name === typename.name) {
+          this.removeEventListener(o.type, o.listener, o.options);
+        } else {
+          on[++i] = o;
+        }
+      }
+      if (++i) on.length = i;
+      else delete this.__on;
+    };
+  }
+
+  function onAdd(typename, value, options) {
+    return function() {
+      var on = this.__on, o, listener = contextListener(value);
+      if (on) for (var j = 0, m = on.length; j < m; ++j) {
+        if ((o = on[j]).type === typename.type && o.name === typename.name) {
+          this.removeEventListener(o.type, o.listener, o.options);
+          this.addEventListener(o.type, o.listener = listener, o.options = options);
+          o.value = value;
+          return;
+        }
+      }
+      this.addEventListener(typename.type, listener, options);
+      o = {type: typename.type, name: typename.name, value: value, listener: listener, options: options};
+      if (!on) this.__on = [o];
+      else on.push(o);
+    };
+  }
+
+  function selection_on(typename, value, options) {
+    var typenames = parseTypenames$1(typename + ""), i, n = typenames.length, t;
+
+    if (arguments.length < 2) {
+      var on = this.node().__on;
+      if (on) for (var j = 0, m = on.length, o; j < m; ++j) {
+        for (i = 0, o = on[j]; i < n; ++i) {
+          if ((t = typenames[i]).type === o.type && t.name === o.name) {
+            return o.value;
+          }
+        }
+      }
+      return;
+    }
+
+    on = value ? onAdd : onRemove;
+    for (i = 0; i < n; ++i) this.each(on(typenames[i], value, options));
+    return this;
+  }
+
+  function dispatchEvent(node, type, params) {
+    var window = defaultView(node),
+        event = window.CustomEvent;
+
+    if (typeof event === "function") {
+      event = new event(type, params);
+    } else {
+      event = window.document.createEvent("Event");
+      if (params) event.initEvent(type, params.bubbles, params.cancelable), event.detail = params.detail;
+      else event.initEvent(type, false, false);
+    }
+
+    node.dispatchEvent(event);
+  }
+
+  function dispatchConstant(type, params) {
+    return function() {
+      return dispatchEvent(this, type, params);
+    };
+  }
+
+  function dispatchFunction(type, params) {
+    return function() {
+      return dispatchEvent(this, type, params.apply(this, arguments));
+    };
+  }
+
+  function selection_dispatch(type, params) {
+    return this.each((typeof params === "function"
+        ? dispatchFunction
+        : dispatchConstant)(type, params));
+  }
+
+  function* selection_iterator() {
+    for (var groups = this._groups, j = 0, m = groups.length; j < m; ++j) {
+      for (var group = groups[j], i = 0, n = group.length, node; i < n; ++i) {
+        if (node = group[i]) yield node;
+      }
+    }
+  }
+
+  var root = [null];
+
+  function Selection(groups, parents) {
+    this._groups = groups;
+    this._parents = parents;
+  }
+
+  function selection_selection() {
+    return this;
+  }
+
+  Selection.prototype = {
+    constructor: Selection,
+    select: selection_select,
+    selectAll: selection_selectAll,
+    selectChild: selection_selectChild,
+    selectChildren: selection_selectChildren,
+    filter: selection_filter,
+    data: selection_data,
+    enter: selection_enter,
+    exit: selection_exit,
+    join: selection_join,
+    merge: selection_merge,
+    selection: selection_selection,
+    order: selection_order,
+    sort: selection_sort,
+    call: selection_call,
+    nodes: selection_nodes,
+    node: selection_node,
+    size: selection_size,
+    empty: selection_empty,
+    each: selection_each,
+    attr: selection_attr,
+    style: selection_style,
+    property: selection_property,
+    classed: selection_classed,
+    text: selection_text,
+    html: selection_html,
+    raise: selection_raise,
+    lower: selection_lower,
+    append: selection_append,
+    insert: selection_insert,
+    remove: selection_remove,
+    clone: selection_clone,
+    datum: selection_datum,
+    on: selection_on,
+    dispatch: selection_dispatch,
+    [Symbol.iterator]: selection_iterator
+  };
+
+  function select(selector) {
+    return typeof selector === "string"
+        ? new Selection([[document.querySelector(selector)]], [document.documentElement])
+        : new Selection([[selector]], root);
+  }
+
+  function sourceEvent(event) {
+    let sourceEvent;
+    while (sourceEvent = event.sourceEvent) event = sourceEvent;
+    return event;
+  }
+
+  function pointer(event, node) {
+    event = sourceEvent(event);
+    if (node === undefined) node = event.currentTarget;
+    if (node) {
+      var svg = node.ownerSVGElement || node;
+      if (svg.createSVGPoint) {
+        var point = svg.createSVGPoint();
+        point.x = event.clientX, point.y = event.clientY;
+        point = point.matrixTransform(node.getScreenCTM().inverse());
+        return [point.x, point.y];
+      }
+      if (node.getBoundingClientRect) {
+        var rect = node.getBoundingClientRect();
+        return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
+      }
+    }
+    return [event.pageX, event.pageY];
+  }
+
+  function selectAll(selector) {
+    return typeof selector === "string"
+        ? new Selection([document.querySelectorAll(selector)], [document.documentElement])
+        : new Selection([array$1(selector)], root);
+  }
+
+  function constant$2(x) {
+    return function constant() {
+      return x;
+    };
+  }
+
+  const cos = Math.cos;
+  const min$1 = Math.min;
+  const sin = Math.sin;
+  const sqrt$1 = Math.sqrt;
+  const pi$1 = Math.PI;
+  const tau$1 = 2 * pi$1;
+
+  const pi = Math.PI,
+      tau = 2 * pi,
+      epsilon$1 = 1e-6,
+      tauEpsilon = tau - epsilon$1;
+
+  function append(strings) {
+    this._ += strings[0];
+    for (let i = 1, n = strings.length; i < n; ++i) {
+      this._ += arguments[i] + strings[i];
+    }
+  }
+
+  function appendRound(digits) {
+    let d = Math.floor(digits);
+    if (!(d >= 0)) throw new Error(`invalid digits: ${digits}`);
+    if (d > 15) return append;
+    const k = 10 ** d;
+    return function(strings) {
+      this._ += strings[0];
+      for (let i = 1, n = strings.length; i < n; ++i) {
+        this._ += Math.round(arguments[i] * k) / k + strings[i];
+      }
+    };
+  }
+
+  class Path {
+    constructor(digits) {
+      this._x0 = this._y0 = // start of current subpath
+      this._x1 = this._y1 = null; // end of current subpath
+      this._ = "";
+      this._append = digits == null ? append : appendRound(digits);
+    }
+    moveTo(x, y) {
+      this._append`M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}`;
+    }
+    closePath() {
+      if (this._x1 !== null) {
+        this._x1 = this._x0, this._y1 = this._y0;
+        this._append`Z`;
+      }
+    }
+    lineTo(x, y) {
+      this._append`L${this._x1 = +x},${this._y1 = +y}`;
+    }
+    quadraticCurveTo(x1, y1, x, y) {
+      this._append`Q${+x1},${+y1},${this._x1 = +x},${this._y1 = +y}`;
+    }
+    bezierCurveTo(x1, y1, x2, y2, x, y) {
+      this._append`C${+x1},${+y1},${+x2},${+y2},${this._x1 = +x},${this._y1 = +y}`;
+    }
+    arcTo(x1, y1, x2, y2, r) {
+      x1 = +x1, y1 = +y1, x2 = +x2, y2 = +y2, r = +r;
+
+      // Is the radius negative? Error.
+      if (r < 0) throw new Error(`negative radius: ${r}`);
+
+      let x0 = this._x1,
+          y0 = this._y1,
+          x21 = x2 - x1,
+          y21 = y2 - y1,
+          x01 = x0 - x1,
+          y01 = y0 - y1,
+          l01_2 = x01 * x01 + y01 * y01;
+
+      // Is this path empty? Move to (x1,y1).
+      if (this._x1 === null) {
+        this._append`M${this._x1 = x1},${this._y1 = y1}`;
+      }
+
+      // Or, is (x1,y1) coincident with (x0,y0)? Do nothing.
+      else if (!(l01_2 > epsilon$1));
+
+      // Or, are (x0,y0), (x1,y1) and (x2,y2) collinear?
+      // Equivalently, is (x1,y1) coincident with (x2,y2)?
+      // Or, is the radius zero? Line to (x1,y1).
+      else if (!(Math.abs(y01 * x21 - y21 * x01) > epsilon$1) || !r) {
+        this._append`L${this._x1 = x1},${this._y1 = y1}`;
+      }
+
+      // Otherwise, draw an arc!
+      else {
+        let x20 = x2 - x0,
+            y20 = y2 - y0,
+            l21_2 = x21 * x21 + y21 * y21,
+            l20_2 = x20 * x20 + y20 * y20,
+            l21 = Math.sqrt(l21_2),
+            l01 = Math.sqrt(l01_2),
+            l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2),
+            t01 = l / l01,
+            t21 = l / l21;
+
+        // If the start tangent is not coincident with (x0,y0), line to.
+        if (Math.abs(t01 - 1) > epsilon$1) {
+          this._append`L${x1 + t01 * x01},${y1 + t01 * y01}`;
+        }
+
+        this._append`A${r},${r},0,0,${+(y01 * x20 > x01 * y20)},${this._x1 = x1 + t21 * x21},${this._y1 = y1 + t21 * y21}`;
+      }
+    }
+    arc(x, y, r, a0, a1, ccw) {
+      x = +x, y = +y, r = +r, ccw = !!ccw;
+
+      // Is the radius negative? Error.
+      if (r < 0) throw new Error(`negative radius: ${r}`);
+
+      let dx = r * Math.cos(a0),
+          dy = r * Math.sin(a0),
+          x0 = x + dx,
+          y0 = y + dy,
+          cw = 1 ^ ccw,
+          da = ccw ? a0 - a1 : a1 - a0;
+
+      // Is this path empty? Move to (x0,y0).
+      if (this._x1 === null) {
+        this._append`M${x0},${y0}`;
+      }
+
+      // Or, is (x0,y0) not coincident with the previous point? Line to (x0,y0).
+      else if (Math.abs(this._x1 - x0) > epsilon$1 || Math.abs(this._y1 - y0) > epsilon$1) {
+        this._append`L${x0},${y0}`;
+      }
+
+      // Is this arc empty? We’re done.
+      if (!r) return;
+
+      // Does the angle go the wrong way? Flip the direction.
+      if (da < 0) da = da % tau + tau;
+
+      // Is this a complete circle? Draw two arcs to complete the circle.
+      if (da > tauEpsilon) {
+        this._append`A${r},${r},0,1,${cw},${x - dx},${y - dy}A${r},${r},0,1,${cw},${this._x1 = x0},${this._y1 = y0}`;
+      }
+
+      // Is this arc non-empty? Draw an arc!
+      else if (da > epsilon$1) {
+        this._append`A${r},${r},0,${+(da >= pi)},${cw},${this._x1 = x + r * Math.cos(a1)},${this._y1 = y + r * Math.sin(a1)}`;
+      }
+    }
+    rect(x, y, w, h) {
+      this._append`M${this._x0 = this._x1 = +x},${this._y0 = this._y1 = +y}h${w = +w}v${+h}h${-w}Z`;
+    }
+    toString() {
+      return this._;
+    }
+  }
+
+  function withPath(shape) {
+    let digits = 3;
+
+    shape.digits = function(_) {
+      if (!arguments.length) return digits;
+      if (_ == null) {
+        digits = null;
+      } else {
+        const d = Math.floor(_);
+        if (!(d >= 0)) throw new RangeError(`invalid digits: ${_}`);
+        digits = d;
+      }
+      return shape;
+    };
+
+    return () => new Path(digits);
+  }
+
+  function array(x) {
+    return typeof x === "object" && "length" in x
+      ? x // Array, TypedArray, NodeList, array-like
+      : Array.from(x); // Map, Set, iterable, string, or anything else
+  }
+
+  function Linear(context) {
+    this._context = context;
+  }
+
+  Linear.prototype = {
+    areaStart: function() {
+      this._line = 0;
+    },
+    areaEnd: function() {
+      this._line = NaN;
+    },
+    lineStart: function() {
+      this._point = 0;
+    },
+    lineEnd: function() {
+      if (this._line || (this._line !== 0 && this._point === 1)) this._context.closePath();
+      this._line = 1 - this._line;
+    },
+    point: function(x, y) {
+      x = +x, y = +y;
+      switch (this._point) {
+        case 0: this._point = 1; this._line ? this._context.lineTo(x, y) : this._context.moveTo(x, y); break;
+        case 1: this._point = 2; // falls through
+        default: this._context.lineTo(x, y); break;
+      }
+    }
+  };
+
+  function curveLinear(context) {
+    return new Linear(context);
+  }
+
+  function x(p) {
+    return p[0];
+  }
+
+  function y(p) {
+    return p[1];
+  }
+
+  function line(x$1, y$1) {
+    var defined = constant$2(true),
+        context = null,
+        curve = curveLinear,
+        output = null,
+        path = withPath(line);
+
+    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant$2(x$1);
+    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant$2(y$1);
+
+    function line(data) {
+      var i,
+          n = (data = array(data)).length,
+          d,
+          defined0 = false,
+          buffer;
+
+      if (context == null) output = curve(buffer = path());
+
+      for (i = 0; i <= n; ++i) {
+        if (!(i < n && defined(d = data[i], i, data)) === defined0) {
+          if (defined0 = !defined0) output.lineStart();
+          else output.lineEnd();
+        }
+        if (defined0) output.point(+x$1(d, i, data), +y$1(d, i, data));
+      }
+
+      if (buffer) return output = null, buffer + "" || null;
+    }
+
+    line.x = function(_) {
+      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant$2(+_), line) : x$1;
+    };
+
+    line.y = function(_) {
+      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant$2(+_), line) : y$1;
+    };
+
+    line.defined = function(_) {
+      return arguments.length ? (defined = typeof _ === "function" ? _ : constant$2(!!_), line) : defined;
+    };
+
+    line.curve = function(_) {
+      return arguments.length ? (curve = _, context != null && (output = curve(context)), line) : curve;
+    };
+
+    line.context = function(_) {
+      return arguments.length ? (_ == null ? context = output = null : output = curve(context = _), line) : context;
+    };
+
+    return line;
+  }
+
+  const sqrt3$1 = sqrt$1(3);
+
+  var asterisk = {
+    draw(context, size) {
+      const r = sqrt$1(size + min$1(size / 28, 0.75)) * 0.59436;
+      const t = r / 2;
+      const u = t * sqrt3$1;
+      context.moveTo(0, r);
+      context.lineTo(0, -r);
+      context.moveTo(-u, -t);
+      context.lineTo(u, t);
+      context.moveTo(-u, t);
+      context.lineTo(u, -t);
+    }
+  };
+
+  var circle = {
+    draw(context, size) {
+      const r = sqrt$1(size / pi$1);
+      context.moveTo(r, 0);
+      context.arc(0, 0, r, 0, tau$1);
+    }
+  };
+
+  var cross = {
+    draw(context, size) {
+      const r = sqrt$1(size / 5) / 2;
+      context.moveTo(-3 * r, -r);
+      context.lineTo(-r, -r);
+      context.lineTo(-r, -3 * r);
+      context.lineTo(r, -3 * r);
+      context.lineTo(r, -r);
+      context.lineTo(3 * r, -r);
+      context.lineTo(3 * r, r);
+      context.lineTo(r, r);
+      context.lineTo(r, 3 * r);
+      context.lineTo(-r, 3 * r);
+      context.lineTo(-r, r);
+      context.lineTo(-3 * r, r);
+      context.closePath();
+    }
+  };
+
+  const tan30 = sqrt$1(1 / 3);
+  const tan30_2 = tan30 * 2;
+
+  var diamond = {
+    draw(context, size) {
+      const y = sqrt$1(size / tan30_2);
+      const x = y * tan30;
+      context.moveTo(0, -y);
+      context.lineTo(x, 0);
+      context.lineTo(0, y);
+      context.lineTo(-x, 0);
+      context.closePath();
+    }
+  };
+
+  var square$1 = {
+    draw(context, size) {
+      const w = sqrt$1(size);
+      const x = -w / 2;
+      context.rect(x, x, w, w);
+    }
+  };
+
+  const ka = 0.89081309152928522810;
+  const kr = sin(pi$1 / 10) / sin(7 * pi$1 / 10);
+  const kx = sin(tau$1 / 10) * kr;
+  const ky = -cos(tau$1 / 10) * kr;
+
+  var star = {
+    draw(context, size) {
+      const r = sqrt$1(size * ka);
+      const x = kx * r;
+      const y = ky * r;
+      context.moveTo(0, -r);
+      context.lineTo(x, y);
+      for (let i = 1; i < 5; ++i) {
+        const a = tau$1 * i / 5;
+        const c = cos(a);
+        const s = sin(a);
+        context.lineTo(s * r, -c * r);
+        context.lineTo(c * x - s * y, s * x + c * y);
+      }
+      context.closePath();
+    }
+  };
+
+  const sqrt3 = sqrt$1(3);
+
+  var triangle = {
+    draw(context, size) {
+      const y = -sqrt$1(size / (sqrt3 * 3));
+      context.moveTo(0, y * 2);
+      context.lineTo(-sqrt3 * y, -y);
+      context.lineTo(sqrt3 * y, -y);
+      context.closePath();
+    }
+  };
+
+  const c = -0.5;
+  const s = sqrt$1(3) / 2;
+  const k = 1 / sqrt$1(12);
+  const a = (k / 2 + 1) * 3;
+
+  var wye = {
+    draw(context, size) {
+      const r = sqrt$1(size / a);
+      const x0 = r / 2, y0 = r * k;
+      const x1 = x0, y1 = r * k + r;
+      const x2 = -x1, y2 = y1;
+      context.moveTo(x0, y0);
+      context.lineTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.lineTo(c * x0 - s * y0, s * x0 + c * y0);
+      context.lineTo(c * x1 - s * y1, s * x1 + c * y1);
+      context.lineTo(c * x2 - s * y2, s * x2 + c * y2);
+      context.lineTo(c * x0 + s * y0, c * y0 - s * x0);
+      context.lineTo(c * x1 + s * y1, c * y1 - s * x1);
+      context.lineTo(c * x2 + s * y2, c * y2 - s * x2);
+      context.closePath();
+    }
+  };
+
+  function Symbol$1(type, size) {
+    let context = null,
+        path = withPath(symbol);
+
+    type = typeof type === "function" ? type : constant$2(type || circle);
+    size = typeof size === "function" ? size : constant$2(size === undefined ? 64 : +size);
+
+    function symbol() {
+      let buffer;
+      if (!context) context = buffer = path();
+      type.apply(this, arguments).draw(context, +size.apply(this, arguments));
+      if (buffer) return context = null, buffer + "" || null;
+    }
+
+    symbol.type = function(_) {
+      return arguments.length ? (type = typeof _ === "function" ? _ : constant$2(_), symbol) : type;
+    };
+
+    symbol.size = function(_) {
+      return arguments.length ? (size = typeof _ === "function" ? _ : constant$2(+_), symbol) : size;
+    };
+
+    symbol.context = function(_) {
+      return arguments.length ? (context = _ == null ? null : _, symbol) : context;
+    };
+
+    return symbol;
+  }
+
+  function identity$2(x) {
+    return x;
+  }
+
+  var top = 1,
+      right = 2,
+      bottom = 3,
+      left = 4,
+      epsilon = 1e-6;
+
+  function translateX(x) {
+    return "translate(" + x + ",0)";
+  }
+
+  function translateY(y) {
+    return "translate(0," + y + ")";
+  }
+
+  function number$2(scale) {
+    return d => +scale(d);
+  }
+
+  function center(scale, offset) {
+    offset = Math.max(0, scale.bandwidth() - offset * 2) / 2;
+    if (scale.round()) offset = Math.round(offset);
+    return d => +scale(d) + offset;
+  }
+
+  function entering() {
+    return !this.__axis;
+  }
+
+  function axis(orient, scale) {
+    var tickArguments = [],
+        tickValues = null,
+        tickFormat = null,
+        tickSizeInner = 6,
+        tickSizeOuter = 6,
+        tickPadding = 3,
+        offset = typeof window !== "undefined" && window.devicePixelRatio > 1 ? 0 : 0.5,
+        k = orient === top || orient === left ? -1 : 1,
+        x = orient === left || orient === right ? "x" : "y",
+        transform = orient === top || orient === bottom ? translateX : translateY;
+
+    function axis(context) {
+      var values = tickValues == null ? (scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain()) : tickValues,
+          format = tickFormat == null ? (scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity$2) : tickFormat,
+          spacing = Math.max(tickSizeInner, 0) + tickPadding,
+          range = scale.range(),
+          range0 = +range[0] + offset,
+          range1 = +range[range.length - 1] + offset,
+          position = (scale.bandwidth ? center : number$2)(scale.copy(), offset),
+          selection = context.selection ? context.selection() : context,
+          path = selection.selectAll(".domain").data([null]),
+          tick = selection.selectAll(".tick").data(values, scale).order(),
+          tickExit = tick.exit(),
+          tickEnter = tick.enter().append("g").attr("class", "tick"),
+          line = tick.select("line"),
+          text = tick.select("text");
+
+      path = path.merge(path.enter().insert("path", ".tick")
+          .attr("class", "domain")
+          .attr("stroke", "currentColor"));
+
+      tick = tick.merge(tickEnter);
+
+      line = line.merge(tickEnter.append("line")
+          .attr("stroke", "currentColor")
+          .attr(x + "2", k * tickSizeInner));
+
+      text = text.merge(tickEnter.append("text")
+          .attr("fill", "currentColor")
+          .attr(x, k * spacing)
+          .attr("dy", orient === top ? "0em" : orient === bottom ? "0.71em" : "0.32em"));
+
+      if (context !== selection) {
+        path = path.transition(context);
+        tick = tick.transition(context);
+        line = line.transition(context);
+        text = text.transition(context);
+
+        tickExit = tickExit.transition(context)
+            .attr("opacity", epsilon)
+            .attr("transform", function(d) { return isFinite(d = position(d)) ? transform(d + offset) : this.getAttribute("transform"); });
+
+        tickEnter
+            .attr("opacity", epsilon)
+            .attr("transform", function(d) { var p = this.parentNode.__axis; return transform((p && isFinite(p = p(d)) ? p : position(d)) + offset); });
+      }
+
+      tickExit.remove();
+
+      path
+          .attr("d", orient === left || orient === right
+              ? (tickSizeOuter ? "M" + k * tickSizeOuter + "," + range0 + "H" + offset + "V" + range1 + "H" + k * tickSizeOuter : "M" + offset + "," + range0 + "V" + range1)
+              : (tickSizeOuter ? "M" + range0 + "," + k * tickSizeOuter + "V" + offset + "H" + range1 + "V" + k * tickSizeOuter : "M" + range0 + "," + offset + "H" + range1));
+
+      tick
+          .attr("opacity", 1)
+          .attr("transform", function(d) { return transform(position(d) + offset); });
+
+      line
+          .attr(x + "2", k * tickSizeInner);
+
+      text
+          .attr(x, k * spacing)
+          .text(format);
+
+      selection.filter(entering)
+          .attr("fill", "none")
+          .attr("font-size", 10)
+          .attr("font-family", "sans-serif")
+          .attr("text-anchor", orient === right ? "start" : orient === left ? "end" : "middle");
+
+      selection
+          .each(function() { this.__axis = position; });
+    }
+
+    axis.scale = function(_) {
+      return arguments.length ? (scale = _, axis) : scale;
+    };
+
+    axis.ticks = function() {
+      return tickArguments = Array.from(arguments), axis;
+    };
+
+    axis.tickArguments = function(_) {
+      return arguments.length ? (tickArguments = _ == null ? [] : Array.from(_), axis) : tickArguments.slice();
+    };
+
+    axis.tickValues = function(_) {
+      return arguments.length ? (tickValues = _ == null ? null : Array.from(_), axis) : tickValues && tickValues.slice();
+    };
+
+    axis.tickFormat = function(_) {
+      return arguments.length ? (tickFormat = _, axis) : tickFormat;
+    };
+
+    axis.tickSize = function(_) {
+      return arguments.length ? (tickSizeInner = tickSizeOuter = +_, axis) : tickSizeInner;
+    };
+
+    axis.tickSizeInner = function(_) {
+      return arguments.length ? (tickSizeInner = +_, axis) : tickSizeInner;
+    };
+
+    axis.tickSizeOuter = function(_) {
+      return arguments.length ? (tickSizeOuter = +_, axis) : tickSizeOuter;
+    };
+
+    axis.tickPadding = function(_) {
+      return arguments.length ? (tickPadding = +_, axis) : tickPadding;
+    };
+
+    axis.offset = function(_) {
+      return arguments.length ? (offset = +_, axis) : offset;
+    };
+
+    return axis;
+  }
+
+  function axisBottom(scale) {
+    return axis(bottom, scale);
+  }
+
+  function axisLeft(scale) {
+    return axis(left, scale);
+  }
+
+  function ascending(a, b) {
+    return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
+  }
+
+  function descending(a, b) {
+    return a == null || b == null ? NaN
+      : b < a ? -1
+      : b > a ? 1
+      : b >= a ? 0
+      : NaN;
+  }
+
+  function bisector(f) {
+    let compare1, compare2, delta;
+
+    // If an accessor is specified, promote it to a comparator. In this case we
+    // can test whether the search value is (self-) comparable. We can’t do this
+    // for a comparator (except for specific, known comparators) because we can’t
+    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
+    // used to test whether a single value is comparable.
+    if (f.length !== 2) {
+      compare1 = ascending;
+      compare2 = (d, x) => ascending(f(d), x);
+      delta = (d, x) => f(d) - x;
+    } else {
+      compare1 = f === ascending || f === descending ? f : zero$1;
+      compare2 = f;
+      delta = f;
+    }
+
+    function left(a, x, lo = 0, hi = a.length) {
+      if (lo < hi) {
+        if (compare1(x, x) !== 0) return hi;
+        do {
+          const mid = (lo + hi) >>> 1;
+          if (compare2(a[mid], x) < 0) lo = mid + 1;
+          else hi = mid;
+        } while (lo < hi);
+      }
+      return lo;
+    }
+
+    function right(a, x, lo = 0, hi = a.length) {
+      if (lo < hi) {
+        if (compare1(x, x) !== 0) return hi;
+        do {
+          const mid = (lo + hi) >>> 1;
+          if (compare2(a[mid], x) <= 0) lo = mid + 1;
+          else hi = mid;
+        } while (lo < hi);
+      }
+      return lo;
+    }
+
+    function center(a, x, lo = 0, hi = a.length) {
+      const i = left(a, x, lo, hi - 1);
+      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
+    }
+
+    return {left, center, right};
+  }
+
+  function zero$1() {
+    return 0;
+  }
+
+  function number$1(x) {
+    return x === null ? NaN : +x;
+  }
+
+  const ascendingBisect = bisector(ascending);
+  const bisectRight = ascendingBisect.right;
+  bisector(number$1).center;
+
+  const e10 = Math.sqrt(50),
+      e5 = Math.sqrt(10),
+      e2 = Math.sqrt(2);
+
+  function tickSpec(start, stop, count) {
+    const step = (stop - start) / Math.max(0, count),
+        power = Math.floor(Math.log10(step)),
+        error = step / Math.pow(10, power),
+        factor = error >= e10 ? 10 : error >= e5 ? 5 : error >= e2 ? 2 : 1;
+    let i1, i2, inc;
+    if (power < 0) {
+      inc = Math.pow(10, -power) / factor;
+      i1 = Math.round(start * inc);
+      i2 = Math.round(stop * inc);
+      if (i1 / inc < start) ++i1;
+      if (i2 / inc > stop) --i2;
+      inc = -inc;
+    } else {
+      inc = Math.pow(10, power) * factor;
+      i1 = Math.round(start / inc);
+      i2 = Math.round(stop / inc);
+      if (i1 * inc < start) ++i1;
+      if (i2 * inc > stop) --i2;
+    }
+    if (i2 < i1 && 0.5 <= count && count < 2) return tickSpec(start, stop, count * 2);
+    return [i1, i2, inc];
+  }
+
+  function ticks(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    if (!(count > 0)) return [];
+    if (start === stop) return [start];
+    const reverse = stop < start, [i1, i2, inc] = reverse ? tickSpec(stop, start, count) : tickSpec(start, stop, count);
+    if (!(i2 >= i1)) return [];
+    const n = i2 - i1 + 1, ticks = new Array(n);
+    if (reverse) {
+      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) / -inc;
+      else for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) * inc;
+    } else {
+      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) / -inc;
+      else for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) * inc;
+    }
+    return ticks;
+  }
+
+  function tickIncrement(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    return tickSpec(start, stop, count)[2];
+  }
+
+  function tickStep(start, stop, count) {
+    stop = +stop, start = +start, count = +count;
+    const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
+    return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
+  }
+
+  function initRange(domain, range) {
+    switch (arguments.length) {
+      case 0: break;
+      case 1: this.range(domain); break;
+      default: this.range(range).domain(domain); break;
+    }
+    return this;
+  }
+
+  function define(constructor, factory, prototype) {
+    constructor.prototype = factory.prototype = prototype;
+    prototype.constructor = constructor;
+  }
+
+  function extend(parent, definition) {
+    var prototype = Object.create(parent.prototype);
+    for (var key in definition) prototype[key] = definition[key];
+    return prototype;
+  }
+
+  function Color() {}
+
+  var darker = 0.7;
+  var brighter = 1 / darker;
+
+  var reI = "\\s*([+-]?\\d+)\\s*",
+      reN = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*",
+      reP = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*",
+      reHex = /^#([0-9a-f]{3,8})$/,
+      reRgbInteger = new RegExp(`^rgb\\(${reI},${reI},${reI}\\)$`),
+      reRgbPercent = new RegExp(`^rgb\\(${reP},${reP},${reP}\\)$`),
+      reRgbaInteger = new RegExp(`^rgba\\(${reI},${reI},${reI},${reN}\\)$`),
+      reRgbaPercent = new RegExp(`^rgba\\(${reP},${reP},${reP},${reN}\\)$`),
+      reHslPercent = new RegExp(`^hsl\\(${reN},${reP},${reP}\\)$`),
+      reHslaPercent = new RegExp(`^hsla\\(${reN},${reP},${reP},${reN}\\)$`);
+
+  var named = {
+    aliceblue: 0xf0f8ff,
+    antiquewhite: 0xfaebd7,
+    aqua: 0x00ffff,
+    aquamarine: 0x7fffd4,
+    azure: 0xf0ffff,
+    beige: 0xf5f5dc,
+    bisque: 0xffe4c4,
+    black: 0x000000,
+    blanchedalmond: 0xffebcd,
+    blue: 0x0000ff,
+    blueviolet: 0x8a2be2,
+    brown: 0xa52a2a,
+    burlywood: 0xdeb887,
+    cadetblue: 0x5f9ea0,
+    chartreuse: 0x7fff00,
+    chocolate: 0xd2691e,
+    coral: 0xff7f50,
+    cornflowerblue: 0x6495ed,
+    cornsilk: 0xfff8dc,
+    crimson: 0xdc143c,
+    cyan: 0x00ffff,
+    darkblue: 0x00008b,
+    darkcyan: 0x008b8b,
+    darkgoldenrod: 0xb8860b,
+    darkgray: 0xa9a9a9,
+    darkgreen: 0x006400,
+    darkgrey: 0xa9a9a9,
+    darkkhaki: 0xbdb76b,
+    darkmagenta: 0x8b008b,
+    darkolivegreen: 0x556b2f,
+    darkorange: 0xff8c00,
+    darkorchid: 0x9932cc,
+    darkred: 0x8b0000,
+    darksalmon: 0xe9967a,
+    darkseagreen: 0x8fbc8f,
+    darkslateblue: 0x483d8b,
+    darkslategray: 0x2f4f4f,
+    darkslategrey: 0x2f4f4f,
+    darkturquoise: 0x00ced1,
+    darkviolet: 0x9400d3,
+    deeppink: 0xff1493,
+    deepskyblue: 0x00bfff,
+    dimgray: 0x696969,
+    dimgrey: 0x696969,
+    dodgerblue: 0x1e90ff,
+    firebrick: 0xb22222,
+    floralwhite: 0xfffaf0,
+    forestgreen: 0x228b22,
+    fuchsia: 0xff00ff,
+    gainsboro: 0xdcdcdc,
+    ghostwhite: 0xf8f8ff,
+    gold: 0xffd700,
+    goldenrod: 0xdaa520,
+    gray: 0x808080,
+    green: 0x008000,
+    greenyellow: 0xadff2f,
+    grey: 0x808080,
+    honeydew: 0xf0fff0,
+    hotpink: 0xff69b4,
+    indianred: 0xcd5c5c,
+    indigo: 0x4b0082,
+    ivory: 0xfffff0,
+    khaki: 0xf0e68c,
+    lavender: 0xe6e6fa,
+    lavenderblush: 0xfff0f5,
+    lawngreen: 0x7cfc00,
+    lemonchiffon: 0xfffacd,
+    lightblue: 0xadd8e6,
+    lightcoral: 0xf08080,
+    lightcyan: 0xe0ffff,
+    lightgoldenrodyellow: 0xfafad2,
+    lightgray: 0xd3d3d3,
+    lightgreen: 0x90ee90,
+    lightgrey: 0xd3d3d3,
+    lightpink: 0xffb6c1,
+    lightsalmon: 0xffa07a,
+    lightseagreen: 0x20b2aa,
+    lightskyblue: 0x87cefa,
+    lightslategray: 0x778899,
+    lightslategrey: 0x778899,
+    lightsteelblue: 0xb0c4de,
+    lightyellow: 0xffffe0,
+    lime: 0x00ff00,
+    limegreen: 0x32cd32,
+    linen: 0xfaf0e6,
+    magenta: 0xff00ff,
+    maroon: 0x800000,
+    mediumaquamarine: 0x66cdaa,
+    mediumblue: 0x0000cd,
+    mediumorchid: 0xba55d3,
+    mediumpurple: 0x9370db,
+    mediumseagreen: 0x3cb371,
+    mediumslateblue: 0x7b68ee,
+    mediumspringgreen: 0x00fa9a,
+    mediumturquoise: 0x48d1cc,
+    mediumvioletred: 0xc71585,
+    midnightblue: 0x191970,
+    mintcream: 0xf5fffa,
+    mistyrose: 0xffe4e1,
+    moccasin: 0xffe4b5,
+    navajowhite: 0xffdead,
+    navy: 0x000080,
+    oldlace: 0xfdf5e6,
+    olive: 0x808000,
+    olivedrab: 0x6b8e23,
+    orange: 0xffa500,
+    orangered: 0xff4500,
+    orchid: 0xda70d6,
+    palegoldenrod: 0xeee8aa,
+    palegreen: 0x98fb98,
+    paleturquoise: 0xafeeee,
+    palevioletred: 0xdb7093,
+    papayawhip: 0xffefd5,
+    peachpuff: 0xffdab9,
+    peru: 0xcd853f,
+    pink: 0xffc0cb,
+    plum: 0xdda0dd,
+    powderblue: 0xb0e0e6,
+    purple: 0x800080,
+    rebeccapurple: 0x663399,
+    red: 0xff0000,
+    rosybrown: 0xbc8f8f,
+    royalblue: 0x4169e1,
+    saddlebrown: 0x8b4513,
+    salmon: 0xfa8072,
+    sandybrown: 0xf4a460,
+    seagreen: 0x2e8b57,
+    seashell: 0xfff5ee,
+    sienna: 0xa0522d,
+    silver: 0xc0c0c0,
+    skyblue: 0x87ceeb,
+    slateblue: 0x6a5acd,
+    slategray: 0x708090,
+    slategrey: 0x708090,
+    snow: 0xfffafa,
+    springgreen: 0x00ff7f,
+    steelblue: 0x4682b4,
+    tan: 0xd2b48c,
+    teal: 0x008080,
+    thistle: 0xd8bfd8,
+    tomato: 0xff6347,
+    turquoise: 0x40e0d0,
+    violet: 0xee82ee,
+    wheat: 0xf5deb3,
+    white: 0xffffff,
+    whitesmoke: 0xf5f5f5,
+    yellow: 0xffff00,
+    yellowgreen: 0x9acd32
+  };
+
+  define(Color, color, {
+    copy(channels) {
+      return Object.assign(new this.constructor, this, channels);
+    },
+    displayable() {
+      return this.rgb().displayable();
+    },
+    hex: color_formatHex, // Deprecated! Use color.formatHex.
+    formatHex: color_formatHex,
+    formatHex8: color_formatHex8,
+    formatHsl: color_formatHsl,
+    formatRgb: color_formatRgb,
+    toString: color_formatRgb
+  });
+
+  function color_formatHex() {
+    return this.rgb().formatHex();
+  }
+
+  function color_formatHex8() {
+    return this.rgb().formatHex8();
+  }
+
+  function color_formatHsl() {
+    return hslConvert(this).formatHsl();
+  }
+
+  function color_formatRgb() {
+    return this.rgb().formatRgb();
+  }
+
+  function color(format) {
+    var m, l;
+    format = (format + "").trim().toLowerCase();
+    return (m = reHex.exec(format)) ? (l = m[1].length, m = parseInt(m[1], 16), l === 6 ? rgbn(m) // #ff0000
+        : l === 3 ? new Rgb((m >> 8 & 0xf) | (m >> 4 & 0xf0), (m >> 4 & 0xf) | (m & 0xf0), ((m & 0xf) << 4) | (m & 0xf), 1) // #f00
+        : l === 8 ? rgba(m >> 24 & 0xff, m >> 16 & 0xff, m >> 8 & 0xff, (m & 0xff) / 0xff) // #ff000000
+        : l === 4 ? rgba((m >> 12 & 0xf) | (m >> 8 & 0xf0), (m >> 8 & 0xf) | (m >> 4 & 0xf0), (m >> 4 & 0xf) | (m & 0xf0), (((m & 0xf) << 4) | (m & 0xf)) / 0xff) // #f000
+        : null) // invalid hex
+        : (m = reRgbInteger.exec(format)) ? new Rgb(m[1], m[2], m[3], 1) // rgb(255, 0, 0)
+        : (m = reRgbPercent.exec(format)) ? new Rgb(m[1] * 255 / 100, m[2] * 255 / 100, m[3] * 255 / 100, 1) // rgb(100%, 0%, 0%)
+        : (m = reRgbaInteger.exec(format)) ? rgba(m[1], m[2], m[3], m[4]) // rgba(255, 0, 0, 1)
+        : (m = reRgbaPercent.exec(format)) ? rgba(m[1] * 255 / 100, m[2] * 255 / 100, m[3] * 255 / 100, m[4]) // rgb(100%, 0%, 0%, 1)
+        : (m = reHslPercent.exec(format)) ? hsla(m[1], m[2] / 100, m[3] / 100, 1) // hsl(120, 50%, 50%)
+        : (m = reHslaPercent.exec(format)) ? hsla(m[1], m[2] / 100, m[3] / 100, m[4]) // hsla(120, 50%, 50%, 1)
+        : named.hasOwnProperty(format) ? rgbn(named[format]) // eslint-disable-line no-prototype-builtins
+        : format === "transparent" ? new Rgb(NaN, NaN, NaN, 0)
+        : null;
+  }
+
+  function rgbn(n) {
+    return new Rgb(n >> 16 & 0xff, n >> 8 & 0xff, n & 0xff, 1);
+  }
+
+  function rgba(r, g, b, a) {
+    if (a <= 0) r = g = b = NaN;
+    return new Rgb(r, g, b, a);
+  }
+
+  function rgbConvert(o) {
+    if (!(o instanceof Color)) o = color(o);
+    if (!o) return new Rgb;
+    o = o.rgb();
+    return new Rgb(o.r, o.g, o.b, o.opacity);
+  }
+
+  function rgb$1(r, g, b, opacity) {
+    return arguments.length === 1 ? rgbConvert(r) : new Rgb(r, g, b, opacity == null ? 1 : opacity);
+  }
+
+  function Rgb(r, g, b, opacity) {
+    this.r = +r;
+    this.g = +g;
+    this.b = +b;
+    this.opacity = +opacity;
+  }
+
+  define(Rgb, rgb$1, extend(Color, {
+    brighter(k) {
+      k = k == null ? brighter : Math.pow(brighter, k);
+      return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
+    },
+    darker(k) {
+      k = k == null ? darker : Math.pow(darker, k);
+      return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
+    },
+    rgb() {
+      return this;
+    },
+    clamp() {
+      return new Rgb(clampi(this.r), clampi(this.g), clampi(this.b), clampa(this.opacity));
+    },
+    displayable() {
+      return (-0.5 <= this.r && this.r < 255.5)
+          && (-0.5 <= this.g && this.g < 255.5)
+          && (-0.5 <= this.b && this.b < 255.5)
+          && (0 <= this.opacity && this.opacity <= 1);
+    },
+    hex: rgb_formatHex, // Deprecated! Use color.formatHex.
+    formatHex: rgb_formatHex,
+    formatHex8: rgb_formatHex8,
+    formatRgb: rgb_formatRgb,
+    toString: rgb_formatRgb
+  }));
+
+  function rgb_formatHex() {
+    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}`;
+  }
+
+  function rgb_formatHex8() {
+    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}${hex((isNaN(this.opacity) ? 1 : this.opacity) * 255)}`;
+  }
+
+  function rgb_formatRgb() {
+    const a = clampa(this.opacity);
+    return `${a === 1 ? "rgb(" : "rgba("}${clampi(this.r)}, ${clampi(this.g)}, ${clampi(this.b)}${a === 1 ? ")" : `, ${a})`}`;
+  }
+
+  function clampa(opacity) {
+    return isNaN(opacity) ? 1 : Math.max(0, Math.min(1, opacity));
+  }
+
+  function clampi(value) {
+    return Math.max(0, Math.min(255, Math.round(value) || 0));
+  }
+
+  function hex(value) {
+    value = clampi(value);
+    return (value < 16 ? "0" : "") + value.toString(16);
+  }
+
+  function hsla(h, s, l, a) {
+    if (a <= 0) h = s = l = NaN;
+    else if (l <= 0 || l >= 1) h = s = NaN;
+    else if (s <= 0) h = NaN;
+    return new Hsl(h, s, l, a);
+  }
+
+  function hslConvert(o) {
+    if (o instanceof Hsl) return new Hsl(o.h, o.s, o.l, o.opacity);
+    if (!(o instanceof Color)) o = color(o);
+    if (!o) return new Hsl;
+    if (o instanceof Hsl) return o;
+    o = o.rgb();
+    var r = o.r / 255,
+        g = o.g / 255,
+        b = o.b / 255,
+        min = Math.min(r, g, b),
+        max = Math.max(r, g, b),
+        h = NaN,
+        s = max - min,
+        l = (max + min) / 2;
+    if (s) {
+      if (r === max) h = (g - b) / s + (g < b) * 6;
+      else if (g === max) h = (b - r) / s + 2;
+      else h = (r - g) / s + 4;
+      s /= l < 0.5 ? max + min : 2 - max - min;
+      h *= 60;
+    } else {
+      s = l > 0 && l < 1 ? 0 : h;
+    }
+    return new Hsl(h, s, l, o.opacity);
+  }
+
+  function hsl(h, s, l, opacity) {
+    return arguments.length === 1 ? hslConvert(h) : new Hsl(h, s, l, opacity == null ? 1 : opacity);
+  }
+
+  function Hsl(h, s, l, opacity) {
+    this.h = +h;
+    this.s = +s;
+    this.l = +l;
+    this.opacity = +opacity;
+  }
+
+  define(Hsl, hsl, extend(Color, {
+    brighter(k) {
+      k = k == null ? brighter : Math.pow(brighter, k);
+      return new Hsl(this.h, this.s, this.l * k, this.opacity);
+    },
+    darker(k) {
+      k = k == null ? darker : Math.pow(darker, k);
+      return new Hsl(this.h, this.s, this.l * k, this.opacity);
+    },
+    rgb() {
+      var h = this.h % 360 + (this.h < 0) * 360,
+          s = isNaN(h) || isNaN(this.s) ? 0 : this.s,
+          l = this.l,
+          m2 = l + (l < 0.5 ? l : 1 - l) * s,
+          m1 = 2 * l - m2;
+      return new Rgb(
+        hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2),
+        hsl2rgb(h, m1, m2),
+        hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2),
+        this.opacity
+      );
+    },
+    clamp() {
+      return new Hsl(clamph(this.h), clampt(this.s), clampt(this.l), clampa(this.opacity));
+    },
+    displayable() {
+      return (0 <= this.s && this.s <= 1 || isNaN(this.s))
+          && (0 <= this.l && this.l <= 1)
+          && (0 <= this.opacity && this.opacity <= 1);
+    },
+    formatHsl() {
+      const a = clampa(this.opacity);
+      return `${a === 1 ? "hsl(" : "hsla("}${clamph(this.h)}, ${clampt(this.s) * 100}%, ${clampt(this.l) * 100}%${a === 1 ? ")" : `, ${a})`}`;
+    }
+  }));
+
+  function clamph(value) {
+    value = (value || 0) % 360;
+    return value < 0 ? value + 360 : value;
+  }
+
+  function clampt(value) {
+    return Math.max(0, Math.min(1, value || 0));
+  }
+
+  /* From FvD 13.37, CSS Color Module Level 3 */
+  function hsl2rgb(h, m1, m2) {
+    return (h < 60 ? m1 + (m2 - m1) * h / 60
+        : h < 180 ? m2
+        : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60
+        : m1) * 255;
+  }
+
+  var constant$1 = x => () => x;
+
+  function linear$1(a, d) {
+    return function(t) {
+      return a + t * d;
+    };
+  }
+
+  function exponential(a, b, y) {
+    return a = Math.pow(a, y), b = Math.pow(b, y) - a, y = 1 / y, function(t) {
+      return Math.pow(a + t * b, y);
+    };
+  }
+
+  function gamma$1(y) {
+    return (y = +y) === 1 ? nogamma : function(a, b) {
+      return b - a ? exponential(a, b, y) : constant$1(isNaN(a) ? b : a);
+    };
+  }
+
+  function nogamma(a, b) {
+    var d = b - a;
+    return d ? linear$1(a, d) : constant$1(isNaN(a) ? b : a);
+  }
+
+  var rgb = (function rgbGamma(y) {
+    var color = gamma$1(y);
+
+    function rgb(start, end) {
+      var r = color((start = rgb$1(start)).r, (end = rgb$1(end)).r),
+          g = color(start.g, end.g),
+          b = color(start.b, end.b),
+          opacity = nogamma(start.opacity, end.opacity);
+      return function(t) {
+        start.r = r(t);
+        start.g = g(t);
+        start.b = b(t);
+        start.opacity = opacity(t);
+        return start + "";
+      };
+    }
+
+    rgb.gamma = rgbGamma;
+
+    return rgb;
+  })(1);
+
+  function numberArray(a, b) {
+    if (!b) b = [];
+    var n = a ? Math.min(b.length, a.length) : 0,
+        c = b.slice(),
+        i;
+    return function(t) {
+      for (i = 0; i < n; ++i) c[i] = a[i] * (1 - t) + b[i] * t;
+      return c;
+    };
+  }
+
+  function isNumberArray(x) {
+    return ArrayBuffer.isView(x) && !(x instanceof DataView);
+  }
+
+  function genericArray(a, b) {
+    var nb = b ? b.length : 0,
+        na = a ? Math.min(nb, a.length) : 0,
+        x = new Array(na),
+        c = new Array(nb),
+        i;
+
+    for (i = 0; i < na; ++i) x[i] = interpolate(a[i], b[i]);
+    for (; i < nb; ++i) c[i] = b[i];
+
+    return function(t) {
+      for (i = 0; i < na; ++i) c[i] = x[i](t);
+      return c;
+    };
+  }
+
+  function date(a, b) {
+    var d = new Date;
+    return a = +a, b = +b, function(t) {
+      return d.setTime(a * (1 - t) + b * t), d;
+    };
+  }
+
+  function interpolateNumber(a, b) {
+    return a = +a, b = +b, function(t) {
+      return a * (1 - t) + b * t;
+    };
+  }
+
+  function object(a, b) {
+    var i = {},
+        c = {},
+        k;
+
+    if (a === null || typeof a !== "object") a = {};
+    if (b === null || typeof b !== "object") b = {};
+
+    for (k in b) {
+      if (k in a) {
+        i[k] = interpolate(a[k], b[k]);
+      } else {
+        c[k] = b[k];
+      }
+    }
+
+    return function(t) {
+      for (k in i) c[k] = i[k](t);
+      return c;
+    };
+  }
+
+  var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g,
+      reB = new RegExp(reA.source, "g");
+
+  function zero(b) {
+    return function() {
+      return b;
+    };
+  }
+
+  function one(b) {
+    return function(t) {
+      return b(t) + "";
+    };
+  }
+
+  function string(a, b) {
+    var bi = reA.lastIndex = reB.lastIndex = 0, // scan index for next number in b
+        am, // current match in a
+        bm, // current match in b
+        bs, // string preceding current number in b, if any
+        i = -1, // index in s
+        s = [], // string constants and placeholders
+        q = []; // number interpolators
+
+    // Coerce inputs to strings.
+    a = a + "", b = b + "";
+
+    // Interpolate pairs of numbers in a & b.
+    while ((am = reA.exec(a))
+        && (bm = reB.exec(b))) {
+      if ((bs = bm.index) > bi) { // a string precedes the next number in b
+        bs = b.slice(bi, bs);
+        if (s[i]) s[i] += bs; // coalesce with previous string
+        else s[++i] = bs;
+      }
+      if ((am = am[0]) === (bm = bm[0])) { // numbers in a & b match
+        if (s[i]) s[i] += bm; // coalesce with previous string
+        else s[++i] = bm;
+      } else { // interpolate non-matching numbers
+        s[++i] = null;
+        q.push({i: i, x: interpolateNumber(am, bm)});
+      }
+      bi = reB.lastIndex;
+    }
+
+    // Add remains of b.
+    if (bi < b.length) {
+      bs = b.slice(bi);
+      if (s[i]) s[i] += bs; // coalesce with previous string
+      else s[++i] = bs;
+    }
+
+    // Special optimization for only a single match.
+    // Otherwise, interpolate each of the numbers and rejoin the string.
+    return s.length < 2 ? (q[0]
+        ? one(q[0].x)
+        : zero(b))
+        : (b = q.length, function(t) {
+            for (var i = 0, o; i < b; ++i) s[(o = q[i]).i] = o.x(t);
+            return s.join("");
+          });
+  }
+
+  function interpolate(a, b) {
+    var t = typeof b, c;
+    return b == null || t === "boolean" ? constant$1(b)
+        : (t === "number" ? interpolateNumber
+        : t === "string" ? ((c = color(b)) ? (b = c, rgb) : string)
+        : b instanceof color ? rgb
+        : b instanceof Date ? date
+        : isNumberArray(b) ? numberArray
+        : Array.isArray(b) ? genericArray
+        : typeof b.valueOf !== "function" && typeof b.toString !== "function" || isNaN(b) ? object
+        : interpolateNumber)(a, b);
+  }
+
+  function interpolateRound(a, b) {
+    return a = +a, b = +b, function(t) {
+      return Math.round(a * (1 - t) + b * t);
+    };
+  }
+
+  function constants$1(x) {
+    return function() {
+      return x;
+    };
+  }
+
+  function number(x) {
+    return +x;
+  }
+
+  var unit = [0, 1];
+
+  function identity$1(x) {
+    return x;
+  }
+
+  function normalize(a, b) {
+    return (b -= (a = +a))
+        ? function(x) { return (x - a) / b; }
+        : constants$1(isNaN(b) ? NaN : 0.5);
+  }
+
+  function clamper(a, b) {
+    var t;
+    if (a > b) t = a, a = b, b = t;
+    return function(x) { return Math.max(a, Math.min(b, x)); };
+  }
+
+  // normalize(a, b)(x) takes a domain value x in [a,b] and returns the corresponding parameter t in [0,1].
+  // interpolate(a, b)(t) takes a parameter t in [0,1] and returns the corresponding range value x in [a,b].
+  function bimap(domain, range, interpolate) {
+    var d0 = domain[0], d1 = domain[1], r0 = range[0], r1 = range[1];
+    if (d1 < d0) d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
+    else d0 = normalize(d0, d1), r0 = interpolate(r0, r1);
+    return function(x) { return r0(d0(x)); };
+  }
+
+  function polymap(domain, range, interpolate) {
+    var j = Math.min(domain.length, range.length) - 1,
+        d = new Array(j),
+        r = new Array(j),
+        i = -1;
+
+    // Reverse descending domains.
+    if (domain[j] < domain[0]) {
+      domain = domain.slice().reverse();
+      range = range.slice().reverse();
+    }
+
+    while (++i < j) {
+      d[i] = normalize(domain[i], domain[i + 1]);
+      r[i] = interpolate(range[i], range[i + 1]);
+    }
+
+    return function(x) {
+      var i = bisectRight(domain, x, 1, j) - 1;
+      return r[i](d[i](x));
+    };
+  }
+
+  function copy(source, target) {
+    return target
+        .domain(source.domain())
+        .range(source.range())
+        .interpolate(source.interpolate())
+        .clamp(source.clamp())
+        .unknown(source.unknown());
+  }
+
+  function transformer() {
+    var domain = unit,
+        range = unit,
+        interpolate$1 = interpolate,
+        transform,
+        untransform,
+        unknown,
+        clamp = identity$1,
+        piecewise,
+        output,
+        input;
+
+    function rescale() {
+      var n = Math.min(domain.length, range.length);
+      if (clamp !== identity$1) clamp = clamper(domain[0], domain[n - 1]);
+      piecewise = n > 2 ? polymap : bimap;
+      output = input = null;
+      return scale;
+    }
+
+    function scale(x) {
+      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise(domain.map(transform), range, interpolate$1)))(transform(clamp(x)));
+    }
+
+    scale.invert = function(y) {
+      return clamp(untransform((input || (input = piecewise(range, domain.map(transform), interpolateNumber)))(y)));
+    };
+
+    scale.domain = function(_) {
+      return arguments.length ? (domain = Array.from(_, number), rescale()) : domain.slice();
+    };
+
+    scale.range = function(_) {
+      return arguments.length ? (range = Array.from(_), rescale()) : range.slice();
+    };
+
+    scale.rangeRound = function(_) {
+      return range = Array.from(_), interpolate$1 = interpolateRound, rescale();
+    };
+
+    scale.clamp = function(_) {
+      return arguments.length ? (clamp = _ ? true : identity$1, rescale()) : clamp !== identity$1;
+    };
+
+    scale.interpolate = function(_) {
+      return arguments.length ? (interpolate$1 = _, rescale()) : interpolate$1;
+    };
+
+    scale.unknown = function(_) {
+      return arguments.length ? (unknown = _, scale) : unknown;
+    };
+
+    return function(t, u) {
+      transform = t, untransform = u;
+      return rescale();
+    };
+  }
+
+  function continuous() {
+    return transformer()(identity$1, identity$1);
+  }
+
+  function formatDecimal(x) {
+    return Math.abs(x = Math.round(x)) >= 1e21
+        ? x.toLocaleString("en").replace(/,/g, "")
+        : x.toString(10);
+  }
+
+  // Computes the decimal coefficient and exponent of the specified number x with
+  // significant digits p, where x is positive and p is in [1, 21] or undefined.
+  // For example, formatDecimalParts(1.23) returns ["123", 0].
+  function formatDecimalParts(x, p) {
+    if ((i = (x = p ? x.toExponential(p - 1) : x.toExponential()).indexOf("e")) < 0) return null; // NaN, ±Infinity
+    var i, coefficient = x.slice(0, i);
+
+    // The string returned by toExponential either has the form \d\.\d+e[-+]\d+
+    // (e.g., 1.2e+3) or the form \de[-+]\d+ (e.g., 1e+3).
+    return [
+      coefficient.length > 1 ? coefficient[0] + coefficient.slice(2) : coefficient,
+      +x.slice(i + 1)
+    ];
+  }
+
+  function exponent(x) {
+    return x = formatDecimalParts(Math.abs(x)), x ? x[1] : NaN;
+  }
+
+  function formatGroup(grouping, thousands) {
+    return function(value, width) {
+      var i = value.length,
+          t = [],
+          j = 0,
+          g = grouping[0],
+          length = 0;
+
+      while (i > 0 && g > 0) {
+        if (length + g + 1 > width) g = Math.max(1, width - length);
+        t.push(value.substring(i -= g, i + g));
+        if ((length += g + 1) > width) break;
+        g = grouping[j = (j + 1) % grouping.length];
+      }
+
+      return t.reverse().join(thousands);
+    };
+  }
+
+  function formatNumerals(numerals) {
+    return function(value) {
+      return value.replace(/[0-9]/g, function(i) {
+        return numerals[+i];
+      });
+    };
+  }
+
+  // [[fill]align][sign][symbol][0][width][,][.precision][~][type]
+  var re$1 = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
+
+  function formatSpecifier(specifier) {
+    if (!(match = re$1.exec(specifier))) throw new Error("invalid format: " + specifier);
+    var match;
+    return new FormatSpecifier({
+      fill: match[1],
+      align: match[2],
+      sign: match[3],
+      symbol: match[4],
+      zero: match[5],
+      width: match[6],
+      comma: match[7],
+      precision: match[8] && match[8].slice(1),
+      trim: match[9],
+      type: match[10]
+    });
+  }
+
+  formatSpecifier.prototype = FormatSpecifier.prototype; // instanceof
+
+  function FormatSpecifier(specifier) {
+    this.fill = specifier.fill === undefined ? " " : specifier.fill + "";
+    this.align = specifier.align === undefined ? ">" : specifier.align + "";
+    this.sign = specifier.sign === undefined ? "-" : specifier.sign + "";
+    this.symbol = specifier.symbol === undefined ? "" : specifier.symbol + "";
+    this.zero = !!specifier.zero;
+    this.width = specifier.width === undefined ? undefined : +specifier.width;
+    this.comma = !!specifier.comma;
+    this.precision = specifier.precision === undefined ? undefined : +specifier.precision;
+    this.trim = !!specifier.trim;
+    this.type = specifier.type === undefined ? "" : specifier.type + "";
+  }
+
+  FormatSpecifier.prototype.toString = function() {
+    return this.fill
+        + this.align
+        + this.sign
+        + this.symbol
+        + (this.zero ? "0" : "")
+        + (this.width === undefined ? "" : Math.max(1, this.width | 0))
+        + (this.comma ? "," : "")
+        + (this.precision === undefined ? "" : "." + Math.max(0, this.precision | 0))
+        + (this.trim ? "~" : "")
+        + this.type;
+  };
+
+  // Trims insignificant zeros, e.g., replaces 1.2000k with 1.2k.
+  function formatTrim(s) {
+    out: for (var n = s.length, i = 1, i0 = -1, i1; i < n; ++i) {
+      switch (s[i]) {
+        case ".": i0 = i1 = i; break;
+        case "0": if (i0 === 0) i0 = i; i1 = i; break;
+        default: if (!+s[i]) break out; if (i0 > 0) i0 = 0; break;
+      }
+    }
+    return i0 > 0 ? s.slice(0, i0) + s.slice(i1 + 1) : s;
+  }
+
+  var prefixExponent;
+
+  function formatPrefixAuto(x, p) {
+    var d = formatDecimalParts(x, p);
+    if (!d) return x + "";
+    var coefficient = d[0],
+        exponent = d[1],
+        i = exponent - (prefixExponent = Math.max(-8, Math.min(8, Math.floor(exponent / 3))) * 3) + 1,
+        n = coefficient.length;
+    return i === n ? coefficient
+        : i > n ? coefficient + new Array(i - n + 1).join("0")
+        : i > 0 ? coefficient.slice(0, i) + "." + coefficient.slice(i)
+        : "0." + new Array(1 - i).join("0") + formatDecimalParts(x, Math.max(0, p + i - 1))[0]; // less than 1y!
+  }
+
+  function formatRounded(x, p) {
+    var d = formatDecimalParts(x, p);
+    if (!d) return x + "";
+    var coefficient = d[0],
+        exponent = d[1];
+    return exponent < 0 ? "0." + new Array(-exponent).join("0") + coefficient
+        : coefficient.length > exponent + 1 ? coefficient.slice(0, exponent + 1) + "." + coefficient.slice(exponent + 1)
+        : coefficient + new Array(exponent - coefficient.length + 2).join("0");
+  }
+
+  var formatTypes = {
+    "%": (x, p) => (x * 100).toFixed(p),
+    "b": (x) => Math.round(x).toString(2),
+    "c": (x) => x + "",
+    "d": formatDecimal,
+    "e": (x, p) => x.toExponential(p),
+    "f": (x, p) => x.toFixed(p),
+    "g": (x, p) => x.toPrecision(p),
+    "o": (x) => Math.round(x).toString(8),
+    "p": (x, p) => formatRounded(x * 100, p),
+    "r": formatRounded,
+    "s": formatPrefixAuto,
+    "X": (x) => Math.round(x).toString(16).toUpperCase(),
+    "x": (x) => Math.round(x).toString(16)
+  };
+
+  function identity(x) {
+    return x;
+  }
+
+  var map = Array.prototype.map,
+      prefixes = ["y","z","a","f","p","n","µ","m","","k","M","G","T","P","E","Z","Y"];
+
+  function formatLocale(locale) {
+    var group = locale.grouping === undefined || locale.thousands === undefined ? identity : formatGroup(map.call(locale.grouping, Number), locale.thousands + ""),
+        currencyPrefix = locale.currency === undefined ? "" : locale.currency[0] + "",
+        currencySuffix = locale.currency === undefined ? "" : locale.currency[1] + "",
+        decimal = locale.decimal === undefined ? "." : locale.decimal + "",
+        numerals = locale.numerals === undefined ? identity : formatNumerals(map.call(locale.numerals, String)),
+        percent = locale.percent === undefined ? "%" : locale.percent + "",
+        minus = locale.minus === undefined ? "−" : locale.minus + "",
+        nan = locale.nan === undefined ? "NaN" : locale.nan + "";
+
+    function newFormat(specifier) {
+      specifier = formatSpecifier(specifier);
+
+      var fill = specifier.fill,
+          align = specifier.align,
+          sign = specifier.sign,
+          symbol = specifier.symbol,
+          zero = specifier.zero,
+          width = specifier.width,
+          comma = specifier.comma,
+          precision = specifier.precision,
+          trim = specifier.trim,
+          type = specifier.type;
+
+      // The "n" type is an alias for ",g".
+      if (type === "n") comma = true, type = "g";
+
+      // The "" type, and any invalid type, is an alias for ".12~g".
+      else if (!formatTypes[type]) precision === undefined && (precision = 12), trim = true, type = "g";
+
+      // If zero fill is specified, padding goes after sign and before digits.
+      if (zero || (fill === "0" && align === "=")) zero = true, fill = "0", align = "=";
+
+      // Compute the prefix and suffix.
+      // For SI-prefix, the suffix is lazily computed.
+      var prefix = symbol === "$" ? currencyPrefix : symbol === "#" && /[boxX]/.test(type) ? "0" + type.toLowerCase() : "",
+          suffix = symbol === "$" ? currencySuffix : /[%p]/.test(type) ? percent : "";
+
+      // What format function should we use?
+      // Is this an integer type?
+      // Can this type generate exponential notation?
+      var formatType = formatTypes[type],
+          maybeSuffix = /[defgprs%]/.test(type);
+
+      // Set the default precision if not specified,
+      // or clamp the specified precision to the supported range.
+      // For significant precision, it must be in [1, 21].
+      // For fixed precision, it must be in [0, 20].
+      precision = precision === undefined ? 6
+          : /[gprs]/.test(type) ? Math.max(1, Math.min(21, precision))
+          : Math.max(0, Math.min(20, precision));
+
+      function format(value) {
+        var valuePrefix = prefix,
+            valueSuffix = suffix,
+            i, n, c;
+
+        if (type === "c") {
+          valueSuffix = formatType(value) + valueSuffix;
+          value = "";
+        } else {
+          value = +value;
+
+          // Determine the sign. -0 is not less than 0, but 1 / -0 is!
+          var valueNegative = value < 0 || 1 / value < 0;
+
+          // Perform the initial formatting.
+          value = isNaN(value) ? nan : formatType(Math.abs(value), precision);
+
+          // Trim insignificant zeros.
+          if (trim) value = formatTrim(value);
+
+          // If a negative value rounds to zero after formatting, and no explicit positive sign is requested, hide the sign.
+          if (valueNegative && +value === 0 && sign !== "+") valueNegative = false;
+
+          // Compute the prefix and suffix.
+          valuePrefix = (valueNegative ? (sign === "(" ? sign : minus) : sign === "-" || sign === "(" ? "" : sign) + valuePrefix;
+          valueSuffix = (type === "s" ? prefixes[8 + prefixExponent / 3] : "") + valueSuffix + (valueNegative && sign === "(" ? ")" : "");
+
+          // Break the formatted value into the integer “value” part that can be
+          // grouped, and fractional or exponential “suffix” part that is not.
+          if (maybeSuffix) {
+            i = -1, n = value.length;
+            while (++i < n) {
+              if (c = value.charCodeAt(i), 48 > c || c > 57) {
+                valueSuffix = (c === 46 ? decimal + value.slice(i + 1) : value.slice(i)) + valueSuffix;
+                value = value.slice(0, i);
+                break;
+              }
+            }
+          }
+        }
+
+        // If the fill character is not "0", grouping is applied before padding.
+        if (comma && !zero) value = group(value, Infinity);
+
+        // Compute the padding.
+        var length = valuePrefix.length + value.length + valueSuffix.length,
+            padding = length < width ? new Array(width - length + 1).join(fill) : "";
+
+        // If the fill character is "0", grouping is applied after padding.
+        if (comma && zero) value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
+
+        // Reconstruct the final output based on the desired alignment.
+        switch (align) {
+          case "<": value = valuePrefix + value + valueSuffix + padding; break;
+          case "=": value = valuePrefix + padding + value + valueSuffix; break;
+          case "^": value = padding.slice(0, length = padding.length >> 1) + valuePrefix + value + valueSuffix + padding.slice(length); break;
+          default: value = padding + valuePrefix + value + valueSuffix; break;
+        }
+
+        return numerals(value);
+      }
+
+      format.toString = function() {
+        return specifier + "";
+      };
+
+      return format;
+    }
+
+    function formatPrefix(specifier, value) {
+      var f = newFormat((specifier = formatSpecifier(specifier), specifier.type = "f", specifier)),
+          e = Math.max(-8, Math.min(8, Math.floor(exponent(value) / 3))) * 3,
+          k = Math.pow(10, -e),
+          prefix = prefixes[8 + e / 3];
+      return function(value) {
+        return f(k * value) + prefix;
+      };
+    }
+
+    return {
+      format: newFormat,
+      formatPrefix: formatPrefix
+    };
+  }
+
+  var locale;
+  var format;
+  var formatPrefix;
+
+  defaultLocale({
+    thousands: ",",
+    grouping: [3],
+    currency: ["$", ""]
+  });
+
+  function defaultLocale(definition) {
+    locale = formatLocale(definition);
+    format = locale.format;
+    formatPrefix = locale.formatPrefix;
+    return locale;
+  }
+
+  function precisionFixed(step) {
+    return Math.max(0, -exponent(Math.abs(step)));
+  }
+
+  function precisionPrefix(step, value) {
+    return Math.max(0, Math.max(-8, Math.min(8, Math.floor(exponent(value) / 3))) * 3 - exponent(Math.abs(step)));
+  }
+
+  function precisionRound(step, max) {
+    step = Math.abs(step), max = Math.abs(max) - step;
+    return Math.max(0, exponent(max) - exponent(step)) + 1;
+  }
+
+  function tickFormat(start, stop, count, specifier) {
+    var step = tickStep(start, stop, count),
+        precision;
+    specifier = formatSpecifier(specifier == null ? ",f" : specifier);
+    switch (specifier.type) {
+      case "s": {
+        var value = Math.max(Math.abs(start), Math.abs(stop));
+        if (specifier.precision == null && !isNaN(precision = precisionPrefix(step, value))) specifier.precision = precision;
+        return formatPrefix(specifier, value);
+      }
+      case "":
+      case "e":
+      case "g":
+      case "p":
+      case "r": {
+        if (specifier.precision == null && !isNaN(precision = precisionRound(step, Math.max(Math.abs(start), Math.abs(stop))))) specifier.precision = precision - (specifier.type === "e");
+        break;
+      }
+      case "f":
+      case "%": {
+        if (specifier.precision == null && !isNaN(precision = precisionFixed(step))) specifier.precision = precision - (specifier.type === "%") * 2;
+        break;
+      }
+    }
+    return format(specifier);
+  }
+
+  function linearish(scale) {
+    var domain = scale.domain;
+
+    scale.ticks = function(count) {
+      var d = domain();
+      return ticks(d[0], d[d.length - 1], count == null ? 10 : count);
+    };
+
+    scale.tickFormat = function(count, specifier) {
+      var d = domain();
+      return tickFormat(d[0], d[d.length - 1], count == null ? 10 : count, specifier);
+    };
+
+    scale.nice = function(count) {
+      if (count == null) count = 10;
+
+      var d = domain();
+      var i0 = 0;
+      var i1 = d.length - 1;
+      var start = d[i0];
+      var stop = d[i1];
+      var prestep;
+      var step;
+      var maxIter = 10;
+
+      if (stop < start) {
+        step = start, start = stop, stop = step;
+        step = i0, i0 = i1, i1 = step;
+      }
+      
+      while (maxIter-- > 0) {
+        step = tickIncrement(start, stop, count);
+        if (step === prestep) {
+          d[i0] = start;
+          d[i1] = stop;
+          return domain(d);
+        } else if (step > 0) {
+          start = Math.floor(start / step) * step;
+          stop = Math.ceil(stop / step) * step;
+        } else if (step < 0) {
+          start = Math.ceil(start * step) / step;
+          stop = Math.floor(stop * step) / step;
+        } else {
+          break;
+        }
+        prestep = step;
+      }
+
+      return scale;
+    };
+
+    return scale;
+  }
+
+  function linear() {
+    var scale = continuous();
+
+    scale.copy = function() {
+      return copy(scale, linear());
+    };
+
+    initRange.apply(scale, arguments);
+
+    return linearish(scale);
+  }
+
+  var noop = {value: () => {}};
+
+  function dispatch() {
+    for (var i = 0, n = arguments.length, _ = {}, t; i < n; ++i) {
+      if (!(t = arguments[i] + "") || (t in _) || /[\s.]/.test(t)) throw new Error("illegal type: " + t);
+      _[t] = [];
+    }
+    return new Dispatch(_);
+  }
+
+  function Dispatch(_) {
+    this._ = _;
+  }
+
+  function parseTypenames(typenames, types) {
+    return typenames.trim().split(/^|\s+/).map(function(t) {
+      var name = "", i = t.indexOf(".");
+      if (i >= 0) name = t.slice(i + 1), t = t.slice(0, i);
+      if (t && !types.hasOwnProperty(t)) throw new Error("unknown type: " + t);
+      return {type: t, name: name};
+    });
+  }
+
+  Dispatch.prototype = dispatch.prototype = {
+    constructor: Dispatch,
+    on: function(typename, callback) {
+      var _ = this._,
+          T = parseTypenames(typename + "", _),
+          t,
+          i = -1,
+          n = T.length;
+
+      // If no callback was specified, return the callback of the given type and name.
+      if (arguments.length < 2) {
+        while (++i < n) if ((t = (typename = T[i]).type) && (t = get(_[t], typename.name))) return t;
+        return;
+      }
+
+      // If a type was specified, set the callback for the given type and name.
+      // Otherwise, if a null callback was specified, remove callbacks of the given name.
+      if (callback != null && typeof callback !== "function") throw new Error("invalid callback: " + callback);
+      while (++i < n) {
+        if (t = (typename = T[i]).type) _[t] = set(_[t], typename.name, callback);
+        else if (callback == null) for (t in _) _[t] = set(_[t], typename.name, null);
+      }
+
+      return this;
+    },
+    copy: function() {
+      var copy = {}, _ = this._;
+      for (var t in _) copy[t] = _[t].slice();
+      return new Dispatch(copy);
+    },
+    call: function(type, that) {
+      if ((n = arguments.length - 2) > 0) for (var args = new Array(n), i = 0, n, t; i < n; ++i) args[i] = arguments[i + 2];
+      if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
+      for (t = this._[type], i = 0, n = t.length; i < n; ++i) t[i].value.apply(that, args);
+    },
+    apply: function(type, that, args) {
+      if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
+      for (var t = this._[type], i = 0, n = t.length; i < n; ++i) t[i].value.apply(that, args);
+    }
+  };
+
+  function get(type, name) {
+    for (var i = 0, n = type.length, c; i < n; ++i) {
+      if ((c = type[i]).name === name) {
+        return c.value;
+      }
+    }
+  }
+
+  function set(type, name, callback) {
+    for (var i = 0, n = type.length; i < n; ++i) {
+      if (type[i].name === name) {
+        type[i] = noop, type = type.slice(0, i).concat(type.slice(i + 1));
+        break;
+      }
+    }
+    if (callback != null) type.push({name: name, value: callback});
+    return type;
+  }
+
+  // These are typically used in conjunction with noevent to ensure that we can
+  // preventDefault on the event.
+  const nonpassive = {passive: false};
+  const nonpassivecapture = {capture: true, passive: false};
+
+  function nopropagation(event) {
+    event.stopImmediatePropagation();
+  }
+
+  function noevent(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+
+  function nodrag(view) {
+    var root = view.document.documentElement,
+        selection = select(view).on("dragstart.drag", noevent, nonpassivecapture);
+    if ("onselectstart" in root) {
+      selection.on("selectstart.drag", noevent, nonpassivecapture);
+    } else {
+      root.__noselect = root.style.MozUserSelect;
+      root.style.MozUserSelect = "none";
+    }
+  }
+
+  function yesdrag(view, noclick) {
+    var root = view.document.documentElement,
+        selection = select(view).on("dragstart.drag", null);
+    if (noclick) {
+      selection.on("click.drag", noevent, nonpassivecapture);
+      setTimeout(function() { selection.on("click.drag", null); }, 0);
+    }
+    if ("onselectstart" in root) {
+      selection.on("selectstart.drag", null);
+    } else {
+      root.style.MozUserSelect = root.__noselect;
+      delete root.__noselect;
+    }
+  }
+
+  var constant = x => () => x;
+
+  function DragEvent(type, {
+    sourceEvent,
+    subject,
+    target,
+    identifier,
+    active,
+    x, y, dx, dy,
+    dispatch
+  }) {
+    Object.defineProperties(this, {
+      type: {value: type, enumerable: true, configurable: true},
+      sourceEvent: {value: sourceEvent, enumerable: true, configurable: true},
+      subject: {value: subject, enumerable: true, configurable: true},
+      target: {value: target, enumerable: true, configurable: true},
+      identifier: {value: identifier, enumerable: true, configurable: true},
+      active: {value: active, enumerable: true, configurable: true},
+      x: {value: x, enumerable: true, configurable: true},
+      y: {value: y, enumerable: true, configurable: true},
+      dx: {value: dx, enumerable: true, configurable: true},
+      dy: {value: dy, enumerable: true, configurable: true},
+      _: {value: dispatch}
+    });
+  }
+
+  DragEvent.prototype.on = function() {
+    var value = this._.on.apply(this._, arguments);
+    return value === this._ ? this : value;
+  };
+
+  // Ignore right-click, since that should open the context menu.
+  function defaultFilter(event) {
+    return !event.ctrlKey && !event.button;
+  }
+
+  function defaultContainer() {
+    return this.parentNode;
+  }
+
+  function defaultSubject(event, d) {
+    return d == null ? {x: event.x, y: event.y} : d;
+  }
+
+  function defaultTouchable() {
+    return navigator.maxTouchPoints || ("ontouchstart" in this);
+  }
+
+  function drag() {
+    var filter = defaultFilter,
+        container = defaultContainer,
+        subject = defaultSubject,
+        touchable = defaultTouchable,
+        gestures = {},
+        listeners = dispatch("start", "drag", "end"),
+        active = 0,
+        mousedownx,
+        mousedowny,
+        mousemoving,
+        touchending,
+        clickDistance2 = 0;
+
+    function drag(selection) {
+      selection
+          .on("mousedown.drag", mousedowned)
+        .filter(touchable)
+          .on("touchstart.drag", touchstarted)
+          .on("touchmove.drag", touchmoved, nonpassive)
+          .on("touchend.drag touchcancel.drag", touchended)
+          .style("touch-action", "none")
+          .style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
+    }
+
+    function mousedowned(event, d) {
+      if (touchending || !filter.call(this, event, d)) return;
+      var gesture = beforestart(this, container.call(this, event, d), event, d, "mouse");
+      if (!gesture) return;
+      select(event.view)
+        .on("mousemove.drag", mousemoved, nonpassivecapture)
+        .on("mouseup.drag", mouseupped, nonpassivecapture);
+      nodrag(event.view);
+      nopropagation(event);
+      mousemoving = false;
+      mousedownx = event.clientX;
+      mousedowny = event.clientY;
+      gesture("start", event);
+    }
+
+    function mousemoved(event) {
+      noevent(event);
+      if (!mousemoving) {
+        var dx = event.clientX - mousedownx, dy = event.clientY - mousedowny;
+        mousemoving = dx * dx + dy * dy > clickDistance2;
+      }
+      gestures.mouse("drag", event);
+    }
+
+    function mouseupped(event) {
+      select(event.view).on("mousemove.drag mouseup.drag", null);
+      yesdrag(event.view, mousemoving);
+      noevent(event);
+      gestures.mouse("end", event);
+    }
+
+    function touchstarted(event, d) {
+      if (!filter.call(this, event, d)) return;
+      var touches = event.changedTouches,
+          c = container.call(this, event, d),
+          n = touches.length, i, gesture;
+
+      for (i = 0; i < n; ++i) {
+        if (gesture = beforestart(this, c, event, d, touches[i].identifier, touches[i])) {
+          nopropagation(event);
+          gesture("start", event, touches[i]);
+        }
+      }
+    }
+
+    function touchmoved(event) {
+      var touches = event.changedTouches,
+          n = touches.length, i, gesture;
+
+      for (i = 0; i < n; ++i) {
+        if (gesture = gestures[touches[i].identifier]) {
+          noevent(event);
+          gesture("drag", event, touches[i]);
+        }
+      }
+    }
+
+    function touchended(event) {
+      var touches = event.changedTouches,
+          n = touches.length, i, gesture;
+
+      if (touchending) clearTimeout(touchending);
+      touchending = setTimeout(function() { touchending = null; }, 500); // Ghost clicks are delayed!
+      for (i = 0; i < n; ++i) {
+        if (gesture = gestures[touches[i].identifier]) {
+          nopropagation(event);
+          gesture("end", event, touches[i]);
+        }
+      }
+    }
+
+    function beforestart(that, container, event, d, identifier, touch) {
+      var dispatch = listeners.copy(),
+          p = pointer(touch || event, container), dx, dy,
+          s;
+
+      if ((s = subject.call(that, new DragEvent("beforestart", {
+          sourceEvent: event,
+          target: drag,
+          identifier,
+          active,
+          x: p[0],
+          y: p[1],
+          dx: 0,
+          dy: 0,
+          dispatch
+        }), d)) == null) return;
+
+      dx = s.x - p[0] || 0;
+      dy = s.y - p[1] || 0;
+
+      return function gesture(type, event, touch) {
+        var p0 = p, n;
+        switch (type) {
+          case "start": gestures[identifier] = gesture, n = active++; break;
+          case "end": delete gestures[identifier], --active; // falls through
+          case "drag": p = pointer(touch || event, container), n = active; break;
+        }
+        dispatch.call(
+          type,
+          that,
+          new DragEvent(type, {
+            sourceEvent: event,
+            subject: s,
+            target: drag,
+            identifier,
+            active: n,
+            x: p[0] + dx,
+            y: p[1] + dy,
+            dx: p[0] - p0[0],
+            dy: p[1] - p0[1],
+            dispatch
+          }),
+          d
+        );
+      };
+    }
+
+    drag.filter = function(_) {
+      return arguments.length ? (filter = typeof _ === "function" ? _ : constant(!!_), drag) : filter;
+    };
+
+    drag.container = function(_) {
+      return arguments.length ? (container = typeof _ === "function" ? _ : constant(_), drag) : container;
+    };
+
+    drag.subject = function(_) {
+      return arguments.length ? (subject = typeof _ === "function" ? _ : constant(_), drag) : subject;
+    };
+
+    drag.touchable = function(_) {
+      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant(!!_), drag) : touchable;
+    };
+
+    drag.on = function() {
+      var value = listeners.on.apply(listeners, arguments);
+      return value === listeners ? drag : value;
+    };
+
+    drag.clickDistance = function(_) {
+      return arguments.length ? (clickDistance2 = (_ = +_) * _, drag) : Math.sqrt(clickDistance2);
+    };
+
+    return drag;
+  }
+
+  var d3 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    axisBottom: axisBottom,
+    axisLeft: axisLeft,
+    drag: drag,
+    line: line,
+    scaleLinear: linear,
+    select: select,
+    selectAll: selectAll,
+    symbol: Symbol$1,
+    symbolAsterisk: asterisk,
+    symbolCircle: circle,
+    symbolCross: cross,
+    symbolDiamond: diamond,
+    symbolSquare: square$1,
+    symbolStar: star,
+    symbolTriangle: triangle,
+    symbolWye: wye
+  });
+
+  const defaultColours = {
+      improvement: "#00B0F0",
+      deterioration: "#E46C0A",
+      neutral_low: "#490092",
+      neutral_high: "#490092",
+      common_cause: "#A6A6A6",
+      limits: "#6495ED",
+      standard: "#000000"
+  };
+  const textOptions = {
+      font: {
+          default: "'Arial', sans-serif",
+          valid: [
+              "'Arial', sans-serif",
+              "Arial",
+              "'Arial Black'",
+              "'Arial Unicode MS'",
+              "Calibri",
+              "Cambria",
+              "'Cambria Math'",
+              "Candara",
+              "'Comic Sans MS'",
+              "Consolas",
+              "Constantia",
+              "Corbel",
+              "'Courier New'",
+              "wf_standard-font, helvetica, arial, sans-serif",
+              "wf_standard-font_light, helvetica, arial, sans-serif",
+              "Georgia",
+              "'Lucida Sans Unicode'",
+              "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+              "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
+              "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
+              "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
+              "Symbol",
+              "Tahoma",
+              "'Times New Roman'",
+              "'Trebuchet MS'",
+              "Verdana",
+              "Wingdings"
+          ]
+      },
+      size: {
+          default: 10,
+          options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+      },
+      weight: {
+          default: "normal",
+          valid: ["normal", "bold", "bolder", "lighter"]
+      },
+      text_transform: {
+          default: "uppercase",
+          valid: ["uppercase", "lowercase", "capitalize", "none"]
+      },
+      text_overflow: {
+          default: "ellipsis",
+          valid: ["ellipsis", "clip", "none"]
+      },
+      text_align: {
+          default: "center",
+          valid: ["center", "left", "right"]
+      }
+  };
+  const borderOptions = {
+      width: {
+          default: 1,
+          options: { minValue: { value: 0 } }
+      },
+      style: {
+          default: "solid",
+          valid: ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"]
+      },
+      colour: {
+          default: "#000000"
+      }
+  };
+  const settingsModel = {
+      canvas: {
+          description: "Canvas Settings",
+          displayName: "Canvas Settings",
+          settingsGroups: {
+              "all": {
+                  show_errors: {
+                      displayName: "Show Errors on Canvas",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  lower_padding: {
+                      displayName: "Padding Below Plot (pixels):",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  upper_padding: {
+                      displayName: "Padding Above Plot (pixels):",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  left_padding: {
+                      displayName: "Padding Left of Plot (pixels):",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  right_padding: {
+                      displayName: "Padding Right of Plot (pixels):",
+                      type: "NumUpDown",
+                      default: 10
+                  }
+              }
+          }
+      },
+      spc: {
+          description: "SPC Settings",
+          displayName: "Data Settings",
+          settingsGroups: {
+              "all": {
+                  chart_type: {
+                      displayName: "Chart Type",
+                      type: "Dropdown",
+                      default: "i",
+                      valid: ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"],
+                      items: [
+                          { displayName: "run - Run Chart", value: "run" },
+                          { displayName: "i - Individual Measurements", value: "i" },
+                          { displayName: "i_m - Individual Measurements: Median centerline", value: "i_m" },
+                          { displayName: "i_mm - Individual Measurements: Median centerline, Median MR Limits", value: "i_mm" },
+                          { displayName: "mr - Moving Range of Individual Measurements", value: "mr" },
+                          { displayName: "p - Proportions", value: "p" },
+                          { displayName: "p prime - Proportions: Large-Sample Corrected", value: "pp" },
+                          { displayName: "u - Rates", value: "u" },
+                          { displayName: "u prime - Rates: Large-Sample Correction", value: "up" },
+                          { displayName: "c - Counts", value: "c" },
+                          { displayName: "xbar - Sample Means", value: "xbar" },
+                          { displayName: "s - Sample SDs", value: "s" },
+                          { displayName: "g - Number of Non-Events Between Events", value: "g" },
+                          { displayName: "t - Time Between Events", value: "t" }
+                      ]
+                  },
+                  outliers_in_limits: {
+                      displayName: "Keep Outliers in Limit Calcs.",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  multiplier: {
+                      displayName: "Multiplier",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 } }
+                  },
+                  sig_figs: {
+                      displayName: "Decimals to Report:",
+                      type: "NumUpDown",
+                      default: 2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 20 } }
+                  },
+                  perc_labels: {
+                      displayName: "Report as percentage",
+                      type: "Dropdown",
+                      default: "Automatic",
+                      valid: ["Automatic", "Yes", "No"],
+                      items: [
+                          { displayName: "Automatic", value: "Automatic" },
+                          { displayName: "Yes", value: "Yes" },
+                          { displayName: "No", value: "No" }
+                      ]
+                  },
+                  split_on_click: {
+                      displayName: "Split Limits on Click",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  num_points_subset: {
+                      displayName: "Subset Number of Points for Limit Calculations",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  subset_points_from: {
+                      displayName: "Subset Points From",
+                      type: "Dropdown",
+                      default: "Start",
+                      valid: ["Start", "End"],
+                      items: [
+                          { displayName: "Start", value: "Start" },
+                          { displayName: "End", value: "End" }
+                      ]
+                  },
+                  ttip_show_date: {
+                      displayName: "Show Date in Tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_date: {
+                      displayName: "Date Tooltip Label",
+                      type: "TextInput",
+                      default: "Automatic"
+                  },
+                  ttip_show_numerator: {
+                      displayName: "Show Numerator in Tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_numerator: {
+                      displayName: "Numerator Tooltip Label",
+                      type: "TextInput",
+                      default: "Numerator"
+                  },
+                  ttip_show_denominator: {
+                      displayName: "Show Denominator in Tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_denominator: {
+                      displayName: "Denominator Tooltip Label",
+                      type: "TextInput",
+                      default: "Denominator"
+                  },
+                  ttip_show_value: {
+                      displayName: "Show Value in Tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_value: {
+                      displayName: "Value Tooltip Label",
+                      type: "TextInput",
+                      default: "Automatic"
+                  },
+                  ll_truncate: {
+                      displayName: "Truncate Lower Limits at:",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  ul_truncate: {
+                      displayName: "Truncate Upper Limits at:",
+                      type: "NumUpDown",
+                      default: null
+                  }
+              }
+          }
+      },
+      outliers: {
+          description: "Outlier Settings",
+          displayName: "Outlier Settings",
+          settingsGroups: {
+              "General": {
+                  process_flag_type: {
+                      displayName: "Type of Change to Flag",
+                      type: "Dropdown",
+                      default: "both",
+                      valid: ["both", "improvement", "deterioration"],
+                      items: [
+                          { displayName: "Both", value: "both" },
+                          { displayName: "Improvement (Imp.)", value: "improvement" },
+                          { displayName: "Deterioration (Det.)", value: "deterioration" }
+                      ]
+                  },
+                  improvement_direction: {
+                      displayName: "Improvement Direction",
+                      type: "Dropdown",
+                      default: "increase",
+                      valid: ["increase", "neutral", "decrease"],
+                      items: [
+                          { displayName: "Increase", value: "increase" },
+                          { displayName: "Neutral", value: "neutral" },
+                          { displayName: "Decrease", value: "decrease" }
+                      ]
+                  }
+              },
+              "Astronomical Points": {
+                  astronomical: {
+                      displayName: "Highlight Astronomical Points",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  astronomical_limit: {
+                      displayName: "Limit for Astronomical Points",
+                      type: "Dropdown",
+                      default: "3 Sigma",
+                      valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"],
+                      items: [
+                          { displayName: "1 Sigma", value: "1 Sigma" },
+                          { displayName: "2 Sigma", value: "2 Sigma" },
+                          { displayName: "3 Sigma", value: "3 Sigma" },
+                          { displayName: "Specification", value: "Specification" }
+                      ]
+                  },
+                  ast_colour_improvement: {
+                      displayName: "Imp. Ast. Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.improvement
+                  },
+                  ast_colour_deterioration: {
+                      displayName: "Det. Ast. Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.deterioration
+                  },
+                  ast_colour_neutral_low: {
+                      displayName: "Neutral (Low) Ast. Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_low
+                  },
+                  ast_colour_neutral_high: {
+                      displayName: "Neutral (High) Ast. Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_high
+                  }
+              },
+              "Shifts": {
+                  shift: {
+                      displayName: "Highlight Shifts",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  shift_n: {
+                      displayName: "Shift Points",
+                      type: "NumUpDown",
+                      default: 7,
+                      options: { minValue: { value: 1 } }
+                  },
+                  shift_colour_improvement: {
+                      displayName: "Imp. Shift Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.improvement
+                  },
+                  shift_colour_deterioration: {
+                      displayName: "Det. Shift Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.deterioration
+                  },
+                  shift_colour_neutral_low: {
+                      displayName: "Neutral (Low) Shift Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_low
+                  },
+                  shift_colour_neutral_high: {
+                      displayName: "Neutral (High) Shift Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_high
+                  }
+              },
+              "Trends": {
+                  trend: {
+                      displayName: "Highlight Trends",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  trend_n: {
+                      displayName: "Trend Points",
+                      type: "NumUpDown",
+                      default: 5,
+                      options: { minValue: { value: 1 } }
+                  },
+                  trend_colour_improvement: {
+                      displayName: "Imp. Trend Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.improvement
+                  },
+                  trend_colour_deterioration: {
+                      displayName: "Det. Trend Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.deterioration
+                  },
+                  trend_colour_neutral_low: {
+                      displayName: "Neutral (Low) Trend Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_low
+                  },
+                  trend_colour_neutral_high: {
+                      displayName: "Neutral (High) Trend Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_high
+                  }
+              },
+              "Two-In-Three": {
+                  two_in_three: {
+                      displayName: "Highlight Two-in-Three",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  two_in_three_highlight_series: {
+                      displayName: "Highlight all in Pattern",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  two_in_three_limit: {
+                      displayName: "Warning Limit for Two-in-Three",
+                      type: "Dropdown",
+                      default: "2 Sigma",
+                      valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"],
+                      items: [
+                          { displayName: "1 Sigma", value: "1 Sigma" },
+                          { displayName: "2 Sigma", value: "2 Sigma" },
+                          { displayName: "3 Sigma", value: "3 Sigma" },
+                          { displayName: "Specification", value: "Specification" }
+                      ]
+                  },
+                  twointhree_colour_improvement: {
+                      displayName: "Imp. Two-in-Three Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.improvement
+                  },
+                  twointhree_colour_deterioration: {
+                      displayName: "Det. Two-in-Three Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.deterioration
+                  },
+                  twointhree_colour_neutral_low: {
+                      displayName: "Neutral (Low) Two-in-Three Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_low
+                  },
+                  twointhree_colour_neutral_high: {
+                      displayName: "Neutral (High) Two-in-Three Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.neutral_high
+                  }
+              }
+          }
+      },
+      nhs_icons: {
+          description: "NHS Icons Settings",
+          displayName: "NHS Icons Settings",
+          settingsGroups: {
+              "all": {
+                  show_variation_icons: {
+                      displayName: "Show Variation Icons",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  flag_last_point: {
+                      displayName: "Flag Only Last Point",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  variation_icons_locations: {
+                      displayName: "Variation Icon Locations",
+                      type: "Dropdown",
+                      default: "Top Right",
+                      valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"],
+                      items: [
+                          { displayName: "Top Right", value: "Top Right" },
+                          { displayName: "Bottom Right", value: "Bottom Right" },
+                          { displayName: "Top Left", value: "Top Left" },
+                          { displayName: "Bottom Left", value: "Bottom Left" }
+                      ]
+                  },
+                  variation_icons_scaling: {
+                      displayName: "Scale Variation Icon Size",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 } }
+                  },
+                  show_assurance_icons: {
+                      displayName: "Show Assurance Icons",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  assurance_icons_locations: {
+                      displayName: "Assurance Icon Locations",
+                      type: "Dropdown",
+                      default: "Top Right",
+                      valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"],
+                      items: [
+                          { displayName: "Top Right", value: "Top Right" },
+                          { displayName: "Bottom Right", value: "Bottom Right" },
+                          { displayName: "Top Left", value: "Top Left" },
+                          { displayName: "Bottom Left", value: "Bottom Left" }
+                      ]
+                  },
+                  assurance_icons_scaling: {
+                      displayName: "Scale Assurance Icon Size",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 } }
+                  }
+              }
+          }
+      },
+      scatter: {
+          description: "Scatter Settings",
+          displayName: "Scatter Settings",
+          settingsGroups: {
+              "all": {
+                  shape: {
+                      displayName: "Shape",
+                      type: "Dropdown",
+                      default: "Circle",
+                      valid: ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"],
+                      items: [
+                          { displayName: "Circle", value: "Circle" },
+                          { displayName: "Cross", value: "Cross" },
+                          { displayName: "Diamond", value: "Diamond" },
+                          { displayName: "Square", value: "Square" },
+                          { displayName: "Star", value: "Star" },
+                          { displayName: "Triangle", value: "Triangle" },
+                          { displayName: "Wye", value: "Wye" }
+                      ]
+                  },
+                  size: {
+                      displayName: "Size",
+                      type: "NumUpDown",
+                      default: 2.5,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  colour: {
+                      displayName: "Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.common_cause
+                  },
+                  colour_outline: {
+                      displayName: "Outline Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.common_cause
+                  },
+                  width_outline: {
+                      displayName: "Outline Width",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  opacity: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_selected: {
+                      displayName: "Opacity if Selected",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected: {
+                      displayName: "Opacity if Unselected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  }
+              }
+          }
+      },
+      lines: {
+          description: "Line Settings",
+          displayName: "Line Settings",
+          settingsGroups: {
+              "Main": {
+                  show_main: {
+                      displayName: "Show Main Line",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  width_main: {
+                      displayName: "Main Line Width",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_main: {
+                      displayName: "Main Line Type",
+                      type: "Dropdown",
+                      default: "10 0",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_main: {
+                      displayName: "Main Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.common_cause
+                  },
+                  opacity_main: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_main: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_main: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_main: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_main: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_main: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_main: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["above", "below", "beside"],
+                      items: [
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_main: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_main: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_main: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_main: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_main: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_main: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "Target": {
+                  show_target: {
+                      displayName: "Show Target",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  width_target: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 1.5,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_target: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "10 0",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_target: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  opacity_target: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_target: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_target: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_target: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_target: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "Centerline"
+                  },
+                  plot_label_show_target: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_target: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_target: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_target: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["above", "below", "beside"],
+                      items: [
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_target: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_target: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_target: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_target: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_target: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_target: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "Alt. Target": {
+                  show_alt_target: {
+                      displayName: "Show Alt. Target Line",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  alt_target: {
+                      displayName: "Additional Target Value:",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  multiplier_alt_target: {
+                      displayName: "Apply Multiplier to Alt. Target",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  width_alt_target: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 1.5,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_alt_target: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "10 0",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_alt_target: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  opacity_alt_target: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_alt_target: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_alt_target: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_alt_target: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_alt_target: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "Alt. Target"
+                  },
+                  plot_label_show_alt_target: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_alt_target: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_alt_target: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_alt_target: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["above", "below", "beside"],
+                      items: [
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_alt_target: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_alt_target: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_alt_target: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_alt_target: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_alt_target: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_alt_target: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "68% Limits": {
+                  show_68: {
+                      displayName: "Show 68% Lines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  width_68: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_68: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "2 5",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_68: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.limits
+                  },
+                  opacity_68: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_68: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_68: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_68: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_68: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "68% Limit"
+                  },
+                  ttip_label_68_prefix_lower: {
+                      displayName: "Tooltip Label - Lower Prefix",
+                      type: "TextInput",
+                      default: "Lower "
+                  },
+                  ttip_label_68_prefix_upper: {
+                      displayName: "Tooltip Label - Upper Prefix",
+                      type: "TextInput",
+                      default: "Upper "
+                  },
+                  plot_label_show_68: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_68: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_68: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_68: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["outside", "inside", "above", "below", "beside"],
+                      items: [
+                          { displayName: "Outside", value: "outside" },
+                          { displayName: "Inside", value: "inside" },
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_68: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_68: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_68: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_68: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_68: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_68: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "95% Limits": {
+                  show_95: {
+                      displayName: "Show 95% Lines",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  width_95: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_95: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "2 5",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_95: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.limits
+                  },
+                  opacity_95: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_95: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_95: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_95: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_95: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "95% Limit"
+                  },
+                  ttip_label_95_prefix_lower: {
+                      displayName: "Tooltip Label - Lower Prefix",
+                      type: "TextInput",
+                      default: "Lower "
+                  },
+                  ttip_label_95_prefix_upper: {
+                      displayName: "Tooltip Label - Upper Prefix",
+                      type: "TextInput",
+                      default: "Upper "
+                  },
+                  plot_label_show_95: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_95: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_95: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_95: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["outside", "inside", "above", "below", "beside"],
+                      items: [
+                          { displayName: "Outside", value: "outside" },
+                          { displayName: "Inside", value: "inside" },
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_95: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_95: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_95: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_95: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_95: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_95: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "99% Limits": {
+                  show_99: {
+                      displayName: "Show 99% Lines",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  width_99: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_99: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "10 10",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_99: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.limits
+                  },
+                  opacity_99: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_99: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_99: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_99: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_99: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "99% Limit"
+                  },
+                  ttip_label_99_prefix_lower: {
+                      displayName: "Tooltip Label - Lower Prefix",
+                      type: "TextInput",
+                      default: "Lower "
+                  },
+                  ttip_label_99_prefix_upper: {
+                      displayName: "Tooltip Label - Upper Prefix",
+                      type: "TextInput",
+                      default: "Upper "
+                  },
+                  plot_label_show_99: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_99: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_99: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_99: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["outside", "inside", "above", "below", "beside"],
+                      items: [
+                          { displayName: "Outside", value: "outside" },
+                          { displayName: "Inside", value: "inside" },
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_99: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_99: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_99: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_99: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_99: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_99: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "Specification Limits": {
+                  show_specification: {
+                      displayName: "Show Specification Lines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  specification_upper: {
+                      displayName: "Upper Specification Limit:",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  specification_lower: {
+                      displayName: "Lower Specification Limit:",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  multiplier_specification: {
+                      displayName: "Apply Multiplier to Specification Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  width_specification: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_specification: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "10 10",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_specification: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.limits
+                  },
+                  opacity_specification: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_specification: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_specification: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_specification: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_specification: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "specification Limit"
+                  },
+                  ttip_label_specification_prefix_lower: {
+                      displayName: "Tooltip Label - Lower Prefix",
+                      type: "TextInput",
+                      default: "Lower "
+                  },
+                  ttip_label_specification_prefix_upper: {
+                      displayName: "Tooltip Label - Upper Prefix",
+                      type: "TextInput",
+                      default: "Upper "
+                  },
+                  plot_label_show_specification: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_specification: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_specification: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_specification: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["outside", "inside", "above", "below", "beside"],
+                      items: [
+                          { displayName: "Outside", value: "outside" },
+                          { displayName: "Inside", value: "inside" },
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_specification: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_specification: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_specification: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_specification: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_specification: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_specification: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              },
+              "Trend": {
+                  show_trend: {
+                      displayName: "Show Trend",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  width_trend: {
+                      displayName: "Line Width",
+                      type: "NumUpDown",
+                      default: 1.5,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  type_trend: {
+                      displayName: "Line Type",
+                      type: "Dropdown",
+                      default: "10 0",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  colour_trend: {
+                      displayName: "Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.common_cause
+                  },
+                  opacity_trend: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  opacity_unselected_trend: {
+                      displayName: "Opacity if Any Selected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  join_rebaselines_trend: {
+                      displayName: "Connect Rebaselined Limits",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  ttip_show_trend: {
+                      displayName: "Show value in tooltip",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ttip_label_trend: {
+                      displayName: "Tooltip Label",
+                      type: "TextInput",
+                      default: "Centerline"
+                  },
+                  plot_label_show_trend: {
+                      displayName: "Show Value on Plot",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_all_trend: {
+                      displayName: "Show Value at all Re-Baselines",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  plot_label_show_n_trend: {
+                      displayName: "Show Value at Last N Re-Baselines",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 1 } }
+                  },
+                  plot_label_position_trend: {
+                      displayName: "Position of Value on Line(s)",
+                      type: "Dropdown",
+                      default: "beside",
+                      valid: ["above", "below", "beside"],
+                      items: [
+                          { displayName: "Above", value: "above" },
+                          { displayName: "Below", value: "below" },
+                          { displayName: "Beside", value: "beside" }
+                      ]
+                  },
+                  plot_label_vpad_trend: {
+                      displayName: "Value Vertical Padding",
+                      type: "NumUpDown",
+                      default: 0
+                  },
+                  plot_label_hpad_trend: {
+                      displayName: "Value Horizontal Padding",
+                      type: "NumUpDown",
+                      default: 10
+                  },
+                  plot_label_font_trend: {
+                      displayName: "Value Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  plot_label_size_trend: {
+                      displayName: "Value Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  plot_label_colour_trend: {
+                      displayName: "Value Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  plot_label_prefix_trend: {
+                      displayName: "Value Prefix",
+                      type: "TextInput",
+                      default: ""
+                  }
+              }
+          }
+      },
+      x_axis: {
+          description: "X Axis Settings",
+          displayName: "X Axis Settings",
+          settingsGroups: {
+              "Axis": {
+                  xlimit_colour: {
+                      displayName: "Axis Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  xlimit_l: {
+                      displayName: "Lower Limit",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  xlimit_u: {
+                      displayName: "Upper Limit",
+                      type: "NumUpDown",
+                      default: null
+                  }
+              },
+              "Ticks": {
+                  xlimit_ticks: {
+                      displayName: "Draw Ticks",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  xlimit_tick_count: {
+                      displayName: "Maximum Ticks",
+                      type: "NumUpDown",
+                      default: 10,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  xlimit_tick_font: {
+                      displayName: "Tick Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  xlimit_tick_size: {
+                      displayName: "Tick Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  xlimit_tick_colour: {
+                      displayName: "Tick Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  xlimit_tick_rotation: {
+                      displayName: "Tick Rotation (Degrees)",
+                      type: "NumUpDown",
+                      default: -35,
+                      options: { minValue: { value: -360 }, maxValue: { value: 360 } }
+                  }
+              },
+              "Label": {
+                  xlimit_label: {
+                      displayName: "Label",
+                      type: "TextInput",
+                      default: null
+                  },
+                  xlimit_label_font: {
+                      displayName: "Label Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  xlimit_label_size: {
+                      displayName: "Label Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  xlimit_label_colour: {
+                      displayName: "Label Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  }
+              }
+          }
+      },
+      y_axis: {
+          description: "Y Axis Settings",
+          displayName: "Y Axis Settings",
+          settingsGroups: {
+              "Axis": {
+                  ylimit_colour: {
+                      displayName: "Axis Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  limit_multiplier: {
+                      displayName: "Axis Scaling Factor",
+                      type: "NumUpDown",
+                      default: 1.5,
+                      options: { minValue: { value: 0 } }
+                  },
+                  ylimit_sig_figs: {
+                      displayName: "Tick Decimal Places",
+                      type: "NumUpDown",
+                      default: null,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  ylimit_l: {
+                      displayName: "Lower Limit",
+                      type: "NumUpDown",
+                      default: null
+                  },
+                  ylimit_u: {
+                      displayName: "Upper Limit",
+                      type: "NumUpDown",
+                      default: null
+                  }
+              },
+              "Ticks": {
+                  ylimit_ticks: {
+                      displayName: "Draw Ticks",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  ylimit_tick_count: {
+                      displayName: "Maximum Ticks",
+                      type: "NumUpDown",
+                      default: 10,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  ylimit_tick_font: {
+                      displayName: "Tick Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  ylimit_tick_size: {
+                      displayName: "Tick Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  ylimit_tick_colour: {
+                      displayName: "Tick Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  ylimit_tick_rotation: {
+                      displayName: "Tick Rotation (Degrees)",
+                      type: "NumUpDown",
+                      default: 0,
+                      options: { minValue: { value: -360 }, maxValue: { value: 360 } }
+                  }
+              },
+              "Label": {
+                  ylimit_label: {
+                      displayName: "Label",
+                      type: "TextInput",
+                      default: null
+                  },
+                  ylimit_label_font: {
+                      displayName: "Label Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  ylimit_label_size: {
+                      displayName: "Label Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  ylimit_label_colour: {
+                      displayName: "Label Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  }
+              }
+          }
+      },
+      dates: {
+          description: "Date Settings",
+          displayName: "Date Settings",
+          settingsGroups: {
+              "all": {
+                  date_format_day: {
+                      displayName: "Day Format",
+                      type: "Dropdown",
+                      default: "DD",
+                      valid: ["DD", "Thurs DD", "Thursday DD", "(blank)"],
+                      items: [
+                          { displayName: "DD", value: "DD" },
+                          { displayName: "Thurs DD", value: "Thurs DD" },
+                          { displayName: "Thursday DD", value: "Thursday DD" },
+                          { displayName: "(blank)", value: "(blank)" }
+                      ]
+                  },
+                  date_format_month: {
+                      displayName: "Month Format",
+                      type: "Dropdown",
+                      default: "MM",
+                      valid: ["MM", "Mon", "Month", "(blank)"],
+                      items: [
+                          { displayName: "MM", value: "MM" },
+                          { displayName: "Mon", value: "Mon" },
+                          { displayName: "Month", value: "Month" },
+                          { displayName: "(blank)", value: "(blank)" }
+                      ]
+                  },
+                  date_format_year: {
+                      displayName: "Year Format",
+                      type: "Dropdown",
+                      default: "YYYY",
+                      valid: ["YYYY", "YY", "(blank)"],
+                      items: [
+                          { displayName: "YYYY", value: "YYYY" },
+                          { displayName: "YY", value: "YY" },
+                          { displayName: "(blank)", value: "(blank)" }
+                      ]
+                  },
+                  date_format_delim: {
+                      displayName: "Delimiter",
+                      type: "Dropdown",
+                      default: "/",
+                      valid: ["/", "-", " "],
+                      items: [
+                          { displayName: "/", value: "/" },
+                          { displayName: "-", value: "-" },
+                          { displayName: " ", value: " " }
+                      ]
+                  },
+                  date_format_locale: {
+                      displayName: "Locale",
+                      type: "Dropdown",
+                      default: "en-GB",
+                      valid: ["en-GB", "en-US"],
+                      items: [
+                          { displayName: "en-GB", value: "en-GB" },
+                          { displayName: "en-US", value: "en-US" }
+                      ]
+                  }
+              }
+          }
+      },
+      summary_table: {
+          description: "Summary Table Settings",
+          displayName: "Summary Table Settings",
+          settingsGroups: {
+              "General": {
+                  show_table: {
+                      displayName: "Show Summary Table",
+                      type: "ToggleSwitch",
+                      default: false
+                  },
+                  table_variation_filter: {
+                      displayName: "Filter by Variation Type",
+                      type: "Dropdown",
+                      default: "all",
+                      valid: ["all", "common", "special", "improvement", "deterioration", "neutral"],
+                      items: [
+                          { displayName: "All", value: "all" },
+                          { displayName: "Common Cause", value: "common" },
+                          { displayName: "Special Cause - Any", value: "special" },
+                          { displayName: "Special Cause - Improvement", value: "improvement" },
+                          { displayName: "Special Cause - Deterioration", value: "deterioration" },
+                          { displayName: "Special Cause - Neutral", value: "neutral" }
+                      ]
+                  },
+                  table_assurance_filter: {
+                      displayName: "Filter by Assurance Type",
+                      type: "Dropdown",
+                      default: "all",
+                      valid: ["all", "any", "pass", "fail", "inconsistent"],
+                      items: [
+                          { displayName: "All", value: "all" },
+                          { displayName: "Consistent - Any", value: "any" },
+                          { displayName: "Consistent Pass", value: "pass" },
+                          { displayName: "Consistent Fail", value: "fail" },
+                          { displayName: "Inconsistent", value: "inconsistent" }
+                      ]
+                  },
+                  table_text_overflow: {
+                      displayName: "Text Overflow Handling",
+                      type: "Dropdown",
+                      default: textOptions.text_overflow.default,
+                      valid: textOptions.text_overflow.valid,
+                      items: [
+                          { displayName: "Ellipsis", value: "ellipsis" },
+                          { displayName: "Truncate", value: "clip" },
+                          { displayName: "None", value: "none" }
+                      ]
+                  },
+                  table_opacity: {
+                      displayName: "Default Opacity",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  table_opacity_selected: {
+                      displayName: "Opacity if Selected",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  table_opacity_unselected: {
+                      displayName: "Opacity if Unselected",
+                      type: "NumUpDown",
+                      default: 0.2,
+                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+                  },
+                  table_outer_border_style: {
+                      displayName: "Outer Border Style",
+                      type: "Dropdown",
+                      default: borderOptions.style.default,
+                      valid: borderOptions.style.valid,
+                      items: [
+                          { displayName: "Solid", value: "solid" },
+                          { displayName: "Dashed", value: "dashed" },
+                          { displayName: "Dotted", value: "dotted" },
+                          { displayName: "Double", value: "double" },
+                          { displayName: "Groove", value: "groove" },
+                          { displayName: "Ridge", value: "ridge" },
+                          { displayName: "Inset", value: "inset" },
+                          { displayName: "Outset", value: "outset" }
+                      ]
+                  },
+                  table_outer_border_width: {
+                      displayName: "Outer Border Width",
+                      type: "NumUpDown",
+                      default: borderOptions.width.default,
+                      options: borderOptions.width.options
+                  },
+                  table_outer_border_colour: {
+                      displayName: "Outer Border Colour",
+                      type: "ColorPicker",
+                      default: borderOptions.colour.default,
+                  },
+                  table_outer_border_top: {
+                      displayName: "Outer Border Top",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  table_outer_border_bottom: {
+                      displayName: "Outer Border Bottom",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  table_outer_border_left: {
+                      displayName: "Outer Border Left",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  table_outer_border_right: {
+                      displayName: "Outer Border Right",
+                      type: "ToggleSwitch",
+                      default: true
+                  }
+              },
+              "Header": {
+                  table_header_font: {
+                      displayName: "Header Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  table_header_size: {
+                      displayName: "Header Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  table_header_text_align: {
+                      displayName: "Text Alignment",
+                      type: "AlignmentGroup",
+                      default: textOptions.text_align.default,
+                      valid: textOptions.text_align.valid
+                  },
+                  table_header_font_weight: {
+                      displayName: "Header Font Weight",
+                      type: "Dropdown",
+                      default: textOptions.weight.default,
+                      valid: textOptions.weight.valid,
+                      items: [
+                          { displayName: "Normal", value: "normal" },
+                          { displayName: "Bold", value: "bold" }
+                      ]
+                  },
+                  table_header_text_transform: {
+                      displayName: "Header Text Transform",
+                      type: "Dropdown",
+                      default: textOptions.text_transform.default,
+                      valid: textOptions.text_transform.valid,
+                      items: [
+                          { displayName: "Uppercase", value: "uppercase" },
+                          { displayName: "Lowercase", value: "lowercase" },
+                          { displayName: "Capitalise", value: "capitalize" },
+                          { displayName: "None", value: "none" }
+                      ]
+                  },
+                  table_header_text_padding: {
+                      displayName: "Padding Around Text",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  table_header_colour: {
+                      displayName: "Header Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  table_header_bg_colour: {
+                      displayName: "Header Background Colour",
+                      type: "ColorPicker",
+                      default: "#D3D3D3"
+                  },
+                  table_header_border_style: {
+                      displayName: "Header Border Style",
+                      type: "Dropdown",
+                      default: borderOptions.style.default,
+                      valid: borderOptions.style.valid,
+                      items: [
+                          { displayName: "Solid", value: "solid" },
+                          { displayName: "Dashed", value: "dashed" },
+                          { displayName: "Dotted", value: "dotted" },
+                          { displayName: "Double", value: "double" },
+                          { displayName: "Groove", value: "groove" },
+                          { displayName: "Ridge", value: "ridge" },
+                          { displayName: "Inset", value: "inset" },
+                          { displayName: "Outset", value: "outset" }
+                      ]
+                  },
+                  table_header_border_width: {
+                      displayName: "Header Border Width",
+                      type: "NumUpDown",
+                      default: borderOptions.width.default,
+                      options: borderOptions.width.options
+                  },
+                  table_header_border_colour: {
+                      displayName: "Header Border Colour",
+                      type: "ColorPicker",
+                      default: borderOptions.colour.default,
+                  },
+                  table_header_border_bottom: {
+                      displayName: "Bottom Border",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  table_header_border_inner: {
+                      displayName: "Inner Borders",
+                      type: "ToggleSwitch",
+                      default: true
+                  }
+              },
+              "Body": {
+                  table_body_font: {
+                      displayName: "Body Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  table_body_size: {
+                      displayName: "Body Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  table_body_text_align: {
+                      displayName: "Text Alignment",
+                      type: "AlignmentGroup",
+                      default: textOptions.text_align.default,
+                      valid: textOptions.text_align.valid
+                  },
+                  table_body_font_weight: {
+                      displayName: "Font Weight",
+                      type: "Dropdown",
+                      default: textOptions.weight.default,
+                      valid: textOptions.weight.valid,
+                      items: [
+                          { displayName: "Normal", value: "normal" },
+                          { displayName: "Bold", value: "bold" }
+                      ]
+                  },
+                  table_body_text_transform: {
+                      displayName: "Text Transform",
+                      type: "Dropdown",
+                      default: textOptions.text_transform.default,
+                      valid: textOptions.text_transform.valid,
+                      items: [
+                          { displayName: "Uppercase", value: "uppercase" },
+                          { displayName: "Lowercase", value: "lowercase" },
+                          { displayName: "Capitalise", value: "capitalize" },
+                          { displayName: "None", value: "none" }
+                      ]
+                  },
+                  table_body_text_padding: {
+                      displayName: "Padding Around Text",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  table_body_colour: {
+                      displayName: "Body Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  table_body_bg_colour: {
+                      displayName: "Body Background Colour",
+                      type: "ColorPicker",
+                      default: "#FFFFFF"
+                  },
+                  table_body_border_style: {
+                      displayName: "Body Border Style",
+                      type: "Dropdown",
+                      default: borderOptions.style.default,
+                      valid: borderOptions.style.valid,
+                      items: [
+                          { displayName: "Solid", value: "solid" },
+                          { displayName: "Dashed", value: "dashed" },
+                          { displayName: "Dotted", value: "dotted" },
+                          { displayName: "Double", value: "double" },
+                          { displayName: "Groove", value: "groove" },
+                          { displayName: "Ridge", value: "ridge" },
+                          { displayName: "Inset", value: "inset" },
+                          { displayName: "Outset", value: "outset" }
+                      ]
+                  },
+                  table_body_border_width: {
+                      displayName: "Body Border Width",
+                      type: "NumUpDown",
+                      default: borderOptions.width.default,
+                      options: borderOptions.width.options
+                  },
+                  table_body_border_colour: {
+                      displayName: "Body Border Colour",
+                      type: "ColorPicker",
+                      default: borderOptions.colour.default,
+                  },
+                  table_body_border_top_bottom: {
+                      displayName: "Top/Bottom Borders",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  table_body_border_left_right: {
+                      displayName: "Left/Right Borders",
+                      type: "ToggleSwitch",
+                      default: true
+                  }
+              }
+          }
+      },
+      download_options: {
+          description: "Download Options",
+          displayName: "Download Options",
+          settingsGroups: {
+              "all": {
+                  show_button: {
+                      displayName: "Show Download Button",
+                      type: "ToggleSwitch",
+                      default: false
+                  }
+              }
+          }
+      },
+      labels: {
+          description: "Labels Settings",
+          displayName: "Labels Settings",
+          settingsGroups: {
+              "all": {
+                  show_labels: {
+                      displayName: "Show Value Labels",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  label_position: {
+                      displayName: "Label Position",
+                      type: "Dropdown",
+                      default: "top",
+                      valid: ["top", "bottom"],
+                      items: [
+                          { displayName: "Top", value: "top" },
+                          { displayName: "Bottom", value: "bottom" }
+                      ]
+                  },
+                  label_y_offset: {
+                      displayName: "Label Offset from Top/Bottom (px)",
+                      type: "NumUpDown",
+                      default: 20
+                  },
+                  label_line_offset: {
+                      displayName: "Label Offset from Connecting Line (px)",
+                      type: "NumUpDown",
+                      default: 5
+                  },
+                  label_angle_offset: {
+                      displayName: "Label Angle Offset (degrees)",
+                      type: "NumUpDown",
+                      default: 0,
+                      options: { minValue: { value: -90 }, maxValue: { value: 90 } }
+                  },
+                  label_font: {
+                      displayName: "Label Font",
+                      type: "FontPicker",
+                      default: textOptions.font.default,
+                      valid: textOptions.font.valid
+                  },
+                  label_size: {
+                      displayName: "Label Font Size",
+                      type: "NumUpDown",
+                      default: textOptions.size.default,
+                      options: textOptions.size.options
+                  },
+                  label_colour: {
+                      displayName: "Label Font Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  label_line_colour: {
+                      displayName: "Connecting Line Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  label_line_width: {
+                      displayName: "Connecting Line Width",
+                      type: "NumUpDown",
+                      default: 1,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  label_line_type: {
+                      displayName: "Connecting Line Type",
+                      type: "Dropdown",
+                      default: "10 0",
+                      valid: ["10 0", "10 10", "2 5"],
+                      items: [
+                          { displayName: "Solid", value: "10 0" },
+                          { displayName: "Dashed", value: "10 10" },
+                          { displayName: "Dotted", value: "2 5" }
+                      ]
+                  },
+                  label_line_max_length: {
+                      displayName: "Max Connecting Line Length (px)",
+                      type: "NumUpDown",
+                      default: 1000,
+                      options: { minValue: { value: 0 }, maxValue: { value: 10000 } }
+                  },
+                  label_marker_show: {
+                      displayName: "Show Line Markers",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
+                  label_marker_offset: {
+                      displayName: "Marker Offset from Value (px)",
+                      type: "NumUpDown",
+                      default: 5
+                  },
+                  label_marker_size: {
+                      displayName: "Marker Size",
+                      type: "NumUpDown",
+                      default: 3,
+                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+                  },
+                  label_marker_colour: {
+                      displayName: "Marker Fill Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  },
+                  label_marker_outline_colour: {
+                      displayName: "Marker Outline Colour",
+                      type: "ColorPicker",
+                      default: defaultColours.standard
+                  }
+              }
+          }
+      }
+  };
+  const defaultSettingsArray = [];
+  for (const key in settingsModel) {
+      const curr_card = [];
+      for (const group in settingsModel[key].settingsGroups) {
+          for (const setting in settingsModel[key].settingsGroups[group]) {
+              curr_card.push([setting, settingsModel[key].settingsGroups[group][setting]]);
+          }
+      }
+      defaultSettingsArray.push([key, Object.fromEntries(curr_card)]);
+  }
+  const defaultSettings = Object.fromEntries(defaultSettingsArray);
+
+  function addContextMenu(selection, visualObj) {
+      if (!(visualObj.plotProperties.displayPlot
+          || visualObj.viewModel.inputSettings.settings.summary_table.show_table
+          || visualObj.viewModel.showGrouped)) {
+          selection.on("contextmenu", () => { return; });
+          return;
+      }
+      selection.on('contextmenu', (event) => {
+          const eventTarget = event.target;
+          const dataPoint = (select(eventTarget).datum());
+          visualObj.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {}, {
+              x: event.clientX,
+              y: event.clientY
+          });
+          event.preventDefault();
+      });
+  }
+
+  function assuranceIconToDraw(controlLimits, inputSettings, derivedSettings) {
+      var _a;
+      if (!(derivedSettings.chart_type_props.has_control_limits)) {
+          return "none";
+      }
+      const imp_direction = inputSettings.outliers.improvement_direction;
+      const N = controlLimits.ll99.length - 1;
+      const alt_target = (_a = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.alt_targets) === null || _a === void 0 ? void 0 : _a[N];
+      if (isNullOrUndefined(alt_target) || imp_direction === "neutral") {
+          return "none";
+      }
+      const impDirectionIncrease = imp_direction === "increase";
+      if (alt_target > controlLimits.ul99[N]) {
+          return impDirectionIncrease ? "consistentFail" : "consistentPass";
+      }
+      else if (alt_target < controlLimits.ll99[N]) {
+          return impDirectionIncrease ? "consistentPass" : "consistentFail";
+      }
+      else {
+          return "inconsistent";
+      }
+  }
+
+  function isNullOrUndefined(value) {
+      return value === null || value === undefined;
+  }
+
+  function between(x, lower, upper) {
+      let is_between = true;
+      if (!isNullOrUndefined(lower)) {
+          is_between = is_between && (x >= lower);
+      }
+      if (!isNullOrUndefined(upper)) {
+          is_between = is_between && (x <= upper);
+      }
+      return is_between;
+  }
+
+  function broadcastBinary(fun) {
+      return function (x, y) {
+          if (Array.isArray(x) && Array.isArray(y)) {
+              return x.map((d, idx) => fun(d, y[idx]));
+          }
+          else if (Array.isArray(x) && !Array.isArray(y)) {
+              return x.map(d => fun(d, y));
+          }
+          else if (!Array.isArray(x) && Array.isArray(y)) {
+              return y.map(d => fun(x, d));
+          }
+          else {
+              return fun(x, y);
+          }
+      };
+  }
+  const pow = broadcastBinary((x, y) => (x >= 0.0) ? Math.pow(x, y) : -Math.pow(-x, y));
+  const add = broadcastBinary((x, y) => x + y);
+  const subtract = broadcastBinary((x, y) => x - y);
+  const divide = broadcastBinary((x, y) => x / y);
+  const multiply = broadcastBinary((x, y) => {
+      return (isNullOrUndefined(x) || isNullOrUndefined(y)) ? null : (x * y);
+  });
+
+  function broadcastUnary(fun) {
+      return function (y) {
+          if (Array.isArray(y)) {
+              return y.map((d) => fun(d));
+          }
+          else {
+              return fun(y);
+          }
+      };
+  }
+  const sqrt = broadcastUnary(Math.sqrt);
+  const abs = broadcastUnary((x) => (x ? Math.abs(x) : x));
+  const exp = broadcastUnary(Math.exp);
+  const square = broadcastUnary((x) => Math.pow(x, 2));
+
+  const formatValues = function (value, name, inputSettings, derivedSettings) {
+      const suffix = derivedSettings.percentLabels ? "%" : "";
+      const sig_figs = inputSettings.spc.sig_figs;
+      if (isNullOrUndefined(value)) {
+          return "";
+      }
+      switch (name) {
+          case "date":
+              return value;
+          case "integer": {
+              return value.toFixed(derivedSettings.chart_type_props.integer_num_den ? 0 : sig_figs);
+          }
+          default:
+              return value.toFixed(sig_figs) + suffix;
+      }
+  };
+  function valueFormatter(inputSettings, derivedSettings) {
+      const formatValuesImpl = function (value, name) {
+          return formatValues(value, name, inputSettings, derivedSettings);
+      };
+      return formatValuesImpl;
+  }
+
+  function buildTooltip(table_row, inputTooltips, inputSettings, derivedSettings) {
+      const ast_limit = inputSettings.outliers.astronomical_limit;
+      const two_in_three_limit = inputSettings.outliers.two_in_three_limit;
+      const formatValues = valueFormatter(inputSettings, derivedSettings);
+      const tooltip = new Array();
+      if (inputSettings.spc.ttip_show_date) {
+          const ttip_label_date = inputSettings.spc.ttip_label_date;
+          tooltip.push({
+              displayName: ttip_label_date === "Automatic" ? derivedSettings.chart_type_props.date_name : ttip_label_date,
+              value: table_row.date
+          });
+      }
+      if (inputSettings.spc.ttip_show_value) {
+          const ttip_label_value = inputSettings.spc.ttip_label_value;
+          tooltip.push({
+              displayName: ttip_label_value === "Automatic" ? derivedSettings.chart_type_props.value_name : ttip_label_value,
+              value: formatValues(table_row.value, "value")
+          });
+      }
+      if (inputSettings.spc.ttip_show_numerator && !isNullOrUndefined(table_row.numerator)) {
+          tooltip.push({
+              displayName: inputSettings.spc.ttip_label_numerator,
+              value: formatValues(table_row.numerator, "integer")
+          });
+      }
+      if (inputSettings.spc.ttip_show_denominator && !isNullOrUndefined(table_row.denominator)) {
+          tooltip.push({
+              displayName: inputSettings.spc.ttip_label_denominator,
+              value: formatValues(table_row.denominator, "integer")
+          });
+      }
+      if (inputSettings.lines.ttip_show_trend && inputSettings.lines.show_trend) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_trend,
+              value: formatValues(table_row.trend_line, "value")
+          });
+      }
+      if (inputSettings.lines.show_specification && inputSettings.lines.ttip_show_specification) {
+          if (!isNullOrUndefined(table_row.speclimits_upper)) {
+              tooltip.push({
+                  displayName: `Upper ${inputSettings.lines.ttip_label_specification}`,
+                  value: formatValues(table_row.speclimits_upper, "value")
+              });
+          }
+          if (!isNullOrUndefined(table_row.speclimits_lower)) {
+              tooltip.push({
+                  displayName: `Lower ${inputSettings.lines.ttip_label_specification}`,
+                  value: formatValues(table_row.speclimits_lower, "value")
+              });
+          }
+      }
+      if (derivedSettings.chart_type_props.has_control_limits) {
+          ["99", "95", "65"].forEach(limit => {
+              if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
+                  tooltip.push({
+                      displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_upper`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
+                      value: formatValues(table_row[`ul${limit}`], "value")
+                  });
+              }
+          });
+      }
+      if (inputSettings.lines.show_target && inputSettings.lines.ttip_show_target) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_target,
+              value: formatValues(table_row.target, "value")
+          });
+      }
+      if (inputSettings.lines.show_alt_target && inputSettings.lines.ttip_show_alt_target && !isNullOrUndefined(table_row.alt_target)) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_alt_target,
+              value: formatValues(table_row.alt_target, "value")
+          });
+      }
+      if (derivedSettings.chart_type_props.has_control_limits) {
+          ["68", "95", "99"].forEach(limit => {
+              if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
+                  tooltip.push({
+                      displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_lower`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
+                      value: formatValues(table_row[`ll${limit}`], "value")
+                  });
+              }
+          });
+      }
+      if ([table_row.astpoint, table_row.trend, table_row.shift, table_row.two_in_three].some(d => d !== "none")) {
+          const patterns = new Array();
+          if (table_row.astpoint !== "none") {
+              let flag_text = "Astronomical Point";
+              if (ast_limit !== "3 Sigma") {
+                  flag_text = `${flag_text} (${ast_limit})`;
+              }
+              patterns.push(flag_text);
+          }
+          if (table_row.trend !== "none") {
+              patterns.push("Trend");
+          }
+          if (table_row.shift !== "none") {
+              patterns.push("Shift");
+          }
+          if (table_row.two_in_three !== "none") {
+              let flag_text = "Two-in-Three";
+              if (two_in_three_limit !== "2 Sigma") {
+                  flag_text = `${flag_text} (${two_in_three_limit})`;
+              }
+              patterns.push(flag_text);
+          }
+          tooltip.push({
+              displayName: "Pattern(s)",
+              value: patterns.join("\n")
+          });
+      }
+      if (!isNullOrUndefined(inputTooltips) && inputTooltips.length > 0) {
+          inputTooltips.forEach(customTooltip => tooltip.push(customTooltip));
+      }
+      return tooltip;
+  }
+
+  const checkFlagDirection = broadcastBinary((outlierStatus, flagSettings) => {
+      if (outlierStatus === "none") {
+          return outlierStatus;
+      }
+      const increaseDirectionMap = {
+          "upper": "improvement",
+          "lower": "deterioration"
+      };
+      const decreaseDirectionMap = {
+          "lower": "improvement",
+          "upper": "deterioration"
+      };
+      const neutralDirectionMap = {
+          "lower": "neutral_low",
+          "upper": "neutral_high"
+      };
+      const flagDirectionMap = {
+          "increase": increaseDirectionMap[outlierStatus],
+          "decrease": decreaseDirectionMap[outlierStatus],
+          "neutral": neutralDirectionMap[outlierStatus]
+      };
+      const mappedFlag = flagDirectionMap[flagSettings.improvement_direction];
+      if (flagSettings.process_flag_type !== "both") {
+          return mappedFlag === flagSettings.process_flag_type ? mappedFlag : "none";
+      }
+      else {
+          return mappedFlag;
+      }
+  });
+
+  function c4(sampleSize) {
+      if ((sampleSize <= 1) || isNullOrUndefined(sampleSize)) {
+          return null;
+      }
+      const Nminus1 = sampleSize - 1;
+      return sqrt(2.0 / Nminus1)
+          * exp(lgamma(sampleSize / 2.0) - lgamma(Nminus1 / 2.0));
+  }
+  const c5 = broadcastUnary((sampleSize) => {
+      return sqrt(1 - square(c4(sampleSize)));
+  });
+  const a3 = broadcastUnary((sampleSize) => {
+      const filt_samp = sampleSize <= 1 ? null : sampleSize;
+      return 3.0 / (c4(filt_samp) * sqrt(filt_samp));
+  });
+  const b_helper = broadcastBinary((sampleSize, sigma) => {
+      return (sigma * c5(sampleSize)) / c4(sampleSize);
+  });
+  const b3 = broadcastBinary((sampleSize, sigma) => {
+      return 1 - b_helper(sampleSize, sigma);
+  });
+  const b4 = broadcastBinary((sampleSize, sigma) => {
+      return 1 + b_helper(sampleSize, sigma);
+  });
+
+  function diff(x) {
+      return x.map((d, idx, arr) => (idx > 0) ? d - arr[idx - 1] : null);
+  }
+
+  function rep(x, n) {
+      return Array(n).fill(x);
+  }
+
+  function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
+      var _a;
+      const propertyValue = (_a = settingObject === null || settingObject === void 0 ? void 0 : settingObject[settingGroup]) === null || _a === void 0 ? void 0 : _a[settingName];
+      if (isNullOrUndefined(propertyValue)) {
+          return defaultValue;
+      }
+      return (propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) ? propertyValue.solid.color
+          : propertyValue;
+  }
+  function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings, idxs) {
+      var _a, _b, _c;
+      if (isNullOrUndefined(categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories)) {
+          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+      }
+      if (((_c = (_b = (_a = categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.identity) === null || _c === void 0 ? void 0 : _c.length) === 0) {
+          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+      }
+      const inputCategories = categoricalView.categories[0];
+      const settingNames = Object.keys(inputSettings[settingGroupName]);
+      const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
+      const n = idxs.length;
+      let rtn = new Array(n);
+      for (let i = 0; i < n; i++) {
+          const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
+          rtn[i] = Object.fromEntries(settingNames.map(settingName => {
+              var _a, _b, _c, _d, _e, _f, _g;
+              const defaultSetting = defaultSettings[settingGroupName][settingName]["default"];
+              let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
+              extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
+              const valid = (_b = (_a = defaultSettings[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = defaultSettings[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
+              const isNumericRange = !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue);
+              if (valid) {
+                  let message = "";
+                  if (valid instanceof Array && !valid.includes(extractedSetting)) {
+                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
+                  }
+                  else if (isNumericRange && !between(extractedSetting, (_d = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _d === void 0 ? void 0 : _d.value, (_e = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _e === void 0 ? void 0 : _e.value)) {
+                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_f = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _f === void 0 ? void 0 : _f.value} and ${(_g = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _g === void 0 ? void 0 : _g.value}`;
+                  }
+                  if (message !== "") {
+                      extractedSetting = defaultSettings[settingGroupName][settingName]["default"];
+                      validationRtn.messages[i].push(message);
+                  }
+              }
+              return [settingName, extractedSetting];
+          }));
+      }
+      const validationMessages = validationRtn.messages.filter(d => d.length > 0);
+      if (!validationRtn.messages.some(d => d.length === 0)) {
+          validationRtn.status = 1;
+          validationRtn.error = `${validationMessages[0][0]}`;
+      }
+      return { values: rtn, validation: validationRtn };
+  }
+
+  function datePartsToRecord(dateParts) {
+      const datePartsRecord = Object.fromEntries(dateParts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+      ["weekday", "day", "month", "year"].forEach(key => {
+          var _a;
+          (_a = datePartsRecord[key]) !== null && _a !== void 0 ? _a : (datePartsRecord[key] = "");
+      });
+      return datePartsRecord;
+  }
+  function formatKeys(col, inputSettings, idxs) {
+      var _a, _b, _c;
+      const n_keys = idxs.length;
+      let ret = new Array(n_keys);
+      if (col.length === 1 && !((_a = col[0].source.type) === null || _a === void 0 ? void 0 : _a.temporal)) {
+          for (let i = 0; i < n_keys; i++) {
+              ret[i] = isNullOrUndefined(col[0].values[idxs[i]]) ? null : String(col[0].values[idxs[i]]);
+          }
+          return ret;
+      }
+      const delim = inputSettings.dates.date_format_delim;
+      if (!(col.every(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.type) === null || _b === void 0 ? void 0 : _b.temporal; }))) {
+          const blankKey = rep("", col.length).join(delim);
+          for (let i = 0; i < n_keys; i++) {
+              const currKey = col.map(keyCol => keyCol.values[idxs[i]]).join(delim);
+              ret[i] = currKey === blankKey ? null : currKey;
+          }
+          return ret;
+      }
+      const inputDates = parseInputDates(col, idxs);
+      const formatter = new Intl.DateTimeFormat(inputSettings.dates.date_format_locale, dateSettingsToFormatOptions(inputSettings.dates));
+      let day_elem = inputSettings.dates.date_format_locale === "en-GB" ? "day" : "month";
+      let month_elem = inputSettings.dates.date_format_locale === "en-GB" ? "month" : "day";
+      for (let i = 0; i < n_keys; i++) {
+          if (isNullOrUndefined(inputDates.dates[i])) {
+              ret[i] = null;
+          }
+          else {
+              const dateParts = datePartsToRecord(formatter.formatToParts(inputDates.dates[i]));
+              const datePartStrings = [dateParts.weekday + " " + dateParts[day_elem],
+                  dateParts[month_elem], (_c = (_b = inputDates.quarters) === null || _b === void 0 ? void 0 : _b[i]) !== null && _c !== void 0 ? _c : "", dateParts.year];
+              ret[i] = datePartStrings.filter(d => String(d).trim()).join(delim);
+          }
+      }
+      return ret;
+  }
+  function extractKeys(inputView, inputSettings, idxs) {
+      const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
+      const groupedCols = {};
+      let queryNames = col.map(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : ""; });
+      const uniqueQueryNames = new Set();
+      queryNames = queryNames.map((queryName, idx) => {
+          if (uniqueQueryNames.has(queryName)) {
+              queryName = `${idx}_${queryName}`;
+          }
+          uniqueQueryNames.add(queryName);
+          return queryName;
+      });
+      col.forEach((d, idx) => {
+          let queryName = queryNames[idx];
+          if (queryName.includes("Date Hierarchy")) {
+              const lastDotIndex = queryName.lastIndexOf(".");
+              if (lastDotIndex !== -1) {
+                  queryName = queryName.substring(0, lastDotIndex);
+              }
+          }
+          if (!groupedCols[queryName]) {
+              groupedCols[queryName] = [];
+          }
+          groupedCols[queryName].push(d);
+      });
+      const formattedKeys = [];
+      for (const queryName in groupedCols) {
+          const group = groupedCols[queryName];
+          const groupKeys = formatKeys(group, inputSettings, idxs);
+          formattedKeys.push(groupKeys);
+      }
+      const combinedKeys = [];
+      const n_keys = idxs.length;
+      for (let i = 0; i < n_keys; i++) {
+          const keyParts = formattedKeys.map(keys => keys[i]).filter(k => k !== null && k !== undefined);
+          combinedKeys.push(keyParts.length > 0 ? keyParts.join(" ") : null);
+      }
+      return combinedKeys;
+  }
+  function extractTooltips(inputView, inputSettings, idxs) {
+      const tooltipColumns = inputView.values.filter(viewColumn => viewColumn.source.roles.tooltips);
+      const n_keys = idxs.length;
+      let ret = new Array(n_keys);
+      for (let i = 0; i < n_keys; i++) {
+          ret[i] = tooltipColumns.map(viewColumn => {
+              var _a;
+              const config = { valueType: viewColumn.source.type, dateSettings: inputSettings.dates };
+              const tooltipValueFormatted = formatPrimitiveValue((_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.values) === null || _a === void 0 ? void 0 : _a[idxs[i]], config);
+              return {
+                  displayName: viewColumn.source.displayName,
+                  value: tooltipValueFormatted
+              };
+          });
+      }
+      return ret;
+  }
+  function extractDataColumn(inputView, name, inputSettings, idxs) {
+      var _a, _b, _c, _d;
+      if (name === "key") {
+          return extractKeys(inputView, inputSettings, idxs);
+      }
+      if (name === "tooltips") {
+          return extractTooltips(inputView, inputSettings, idxs);
+      }
+      const columnRaw = inputView.values.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b[name]; });
+      if (columnRaw.length === 0) {
+          return null;
+      }
+      const n_keys = idxs.length;
+      if (name === "groupings" || name === "labels") {
+          let ret = new Array(n_keys);
+          for (let i = 0; i < n_keys; i++) {
+              ret[i] = isNullOrUndefined((_b = (_a = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b[idxs[i]]) ? null : String(columnRaw[0].values[idxs[i]]);
+          }
+          return ret;
+      }
+      let ret = new Array(n_keys);
+      for (let i = 0; i < n_keys; i++) {
+          ret[i] = isNullOrUndefined((_d = (_c = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _c === void 0 ? void 0 : _c.values) === null || _d === void 0 ? void 0 : _d[idxs[i]]) ? null : Number(columnRaw[0].values[idxs[i]]);
+      }
+      return ret;
+  }
+
+  function invalidInputData(inputValidStatus) {
+      return {
+          limitInputArgs: null,
+          spcSettings: null,
+          highlights: null,
+          anyHighlights: false,
+          categories: null,
+          groupings: null,
+          groupingIndexes: null,
+          scatter_formatting: null,
+          line_formatting: null,
+          label_formatting: null,
+          tooltips: null,
+          labels: null,
+          anyLabels: false,
+          warningMessage: inputValidStatus.error,
+          alt_targets: null,
+          speclimits_lower: null,
+          speclimits_upper: null,
+          validationStatus: inputValidStatus
+      };
+  }
+  function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
+      var _a, _b, _c, _d, _e, _f, _g;
+      const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
+      const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
+      const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
+      const keys = extractDataColumn(inputView, "key", inputSettings, idxs);
+      const tooltips = extractDataColumn(inputView, "tooltips", inputSettings, idxs);
+      const groupings = extractDataColumn(inputView, "groupings", inputSettings, idxs);
+      const labels = extractDataColumn(inputView, "labels", inputSettings, idxs);
+      const highlights = idxs.map(d => { var _a, _b, _c; return (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) === null || _c === void 0 ? void 0 : _c[d]; });
+      let scatter_cond = (_a = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _a === void 0 ? void 0 : _a.values;
+      let lines_cond = (_b = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _b === void 0 ? void 0 : _b.values;
+      let labels_cond = (_c = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
+      let alt_targets = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values.map(d => inputSettings.lines.show_alt_target ? d.alt_target : null);
+      let speclimits_lower = (_e = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values.map(d => d.show_specification ? d.specification_lower : null);
+      let speclimits_upper = (_f = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values.map(d => d.show_specification ? d.specification_upper : null);
+      let spcSettings = (_g = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _g === void 0 ? void 0 : _g.values;
+      const inputValidStatus = validateInputData(keys, numerators, denominators, xbar_sds, derivedSettings.chart_type_props, idxs);
+      if (inputValidStatus.status !== 0) {
+          return invalidInputData(inputValidStatus);
+      }
+      const valid_ids = new Array();
+      const valid_keys = new Array();
+      const removalMessages = new Array();
+      const groupVarName = inputView.categories[0].source.displayName;
+      const settingsMessages = validationMessages;
+      let valid_x = 0;
+      const x_axis_use_date = derivedSettings.chart_type_props.x_axis_use_date;
+      idxs.forEach((i, idx) => {
+          if (inputValidStatus.messages[idx] === "") {
+              valid_ids.push(idx);
+              valid_keys.push({ x: valid_x, id: i, label: x_axis_use_date ? keys[idx] : valid_x.toString() });
+              valid_x += 1;
+              if (settingsMessages[i].length > 0) {
+                  settingsMessages[i].forEach(setting_removal_message => {
+                      removalMessages.push(`Conditional formatting for ${groupVarName} ${keys[idx]} ignored due to: ${setting_removal_message}.`);
+                  });
+              }
+          }
+          else {
+              removalMessages.push(`${groupVarName} ${keys[idx]} removed due to: ${inputValidStatus.messages[idx]}.`);
+          }
+      });
+      const valid_groupings = extractValues(groupings, valid_ids);
+      const groupingIndexes = new Array();
+      let current_grouping = valid_groupings[0];
+      valid_groupings.forEach((d, idx) => {
+          if (d !== current_grouping) {
+              groupingIndexes.push(idx - 1);
+              current_grouping = d;
+          }
+      });
+      const valid_alt_targets = extractValues(alt_targets, valid_ids);
+      if (inputSettings.nhs_icons.show_assurance_icons) {
+          const alt_targets_length = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets.length;
+          if (alt_targets_length > 0) {
+              const last_target = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets[alt_targets_length - 1];
+              if (isNullOrUndefined(last_target)) {
+                  removalMessages.push("NHS Assurance icon requires a valid alt. target at last observation.");
+              }
+          }
+          if (!derivedSettings.chart_type_props.has_control_limits) {
+              removalMessages.push("NHS Assurance icon requires chart with control limits.");
+          }
+      }
+      const curr_highlights = extractValues(highlights, valid_ids);
+      const num_points_subset = spcSettings[0].num_points_subset;
+      let subset_points;
+      if (isNullOrUndefined(num_points_subset) || !between(num_points_subset, 1, valid_ids.length)) {
+          subset_points = seq(0, valid_ids.length - 1);
+      }
+      else {
+          if (spcSettings[0].subset_points_from === "Start") {
+              subset_points = seq(0, spcSettings[0].num_points_subset - 1);
+          }
+          else {
+              subset_points = seq(valid_ids.length - spcSettings[0].num_points_subset, valid_ids.length - 1);
+          }
+      }
+      const valid_labels = extractValues(labels, valid_ids);
+      return {
+          limitInputArgs: {
+              keys: valid_keys,
+              numerators: extractValues(numerators, valid_ids),
+              denominators: extractValues(denominators, valid_ids),
+              xbar_sds: extractValues(xbar_sds, valid_ids),
+              outliers_in_limits: spcSettings[0].outliers_in_limits,
+              subset_points: subset_points
+          },
+          spcSettings: spcSettings[0],
+          tooltips: extractValues(tooltips, valid_ids),
+          labels: valid_labels,
+          anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
+          highlights: curr_highlights,
+          anyHighlights: curr_highlights.filter(d => !isNullOrUndefined(d)).length > 0,
+          categories: inputView.categories[0],
+          groupings: valid_groupings,
+          groupingIndexes: groupingIndexes,
+          scatter_formatting: extractValues(scatter_cond, valid_ids),
+          line_formatting: extractValues(lines_cond, valid_ids),
+          label_formatting: extractValues(labels_cond, valid_ids),
+          warningMessage: removalMessages.length > 0 ? removalMessages.join("\n") : "",
+          alt_targets: valid_alt_targets,
+          speclimits_lower: extractValues(speclimits_lower, valid_ids),
+          speclimits_upper: extractValues(speclimits_upper, valid_ids),
+          validationStatus: inputValidStatus
+      };
+  }
+
+  function extractValues(valuesArray, indexArray) {
+      if (valuesArray) {
+          return valuesArray.filter((_, idx) => indexArray.indexOf(idx) != -1);
+      }
+      else {
+          return [];
+      }
+  }
+
+  const lineNameMap = {
+      "ll99": "99",
+      "ll95": "95",
+      "ll68": "68",
+      "ul68": "68",
+      "ul95": "95",
+      "ul99": "99",
+      "targets": "target",
+      "values": "main",
+      "alt_targets": "alt_target",
+      "speclimits_lower": "specification",
+      "speclimits_upper": "specification",
+      "trend_line": "trend",
+  };
+  function getAesthetic(type, group, aesthetic, inputSettings) {
+      const mapName = group.includes("line") ? lineNameMap[type] : type;
+      const settingName = aesthetic + "_" + mapName;
+      return inputSettings[group][settingName];
+  }
+
+  const truncate = broadcastBinary((val, limits) => {
+      let rtn = val;
+      if (limits.lower || limits.lower == 0) {
+          rtn = (rtn < limits.lower ? limits.lower : rtn);
+      }
+      if (limits.upper) {
+          rtn = (rtn > limits.upper ? limits.upper : rtn);
+      }
+      return rtn;
+  });
+
+  function variationIconsToDraw(outliers, inputSettings) {
+      const imp_direction = inputSettings.outliers.improvement_direction;
+      const suffix_map = {
+          "increase": "High",
+          "decrease": "Low",
+          "neutral": ""
+      };
+      const invert_suffix_map = {
+          "High": "Low",
+          "Low": "High",
+          "": ""
+      };
+      const suffix = suffix_map[imp_direction];
+      const flag_last = inputSettings.nhs_icons.flag_last_point;
+      let allFlags;
+      if (flag_last) {
+          const N = outliers.astpoint.length - 1;
+          allFlags = [outliers.astpoint[N], outliers.shift[N], outliers.trend[N], outliers.two_in_three[N]];
+      }
+      else {
+          allFlags = outliers.astpoint.concat(outliers.shift, outliers.trend, outliers.two_in_three);
+      }
+      const iconsPresent = new Array();
+      if (allFlags.includes("improvement")) {
+          iconsPresent.push("improvement" + suffix);
+      }
+      if (allFlags.includes("deterioration")) {
+          iconsPresent.push("concern" + invert_suffix_map[suffix]);
+      }
+      if (allFlags.includes("neutral_low")) {
+          iconsPresent.push("neutralLow");
+      }
+      if (allFlags.includes("neutral_high")) {
+          iconsPresent.push("neutralHigh");
+      }
+      if (iconsPresent.length === 0) {
+          iconsPresent.push("commonCause");
+      }
+      return iconsPresent;
+  }
+
+  function median(values) {
+      const n = values.length;
+      if (n === 0) {
+          return NaN;
+      }
+      const sortedValues = [...values].sort((a, b) => a - b);
+      const mid = Math.floor(n / 2);
+      if (n % 2 === 0) {
+          return (sortedValues[mid - 1] + sortedValues[mid]) / 2;
+      }
+      else {
+          return sortedValues[mid];
+      }
+  }
+
+  function max(values) {
+      return Math.max(...values);
+  }
+
+  function min(values) {
+      return Math.min(...values);
+  }
+
+  function mean(values) {
+      const n = values.length;
+      if (n === 0) {
+          return NaN;
+      }
+      let sum = 0;
+      for (let i = 0; i < n; i++) {
+          sum += values[i];
+      }
+      return sum / n;
+  }
+
+  function sum(values) {
+      let total = 0;
+      for (let i = 0; i < values.length; i++) {
+          total += values[i];
+      }
+      return total;
+  }
+
+  function validateDataView(inputDV, inputSettingsClass) {
+      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+      if (isNullOrUndefined(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) || (((_e = (_d = (_c = (_b = (_a = inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.identity) === null || _e === void 0 ? void 0 : _e.length) === 0)) {
+          return "";
+      }
+      if (isNullOrUndefined((_g = (_f = inputDV[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) || isNullOrUndefined((_j = (_h = inputDV[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
+          return "";
+      }
+      const numeratorsPresent = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; });
+      if (!numeratorsPresent) {
+          return "No Numerators passed!";
+      }
+      let needs_denominator;
+      let needs_sd;
+      let chart_type;
+      if ((inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettingsGrouped.length) > 0) {
+          inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettingsGrouped.forEach((d) => {
+              if (d.chart_type_props.needs_denominator) {
+                  chart_type = d.chart_type_props.name;
+                  needs_denominator = true;
+              }
+              if (d.chart_type_props.needs_sd) {
+                  chart_type = d.chart_type_props.name;
+                  needs_sd = true;
+              }
+          });
+      }
+      else {
+          chart_type = inputSettingsClass.settings.spc.chart_type;
+          needs_denominator = inputSettingsClass.derivedSettings.chart_type_props.needs_denominator;
+          needs_sd = inputSettingsClass.derivedSettings.chart_type_props.needs_sd;
+      }
+      if (needs_denominator) {
+          const denominatorsPresent = (_o = (_m = inputDV[0].categorical) === null || _m === void 0 ? void 0 : _m.values) === null || _o === void 0 ? void 0 : _o.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; });
+          if (!denominatorsPresent) {
+              return `Chart type '${chart_type}' requires denominators!`;
+          }
+      }
+      if (needs_sd) {
+          const xbarSDPresent = (_q = (_p = inputDV[0].categorical) === null || _p === void 0 ? void 0 : _p.values) === null || _q === void 0 ? void 0 : _q.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; });
+          if (!xbarSDPresent) {
+              return `Chart type '${chart_type}' requires SDs!`;
+          }
+      }
+      return "valid";
+  }
+
+  function validateInputDataImpl(key, numerator, denominator, xbar_sd, chart_type_props, check_denom) {
+      const rtn = { message: "", type: 0 };
+      if (isNullOrUndefined(key)) {
+          rtn.message = "Date missing";
+          rtn.type = 2;
+      }
+      if (isNullOrUndefined(numerator)) {
+          rtn.message = "Numerator missing";
+          rtn.type = 3;
+      }
+      if (isNaN(numerator)) {
+          rtn.message = "Numerator is not a number";
+          rtn.type = 10;
+      }
+      if (chart_type_props.numerator_non_negative && numerator < 0) {
+          rtn.message = "Numerator negative";
+          rtn.type = 4;
+      }
+      if (check_denom) {
+          if (isNullOrUndefined(denominator)) {
+              rtn.message = "Denominator missing";
+              rtn.type = 5;
+          }
+          else if (isNaN(denominator)) {
+              rtn.message = "Denominator is not a number";
+              rtn.type = 11;
+          }
+          else if (denominator < 0) {
+              rtn.message = "Denominator negative";
+              rtn.type = 6;
+          }
+          else if (chart_type_props.numerator_leq_denominator && denominator < numerator) {
+              rtn.message = "Denominator < numerator";
+              rtn.type = 7;
+          }
+      }
+      if (chart_type_props.needs_sd) {
+          if (isNullOrUndefined(xbar_sd)) {
+              rtn.message = "SD missing";
+              rtn.type = 8;
+          }
+          else if (isNaN(xbar_sd)) {
+              rtn.message = "SD is not a number";
+              rtn.type = 12;
+          }
+          else if (xbar_sd < 0) {
+              rtn.message = "SD negative";
+              rtn.type = 9;
+          }
+      }
+      return rtn;
+  }
+  function validateInputData(keys, numerators, denominators, xbar_sds, chart_type_props, idxs) {
+      let allSameType = false;
+      let messages = new Array();
+      let all_status = new Array();
+      const check_denom = chart_type_props.needs_denominator
+          || (chart_type_props.denominator_optional && !isNullOrUndefined(denominators) && denominators.length > 0);
+      const n = idxs.length;
+      for (let i = 0; i < n; i++) {
+          const validation = validateInputDataImpl(keys[i], numerators === null || numerators === void 0 ? void 0 : numerators[i], denominators === null || denominators === void 0 ? void 0 : denominators[i], xbar_sds === null || xbar_sds === void 0 ? void 0 : xbar_sds[i], chart_type_props, check_denom);
+          messages.push(validation.message);
+          all_status.push(validation.type);
+      }
+      let allSameTypeSet = new Set(all_status);
+      allSameType = allSameTypeSet.size === 1;
+      let commonType = Array.from(allSameTypeSet)[0];
+      let validationRtn = {
+          status: (allSameType && commonType !== 0) ? 1 : 0,
+          messages: messages
+      };
+      if (validationRtn.status === 0) {
+          const allInvalid = all_status.every(d => d !== 0);
+          if (allInvalid) {
+              validationRtn.status = 1;
+              validationRtn.error = "No valid data found!";
+              return validationRtn;
+          }
+      }
+      if (allSameType && commonType !== 0) {
+          switch (commonType) {
+              case 1: {
+                  validationRtn.error = "Grouping missing";
+                  break;
+              }
+              case 2: {
+                  validationRtn.error = "All dates/IDs are missing or null!";
+                  break;
+              }
+              case 3: {
+                  validationRtn.error = "All numerators are missing or null!";
+                  break;
+              }
+              case 10: {
+                  validationRtn.error = "All numerators are not numbers!";
+                  break;
+              }
+              case 4: {
+                  validationRtn.error = "All numerators are negative!";
+                  break;
+              }
+              case 5: {
+                  validationRtn.error = "All denominators missing or null!";
+                  break;
+              }
+              case 11: {
+                  validationRtn.error = "All denominators are not numbers!";
+                  break;
+              }
+              case 6: {
+                  validationRtn.error = "All denominators are negative!";
+                  break;
+              }
+              case 7: {
+                  validationRtn.error = "All denominators are smaller than numerators!";
+                  break;
+              }
+              case 8: {
+                  validationRtn.error = "All SDs missing or null!";
+                  break;
+              }
+              case 12: {
+                  validationRtn.error = "All SDs are not numbers!";
+                  break;
+              }
+              case 9: {
+                  validationRtn.error = "All SDs are negative!";
+                  break;
+              }
+          }
+      }
+      return validationRtn;
+  }
+
+  const formatPrimitiveValue = broadcastBinary((rawValue, config) => {
+      if (isNullOrUndefined(rawValue)) {
+          return null;
+      }
+      if (config.valueType.numeric) {
+          return rawValue.toString();
+      }
+      else {
+          return rawValue;
+      }
+  });
+
+  const weekdayDateMap = {
+      "DD": null,
+      "Thurs DD": "short",
+      "Thursday DD": "long",
+      "(blank)": null
+  };
+  const monthDateMap = {
+      "MM": "2-digit",
+      "Mon": "short",
+      "Month": "long",
+      "(blank)": null
+  };
+  const yearDateMap = {
+      "YYYY": "numeric",
+      "YY": "2-digit",
+      "(blank)": null
+  };
+  const dayDateMap = {
+      "DD": "2-digit",
+      "Thurs DD": "2-digit",
+      "Thursday DD": "2-digit",
+      "(blank)": null
+  };
+  const dateOptionsLookup = {
+      "weekday": weekdayDateMap,
+      "day": dayDateMap,
+      "month": monthDateMap,
+      "year": yearDateMap
+  };
+  function dateSettingsToFormatOptions(date_settings) {
+      const formatOpts = new Array();
+      Object.keys(date_settings).forEach((key) => {
+          if (key !== "date_format_locale" && key !== "date_format_delim") {
+              const formattedKey = key.replace("date_format_", "");
+              const lookup = dateOptionsLookup[formattedKey];
+              const val = lookup[date_settings[key]];
+              if (!isNullOrUndefined(val)) {
+                  formatOpts.push([formattedKey, val]);
+                  if (formattedKey === "day" && date_settings[key] !== "DD") {
+                      formatOpts.push(["weekday", weekdayDateMap[date_settings[key]]]);
+                  }
+              }
+          }
+      });
+      return Object.fromEntries(formatOpts);
+  }
+
+  const monthNameToNumber = {
+      "January": 0,
+      "February": 1,
+      "March": 2,
+      "April": 3,
+      "May": 4,
+      "June": 5,
+      "July": 6,
+      "August": 7,
+      "September": 8,
+      "October": 9,
+      "November": 10,
+      "December": 11
+  };
+  function temporalTypeToKey(inputType, inputValue) {
+      if (!inputType.temporal) {
+          return null;
+      }
+      if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "DayOfMonth") {
+          return ["day", (inputValue)];
+      }
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Months") {
+          return ["month", monthNameToNumber[(inputValue)]];
+      }
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Quarters") {
+          return ["quarter", inputValue];
+      }
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Years") {
+          return ["year", (inputValue)];
+      }
+      else {
+          return null;
+      }
+  }
+  function parseInputDates(inputs, idxs) {
+      var _a, _b, _c, _d, _e;
+      const n_keys = idxs.length;
+      let inputDates = [];
+      const inputQuarters = [];
+      if (inputs.length > 1) {
+          for (let i = 0; i < n_keys; i++) {
+              const datePartsArray = [];
+              for (let j = 0; j < inputs.length; j++) {
+                  datePartsArray.push(temporalTypeToKey(inputs[j].source.type, inputs[j].values[idxs[i]]));
+              }
+              const datePartsObj = Object.fromEntries(datePartsArray);
+              if (datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.quarter) {
+                  inputQuarters.push(datePartsObj.quarter);
+              }
+              inputDates[i] = new Date((_a = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.year) !== null && _a !== void 0 ? _a : 1970, (_b = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.month) !== null && _b !== void 0 ? _b : 0, (_c = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.day) !== null && _c !== void 0 ? _c : 1);
+          }
+      }
+      else {
+          for (let i = 0; i < n_keys; i++) {
+              inputDates[i] = isNullOrUndefined((_d = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _d === void 0 ? void 0 : _d.values[idxs[i]]) ? null : new Date(((_e = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _e === void 0 ? void 0 : _e.values[idxs[i]]));
+          }
+      }
+      return { dates: inputDates, quarters: inputQuarters };
+  }
+
+  function identitySelected(identity, selectionManager) {
+      const allSelectedIdentities = selectionManager.getSelectionIds();
+      var identity_selected = false;
+      for (const selected of allSelectedIdentities) {
+          if (Array.isArray(identity)) {
+              for (const d of identity) {
+                  if (selected === d) {
+                      identity_selected = true;
+                      break;
+                  }
+              }
+          }
+          else {
+              if (selected === identity) {
+                  identity_selected = true;
+                  break;
+              }
+          }
+      }
+      return identity_selected;
+  }
+
+  function seq(start, end) {
+      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+
+  function calculateTrendLine(values) {
+      const n = values.length;
+      if (n === 0)
+          return [];
+      let sumY = 0;
+      let sumX = 0;
+      let sumXY = 0;
+      let sumX2 = 0;
+      for (let i = 0; i < n; i++) {
+          const x = i + 1;
+          const y = values[i];
+          sumX += x;
+          sumY += y;
+          sumXY += x * y;
+          sumX2 += x * x;
+      }
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      const trendLine = [];
+      for (let i = 0; i < n; i++) {
+          trendLine.push(slope * (i + 1) + intercept);
+      }
+      return trendLine;
+  }
+
+  function isValidNumber(value) {
+      return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
+  }
+
+  function groupBy(data, key) {
+      const groupedData = new Map();
+      data.forEach(item => {
+          var _a;
+          const keyValue = item[key];
+          if (!groupedData.has(keyValue)) {
+              groupedData.set(keyValue, []);
+          }
+          (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
+      });
+      return Array.from(groupedData);
+  }
+
+  function chebyshevPolynomial(x, a, n) {
+      if (x < -1.1 || x > 1.1) {
+          throw new Error("chebyshevPolynomial: x must be in [-1,1]");
+      }
+      if (n < 1 || n > 1000) {
+          throw new Error("chebyshevPolynomial: n must be in [1,1000]");
+      }
+      const twox = x * 2;
+      let b0 = 0;
+      let b1 = 0;
+      let b2 = 0;
+      for (let i = 1; i <= n; i++) {
+          b2 = b1;
+          b1 = b0;
+          b0 = twox * b1 - b2 + a[n - i];
+      }
+      return (b0 - b2) * 0.5;
+  }
+
+  function sinpi(x) {
+      if (Number.isNaN(x) || !Number.isFinite(x)) {
+          return Number.NaN;
+      }
+      let r = x % 2;
+      if (r <= -1) {
+          r += 2;
+      }
+      else if (r > 1) {
+          r -= 2;
+      }
+      if (r === 0 || r === 1) {
+          return 0;
+      }
+      if (r === 0.5) {
+          return 1;
+      }
+      if (r === -0.5) {
+          return -1;
+      }
+      return Math.sin(Math.PI * r);
+  }
+
+  function lgammaCorrection(x) {
+      const algmcs = [
+          .1666389480451863247205729650822e+0,
+          -1384948176067564e-20,
+          .9810825646924729426157171547487e-8,
+          -1809129475572494e-26,
+          .6221098041892605227126015543416e-13,
+          -3399615005417722e-31,
+          .2683181998482698748957538846666e-17,
+          -2868042435334643e-35,
+          .3962837061046434803679306666666e-21,
+          -6831888753985767e-39,
+          .1429227355942498147573333333333e-24,
+          -35475981581010704e-43,
+          .1025680058010470912000000000000e-27,
+          -3401102254316749e-45,
+          .1276642195630062933333333333333e-30
+      ];
+      if (x < 10) {
+          throw new Error("lgammaCorrection: x must be >= 10");
+      }
+      else if (x < 94906265.62425156) {
+          const tmp = 10 / x;
+          return chebyshevPolynomial(tmp * tmp * 2 - 1, algmcs, 5) / x;
+      }
+      else {
+          return 1 / (x * 12);
+      }
+  }
+
+  function ldexp(x, exp) {
+      return x * Math.pow(2, exp);
+  }
+
+  function logcf(x, i, d, eps) {
+      let c1 = 2 * d;
+      let c2 = i + d;
+      let c4 = c2 + d;
+      let a1 = c2;
+      let b1 = i * (c2 - i * x);
+      let b2 = d * d * x;
+      let a2 = c4 * c2 - b2;
+      const scalefactor = 1.157921e+77;
+      b2 = c4 * b1 - i * b2;
+      while (Math.abs(a2 * b1 - a1 * b2) > Math.abs(eps * b1 * b2)) {
+          let c3 = c2 * c2 * x;
+          c2 += d;
+          c4 += d;
+          a1 = c4 * a2 - c3 * a1;
+          b1 = c4 * b2 - c3 * b1;
+          c3 = c1 * c1 * x;
+          c1 += d;
+          c4 += d;
+          a2 = c4 * a1 - c3 * a2;
+          b2 = c4 * b1 - c3 * b2;
+          if (Math.abs(b2) > scalefactor) {
+              a1 /= scalefactor;
+              b1 /= scalefactor;
+              a2 /= scalefactor;
+              b2 /= scalefactor;
+          }
+          else if (Math.abs(b2) < 1 / scalefactor) {
+              a1 *= scalefactor;
+              b1 *= scalefactor;
+              a2 *= scalefactor;
+              b2 *= scalefactor;
+          }
+      }
+      return a2 / b2;
+  }
+
+  function log1pmx(x) {
+      if (x > 1 || x < -0.79149064) {
+          return Math.log1p(x) - x;
+      }
+      else {
+          const r = x / (2 + x);
+          const y = r * r;
+          if (Math.abs(x) < 1e-2) {
+              const coefs = [2 / 3, 2 / 5, 2 / 7, 2 / 9];
+              let result = 0;
+              for (let i = 0; i < coefs.length; i++) {
+                  result = (result + coefs[i]) * y;
+              }
+              return r * (result - x);
+          }
+          else {
+              return r * (2 * y * logcf(y, 3, 2, 1e-14) - x);
+          }
+      }
+  }
+
+  const LOG_TWO_PI = 1.837877066409345483560659472811;
+  const LOG_SQRT_TWO_PI = 0.918938533204672741780329736406;
+  const LOG_SQRT_PI_DIV_2 = 0.225791352644727432363097614947;
+  const EULER = 0.5772156649015328606065120900824024;
+
+  function lgamma1p(a) {
+      if (Math.abs(a) >= 0.5) {
+          return lgamma(a + 1);
+      }
+      const coeffs = [
+          0.3224670334241132182362075833230126e-0,
+          0.6735230105319809513324605383715000e-1,
+          0.2058080842778454787900092413529198e-1,
+          0.7385551028673985266273097291406834e-2,
+          0.2890510330741523285752988298486755e-2,
+          0.1192753911703260977113935692828109e-2,
+          0.5096695247430424223356548135815582e-3,
+          0.2231547584535793797614188036013401e-3,
+          0.9945751278180853371459589003190170e-4,
+          0.4492623673813314170020750240635786e-4,
+          0.2050721277567069155316650397830591e-4,
+          0.9439488275268395903987425104415055e-5,
+          0.4374866789907487804181793223952411e-5,
+          0.2039215753801366236781900709670839e-5,
+          0.9551412130407419832857179772951265e-6,
+          0.4492469198764566043294290331193655e-6,
+          0.2120718480555466586923135901077628e-6,
+          0.1004322482396809960872083050053344e-6,
+          0.4769810169363980565760193417246730e-7,
+          0.2271109460894316491031998116062124e-7,
+          0.1083865921489695409107491757968159e-7,
+          0.5183475041970046655121248647057669e-8,
+          0.2483674543802478317185008663991718e-8,
+          0.1192140140586091207442548202774640e-8,
+          0.5731367241678862013330194857961011e-9,
+          0.2759522885124233145178149692816341e-9,
+          0.1330476437424448948149715720858008e-9,
+          0.6422964563838100022082448087644648e-10,
+          0.3104424774732227276239215783404066e-10,
+          0.1502138408075414217093301048780668e-10,
+          0.7275974480239079662504549924814047e-11,
+          0.3527742476575915083615072228655483e-11,
+          0.1711991790559617908601084114443031e-11,
+          0.8315385841420284819798357793954418e-12,
+          0.4042200525289440065536008957032895e-12,
+          0.1966475631096616490411045679010286e-12,
+          0.9573630387838555763782200936508615e-13,
+          0.4664076026428374224576492565974577e-13,
+          0.2273736960065972320633279596737272e-13,
+          0.1109139947083452201658320007192334e-13
+      ];
+      const N = coeffs.length;
+      const c = 0.2273736845824652515226821577978691e-12;
+      let lgam = c * logcf(-a / 2, N + 2, 1, 1e-14);
+      for (let i = N - 1; i >= 0; i--) {
+          lgam = coeffs[i] - a * lgam;
+      }
+      return (a * lgam - EULER) * a - log1pmx(a);
+  }
+
+  function stirlingError(n) {
+      const s_coeffs = [
+          0.083333333333333333333,
+          0.00277777777777777777778,
+          0.00079365079365079365079365,
+          0.000595238095238095238095238,
+          0.0008417508417508417508417508,
+          0.0019175269175269175269175262,
+          0.0064102564102564102564102561,
+          0.029550653594771241830065352,
+          0.17964437236883057316493850,
+          1.3924322169059011164274315,
+          13.402864044168391994478957,
+          156.84828462600201730636509,
+          2193.1033333333333333333333,
+          36108.771253724989357173269,
+          691472.26885131306710839498,
+          15238221.539407416192283370,
+          382900751.39141414141414141
+      ];
+      const sferr_halves = [
+          0.0,
+          0.1534264097200273452913848,
+          0.0810614667953272582196702,
+          0.0548141210519176538961390,
+          0.0413406959554092940938221,
+          0.03316287351993628748511048,
+          0.02767792568499833914878929,
+          0.02374616365629749597132920,
+          0.02079067210376509311152277,
+          0.01848845053267318523077934,
+          0.01664469118982119216319487,
+          0.01513497322191737887351255,
+          0.01387612882307074799874573,
+          0.01281046524292022692424986,
+          0.01189670994589177009505572,
+          0.01110455975820691732662991,
+          0.010411265261972096497478567,
+          0.009799416126158803298389475,
+          0.009255462182712732917728637,
+          0.008768700134139385462952823,
+          0.008330563433362871256469318,
+          0.007934114564314020547248100,
+          0.007573675487951840794972024,
+          0.007244554301320383179543912,
+          0.006942840107209529865664152,
+          0.006665247032707682442354394,
+          0.006408994188004207068439631,
+          0.006171712263039457647532867,
+          0.005951370112758847735624416,
+          0.005746216513010115682023589,
+          0.005554733551962801371038690
+      ];
+      let nn = n + n;
+      if (n <= 15 && nn === Math.trunc(nn)) {
+          return sferr_halves[nn];
+      }
+      if (n <= 5.25) {
+          if (n >= 1) {
+              const l_n = Math.log(n);
+              return lgamma(n) + n * (1 - l_n) + ldexp(l_n - LOG_TWO_PI, -1);
+          }
+          else {
+              return lgamma1p(n) - (n + 0.5) * Math.log(n) + n - LOG_SQRT_TWO_PI;
+          }
+      }
+      let start_coeff;
+      if (n > 15.7e6) {
+          start_coeff = 0;
+      }
+      else if (n > 6180) {
+          start_coeff = 1;
+      }
+      else if (n > 205) {
+          start_coeff = 2;
+      }
+      else if (n > 86) {
+          start_coeff = 3;
+      }
+      else if (n > 27) {
+          start_coeff = 4;
+      }
+      else if (n > 23.5) {
+          start_coeff = 5;
+      }
+      else if (n > 12.8) {
+          start_coeff = 6;
+      }
+      else if (n > 12.3) {
+          start_coeff = 7;
+      }
+      else if (n > 8.9) {
+          start_coeff = 8;
+      }
+      else if (n > 7.3) {
+          start_coeff = 10;
+      }
+      else if (n > 6.6) {
+          start_coeff = 12;
+      }
+      else if (n > 6.1) {
+          start_coeff = 14;
+      }
+      else {
+          start_coeff = 16;
+      }
+      nn = n * n;
+      let sum = s_coeffs[start_coeff];
+      for (let i = start_coeff - 1; i >= 0; i--) {
+          sum = s_coeffs[i] - sum / nn;
+      }
+      return sum / n;
+  }
+
+  function gamma(x) {
+      const gamcs = [
+          .8571195590989331421920062399942e-2,
+          .4415381324841006757191315771652e-2,
+          .5685043681599363378632664588789e-1,
+          -0.00421983539641856,
+          .1326808181212460220584006796352e-2,
+          -18930245297988805e-20,
+          .3606925327441245256578082217225e-4,
+          -6056761904460864e-21,
+          .1055829546302283344731823509093e-5,
+          -1.811967365542384e-7,
+          .3117724964715322277790254593169e-7,
+          -5.354219639019687e-9,
+          .9193275519859588946887786825940e-9,
+          -15779412802883398e-26,
+          .2707980622934954543266540433089e-10,
+          -464681865382573e-26,
+          .7973350192007419656460767175359e-12,
+          -1368078209830916e-28,
+          .2347319486563800657233471771688e-13,
+          -4027432614949067e-30,
+          .6910051747372100912138336975257e-15,
+          -1185584500221993e-31,
+          .2034148542496373955201026051932e-16,
+          -3490054341717406e-33,
+          .5987993856485305567135051066026e-18,
+          -1027378057872228e-34,
+          .1762702816060529824942759660748e-19,
+          -3024320653735306e-36,
+          .5188914660218397839717833550506e-21,
+          -8902770842456576e-38,
+          .1527474068493342602274596891306e-22,
+          -2620731256187363e-39,
+          .4496464047830538670331046570666e-24,
+          -7714712731336878e-41,
+          .1323635453126044036486572714666e-25,
+          -22709994129429287e-43,
+          .3896418998003991449320816639999e-27,
+          -6685198115125953e-44,
+          .1146998663140024384347613866666e-28,
+          -19679385863451348e-46,
+          .3376448816585338090334890666666e-30,
+          -5793070335782136e-47
+      ];
+      const dxrel = 1.490116119384765696e-8;
+      if (Number.isNaN(x)) {
+          return Number.NaN;
+      }
+      if (x == 0 || (x < 0 && x === Math.trunc(x))) {
+          return Number.NaN;
+      }
+      let y = Math.abs(x);
+      let value;
+      if (y <= 10) {
+          let n = Math.trunc(x);
+          if (x < 0) {
+              n--;
+          }
+          y = x - n;
+          n--;
+          value = chebyshevPolynomial(y * 2 - 1, gamcs, 22) + .9375;
+          if (n == 0) {
+              return value;
+          }
+          if (n < 0) {
+              if (x < -0.5 && Math.abs(x - Math.trunc(x - 0.5) / x) < dxrel) {
+                  return Number.NaN;
+              }
+              if (y < 2.2474362225598545e-308) {
+                  return x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+              }
+              n *= -1;
+              for (let i = 0; i < n; i++) {
+                  value /= (x + i);
+              }
+              return value;
+          }
+          else {
+              for (let i = 1; i <= n; i++) {
+                  value *= (y + i);
+              }
+              return value;
+          }
+      }
+      else {
+          if (x > 171.61447887182298) {
+              return Number.POSITIVE_INFINITY;
+          }
+          if (x < -170.5674972726612) {
+              return 0;
+          }
+          if (y <= 50 && y == Math.trunc(y)) {
+              value = 1;
+              for (let i = 2; i < y; i++) {
+                  value *= i;
+              }
+          }
+          else {
+              const two_y = 2 * y;
+              value = Math.exp((y - 0.5) * Math.log(y) - y + LOG_SQRT_TWO_PI
+                  + ((two_y == Math.trunc(two_y)) ? stirlingError(y) : lgammaCorrection(y)));
+          }
+          if (x > 0) {
+              return value;
+          }
+          const sinpiy = sinpi(y);
+          return (sinpiy === 0) ? Number.POSITIVE_INFINITY : -Math.PI / (y * sinpiy * value);
+      }
+  }
+
+  function lgamma(x) {
+      if (Number.isNaN(x)) {
+          return Number.NaN;
+      }
+      if (x <= 0 && x === Math.trunc(x)) {
+          return Number.POSITIVE_INFINITY;
+      }
+      const y = Math.abs(x);
+      if (y < 1e-306) {
+          return -Math.log(y);
+      }
+      if (y <= 10) {
+          return Math.log(Math.abs(gamma(x)));
+      }
+      if (y > Number.MAX_VALUE) {
+          return Number.POSITIVE_INFINITY;
+      }
+      if (x > 0) {
+          if (x > 1e17) {
+              return x * (Math.log(x) - 1);
+          }
+          else {
+              return LOG_SQRT_TWO_PI + (x - 0.5) * Math.log(x) - x
+                  + ((x > 4934720) ? 0 : lgammaCorrection(x));
+          }
+      }
+      return LOG_SQRT_PI_DIV_2 + (x - 0.5) * Math.log(y)
+          - x - Math.log(Math.abs(sinpi(y))) - lgammaCorrection(y);
+  }
+
+  function drawDots(selection, visualObj) {
+      const ylower = visualObj.plotProperties.yAxis.lower;
+      const yupper = visualObj.plotProperties.yAxis.upper;
+      const xlower = visualObj.plotProperties.xAxis.lower;
+      const xupper = visualObj.plotProperties.xAxis.upper;
+      selection
+          .select(".dotsgroup")
+          .selectAll("path")
+          .data(visualObj.viewModel.plotPoints)
+          .join("path")
+          .filter((d) => !isNullOrUndefined(d.value))
+          .attr("d", (d) => {
+          const shape = d.aesthetics.shape;
+          const size = d.aesthetics.size;
+          return Symbol$1().type(d3[`symbol${shape}`]).size((size * size) * Math.PI)();
+      })
+          .attr("transform", (d) => {
+          if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
+              return "translate(0, 0) scale(0)";
+          }
+          return `translate(${visualObj.plotProperties.xScale(d.x)}, ${visualObj.plotProperties.yScale(d.value)})`;
+      })
+          .style("fill", (d) => {
+          return d.aesthetics.colour;
+      })
+          .style("stroke", (d) => {
+          return d.aesthetics.colour_outline;
+      })
+          .style("stroke-width", (d) => d.aesthetics.width_outline)
+          .on("click", (event, d) => {
+          if (visualObj.host.hostCapabilities.allowInteractions) {
+              if (visualObj.viewModel.inputSettings.settings.spc.split_on_click) {
+                  const xIndex = visualObj.viewModel.splitIndexes.indexOf(d.x);
+                  if (xIndex > -1) {
+                      visualObj.viewModel.splitIndexes.splice(xIndex, 1);
+                  }
+                  else {
+                      visualObj.viewModel.splitIndexes.push(d.x);
+                  }
+                  visualObj.host.persistProperties({
+                      replace: [{
+                              objectName: "split_indexes_storage",
+                              selector: undefined,
+                              properties: { split_indexes: JSON.stringify(visualObj.viewModel.splitIndexes) }
+                          }]
+                  });
+              }
+              else {
+                  visualObj.selectionManager
+                      .select(d.identity, (event.ctrlKey || event.metaKey))
+                      .then(() => {
+                      visualObj.updateHighlighting();
+                  });
+              }
+              event.stopPropagation();
+          }
+      })
+          .on("mouseover", (event, d) => {
+          const x = event.pageX;
+          const y = event.pageY;
+          visualObj.host.tooltipService.show({
+              dataItems: d.tooltip,
+              identities: [d.identity],
+              coordinates: [x, y],
+              isTouchEvent: false
+          });
+      })
+          .on("mouseout", () => {
+          visualObj.host.tooltipService.hide({
+              immediately: true,
+              isTouchEvent: false
+          });
+      });
+      selection.on('click', () => {
+          visualObj.selectionManager.clear();
+          visualObj.updateHighlighting();
+      });
+  }
+
+  function commonCause(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M106.903 196.084 144.607 228.433 138.766 235.241 101.062 202.892Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M146.159 218.909 179.921 159.846 187.708 164.298 153.946 223.361Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M198.708 154.94 239.365 214.134 231.971 219.212 191.314 160.019Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M238.825 216.117 285.383 198.784 288.512 207.19 241.954 224.523Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M76.5001 195C76.5001 183.678 85.6782 174.5 97.0001 174.5 108.322 174.5 117.5 183.678 117.5 195 117.5 206.322 108.322 215.5 97.0001 215.5 85.6782 215.5 76.5001 206.322 76.5001 195Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M123.5 233C123.5 221.678 132.678 212.5 144 212.5 155.322 212.5 164.5 221.678 164.5 233 164.5 244.322 155.322 253.5 144 253.5 132.678 253.5 123.5 244.322 123.5 233Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M170.5 153.5C170.5 141.902 179.902 132.5 191.5 132.5 203.098 132.5 212.5 141.902 212.5 153.5 212.5 165.098 203.098 174.5 191.5 174.5 179.902 174.5 170.5 165.098 170.5 153.5Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M217.5 221.5C217.5 209.902 226.902 200.5 238.5 200.5 250.098 200.5 259.5 209.902 259.5 221.5 259.5 233.098 250.098 242.5 238.5 242.5 226.902 242.5 217.5 233.098 217.5 221.5Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M265.5 206.5C265.5 194.902 274.678 185.5 286 185.5 297.322 185.5 306.5 194.902 306.5 206.5 306.5 218.098 297.322 227.5 286 227.5 274.678 227.5 265.5 218.098 265.5 206.5Z")
+          .attr("stroke", "#A6A6A6")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#A6A6A6")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function concernHigh(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 17.47 328.36)");
+      selection.append("path")
+          .attr("d", "M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 38 340)");
+      selection.append("text")
+          .attr("fill", "#E46C0A")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(106.228 172) scale(10, 10)")
+          .text("H");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 76.5001 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 123.5 249.5)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 170.5 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 217.5 185.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 265.5 200.5)");
+  }
+
+  function concernLow(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#E46C0A")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(106.228 292) scale(10, 10)")
+          .text("L");
+      selection.append("path")
+          .attr("d", "M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z")
+          .attr("stroke", "#E46C0A")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#E46C0A")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function improvementHigh(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M0 155.53C-1.9801e-14 69.6331 69.6331-1.9801e-14 155.53-3.96021e-14 241.427-7.92042e-14 311.06 69.6331 311.06 155.53 311.06 241.427 241.427 311.06 155.53 311.06 69.6331 311.06-9.90052e-14 241.427 0 155.53Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 17.47 328.36)");
+      selection.append("path")
+          .attr("d", "M0 151C-1.92243e-14 67.605 67.605-1.92243e-14 151-3.84486e-14 234.395-7.68973e-14 302 67.605 302 151 302 234.395 234.395 302 151 302 67.605 302-9.61216e-14 234.395 0 151Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 38 340)");
+      selection.append("text")
+          .attr("fill", "#00B0F0")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(106.228 172) scale(10, 10)")
+          .text("H");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.919094 0.394039 0.394039 -0.919094 95.4025 215.096)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.880045 -0.47489 -0.47489 -0.880045 149.897 232.457)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.715824 -0.698281 -0.698281 -0.715824 199.882 206.276)");
+      selection.append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "49.6797")
+          .attr("height", "8.97008")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("transform", "matrix(0.937161 0.348898 0.348898 -0.937161 238.113 168.387)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.60992e-15 9.40202 9.17816-2.67358e-15 20.5-5.34716e-15 31.8218-1.06943e-14 41 9.40202 41 21 41 32.598 31.8218 42 20.5 42 9.17816 42-1.30496e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 76.5001 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 123.5 249.5)");
+      selection.append("path")
+          .attr("d", "M0 21C-2.67358e-15 9.40202 9.40202-2.67358e-15 21-5.34716e-15 32.598-1.06943e-14 42 9.40202 42 21 42 32.598 32.598 42 21 42 9.40202 42-1.33679e-14 32.598 0 21Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 170.5 231.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.67358e-15 9.17816 9.40202-2.60992e-15 21-5.21985e-15 32.598-1.04397e-14 42 9.17816 42 20.5 42 31.8218 32.598 41 21 41 9.40202 41-1.33679e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 217.5 185.5)");
+      selection.append("path")
+          .attr("d", "M0 20.5C-2.60992e-15 9.17816 9.17816-2.60992e-15 20.5-5.21985e-15 31.8218-1.04397e-14 41 9.17816 41 20.5 41 31.8218 31.8218 41 20.5 41 9.17816 41-1.30496e-14 31.8218 0 20.5Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd")
+          .attr("transform", "matrix(1 0 0 -1 265.5 200.5)");
+  }
+
+  function improvementLow(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#00B0F0")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(106.228 292) scale(10, 10)")
+          .text("L");
+      selection.append("path")
+          .attr("d", "M95.4025 162.857 141.063 143.281 144.597 151.525 98.9371 171.101Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M149.897 145.496 193.618 169.089 189.358 176.983 145.638 153.39Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M199.882 171.677 235.443 206.367 229.18 212.788 193.618 178.098Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M238.113 209.566 284.671 192.233 287.8 200.639 241.243 217.972Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M76.5001 168.5C76.5001 156.902 85.6782 147.5 97.0001 147.5 108.322 147.5 117.5 156.902 117.5 168.5 117.5 180.098 108.322 189.5 97.0001 189.5 85.6782 189.5 76.5001 180.098 76.5001 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M123.5 150C123.5 138.678 132.678 129.5 144 129.5 155.322 129.5 164.5 138.678 164.5 150 164.5 161.322 155.322 170.5 144 170.5 132.678 170.5 123.5 161.322 123.5 150Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M170.5 168.5C170.5 156.902 179.902 147.5 191.5 147.5 203.098 147.5 212.5 156.902 212.5 168.5 212.5 180.098 203.098 189.5 191.5 189.5 179.902 189.5 170.5 180.098 170.5 168.5Z")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#7F7F7F")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M217.5 214C217.5 202.678 226.902 193.5 238.5 193.5 250.098 193.5 259.5 202.678 259.5 214 259.5 225.322 250.098 234.5 238.5 234.5 226.902 234.5 217.5 225.322 217.5 214Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M265.5 199C265.5 187.678 274.678 178.5 286 178.5 297.322 178.5 306.5 187.678 306.5 199 306.5 210.322 297.322 219.5 286 219.5 274.678 219.5 265.5 210.322 265.5 199Z")
+          .attr("stroke", "#00B0F0")
+          .attr("stroke-width", "2.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#00B0F0")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function neutralHigh(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M103.652 242.245 180.02 165.878 151.735 137.593 258.273 119.68 240.359 226.217 212.075 197.933 135.708 274.3Z")
+          .attr("fill", "#490092")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function neutralLow(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#490092")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M135.708 103.652 212.075 180.02 240.359 151.735 258.273 258.273 151.735 240.359 180.02 212.075 103.652 135.708Z")
+          .attr("fill", "#490092")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function consistentFail(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#FF6600")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#FF6600")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#FF6600")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(155.851 158) scale(10, 10)")
+          .text("F");
+      selection.append("path")
+          .attr("d", "M38.5001 185.5 340.862 185.5")
+          .attr("stroke", "#FF6600")
+          .attr("stroke-width", "8.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("stroke-dasharray", "26 8.66667")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "10.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function consistentPass(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 172.83C17.47 86.9332 87.1031 17.3 173 17.3 258.897 17.3 328.53 86.9332 328.53 172.83 328.53 258.727 258.897 328.36 173 328.36 87.1031 328.36 17.47 258.727 17.47 172.83Z")
+          .attr("stroke", "#0072C6")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189C38 105.605 105.605 38 189 38 272.395 38 340 105.605 340 189 340 272.395 272.395 340 189 340 105.605 340 38 272.395 38 189Z")
+          .attr("stroke", "#0072C6")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#0072C6")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(155.851 158) scale(10, 10)")
+          .text("P");
+      selection.append("path")
+          .attr("d", "M55.5001 257.5 323.847 257.5")
+          .attr("stroke", "#0072C6")
+          .attr("stroke-width", "8.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("stroke-dasharray", "26 8.66667")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "10.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+  }
+
+  function inconsistent(selection) {
+      selection.append("g")
+          .attr("clip-path", "url(#clip2)")
+          .append("g")
+          .attr("clip-path", "url(#clip3)")
+          .attr("filter", "url(#fx0)")
+          .attr("transform", "translate(16 25)")
+          .append("g")
+          .attr("clip-path", "url(#clip4)")
+          .append("path")
+          .attr("d", "M17.47 173.345C17.47 87.1637 87.1031 17.3 173 17.3 258.897 17.3 328.53 87.1637 328.53 173.345 328.53 259.526 258.897 329.39 173 329.39 87.1031 329.39 17.47 259.526 17.47 173.345Z")
+          .attr("stroke", "#BFBFBF")
+          .attr("stroke-width", "21")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M38 189.5C38 105.829 105.605 38 189 38 272.395 38 340 105.829 340 189.5 340 273.171 272.395 341 189 341 105.605 341 38 273.171 38 189.5Z")
+          .attr("stroke", "#BFBFBF")
+          .attr("stroke-width", "20")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "#FFFFFF")
+          .attr("fill-rule", "evenodd");
+      selection.append("text")
+          .attr("fill", "#7F7F7F")
+          .attr("font-family", "Arial,Arial_MSFontService,sans-serif")
+          .attr("font-weight", "700")
+          .attr("font-size", "11.7")
+          .attr("transform", "translate(155.851 158) scale(10, 10)")
+          .text("?");
+      selection.append("path")
+          .attr("d", "M38.5001 222.5 340.862 222.5")
+          .attr("stroke", "#BFBFBF")
+          .attr("stroke-width", "8.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("stroke-dasharray", "26 8.66667")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+      selection.append("path")
+          .attr("d", "M72.5001 239.762C89.0456 219.168 107.725 201.801 129.638 201.507 152.134 202.459 176.57 239.689 192.563 242.313 206.31 245.118 205.897 218.733 212.814 217.659 217.563 216.414 220.151 239.182 233.066 241.463 248.557 244.786 291.62 235.385 302.5 237.212")
+          .attr("stroke", "#7F7F7F")
+          .attr("stroke-width", "10.66667")
+          .attr("stroke-miterlimit", "8")
+          .attr("fill", "none")
+          .attr("fill-rule", "evenodd");
+  }
+
+  var nhsIcons = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    commonCause: commonCause,
+    concernHigh: concernHigh,
+    concernLow: concernLow,
+    consistentFail: consistentFail,
+    consistentPass: consistentPass,
+    improvementHigh: improvementHigh,
+    improvementLow: improvementLow,
+    inconsistent: inconsistent,
+    neutralHigh: neutralHigh,
+    neutralLow: neutralLow
+  });
+
+  function iconTransformSpec(svg_width, svg_height, location, scaling, count) {
+      const scaling_factor = (0.08 * (svg_height / 378)) * scaling;
+      const icon_x = location.includes("Right")
+          ? (svg_width / scaling_factor) - (378 + (count * 378))
+          : location.includes("Centre") ? (svg_width / scaling_factor) / 2 - 189
+              : (count * 378);
+      const icon_y = location.includes("Bottom")
+          ? (svg_height / scaling_factor) - 378
+          : location.includes("Centre") ? (svg_height / scaling_factor) / 2 - 189
+              : 0;
+      return `scale(${scaling_factor}) translate(${icon_x}, ${icon_y})`;
+  }
+  function initialiseIconSVG(selection, icon_name, transform_spec) {
+      const icon_group = selection.append('g')
+          .classed("icongroup", true);
+      if (transform_spec) {
+          icon_group.attr("transform", transform_spec);
+      }
+      const icon_defs = icon_group.append("defs");
+      const icon_defs_filter = icon_defs.append("filter")
+          .attr("id", "fx0")
+          .attr("x", "-10%")
+          .attr("y", "-10%")
+          .attr("width", "120%")
+          .attr("height", "120%")
+          .attr("filterUnits", "userSpaceOnUse")
+          .attr("userSpaceOnUse", "userSpaceOnUse");
+      const icon_comptrans = icon_defs_filter.append("feComponentTransfer")
+          .attr("color-interpolation-filters", "sRGB");
+      icon_comptrans.append("feFuncR")
+          .attr("type", "discrete")
+          .attr("tableValues", "0 0");
+      icon_comptrans.append("feFuncG")
+          .attr("type", "discrete")
+          .attr("tableValues", "0 0");
+      icon_comptrans.append("feFuncB")
+          .attr("type", "discrete")
+          .attr("tableValues", "0 0");
+      icon_comptrans.append("feFuncA")
+          .attr("type", "linear")
+          .attr("slope", "0.4")
+          .attr("intercept", "0");
+      icon_defs_filter.append("feGaussianBlur")
+          .attr("stdDeviation", "1.77778 1.77778");
+      icon_defs.append("clipPath")
+          .attr("id", "clip1")
+          .append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "378")
+          .attr("height", "378");
+      icon_defs.append("clipPath")
+          .attr("id", "clip2")
+          .append("path")
+          .attr("d", "M189 38C105.605 38 38 105.605 38 189 38 272.395 105.605 340 189 340 272.395 340 340 272.395 340 189 340 105.605 272.395 38 189 38ZM5.63264e-06 5.63264e-06 378 5.63264e-06 378 378 5.63264e-06 378Z")
+          .attr("fill-rule", "evenodd")
+          .attr("clip-rule", "evenodd");
+      icon_defs.append("clipPath")
+          .attr("id", "clip3")
+          .append("rect")
+          .attr("x", "-2")
+          .attr("y", "-2")
+          .attr("width", "346")
+          .attr("height", "346");
+      icon_group.append("g")
+          .classed(icon_name, true)
+          .attr("clip-path", "url(#clip1)")
+          .append("rect")
+          .attr("x", "0")
+          .attr("y", "0")
+          .attr("width", "378")
+          .attr("height", "378")
+          .attr("fill", "#FFFFFF");
+  }
+
+  function drawIcons(selection, visualObj) {
+      selection.selectAll(".icongroup").remove();
+      if (!(visualObj.plotProperties.displayPlot)) {
+          return;
+      }
+      const nhsIconSettings = visualObj.viewModel.inputSettings.settings.nhs_icons;
+      const draw_variation = nhsIconSettings.show_variation_icons;
+      const variation_location = nhsIconSettings.variation_icons_locations;
+      const svg_width = visualObj.viewModel.svgWidth;
+      const svg_height = visualObj.viewModel.svgHeight;
+      let numVariationIcons = 0;
+      if (draw_variation) {
+          const variation_scaling = nhsIconSettings.variation_icons_scaling;
+          const variationIconsPresent = variationIconsToDraw(visualObj.viewModel.outliers, visualObj.viewModel.inputSettings.settings);
+          variationIconsPresent.forEach((icon, idx) => {
+              selection
+                  .call(initialiseIconSVG, icon, iconTransformSpec(svg_width, svg_height, variation_location, variation_scaling, idx))
+                  .selectAll(`.${icon}`)
+                  .call(nhsIcons[icon]);
+          });
+          numVariationIcons = variationIconsPresent.length;
+      }
+      const draw_assurance = nhsIconSettings.show_assurance_icons;
+      if (draw_assurance) {
+          const assurance_location = nhsIconSettings.assurance_icons_locations;
+          const assurance_scaling = nhsIconSettings.assurance_icons_scaling;
+          const assuranceIconPresent = assuranceIconToDraw(visualObj.viewModel.controlLimits, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
+          if (assuranceIconPresent === "none") {
+              return;
+          }
+          const currIconCount = (numVariationIcons > 0 && variation_location === assurance_location)
+              ? numVariationIcons
+              : 0;
+          selection
+              .call(initialiseIconSVG, assuranceIconPresent, iconTransformSpec(svg_width, svg_height, assurance_location, assurance_scaling, currIconCount))
+              .selectAll(`.${assuranceIconPresent}`)
+              .call(nhsIcons[assuranceIconPresent]);
+      }
+  }
+
+  function drawLines(selection, visualObj) {
+      const ylower = visualObj.plotProperties.yAxis.lower;
+      const yupper = visualObj.plotProperties.yAxis.upper;
+      const xlower = visualObj.plotProperties.xAxis.lower;
+      const xupper = visualObj.plotProperties.xAxis.upper;
+      selection
+          .select(".linesgroup")
+          .selectAll(".linegroup")
+          .data(visualObj.viewModel.groupedLines)
+          .join("g")
+          .classed("linegroup", true)
+          .each(function (currLineDataFull) {
+          const currLine = currLineDataFull[0];
+          const currLineData = currLineDataFull[1].filter((d) => between(d.x, xlower, xupper));
+          const n = currLineData.length;
+          let yValidStatus = new Array(n);
+          let anyValid = false;
+          let xValues = new Array(n);
+          let yValues = new Array(n);
+          for (let i = 0; i < n; i++) {
+              const currPoint = currLineData[i];
+              xValues[i] = visualObj.plotProperties.xScale(currPoint.x);
+              yValues[i] = visualObj.plotProperties.yScale(currPoint.line_value);
+              yValidStatus[i] = !isNullOrUndefined(currPoint.line_value) && between(currPoint.line_value, ylower, yupper);
+              anyValid = anyValid || yValidStatus[i];
+          }
+          if (!anyValid) {
+              select(this).selectAll("line").remove();
+              return;
+          }
+          select(this)
+              .selectAll("line")
+              .data(currLineData.slice(1))
+              .join("line")
+              .attr("x1", (_, idx) => yValidStatus[idx] ? xValues[idx] : xValues[idx + 1])
+              .attr("y1", (_, idx) => yValidStatus[idx] ? yValues[idx] : yValues[idx + 1])
+              .attr("x2", (_, idx) => yValidStatus[idx + 1] ? xValues[idx + 1] : xValues[idx])
+              .attr("y2", (_, idx) => yValidStatus[idx + 1] ? yValues[idx + 1] : yValues[idx])
+              .attr("fill", "none")
+              .attr("stroke", (d) => {
+              return visualObj.viewModel.colourPalette.isHighContrast
+                  ? visualObj.viewModel.colourPalette.foregroundColour
+                  : getAesthetic(currLine, "lines", "colour", { lines: d.aesthetics });
+          })
+              .attr("stroke-width", (d) => getAesthetic(currLine, "lines", "width", { lines: d.aesthetics }))
+              .attr("stroke-dasharray", (d) => getAesthetic(currLine, "lines", "type", { lines: d.aesthetics }))
+              .attr("stroke-dashoffset", (_, idx) => {
+              const prev_x = visualObj.plotProperties.xScale(currLineData[0].x);
+              const curr_x = visualObj.plotProperties.xScale(currLineData[idx].x);
+              return curr_x - prev_x;
+          });
+      });
+  }
+
+  function drawTooltipLine(selection, visualObj) {
+      const plotProperties = visualObj.plotProperties;
+      const colour = visualObj.viewModel.colourPalette.isHighContrast
+          ? visualObj.viewModel.colourPalette.foregroundColour
+          : "black";
+      const xAxisLine = selection
+          .select(".ttip-line-x")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y1", plotProperties.yAxis.end_padding)
+          .attr("y2", visualObj.viewModel.svgHeight - plotProperties.yAxis.start_padding)
+          .attr("stroke-width", "1px")
+          .attr("stroke", colour)
+          .style("stroke-opacity", 0);
+      const yAxisLine = selection
+          .select(".ttip-line-y")
+          .attr("x1", plotProperties.xAxis.start_padding)
+          .attr("x2", visualObj.viewModel.svgWidth - plotProperties.xAxis.end_padding)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke-width", "1px")
+          .attr("stroke", colour)
+          .style("stroke-opacity", 0);
+      selection.on("mousemove", (event) => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
+          const plotPoints = visualObj.viewModel.plotPoints;
+          const boundRect = visualObj.svg.node().getBoundingClientRect();
+          const xValue = (event.pageX - boundRect.left);
+          let indexNearestValue;
+          let nearestDistance = Infinity;
+          let x_coord;
+          let y_coord;
+          for (let i = 0; i < plotPoints.length; i++) {
+              const curr_x = plotProperties.xScale(plotPoints[i].x);
+              const curr_diff = Math.abs(curr_x - xValue);
+              if (curr_diff < nearestDistance) {
+                  nearestDistance = curr_diff;
+                  indexNearestValue = i;
+                  x_coord = curr_x;
+                  y_coord = plotProperties.yScale(plotPoints[i].value);
+              }
+          }
+          visualObj.host.tooltipService.show({
+              dataItems: plotPoints[indexNearestValue].tooltip,
+              identities: [plotPoints[indexNearestValue].identity],
+              coordinates: [x_coord, y_coord],
+              isTouchEvent: false
+          });
+          xAxisLine.style("stroke-opacity", 0.4)
+              .attr("x1", x_coord)
+              .attr("x2", x_coord);
+          yAxisLine.style("stroke-opacity", 0.4)
+              .attr("y1", y_coord)
+              .attr("y2", y_coord);
+      })
+          .on("mouseleave", () => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
+          visualObj.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
+          xAxisLine.style("stroke-opacity", 0);
+          yAxisLine.style("stroke-opacity", 0);
+      });
+  }
+
+  function drawXAxis(selection, visualObj) {
+      const xAxisProperties = visualObj.plotProperties.xAxis;
+      const xAxis = axisBottom(visualObj.plotProperties.xScale);
+      if (xAxisProperties.ticks) {
+          if (xAxisProperties.tick_count) {
+              xAxis.ticks(xAxisProperties.tick_count);
+          }
+          if (visualObj.viewModel.tickLabels) {
+              xAxis.tickFormat(axisX => {
+                  const targetKey = visualObj.viewModel.tickLabels.filter(d => d.x == axisX);
+                  return targetKey.length > 0 ? targetKey[0].label : "";
+              });
+          }
+      }
+      else {
+          xAxis.tickValues([]);
+      }
+      const plotHeight = visualObj.viewModel.svgHeight;
+      const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
+      const displayPlot = visualObj.plotProperties.displayPlot;
+      const xAxisGroup = selection.select(".xaxisgroup");
+      xAxisGroup
+          .call(xAxis)
+          .attr("color", displayPlot ? xAxisProperties.colour : "#FFFFFF")
+          .attr("transform", `translate(0, ${xAxisHeight})`)
+          .selectAll(".tick text")
+          .style("text-anchor", xAxisProperties.tick_rotation < 0.0 ? "end" : "start")
+          .attr("dx", xAxisProperties.tick_rotation < 0.0 ? "-.8em" : ".8em")
+          .attr("dy", xAxisProperties.tick_rotation < 0.0 ? "-.15em" : ".15em")
+          .attr("transform", "rotate(" + xAxisProperties.tick_rotation + ")")
+          .style("font-size", xAxisProperties.tick_size)
+          .style("font-family", xAxisProperties.tick_font)
+          .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
+      const textX = visualObj.viewModel.svgWidth / 2;
+      let textY;
+      if (visualObj.viewModel.frontend) {
+          textY = plotHeight - (visualObj.plotProperties.yAxis.start_padding / 3);
+      }
+      else {
+          const xAxisNode = selection.selectAll(".xaxisgroup").node();
+          if (!xAxisNode) {
+              selection.select(".xaxislabel")
+                  .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
+              return;
+          }
+          const xAxisCoordinates = xAxisNode.getBoundingClientRect();
+          textY = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
+      }
+      selection.select(".xaxislabel")
+          .attr("x", textX)
+          .attr("y", textY)
+          .style("text-anchor", "middle")
+          .text(xAxisProperties.label)
+          .style("font-size", xAxisProperties.label_size)
+          .style("font-family", xAxisProperties.label_font)
+          .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
+  }
+
+  function drawYAxis(selection, visualObj) {
+      const yAxisProperties = visualObj.plotProperties.yAxis;
+      const yAxis = axisLeft(visualObj.plotProperties.yScale);
+      const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs;
+      const sig_figs = isNullOrUndefined(yaxis_sig_figs) ? visualObj.viewModel.inputSettings.settings.spc.sig_figs : yaxis_sig_figs;
+      const displayPlot = visualObj.plotProperties.displayPlot;
+      if (yAxisProperties.ticks) {
+          if (yAxisProperties.tick_count) {
+              yAxis.ticks(yAxisProperties.tick_count);
+          }
+          if (visualObj.viewModel.inputData) {
+              yAxis.tickFormat((d) => {
+                  return visualObj.viewModel.inputSettings.derivedSettings.percentLabels
+                      ? d.toFixed(sig_figs) + "%"
+                      : d.toFixed(sig_figs);
+              });
+          }
+      }
+      else {
+          yAxis.tickValues([]);
+      }
+      const yAxisGroup = selection.select(".yaxisgroup");
+      yAxisGroup
+          .call(yAxis)
+          .attr("color", displayPlot ? yAxisProperties.colour : "#FFFFFF")
+          .attr("transform", `translate(${visualObj.plotProperties.xAxis.start_padding}, 0)`)
+          .selectAll(".tick text")
+          .style("text-anchor", "right")
+          .attr("transform", `rotate(${yAxisProperties.tick_rotation})`)
+          .style("font-size", yAxisProperties.tick_size)
+          .style("font-family", yAxisProperties.tick_font)
+          .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
+      let textX;
+      const textY = visualObj.viewModel.svgHeight / 2;
+      if (visualObj.viewModel.frontend) {
+          textX = visualObj.plotProperties.xAxis.start_padding / 2;
+      }
+      else {
+          const yAxisNode = selection.selectAll(".yaxisgroup").node();
+          if (!yAxisNode) {
+              selection.select(".yaxislabel")
+                  .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+              return;
+          }
+          const yAxisCoordinates = yAxisNode.getBoundingClientRect();
+          textX = yAxisCoordinates.x * 0.7;
+      }
+      selection.select(".yaxislabel")
+          .attr("x", textX)
+          .attr("y", textY)
+          .attr("transform", `rotate(-90, ${textX}, ${textY})`)
+          .text(yAxisProperties.label)
+          .style("text-anchor", "middle")
+          .style("font-size", yAxisProperties.label_size)
+          .style("font-family", yAxisProperties.label_font)
+          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+  }
+
+  function initialiseSVG(selection, removeAll = false) {
+      if (removeAll) {
+          selection.selectChildren().remove();
+      }
+      selection.append('line').classed("ttip-line-x", true);
+      selection.append('line').classed("ttip-line-y", true);
+      selection.append('g').classed("xaxisgroup", true);
+      selection.append('text').classed('xaxislabel', true);
+      selection.append('g').classed("yaxisgroup", true);
+      selection.append('text').classed('yaxislabel', true);
+      selection.append('g').classed("linesgroup", true);
+      selection.append('g').classed("dotsgroup", true);
+  }
+
+  function drawErrors(selection, options, colourPalette, message, type = null) {
+      selection.call(initialiseSVG, true);
+      const errMessageSVG = selection.append("g").classed("errormessage", true);
+      if (type) {
+          const preamble = {
+              "internal": "Internal Error! Please file a bug report with the following text:",
+              "settings": "Invalid settings provided for all observations! First error:"
+          };
+          errMessageSVG.append('text')
+              .attr("x", options.viewport.width / 2)
+              .attr("y", options.viewport.height / 3)
+              .style("text-anchor", "middle")
+              .text(preamble[type])
+              .style("font-size", "10px")
+              .style("fill", colourPalette.foregroundColour);
+      }
+      errMessageSVG.append('text')
+          .attr("x", options.viewport.width / 2)
+          .attr("y", options.viewport.height / 2)
+          .style("text-anchor", "middle")
+          .text(message)
+          .style("font-size", "10px")
+          .style("fill", colourPalette.foregroundColour);
+  }
+
+  function drawTableHeaders(selection, cols, tableSettings, maxWidth) {
+      const tableHeaders = selection.select(".table-header")
+          .selectAll("th")
+          .data(cols)
+          .join("th");
+      tableHeaders.selectAll("text")
+          .data(d => [d.label])
+          .join("text")
+          .text(d => d)
+          .style("font-size", `${tableSettings.table_header_size}px`)
+          .style("font-family", tableSettings.table_header_font)
+          .style("color", tableSettings.table_header_colour);
+      tableHeaders.style("padding", `${tableSettings.table_header_text_padding}px`)
+          .style("background-color", tableSettings.table_header_bg_colour)
+          .style("font-weight", tableSettings.table_header_font_weight)
+          .style("text-transform", tableSettings.table_header_text_transform)
+          .style("text-align", tableSettings.table_header_text_align)
+          .style("border-width", `${tableSettings.table_header_border_width}px`)
+          .style("border-style", tableSettings.table_header_border_style)
+          .style("border-color", tableSettings.table_header_border_colour)
+          .style("border-top", "inherit");
+      if (!tableSettings.table_header_border_bottom) {
+          tableHeaders.style("border-bottom", "none");
+      }
+      if (!tableSettings.table_header_border_inner) {
+          tableHeaders.style("border-left", "none")
+              .style("border-right", "none");
+      }
+      if (tableSettings.table_text_overflow !== "none") {
+          tableHeaders.style("overflow", "hidden")
+              .style("max-width", `${maxWidth}px`)
+              .style("text-overflow", tableSettings.table_text_overflow);
+      }
+      else {
+          tableHeaders.style("overflow", "auto")
+              .style("max-width", "none");
+      }
+  }
+  function drawTableRows(selection, visualObj, plotPoints, tableSettings, maxWidth) {
+      const tableRows = selection
+          .select(".table-body")
+          .selectAll('tr')
+          .data(plotPoints)
+          .join('tr')
+          .on("click", (event, d) => {
+          if (visualObj.host.hostCapabilities.allowInteractions) {
+              const alreadySel = identitySelected(d.identity, visualObj.selectionManager);
+              visualObj.selectionManager
+                  .select(d.identity, alreadySel || event.ctrlKey || event.metaKey)
+                  .then(() => visualObj.updateHighlighting());
+              event.stopPropagation();
+          }
+      })
+          .on("mouseover", (event) => {
+          select(event.target).select(function () {
+              return this.closest("td");
+          }).style("background-color", "lightgray");
+      })
+          .on("mouseout", (event) => {
+          var _a, _b;
+          let currentTD = select(event.target).select(function () {
+              return this.closest("td");
+          });
+          let rowData = select(currentTD.node().parentNode).datum();
+          currentTD.style("background-color", (_b = (_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"]) !== null && _b !== void 0 ? _b : "inherit");
+      });
+      if (tableSettings.table_text_overflow !== "none") {
+          tableRows.style("overflow", "hidden")
+              .style("max-width", `${maxWidth}px`)
+              .style("text-overflow", tableSettings.table_text_overflow);
+      }
+      else {
+          tableRows.style("overflow", "auto")
+              .style("max-width", "none");
+      }
+  }
+  function drawOuterBorder(selection, tableSettings) {
+      selection.select(".table-group")
+          .style("border-width", `${tableSettings.table_outer_border_width}px`)
+          .style("border-style", tableSettings.table_outer_border_style)
+          .style("border-color", tableSettings.table_outer_border_colour);
+      ["top", "right", "bottom", "left"].forEach((side) => {
+          if (!tableSettings[`table_outer_border_${side}`]) {
+              selection.select(".table-group").style(`border-${side}`, "none");
+          }
+      });
+      selection.selectAll("th:first-child")
+          .style("border-left", "inherit");
+      selection.selectAll("th:last-child")
+          .style("border-right", "inherit");
+      selection.selectAll("td:first-child")
+          .style("border-left", "inherit");
+      selection.selectAll("td:last-child")
+          .style("border-right", "inherit");
+      selection.selectAll("tr:first-child")
+          .selectAll("td")
+          .style("border-top", "inherit");
+      selection.selectAll("tr:last-child")
+          .selectAll("td")
+          .style("border-bottom", "inherit");
+  }
+  function drawTableCells(selection, cols, inputSettings, showGrouped) {
+      const tableCells = selection.select(".table-body")
+          .selectAll('tr')
+          .selectAll('td')
+          .data((d) => cols.map(col => {
+          return { column: col.name, value: d.table_row[col.name] };
+      }))
+          .join('td');
+      const draw_icons = inputSettings.nhs_icons.show_variation_icons || inputSettings.nhs_icons.show_assurance_icons;
+      const thisSelDims = tableCells.node().getBoundingClientRect();
+      tableCells.each(function (d) {
+          var _a;
+          const currNode = select(this);
+          const parentNode = select(currNode.property("parentNode"));
+          const rowData = parentNode.datum();
+          if (showGrouped && draw_icons && (d.column === "variation" || d.column === "assurance")) {
+              if (d.value !== "none") {
+                  const scaling = inputSettings.nhs_icons[`${d.column}_icons_scaling`];
+                  currNode
+                      .append("svg")
+                      .attr("width", `${thisSelDims.width * 0.5 * scaling}px`)
+                      .attr("viewBox", "0 0 378 378")
+                      .classed("rowsvg", true)
+                      .call(initialiseIconSVG, d.value)
+                      .selectAll(".icongroup")
+                      .selectAll(`.${d.value}`)
+                      .call(nhsIcons[d.value]);
+              }
+          }
+          else {
+              const value = typeof d.value === "number"
+                  ? d.value.toFixed(inputSettings.spc.sig_figs)
+                  : d.value;
+              currNode.text(value).classed("cell-text", true);
+          }
+          const tableAesthetics = ((_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"])
+              ? rowData.aesthetics
+              : inputSettings.summary_table;
+          currNode.style("background-color", tableAesthetics.table_body_bg_colour)
+              .style("font-weight", tableAesthetics.table_body_font_weight)
+              .style("text-transform", tableAesthetics.table_body_text_transform)
+              .style("text-align", tableAesthetics.table_body_text_align)
+              .style("font-size", `${tableAesthetics.table_body_size}px`)
+              .style("font-family", tableAesthetics.table_body_font)
+              .style("color", tableAesthetics.table_body_colour)
+              .style("border-width", `${tableAesthetics.table_body_border_width}px`)
+              .style("border-style", tableAesthetics.table_body_border_style)
+              .style("border-color", tableAesthetics.table_body_border_colour)
+              .style("padding", `${tableAesthetics.table_body_text_padding}px`)
+              .style("opacity", "inherit");
+          if (!tableAesthetics.table_body_border_left_right) {
+              currNode.style("border-left", "none")
+                  .style("border-right", "none");
+          }
+          if (!tableAesthetics.table_body_border_top_bottom) {
+              currNode.style("border-top", "none")
+                  .style("border-bottom", "none");
+          }
+      });
+  }
+  function drawSummaryTable(selection, visualObj) {
+      selection.selectAll(".rowsvg").remove();
+      selection.selectAll(".cell-text").remove();
+      let plotPoints;
+      let cols;
+      if (visualObj.viewModel.showGrouped) {
+          plotPoints = visualObj.viewModel.plotPointsGrouped;
+          cols = visualObj.viewModel.tableColumnsGrouped;
+      }
+      else {
+          plotPoints = visualObj.viewModel.plotPoints;
+          cols = visualObj.viewModel.tableColumns;
+      }
+      const maxWidth = visualObj.viewModel.svgWidth / cols.length;
+      const tableSettings = visualObj.viewModel.inputSettings.settings.summary_table;
+      selection.call(drawTableHeaders, cols, tableSettings, maxWidth)
+          .call(drawTableRows, visualObj, plotPoints, tableSettings, maxWidth);
+      if (plotPoints.length > 0) {
+          selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.showGrouped);
+      }
+      selection.call(drawOuterBorder, tableSettings);
+      selection.on('click', () => {
+          visualObj.selectionManager.clear();
+          visualObj.updateHighlighting();
+      });
+  }
+
+  function drawDownloadButton(selection, visualObj) {
+      if (!(visualObj.viewModel.inputSettings.settings.download_options.show_button)) {
+          selection.select(".download-btn-group").remove();
+          return;
+      }
+      if (selection.select(".download-btn-group").empty()) {
+          selection.append("text").classed("download-btn-group", true);
+      }
+      const table_rows = visualObj.viewModel.plotPoints.map(d => d.table_row);
+      const csv_rows = new Array();
+      csv_rows.push(Object.keys(table_rows[0]).join(","));
+      table_rows.forEach(row => {
+          csv_rows.push(Object.values(row).join(","));
+      });
+      selection.select(".download-btn-group")
+          .attr("x", visualObj.viewModel.svgWidth - 50)
+          .attr("y", visualObj.viewModel.svgHeight - 5)
+          .text("Download")
+          .style("font-size", "10px")
+          .style("text-decoration", "underline")
+          .on("click", () => {
+          visualObj.host.downloadService
+              .exportVisualsContent(csv_rows.join("\n"), "chartdata.csv", "csv", "csv file");
+      });
+  }
+
+  function getLabelAttributes(d, visualObj) {
+      var _a, _b;
+      const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
+      const plotHeight = visualObj.viewModel.svgHeight;
+      const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
+      const label_position = d.label.aesthetics.label_position;
+      let y_offset = d.label.aesthetics.label_y_offset;
+      const label_initial = label_position === "top" ? (0 + y_offset) : (xAxisHeight - y_offset);
+      const y = visualObj.plotProperties.yScale(d.value);
+      let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
+      const x_val = visualObj.plotProperties.xScale(d.x);
+      const y_val = visualObj.plotProperties.yScale(d.value);
+      const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
+      side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
+      let line_offset = d.label.aesthetics.label_line_offset;
+      line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
+      let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
+      marker_offset = label_position === "top" ? -marker_offset : marker_offset;
+      const newX = x_val + side_length * Math.cos(theta * Math.PI / 180);
+      const newY = y_val + side_length * Math.sin(theta * Math.PI / 180);
+      if (!isValidNumber(newX) || !isValidNumber(newY)) {
+          return {
+              x: 0,
+              y: 0,
+              theta: 0,
+              line_offset: 0,
+              marker_offset: 0
+          };
+      }
+      return { x: newX,
+          y: newY,
+          theta: theta,
+          line_offset: line_offset,
+          marker_offset: marker_offset
+      };
+  }
+  function drawLabels(selection, visualObj) {
+      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels || !visualObj.viewModel.inputData.anyLabels) {
+          selection.select(".text-labels").remove();
+          return;
+      }
+      if (selection.select(".text-labels").empty()) {
+          selection.append("g").classed("text-labels", true);
+      }
+      const dragFun = drag().on("drag", function (e) {
+          const d = e.subject;
+          const x_val = visualObj.plotProperties.xScale(d.x);
+          const y_val = visualObj.plotProperties.yScale(d.value);
+          const angle = Math.atan2(e.sourceEvent.y - y_val, e.sourceEvent.x - x_val) * 180 / Math.PI;
+          const distance = Math.sqrt(Math.pow(e.sourceEvent.y - y_val, 2) + Math.pow(e.sourceEvent.x - x_val, 2));
+          const marker_offset = 10;
+          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
+          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
+          e.subject.label.angle = angle;
+          e.subject.label.distance = distance;
+          select(this)
+              .select("text")
+              .attr("x", e.sourceEvent.x)
+              .attr("y", e.sourceEvent.y);
+          let line_offset = d.label.aesthetics.label_line_offset;
+          line_offset = d.label.aesthetics.label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
+          select(this)
+              .select("line")
+              .attr("x1", e.sourceEvent.x)
+              .attr("y1", e.sourceEvent.y + line_offset)
+              .attr("x2", x_val + x_offset)
+              .attr("y2", y_val + y_offset);
+          select(this)
+              .select("path")
+              .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
+      });
+      selection.select(".text-labels")
+          .selectAll(".text-group-inner")
+          .data(visualObj.viewModel.plotPoints)
+          .join("g")
+          .classed("text-group-inner", true)
+          .each(function (d) {
+          var _a;
+          const textGroup = select(this);
+          if (((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "") {
+              textGroup.remove();
+              return;
+          }
+          textGroup.selectAll("*").remove();
+          const textElement = textGroup.append("text");
+          const lineElement = textGroup.append("line");
+          const pathElement = textGroup.append("path");
+          const { x, y, line_offset, marker_offset, theta } = getLabelAttributes(d, visualObj);
+          const invalidXY = x === 0 && y === 0;
+          if (invalidXY) {
+              textGroup.remove();
+              return;
+          }
+          const angle = theta - (d.label.aesthetics.label_position === "top" ? 180 : 0);
+          const angleToRadians = angle * Math.PI / 180;
+          textElement
+              .attr("x", x)
+              .attr("y", y)
+              .text(d.label.text_value)
+              .style("text-anchor", "middle")
+              .style("font-size", `${d.label.aesthetics.label_size}px`)
+              .style("font-family", d.label.aesthetics.label_font)
+              .style("fill", d.label.aesthetics.label_colour);
+          const markerSize = Math.pow(d.label.aesthetics.label_marker_size, 2);
+          const markerX = visualObj.plotProperties.xScale(d.x) + marker_offset * Math.cos(angleToRadians);
+          const markerY = visualObj.plotProperties.yScale(d.value) + marker_offset * Math.sin(angleToRadians);
+          lineElement
+              .attr("x1", x)
+              .attr("y1", y + line_offset)
+              .attr("x2", markerX)
+              .attr("y2", markerY)
+              .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
+              .style("stroke-width", visualObj.viewModel.inputSettings.settings.labels.label_line_width)
+              .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings.labels.label_line_type);
+          const markerRotation = angle + (d.label.aesthetics.label_position === "top" ? 90 : 270);
+          pathElement
+              .attr("d", Symbol$1().type(triangle).size(markerSize)())
+              .attr("transform", `translate(${markerX}, ${markerY}) rotate(${markerRotation})`)
+              .style("fill", d.label.aesthetics.label_marker_colour)
+              .style("stroke", d.label.aesthetics.label_marker_outline_colour);
+          if (!visualObj.viewModel.headless) {
+              textGroup.call(dragFun);
+          }
+      });
+  }
+
+  const positionOffsetMap = {
+      "above": -1,
+      "below": 1,
+      "beside": -1
+  };
+  const outsideMap = {
+      "ll99": "below",
+      "ll95": "below",
+      "ll68": "below",
+      "ul68": "above",
+      "ul95": "above",
+      "ul99": "above",
+      "speclimits_lower": "below",
+      "speclimits_upper": "above"
+  };
+  const insideMap = {
+      "ll99": "above",
+      "ll95": "above",
+      "ll68": "above",
+      "ul68": "below",
+      "ul95": "below",
+      "ul99": "below",
+      "speclimits_lower": "above",
+      "speclimits_upper": "below"
+  };
+  function drawLineLabels(selection, visualObj) {
+      const lineSettings = visualObj.viewModel.inputSettings.settings.lines;
+      const rebaselinePoints = new Array();
+      visualObj.viewModel.groupedLines[0][1].forEach((d, idx) => {
+          if (d.line_value === null) {
+              rebaselinePoints.push(idx - 1);
+          }
+          if (idx === visualObj.viewModel.groupedLines[0][1].length - 1) {
+              rebaselinePoints.push(idx);
+          }
+      });
+      const limits = visualObj.viewModel.groupedLines.map(d => d[0]);
+      const labelsToPlot = new Array();
+      rebaselinePoints.forEach((d, rb_idx) => {
+          limits.forEach((limit, idx) => {
+              const lastIndex = rebaselinePoints[rebaselinePoints.length - 1];
+              const showN = rebaselinePoints.length - Math.min(rebaselinePoints.length, lineSettings[`plot_label_show_n_${lineNameMap[limit]}`]);
+              const showLabel = lineSettings[`plot_label_show_all_${lineNameMap[limit]}`]
+                  || (d == lastIndex);
+              if (rb_idx >= showN) {
+                  labelsToPlot.push({ index: d, limit: idx });
+              }
+              else if (showLabel) {
+                  labelsToPlot.push({ index: d, limit: idx });
+              }
+          });
+      });
+      const formatValue = valueFormatter(visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
+      selection
+          .select(".linesgroup")
+          .selectAll("text")
+          .data(labelsToPlot)
+          .join("text")
+          .text((d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_show_${lineNameMap[lineGroup[0]]}`]
+              ? lineSettings[`plot_label_prefix_${lineNameMap[lineGroup[0]]}`] + formatValue(lineGroup[1][d.index].line_value, "value")
+              : "";
+      })
+          .attr("x", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return visualObj.plotProperties.xScale(lineGroup[1][d.index].x);
+      })
+          .attr("y", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return visualObj.plotProperties.yScale(lineGroup[1][d.index].line_value);
+      })
+          .attr("fill", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_colour_${lineNameMap[lineGroup[0]]}`];
+      })
+          .attr("font-size", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return `${lineSettings[`plot_label_size_${lineNameMap[lineGroup[0]]}`]}px`;
+      })
+          .attr("font-family", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_font_${lineNameMap[lineGroup[0]]}`];
+      })
+          .attr("text-anchor", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          return lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`] === "beside" ? "start" : "end";
+      })
+          .attr("dx", (d) => {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          const offset = (lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`] === "beside" ? 1 : -1) * lineSettings[`plot_label_hpad_${lineNameMap[lineGroup[0]]}`];
+          return `${offset}px`;
+      })
+          .attr("dy", function (d) {
+          const lineGroup = visualObj.viewModel.groupedLines[d.limit];
+          const bounds = select(this).node().getBoundingClientRect();
+          let position = lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`];
+          let vpadding = lineSettings[`plot_label_vpad_${lineNameMap[lineGroup[0]]}`];
+          if (["outside", "inside"].includes(position)) {
+              position = position === "outside" ? outsideMap[lineGroup[0]] : insideMap[lineGroup[0]];
+          }
+          const heightMap = {
+              "above": -lineSettings[`width_${lineNameMap[lineGroup[0]]}`],
+              "below": lineSettings[`plot_label_size_${lineNameMap[lineGroup[0]]}`],
+              "beside": bounds.height / 4
+          };
+          return `${positionOffsetMap[position] * vpadding + heightMap[position]}px`;
+      });
+  }
+
+  class plotPropertiesClass {
+      initialiseScale(svgWidth, svgHeight) {
+          this.xScale = linear()
+              .domain([this.xAxis.lower, this.xAxis.upper])
+              .range([this.xAxis.start_padding,
+              svgWidth - this.xAxis.end_padding]);
+          this.yScale = linear()
+              .domain([this.yAxis.lower, this.yAxis.upper])
+              .range([svgHeight - this.yAxis.start_padding,
+              this.yAxis.end_padding]);
+      }
+      update(options, viewModel) {
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+          const plotPoints = viewModel.plotPoints;
+          const controlLimits = viewModel.controlLimits;
+          const inputData = viewModel.inputData;
+          const inputSettings = viewModel.inputSettings.settings;
+          const derivedSettings = viewModel.inputSettings.derivedSettings;
+          const colorPalette = viewModel.colourPalette;
+          this.displayPlot = plotPoints
+              ? plotPoints.length > 1
+              : null;
+          let xLowerLimit = inputSettings.x_axis.xlimit_l;
+          let xUpperLimit = inputSettings.x_axis.xlimit_u;
+          let yLowerLimit = inputSettings.y_axis.ylimit_l;
+          let yUpperLimit = inputSettings.y_axis.ylimit_u;
+          if (((_a = inputData === null || inputData === void 0 ? void 0 : inputData.validationStatus) === null || _a === void 0 ? void 0 : _a.status) == 0 && controlLimits) {
+              xUpperLimit = !isNullOrUndefined(xUpperLimit) ? xUpperLimit : max(controlLimits.keys.map(d => d.x));
+              const limitMultiplier = inputSettings.y_axis.limit_multiplier;
+              const values = controlLimits.values.filter(d => isValidNumber(d));
+              const ul99 = (_b = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _b === void 0 ? void 0 : _b.filter(d => isValidNumber(d));
+              const speclimits_upper = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d));
+              const ll99 = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _d === void 0 ? void 0 : _d.filter(d => isValidNumber(d));
+              const speclimits_lower = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d));
+              const alt_targets = (_f = controlLimits.alt_targets) === null || _f === void 0 ? void 0 : _f.filter(d => isValidNumber(d));
+              const targets = (_g = controlLimits.targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
+              const maxValue = max(values);
+              const maxValueOrLimit = max(values.concat(ul99).concat(speclimits_upper).concat(alt_targets));
+              const minValueOrLimit = min(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
+              const maxTarget = (_h = max(targets)) !== null && _h !== void 0 ? _h : 0;
+              const minTarget = (_j = min(targets)) !== null && _j !== void 0 ? _j : 0;
+              const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
+              const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
+              const multiplier = derivedSettings.multiplier;
+              yUpperLimit !== null && yUpperLimit !== void 0 ? yUpperLimit : (yUpperLimit = (derivedSettings.percentLabels && !(maxValue > (1 * multiplier)))
+                  ? truncate(upperLimitRaw, { upper: 1 * multiplier })
+                  : upperLimitRaw);
+              yLowerLimit !== null && yLowerLimit !== void 0 ? yLowerLimit : (yLowerLimit = derivedSettings.percentLabels
+                  ? truncate(lowerLimitRaw, { lower: 0 * multiplier })
+                  : lowerLimitRaw);
+              const keysToPlot = controlLimits.keys.map(d => d.x);
+              xLowerLimit = !isNullOrUndefined(xLowerLimit)
+                  ? xLowerLimit
+                  : min(keysToPlot);
+              xUpperLimit = !isNullOrUndefined(xUpperLimit)
+                  ? xUpperLimit
+                  : max(keysToPlot);
+          }
+          const xTickSize = inputSettings.x_axis.xlimit_tick_size;
+          const yTickSize = inputSettings.y_axis.ylimit_tick_size;
+          const leftLabelPadding = inputSettings.y_axis.ylimit_label
+              ? inputSettings.y_axis.ylimit_label_size
+              : 0;
+          const lowerLabelPadding = inputSettings.x_axis.xlimit_label
+              ? inputSettings.x_axis.xlimit_label_size
+              : 0;
+          this.xAxis = {
+              lower: !isNullOrUndefined(xLowerLimit) ? xLowerLimit : 0,
+              upper: xUpperLimit,
+              start_padding: inputSettings.canvas.left_padding + leftLabelPadding,
+              end_padding: inputSettings.canvas.right_padding,
+              colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_colour,
+              ticks: inputSettings.x_axis.xlimit_ticks,
+              tick_size: `${xTickSize}px`,
+              tick_font: inputSettings.x_axis.xlimit_tick_font,
+              tick_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_tick_colour,
+              tick_rotation: inputSettings.x_axis.xlimit_tick_rotation,
+              tick_count: inputSettings.x_axis.xlimit_tick_count,
+              label: inputSettings.x_axis.xlimit_label,
+              label_size: `${inputSettings.x_axis.xlimit_label_size}px`,
+              label_font: inputSettings.x_axis.xlimit_label_font,
+              label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_label_colour
+          };
+          this.yAxis = {
+              lower: yLowerLimit,
+              upper: yUpperLimit,
+              start_padding: inputSettings.canvas.lower_padding + lowerLabelPadding,
+              end_padding: inputSettings.canvas.upper_padding,
+              colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_colour,
+              ticks: inputSettings.y_axis.ylimit_ticks,
+              tick_size: `${yTickSize}px`,
+              tick_font: inputSettings.y_axis.ylimit_tick_font,
+              tick_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_tick_colour,
+              tick_rotation: inputSettings.y_axis.ylimit_tick_rotation,
+              tick_count: inputSettings.y_axis.ylimit_tick_count,
+              label: inputSettings.y_axis.ylimit_label,
+              label_size: `${inputSettings.y_axis.ylimit_label_size}px`,
+              label_font: inputSettings.y_axis.ylimit_label_font,
+              label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_label_colour
+          };
+          this.initialiseScale(options.viewport.width, options.viewport.height);
+      }
+  }
+
+  var powerbiVisualsApi = {};
+
+  var re = {exports: {}};
+
+  var constants;
+  var hasRequiredConstants;
+
+  function requireConstants () {
+  	if (hasRequiredConstants) return constants;
+  	hasRequiredConstants = 1;
+  	// Note: this is the semver.org version of the spec that it implements
+  	// Not necessarily the package version of this code.
+  	const SEMVER_SPEC_VERSION = '2.0.0';
+
+  	const MAX_LENGTH = 256;
+  	const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER ||
+  	/* istanbul ignore next */ 9007199254740991;
+
+  	// Max safe segment length for coercion.
+  	const MAX_SAFE_COMPONENT_LENGTH = 16;
+
+  	// Max safe length for a build identifier. The max length minus 6 characters for
+  	// the shortest version with a build 0.0.0+BUILD.
+  	const MAX_SAFE_BUILD_LENGTH = MAX_LENGTH - 6;
+
+  	const RELEASE_TYPES = [
+  	  'major',
+  	  'premajor',
+  	  'minor',
+  	  'preminor',
+  	  'patch',
+  	  'prepatch',
+  	  'prerelease',
+  	];
+
+  	constants = {
+  	  MAX_LENGTH,
+  	  MAX_SAFE_COMPONENT_LENGTH,
+  	  MAX_SAFE_BUILD_LENGTH,
+  	  MAX_SAFE_INTEGER,
+  	  RELEASE_TYPES,
+  	  SEMVER_SPEC_VERSION,
+  	  FLAG_INCLUDE_PRERELEASE: 0b001,
+  	  FLAG_LOOSE: 0b010,
+  	};
+  	return constants;
+  }
+
+  var debug_1;
+  var hasRequiredDebug;
+
+  function requireDebug () {
+  	if (hasRequiredDebug) return debug_1;
+  	hasRequiredDebug = 1;
+  	const debug = (
+  	  typeof process === 'object' &&
+  	  process.env &&
+  	  process.env.NODE_DEBUG &&
+  	  /\bsemver\b/i.test(process.env.NODE_DEBUG)
+  	) ? (...args) => console.error('SEMVER', ...args)
+  	  : () => {};
+
+  	debug_1 = debug;
+  	return debug_1;
+  }
+
+  var hasRequiredRe;
+
+  function requireRe () {
+  	if (hasRequiredRe) return re.exports;
+  	hasRequiredRe = 1;
+  	(function (module, exports$1) {
+  		const {
+  		  MAX_SAFE_COMPONENT_LENGTH,
+  		  MAX_SAFE_BUILD_LENGTH,
+  		  MAX_LENGTH,
+  		} = requireConstants();
+  		const debug = requireDebug();
+  		exports$1 = module.exports = {};
+
+  		// The actual regexps go on exports.re
+  		const re = exports$1.re = [];
+  		const safeRe = exports$1.safeRe = [];
+  		const src = exports$1.src = [];
+  		const t = exports$1.t = {};
+  		let R = 0;
+
+  		const LETTERDASHNUMBER = '[a-zA-Z0-9-]';
+
+  		// Replace some greedy regex tokens to prevent regex dos issues. These regex are
+  		// used internally via the safeRe object since all inputs in this library get
+  		// normalized first to trim and collapse all extra whitespace. The original
+  		// regexes are exported for userland consumption and lower level usage. A
+  		// future breaking change could export the safer regex only with a note that
+  		// all input should have extra whitespace removed.
+  		const safeRegexReplacements = [
+  		  ['\\s', 1],
+  		  ['\\d', MAX_LENGTH],
+  		  [LETTERDASHNUMBER, MAX_SAFE_BUILD_LENGTH],
+  		];
+
+  		const makeSafeRegex = (value) => {
+  		  for (const [token, max] of safeRegexReplacements) {
+  		    value = value
+  		      .split(`${token}*`).join(`${token}{0,${max}}`)
+  		      .split(`${token}+`).join(`${token}{1,${max}}`);
+  		  }
+  		  return value
+  		};
+
+  		const createToken = (name, value, isGlobal) => {
+  		  const safe = makeSafeRegex(value);
+  		  const index = R++;
+  		  debug(name, index, value);
+  		  t[name] = index;
+  		  src[index] = value;
+  		  re[index] = new RegExp(value, isGlobal ? 'g' : undefined);
+  		  safeRe[index] = new RegExp(safe, isGlobal ? 'g' : undefined);
+  		};
+
+  		// The following Regular Expressions can be used for tokenizing,
+  		// validating, and parsing SemVer version strings.
+
+  		// ## Numeric Identifier
+  		// A single `0`, or a non-zero digit followed by zero or more digits.
+
+  		createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*');
+  		createToken('NUMERICIDENTIFIERLOOSE', '\\d+');
+
+  		// ## Non-numeric Identifier
+  		// Zero or more digits, followed by a letter or hyphen, and then zero or
+  		// more letters, digits, or hyphens.
+
+  		createToken('NONNUMERICIDENTIFIER', `\\d*[a-zA-Z-]${LETTERDASHNUMBER}*`);
+
+  		// ## Main Version
+  		// Three dot-separated numeric identifiers.
+
+  		createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
+  		                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
+  		                   `(${src[t.NUMERICIDENTIFIER]})`);
+
+  		createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
+  		                        `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
+  		                        `(${src[t.NUMERICIDENTIFIERLOOSE]})`);
+
+  		// ## Pre-release Version Identifier
+  		// A numeric identifier, or a non-numeric identifier.
+
+  		createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NUMERICIDENTIFIER]
+		}|${src[t.NONNUMERICIDENTIFIER]})`);
+
+  		createToken('PRERELEASEIDENTIFIERLOOSE', `(?:${src[t.NUMERICIDENTIFIERLOOSE]
+		}|${src[t.NONNUMERICIDENTIFIER]})`);
+
+  		// ## Pre-release Version
+  		// Hyphen, followed by one or more dot-separated pre-release version
+  		// identifiers.
+
+  		createToken('PRERELEASE', `(?:-(${src[t.PRERELEASEIDENTIFIER]
+		}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`);
+
+  		createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
+		}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`);
+
+  		// ## Build Metadata Identifier
+  		// Any combination of digits, letters, or hyphens.
+
+  		createToken('BUILDIDENTIFIER', `${LETTERDASHNUMBER}+`);
+
+  		// ## Build Metadata
+  		// Plus sign, followed by one or more period-separated build metadata
+  		// identifiers.
+
+  		createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
+		}(?:\\.${src[t.BUILDIDENTIFIER]})*))`);
+
+  		// ## Full Version String
+  		// A main version, followed optionally by a pre-release version and
+  		// build metadata.
+
+  		// Note that the only major, minor, patch, and pre-release sections of
+  		// the version string are capturing groups.  The build metadata is not a
+  		// capturing group, because it should not ever be used in version
+  		// comparison.
+
+  		createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
+		}${src[t.PRERELEASE]}?${
+		  src[t.BUILD]}?`);
+
+  		createToken('FULL', `^${src[t.FULLPLAIN]}$`);
+
+  		// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
+  		// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
+  		// common in the npm registry.
+  		createToken('LOOSEPLAIN', `[v=\\s]*${src[t.MAINVERSIONLOOSE]
+		}${src[t.PRERELEASELOOSE]}?${
+		  src[t.BUILD]}?`);
+
+  		createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`);
+
+  		createToken('GTLT', '((?:<|>)?=?)');
+
+  		// Something like "2.*" or "1.2.x".
+  		// Note that "x.x" is a valid xRange identifer, meaning "any version"
+  		// Only the first item is strictly required.
+  		createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
+  		createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`);
+
+  		createToken('XRANGEPLAIN', `[v=\\s]*(${src[t.XRANGEIDENTIFIER]})` +
+  		                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
+  		                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
+  		                   `(?:${src[t.PRERELEASE]})?${
+		                     src[t.BUILD]}?` +
+  		                   `)?)?`);
+
+  		createToken('XRANGEPLAINLOOSE', `[v=\\s]*(${src[t.XRANGEIDENTIFIERLOOSE]})` +
+  		                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
+  		                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
+  		                        `(?:${src[t.PRERELEASELOOSE]})?${
+		                          src[t.BUILD]}?` +
+  		                        `)?)?`);
+
+  		createToken('XRANGE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAIN]}$`);
+  		createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`);
+
+  		// Coercion.
+  		// Extract anything that could conceivably be a part of a valid semver
+  		createToken('COERCEPLAIN', `${'(^|[^\\d])' +
+		              '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
+  		              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
+  		              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?`);
+  		createToken('COERCE', `${src[t.COERCEPLAIN]}(?:$|[^\\d])`);
+  		createToken('COERCEFULL', src[t.COERCEPLAIN] +
+  		              `(?:${src[t.PRERELEASE]})?` +
+  		              `(?:${src[t.BUILD]})?` +
+  		              `(?:$|[^\\d])`);
+  		createToken('COERCERTL', src[t.COERCE], true);
+  		createToken('COERCERTLFULL', src[t.COERCEFULL], true);
+
+  		// Tilde ranges.
+  		// Meaning is "reasonably at or greater than"
+  		createToken('LONETILDE', '(?:~>?)');
+
+  		createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
+  		exports$1.tildeTrimReplace = '$1~';
+
+  		createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
+  		createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
+
+  		// Caret ranges.
+  		// Meaning is "at least and backwards compatible with"
+  		createToken('LONECARET', '(?:\\^)');
+
+  		createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
+  		exports$1.caretTrimReplace = '$1^';
+
+  		createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
+  		createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
+
+  		// A simple gt/lt/eq thing, or just "" to indicate "any version"
+  		createToken('COMPARATORLOOSE', `^${src[t.GTLT]}\\s*(${src[t.LOOSEPLAIN]})$|^$`);
+  		createToken('COMPARATOR', `^${src[t.GTLT]}\\s*(${src[t.FULLPLAIN]})$|^$`);
+
+  		// An expression to strip any whitespace between the gtlt and the thing
+  		// it modifies, so that `> 1.2.3` ==> `>1.2.3`
+  		createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
+		}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
+  		exports$1.comparatorTrimReplace = '$1$2$3';
+
+  		// Something like `1.2.3 - 1.2.4`
+  		// Note that these all use the loose form, because they'll be
+  		// checked against either the strict or loose comparator form
+  		// later.
+  		createToken('HYPHENRANGE', `^\\s*(${src[t.XRANGEPLAIN]})` +
+  		                   `\\s+-\\s+` +
+  		                   `(${src[t.XRANGEPLAIN]})` +
+  		                   `\\s*$`);
+
+  		createToken('HYPHENRANGELOOSE', `^\\s*(${src[t.XRANGEPLAINLOOSE]})` +
+  		                        `\\s+-\\s+` +
+  		                        `(${src[t.XRANGEPLAINLOOSE]})` +
+  		                        `\\s*$`);
+
+  		// Star ranges basically just allow anything at all.
+  		createToken('STAR', '(<|>)?=?\\s*\\*');
+  		// >=0.0.0 is like a star
+  		createToken('GTE0', '^\\s*>=\\s*0\\.0\\.0\\s*$');
+  		createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$'); 
+  	} (re, re.exports));
+  	return re.exports;
+  }
+
+  var parseOptions_1;
+  var hasRequiredParseOptions;
+
+  function requireParseOptions () {
+  	if (hasRequiredParseOptions) return parseOptions_1;
+  	hasRequiredParseOptions = 1;
+  	// parse out just the options we care about
+  	const looseOption = Object.freeze({ loose: true });
+  	const emptyOpts = Object.freeze({ });
+  	const parseOptions = options => {
+  	  if (!options) {
+  	    return emptyOpts
+  	  }
+
+  	  if (typeof options !== 'object') {
+  	    return looseOption
+  	  }
+
+  	  return options
+  	};
+  	parseOptions_1 = parseOptions;
+  	return parseOptions_1;
+  }
+
+  var identifiers;
+  var hasRequiredIdentifiers;
+
+  function requireIdentifiers () {
+  	if (hasRequiredIdentifiers) return identifiers;
+  	hasRequiredIdentifiers = 1;
+  	const numeric = /^[0-9]+$/;
+  	const compareIdentifiers = (a, b) => {
+  	  const anum = numeric.test(a);
+  	  const bnum = numeric.test(b);
+
+  	  if (anum && bnum) {
+  	    a = +a;
+  	    b = +b;
+  	  }
+
+  	  return a === b ? 0
+  	    : (anum && !bnum) ? -1
+  	    : (bnum && !anum) ? 1
+  	    : a < b ? -1
+  	    : 1
+  	};
+
+  	const rcompareIdentifiers = (a, b) => compareIdentifiers(b, a);
+
+  	identifiers = {
+  	  compareIdentifiers,
+  	  rcompareIdentifiers,
+  	};
+  	return identifiers;
+  }
+
+  var semver$1;
+  var hasRequiredSemver$1;
+
+  function requireSemver$1 () {
+  	if (hasRequiredSemver$1) return semver$1;
+  	hasRequiredSemver$1 = 1;
+  	const debug = requireDebug();
+  	const { MAX_LENGTH, MAX_SAFE_INTEGER } = requireConstants();
+  	const { safeRe: re, t } = requireRe();
+
+  	const parseOptions = requireParseOptions();
+  	const { compareIdentifiers } = requireIdentifiers();
+  	class SemVer {
+  	  constructor (version, options) {
+  	    options = parseOptions(options);
+
+  	    if (version instanceof SemVer) {
+  	      if (version.loose === !!options.loose &&
+  	          version.includePrerelease === !!options.includePrerelease) {
+  	        return version
+  	      } else {
+  	        version = version.version;
+  	      }
+  	    } else if (typeof version !== 'string') {
+  	      throw new TypeError(`Invalid version. Must be a string. Got type "${typeof version}".`)
+  	    }
+
+  	    if (version.length > MAX_LENGTH) {
+  	      throw new TypeError(
+  	        `version is longer than ${MAX_LENGTH} characters`
+  	      )
+  	    }
+
+  	    debug('SemVer', version, options);
+  	    this.options = options;
+  	    this.loose = !!options.loose;
+  	    // this isn't actually relevant for versions, but keep it so that we
+  	    // don't run into trouble passing this.options around.
+  	    this.includePrerelease = !!options.includePrerelease;
+
+  	    const m = version.trim().match(options.loose ? re[t.LOOSE] : re[t.FULL]);
+
+  	    if (!m) {
+  	      throw new TypeError(`Invalid Version: ${version}`)
+  	    }
+
+  	    this.raw = version;
+
+  	    // these are actually numbers
+  	    this.major = +m[1];
+  	    this.minor = +m[2];
+  	    this.patch = +m[3];
+
+  	    if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
+  	      throw new TypeError('Invalid major version')
+  	    }
+
+  	    if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
+  	      throw new TypeError('Invalid minor version')
+  	    }
+
+  	    if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
+  	      throw new TypeError('Invalid patch version')
+  	    }
+
+  	    // numberify any prerelease numeric ids
+  	    if (!m[4]) {
+  	      this.prerelease = [];
+  	    } else {
+  	      this.prerelease = m[4].split('.').map((id) => {
+  	        if (/^[0-9]+$/.test(id)) {
+  	          const num = +id;
+  	          if (num >= 0 && num < MAX_SAFE_INTEGER) {
+  	            return num
+  	          }
+  	        }
+  	        return id
+  	      });
+  	    }
+
+  	    this.build = m[5] ? m[5].split('.') : [];
+  	    this.format();
+  	  }
+
+  	  format () {
+  	    this.version = `${this.major}.${this.minor}.${this.patch}`;
+  	    if (this.prerelease.length) {
+  	      this.version += `-${this.prerelease.join('.')}`;
+  	    }
+  	    return this.version
+  	  }
+
+  	  toString () {
+  	    return this.version
+  	  }
+
+  	  compare (other) {
+  	    debug('SemVer.compare', this.version, this.options, other);
+  	    if (!(other instanceof SemVer)) {
+  	      if (typeof other === 'string' && other === this.version) {
+  	        return 0
+  	      }
+  	      other = new SemVer(other, this.options);
+  	    }
+
+  	    if (other.version === this.version) {
+  	      return 0
+  	    }
+
+  	    return this.compareMain(other) || this.comparePre(other)
+  	  }
+
+  	  compareMain (other) {
+  	    if (!(other instanceof SemVer)) {
+  	      other = new SemVer(other, this.options);
+  	    }
+
+  	    return (
+  	      compareIdentifiers(this.major, other.major) ||
+  	      compareIdentifiers(this.minor, other.minor) ||
+  	      compareIdentifiers(this.patch, other.patch)
+  	    )
+  	  }
+
+  	  comparePre (other) {
+  	    if (!(other instanceof SemVer)) {
+  	      other = new SemVer(other, this.options);
+  	    }
+
+  	    // NOT having a prerelease is > having one
+  	    if (this.prerelease.length && !other.prerelease.length) {
+  	      return -1
+  	    } else if (!this.prerelease.length && other.prerelease.length) {
+  	      return 1
+  	    } else if (!this.prerelease.length && !other.prerelease.length) {
+  	      return 0
+  	    }
+
+  	    let i = 0;
+  	    do {
+  	      const a = this.prerelease[i];
+  	      const b = other.prerelease[i];
+  	      debug('prerelease compare', i, a, b);
+  	      if (a === undefined && b === undefined) {
+  	        return 0
+  	      } else if (b === undefined) {
+  	        return 1
+  	      } else if (a === undefined) {
+  	        return -1
+  	      } else if (a === b) {
+  	        continue
+  	      } else {
+  	        return compareIdentifiers(a, b)
+  	      }
+  	    } while (++i)
+  	  }
+
+  	  compareBuild (other) {
+  	    if (!(other instanceof SemVer)) {
+  	      other = new SemVer(other, this.options);
+  	    }
+
+  	    let i = 0;
+  	    do {
+  	      const a = this.build[i];
+  	      const b = other.build[i];
+  	      debug('build compare', i, a, b);
+  	      if (a === undefined && b === undefined) {
+  	        return 0
+  	      } else if (b === undefined) {
+  	        return 1
+  	      } else if (a === undefined) {
+  	        return -1
+  	      } else if (a === b) {
+  	        continue
+  	      } else {
+  	        return compareIdentifiers(a, b)
+  	      }
+  	    } while (++i)
+  	  }
+
+  	  // preminor will bump the version up to the next minor release, and immediately
+  	  // down to pre-release. premajor and prepatch work the same way.
+  	  inc (release, identifier, identifierBase) {
+  	    switch (release) {
+  	      case 'premajor':
+  	        this.prerelease.length = 0;
+  	        this.patch = 0;
+  	        this.minor = 0;
+  	        this.major++;
+  	        this.inc('pre', identifier, identifierBase);
+  	        break
+  	      case 'preminor':
+  	        this.prerelease.length = 0;
+  	        this.patch = 0;
+  	        this.minor++;
+  	        this.inc('pre', identifier, identifierBase);
+  	        break
+  	      case 'prepatch':
+  	        // If this is already a prerelease, it will bump to the next version
+  	        // drop any prereleases that might already exist, since they are not
+  	        // relevant at this point.
+  	        this.prerelease.length = 0;
+  	        this.inc('patch', identifier, identifierBase);
+  	        this.inc('pre', identifier, identifierBase);
+  	        break
+  	      // If the input is a non-prerelease version, this acts the same as
+  	      // prepatch.
+  	      case 'prerelease':
+  	        if (this.prerelease.length === 0) {
+  	          this.inc('patch', identifier, identifierBase);
+  	        }
+  	        this.inc('pre', identifier, identifierBase);
+  	        break
+
+  	      case 'major':
+  	        // If this is a pre-major version, bump up to the same major version.
+  	        // Otherwise increment major.
+  	        // 1.0.0-5 bumps to 1.0.0
+  	        // 1.1.0 bumps to 2.0.0
+  	        if (
+  	          this.minor !== 0 ||
+  	          this.patch !== 0 ||
+  	          this.prerelease.length === 0
+  	        ) {
+  	          this.major++;
+  	        }
+  	        this.minor = 0;
+  	        this.patch = 0;
+  	        this.prerelease = [];
+  	        break
+  	      case 'minor':
+  	        // If this is a pre-minor version, bump up to the same minor version.
+  	        // Otherwise increment minor.
+  	        // 1.2.0-5 bumps to 1.2.0
+  	        // 1.2.1 bumps to 1.3.0
+  	        if (this.patch !== 0 || this.prerelease.length === 0) {
+  	          this.minor++;
+  	        }
+  	        this.patch = 0;
+  	        this.prerelease = [];
+  	        break
+  	      case 'patch':
+  	        // If this is not a pre-release version, it will increment the patch.
+  	        // If it is a pre-release it will bump up to the same patch version.
+  	        // 1.2.0-5 patches to 1.2.0
+  	        // 1.2.0 patches to 1.2.1
+  	        if (this.prerelease.length === 0) {
+  	          this.patch++;
+  	        }
+  	        this.prerelease = [];
+  	        break
+  	      // This probably shouldn't be used publicly.
+  	      // 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
+  	      case 'pre': {
+  	        const base = Number(identifierBase) ? 1 : 0;
+
+  	        if (!identifier && identifierBase === false) {
+  	          throw new Error('invalid increment argument: identifier is empty')
+  	        }
+
+  	        if (this.prerelease.length === 0) {
+  	          this.prerelease = [base];
+  	        } else {
+  	          let i = this.prerelease.length;
+  	          while (--i >= 0) {
+  	            if (typeof this.prerelease[i] === 'number') {
+  	              this.prerelease[i]++;
+  	              i = -2;
+  	            }
+  	          }
+  	          if (i === -1) {
+  	            // didn't increment anything
+  	            if (identifier === this.prerelease.join('.') && identifierBase === false) {
+  	              throw new Error('invalid increment argument: identifier already exists')
+  	            }
+  	            this.prerelease.push(base);
+  	          }
+  	        }
+  	        if (identifier) {
+  	          // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
+  	          // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
+  	          let prerelease = [identifier, base];
+  	          if (identifierBase === false) {
+  	            prerelease = [identifier];
+  	          }
+  	          if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
+  	            if (isNaN(this.prerelease[1])) {
+  	              this.prerelease = prerelease;
+  	            }
+  	          } else {
+  	            this.prerelease = prerelease;
+  	          }
+  	        }
+  	        break
+  	      }
+  	      default:
+  	        throw new Error(`invalid increment argument: ${release}`)
+  	    }
+  	    this.raw = this.format();
+  	    if (this.build.length) {
+  	      this.raw += `+${this.build.join('.')}`;
+  	    }
+  	    return this
+  	  }
+  	}
+
+  	semver$1 = SemVer;
+  	return semver$1;
+  }
+
+  var parse_1;
+  var hasRequiredParse;
+
+  function requireParse () {
+  	if (hasRequiredParse) return parse_1;
+  	hasRequiredParse = 1;
+  	const SemVer = requireSemver$1();
+  	const parse = (version, options, throwErrors = false) => {
+  	  if (version instanceof SemVer) {
+  	    return version
+  	  }
+  	  try {
+  	    return new SemVer(version, options)
+  	  } catch (er) {
+  	    if (!throwErrors) {
+  	      return null
+  	    }
+  	    throw er
+  	  }
+  	};
+
+  	parse_1 = parse;
+  	return parse_1;
+  }
+
+  var valid_1;
+  var hasRequiredValid$1;
+
+  function requireValid$1 () {
+  	if (hasRequiredValid$1) return valid_1;
+  	hasRequiredValid$1 = 1;
+  	const parse = requireParse();
+  	const valid = (version, options) => {
+  	  const v = parse(version, options);
+  	  return v ? v.version : null
+  	};
+  	valid_1 = valid;
+  	return valid_1;
+  }
+
+  var clean_1;
+  var hasRequiredClean;
+
+  function requireClean () {
+  	if (hasRequiredClean) return clean_1;
+  	hasRequiredClean = 1;
+  	const parse = requireParse();
+  	const clean = (version, options) => {
+  	  const s = parse(version.trim().replace(/^[=v]+/, ''), options);
+  	  return s ? s.version : null
+  	};
+  	clean_1 = clean;
+  	return clean_1;
+  }
+
+  var inc_1;
+  var hasRequiredInc;
+
+  function requireInc () {
+  	if (hasRequiredInc) return inc_1;
+  	hasRequiredInc = 1;
+  	const SemVer = requireSemver$1();
+
+  	const inc = (version, release, options, identifier, identifierBase) => {
+  	  if (typeof (options) === 'string') {
+  	    identifierBase = identifier;
+  	    identifier = options;
+  	    options = undefined;
+  	  }
+
+  	  try {
+  	    return new SemVer(
+  	      version instanceof SemVer ? version.version : version,
+  	      options
+  	    ).inc(release, identifier, identifierBase).version
+  	  } catch (er) {
+  	    return null
+  	  }
+  	};
+  	inc_1 = inc;
+  	return inc_1;
+  }
+
+  var diff_1;
+  var hasRequiredDiff;
+
+  function requireDiff () {
+  	if (hasRequiredDiff) return diff_1;
+  	hasRequiredDiff = 1;
+  	const parse = requireParse();
+
+  	const diff = (version1, version2) => {
+  	  const v1 = parse(version1, null, true);
+  	  const v2 = parse(version2, null, true);
+  	  const comparison = v1.compare(v2);
+
+  	  if (comparison === 0) {
+  	    return null
+  	  }
+
+  	  const v1Higher = comparison > 0;
+  	  const highVersion = v1Higher ? v1 : v2;
+  	  const lowVersion = v1Higher ? v2 : v1;
+  	  const highHasPre = !!highVersion.prerelease.length;
+  	  const lowHasPre = !!lowVersion.prerelease.length;
+
+  	  if (lowHasPre && !highHasPre) {
+  	    // Going from prerelease -> no prerelease requires some special casing
+
+  	    // If the low version has only a major, then it will always be a major
+  	    // Some examples:
+  	    // 1.0.0-1 -> 1.0.0
+  	    // 1.0.0-1 -> 1.1.1
+  	    // 1.0.0-1 -> 2.0.0
+  	    if (!lowVersion.patch && !lowVersion.minor) {
+  	      return 'major'
+  	    }
+
+  	    // Otherwise it can be determined by checking the high version
+
+  	    if (highVersion.patch) {
+  	      // anything higher than a patch bump would result in the wrong version
+  	      return 'patch'
+  	    }
+
+  	    if (highVersion.minor) {
+  	      // anything higher than a minor bump would result in the wrong version
+  	      return 'minor'
+  	    }
+
+  	    // bumping major/minor/patch all have same result
+  	    return 'major'
+  	  }
+
+  	  // add the `pre` prefix if we are going to a prerelease version
+  	  const prefix = highHasPre ? 'pre' : '';
+
+  	  if (v1.major !== v2.major) {
+  	    return prefix + 'major'
+  	  }
+
+  	  if (v1.minor !== v2.minor) {
+  	    return prefix + 'minor'
+  	  }
+
+  	  if (v1.patch !== v2.patch) {
+  	    return prefix + 'patch'
+  	  }
+
+  	  // high and low are preleases
+  	  return 'prerelease'
+  	};
+
+  	diff_1 = diff;
+  	return diff_1;
+  }
+
+  var major_1;
+  var hasRequiredMajor;
+
+  function requireMajor () {
+  	if (hasRequiredMajor) return major_1;
+  	hasRequiredMajor = 1;
+  	const SemVer = requireSemver$1();
+  	const major = (a, loose) => new SemVer(a, loose).major;
+  	major_1 = major;
+  	return major_1;
+  }
+
+  var minor_1;
+  var hasRequiredMinor;
+
+  function requireMinor () {
+  	if (hasRequiredMinor) return minor_1;
+  	hasRequiredMinor = 1;
+  	const SemVer = requireSemver$1();
+  	const minor = (a, loose) => new SemVer(a, loose).minor;
+  	minor_1 = minor;
+  	return minor_1;
+  }
+
+  var patch_1;
+  var hasRequiredPatch;
+
+  function requirePatch () {
+  	if (hasRequiredPatch) return patch_1;
+  	hasRequiredPatch = 1;
+  	const SemVer = requireSemver$1();
+  	const patch = (a, loose) => new SemVer(a, loose).patch;
+  	patch_1 = patch;
+  	return patch_1;
+  }
+
+  var prerelease_1;
+  var hasRequiredPrerelease;
+
+  function requirePrerelease () {
+  	if (hasRequiredPrerelease) return prerelease_1;
+  	hasRequiredPrerelease = 1;
+  	const parse = requireParse();
+  	const prerelease = (version, options) => {
+  	  const parsed = parse(version, options);
+  	  return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
+  	};
+  	prerelease_1 = prerelease;
+  	return prerelease_1;
+  }
+
+  var compare_1;
+  var hasRequiredCompare;
+
+  function requireCompare () {
+  	if (hasRequiredCompare) return compare_1;
+  	hasRequiredCompare = 1;
+  	const SemVer = requireSemver$1();
+  	const compare = (a, b, loose) =>
+  	  new SemVer(a, loose).compare(new SemVer(b, loose));
+
+  	compare_1 = compare;
+  	return compare_1;
+  }
+
+  var rcompare_1;
+  var hasRequiredRcompare;
+
+  function requireRcompare () {
+  	if (hasRequiredRcompare) return rcompare_1;
+  	hasRequiredRcompare = 1;
+  	const compare = requireCompare();
+  	const rcompare = (a, b, loose) => compare(b, a, loose);
+  	rcompare_1 = rcompare;
+  	return rcompare_1;
+  }
+
+  var compareLoose_1;
+  var hasRequiredCompareLoose;
+
+  function requireCompareLoose () {
+  	if (hasRequiredCompareLoose) return compareLoose_1;
+  	hasRequiredCompareLoose = 1;
+  	const compare = requireCompare();
+  	const compareLoose = (a, b) => compare(a, b, true);
+  	compareLoose_1 = compareLoose;
+  	return compareLoose_1;
+  }
+
+  var compareBuild_1;
+  var hasRequiredCompareBuild;
+
+  function requireCompareBuild () {
+  	if (hasRequiredCompareBuild) return compareBuild_1;
+  	hasRequiredCompareBuild = 1;
+  	const SemVer = requireSemver$1();
+  	const compareBuild = (a, b, loose) => {
+  	  const versionA = new SemVer(a, loose);
+  	  const versionB = new SemVer(b, loose);
+  	  return versionA.compare(versionB) || versionA.compareBuild(versionB)
+  	};
+  	compareBuild_1 = compareBuild;
+  	return compareBuild_1;
+  }
+
+  var sort_1;
+  var hasRequiredSort;
+
+  function requireSort () {
+  	if (hasRequiredSort) return sort_1;
+  	hasRequiredSort = 1;
+  	const compareBuild = requireCompareBuild();
+  	const sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose));
+  	sort_1 = sort;
+  	return sort_1;
+  }
+
+  var rsort_1;
+  var hasRequiredRsort;
+
+  function requireRsort () {
+  	if (hasRequiredRsort) return rsort_1;
+  	hasRequiredRsort = 1;
+  	const compareBuild = requireCompareBuild();
+  	const rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose));
+  	rsort_1 = rsort;
+  	return rsort_1;
+  }
+
+  var gt_1;
+  var hasRequiredGt;
+
+  function requireGt () {
+  	if (hasRequiredGt) return gt_1;
+  	hasRequiredGt = 1;
+  	const compare = requireCompare();
+  	const gt = (a, b, loose) => compare(a, b, loose) > 0;
+  	gt_1 = gt;
+  	return gt_1;
+  }
+
+  var lt_1;
+  var hasRequiredLt;
+
+  function requireLt () {
+  	if (hasRequiredLt) return lt_1;
+  	hasRequiredLt = 1;
+  	const compare = requireCompare();
+  	const lt = (a, b, loose) => compare(a, b, loose) < 0;
+  	lt_1 = lt;
+  	return lt_1;
+  }
+
+  var eq_1;
+  var hasRequiredEq;
+
+  function requireEq () {
+  	if (hasRequiredEq) return eq_1;
+  	hasRequiredEq = 1;
+  	const compare = requireCompare();
+  	const eq = (a, b, loose) => compare(a, b, loose) === 0;
+  	eq_1 = eq;
+  	return eq_1;
+  }
+
+  var neq_1;
+  var hasRequiredNeq;
+
+  function requireNeq () {
+  	if (hasRequiredNeq) return neq_1;
+  	hasRequiredNeq = 1;
+  	const compare = requireCompare();
+  	const neq = (a, b, loose) => compare(a, b, loose) !== 0;
+  	neq_1 = neq;
+  	return neq_1;
+  }
+
+  var gte_1;
+  var hasRequiredGte;
+
+  function requireGte () {
+  	if (hasRequiredGte) return gte_1;
+  	hasRequiredGte = 1;
+  	const compare = requireCompare();
+  	const gte = (a, b, loose) => compare(a, b, loose) >= 0;
+  	gte_1 = gte;
+  	return gte_1;
+  }
+
+  var lte_1;
+  var hasRequiredLte;
+
+  function requireLte () {
+  	if (hasRequiredLte) return lte_1;
+  	hasRequiredLte = 1;
+  	const compare = requireCompare();
+  	const lte = (a, b, loose) => compare(a, b, loose) <= 0;
+  	lte_1 = lte;
+  	return lte_1;
+  }
+
+  var cmp_1;
+  var hasRequiredCmp;
+
+  function requireCmp () {
+  	if (hasRequiredCmp) return cmp_1;
+  	hasRequiredCmp = 1;
+  	const eq = requireEq();
+  	const neq = requireNeq();
+  	const gt = requireGt();
+  	const gte = requireGte();
+  	const lt = requireLt();
+  	const lte = requireLte();
+
+  	const cmp = (a, op, b, loose) => {
+  	  switch (op) {
+  	    case '===':
+  	      if (typeof a === 'object') {
+  	        a = a.version;
+  	      }
+  	      if (typeof b === 'object') {
+  	        b = b.version;
+  	      }
+  	      return a === b
+
+  	    case '!==':
+  	      if (typeof a === 'object') {
+  	        a = a.version;
+  	      }
+  	      if (typeof b === 'object') {
+  	        b = b.version;
+  	      }
+  	      return a !== b
+
+  	    case '':
+  	    case '=':
+  	    case '==':
+  	      return eq(a, b, loose)
+
+  	    case '!=':
+  	      return neq(a, b, loose)
+
+  	    case '>':
+  	      return gt(a, b, loose)
+
+  	    case '>=':
+  	      return gte(a, b, loose)
+
+  	    case '<':
+  	      return lt(a, b, loose)
+
+  	    case '<=':
+  	      return lte(a, b, loose)
+
+  	    default:
+  	      throw new TypeError(`Invalid operator: ${op}`)
+  	  }
+  	};
+  	cmp_1 = cmp;
+  	return cmp_1;
+  }
+
+  var coerce_1;
+  var hasRequiredCoerce;
+
+  function requireCoerce () {
+  	if (hasRequiredCoerce) return coerce_1;
+  	hasRequiredCoerce = 1;
+  	const SemVer = requireSemver$1();
+  	const parse = requireParse();
+  	const { safeRe: re, t } = requireRe();
+
+  	const coerce = (version, options) => {
+  	  if (version instanceof SemVer) {
+  	    return version
+  	  }
+
+  	  if (typeof version === 'number') {
+  	    version = String(version);
+  	  }
+
+  	  if (typeof version !== 'string') {
+  	    return null
+  	  }
+
+  	  options = options || {};
+
+  	  let match = null;
+  	  if (!options.rtl) {
+  	    match = version.match(options.includePrerelease ? re[t.COERCEFULL] : re[t.COERCE]);
+  	  } else {
+  	    // Find the right-most coercible string that does not share
+  	    // a terminus with a more left-ward coercible string.
+  	    // Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
+  	    // With includePrerelease option set, '1.2.3.4-rc' wants to coerce '2.3.4-rc', not '2.3.4'
+  	    //
+  	    // Walk through the string checking with a /g regexp
+  	    // Manually set the index so as to pick up overlapping matches.
+  	    // Stop when we get a match that ends at the string end, since no
+  	    // coercible string can be more right-ward without the same terminus.
+  	    const coerceRtlRegex = options.includePrerelease ? re[t.COERCERTLFULL] : re[t.COERCERTL];
+  	    let next;
+  	    while ((next = coerceRtlRegex.exec(version)) &&
+  	        (!match || match.index + match[0].length !== version.length)
+  	    ) {
+  	      if (!match ||
+  	            next.index + next[0].length !== match.index + match[0].length) {
+  	        match = next;
+  	      }
+  	      coerceRtlRegex.lastIndex = next.index + next[1].length + next[2].length;
+  	    }
+  	    // leave it in a clean state
+  	    coerceRtlRegex.lastIndex = -1;
+  	  }
+
+  	  if (match === null) {
+  	    return null
+  	  }
+
+  	  const major = match[2];
+  	  const minor = match[3] || '0';
+  	  const patch = match[4] || '0';
+  	  const prerelease = options.includePrerelease && match[5] ? `-${match[5]}` : '';
+  	  const build = options.includePrerelease && match[6] ? `+${match[6]}` : '';
+
+  	  return parse(`${major}.${minor}.${patch}${prerelease}${build}`, options)
+  	};
+  	coerce_1 = coerce;
+  	return coerce_1;
+  }
+
+  var lrucache;
+  var hasRequiredLrucache;
+
+  function requireLrucache () {
+  	if (hasRequiredLrucache) return lrucache;
+  	hasRequiredLrucache = 1;
+  	class LRUCache {
+  	  constructor () {
+  	    this.max = 1000;
+  	    this.map = new Map();
+  	  }
+
+  	  get (key) {
+  	    const value = this.map.get(key);
+  	    if (value === undefined) {
+  	      return undefined
+  	    } else {
+  	      // Remove the key from the map and add it to the end
+  	      this.map.delete(key);
+  	      this.map.set(key, value);
+  	      return value
+  	    }
+  	  }
+
+  	  delete (key) {
+  	    return this.map.delete(key)
+  	  }
+
+  	  set (key, value) {
+  	    const deleted = this.delete(key);
+
+  	    if (!deleted && value !== undefined) {
+  	      // If cache is full, delete the least recently used item
+  	      if (this.map.size >= this.max) {
+  	        const firstKey = this.map.keys().next().value;
+  	        this.delete(firstKey);
+  	      }
+
+  	      this.map.set(key, value);
+  	    }
+
+  	    return this
+  	  }
+  	}
+
+  	lrucache = LRUCache;
+  	return lrucache;
+  }
+
+  var range;
+  var hasRequiredRange;
+
+  function requireRange () {
+  	if (hasRequiredRange) return range;
+  	hasRequiredRange = 1;
+  	const SPACE_CHARACTERS = /\s+/g;
+
+  	// hoisted class for cyclic dependency
+  	class Range {
+  	  constructor (range, options) {
+  	    options = parseOptions(options);
+
+  	    if (range instanceof Range) {
+  	      if (
+  	        range.loose === !!options.loose &&
+  	        range.includePrerelease === !!options.includePrerelease
+  	      ) {
+  	        return range
+  	      } else {
+  	        return new Range(range.raw, options)
+  	      }
+  	    }
+
+  	    if (range instanceof Comparator) {
+  	      // just put it in the set and return
+  	      this.raw = range.value;
+  	      this.set = [[range]];
+  	      this.formatted = undefined;
+  	      return this
+  	    }
+
+  	    this.options = options;
+  	    this.loose = !!options.loose;
+  	    this.includePrerelease = !!options.includePrerelease;
+
+  	    // First reduce all whitespace as much as possible so we do not have to rely
+  	    // on potentially slow regexes like \s*. This is then stored and used for
+  	    // future error messages as well.
+  	    this.raw = range.trim().replace(SPACE_CHARACTERS, ' ');
+
+  	    // First, split on ||
+  	    this.set = this.raw
+  	      .split('||')
+  	      // map the range to a 2d array of comparators
+  	      .map(r => this.parseRange(r.trim()))
+  	      // throw out any comparator lists that are empty
+  	      // this generally means that it was not a valid range, which is allowed
+  	      // in loose mode, but will still throw if the WHOLE range is invalid.
+  	      .filter(c => c.length);
+
+  	    if (!this.set.length) {
+  	      throw new TypeError(`Invalid SemVer Range: ${this.raw}`)
+  	    }
+
+  	    // if we have any that are not the null set, throw out null sets.
+  	    if (this.set.length > 1) {
+  	      // keep the first one, in case they're all null sets
+  	      const first = this.set[0];
+  	      this.set = this.set.filter(c => !isNullSet(c[0]));
+  	      if (this.set.length === 0) {
+  	        this.set = [first];
+  	      } else if (this.set.length > 1) {
+  	        // if we have any that are *, then the range is just *
+  	        for (const c of this.set) {
+  	          if (c.length === 1 && isAny(c[0])) {
+  	            this.set = [c];
+  	            break
+  	          }
+  	        }
+  	      }
+  	    }
+
+  	    this.formatted = undefined;
+  	  }
+
+  	  get range () {
+  	    if (this.formatted === undefined) {
+  	      this.formatted = '';
+  	      for (let i = 0; i < this.set.length; i++) {
+  	        if (i > 0) {
+  	          this.formatted += '||';
+  	        }
+  	        const comps = this.set[i];
+  	        for (let k = 0; k < comps.length; k++) {
+  	          if (k > 0) {
+  	            this.formatted += ' ';
+  	          }
+  	          this.formatted += comps[k].toString().trim();
+  	        }
+  	      }
+  	    }
+  	    return this.formatted
+  	  }
+
+  	  format () {
+  	    return this.range
+  	  }
+
+  	  toString () {
+  	    return this.range
+  	  }
+
+  	  parseRange (range) {
+  	    // memoize range parsing for performance.
+  	    // this is a very hot path, and fully deterministic.
+  	    const memoOpts =
+  	      (this.options.includePrerelease && FLAG_INCLUDE_PRERELEASE) |
+  	      (this.options.loose && FLAG_LOOSE);
+  	    const memoKey = memoOpts + ':' + range;
+  	    const cached = cache.get(memoKey);
+  	    if (cached) {
+  	      return cached
+  	    }
+
+  	    const loose = this.options.loose;
+  	    // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
+  	    const hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE];
+  	    range = range.replace(hr, hyphenReplace(this.options.includePrerelease));
+  	    debug('hyphen replace', range);
+
+  	    // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
+  	    range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
+  	    debug('comparator trim', range);
+
+  	    // `~ 1.2.3` => `~1.2.3`
+  	    range = range.replace(re[t.TILDETRIM], tildeTrimReplace);
+  	    debug('tilde trim', range);
+
+  	    // `^ 1.2.3` => `^1.2.3`
+  	    range = range.replace(re[t.CARETTRIM], caretTrimReplace);
+  	    debug('caret trim', range);
+
+  	    // At this point, the range is completely trimmed and
+  	    // ready to be split into comparators.
+
+  	    let rangeList = range
+  	      .split(' ')
+  	      .map(comp => parseComparator(comp, this.options))
+  	      .join(' ')
+  	      .split(/\s+/)
+  	      // >=0.0.0 is equivalent to *
+  	      .map(comp => replaceGTE0(comp, this.options));
+
+  	    if (loose) {
+  	      // in loose mode, throw out any that are not valid comparators
+  	      rangeList = rangeList.filter(comp => {
+  	        debug('loose invalid filter', comp, this.options);
+  	        return !!comp.match(re[t.COMPARATORLOOSE])
+  	      });
+  	    }
+  	    debug('range list', rangeList);
+
+  	    // if any comparators are the null set, then replace with JUST null set
+  	    // if more than one comparator, remove any * comparators
+  	    // also, don't include the same comparator more than once
+  	    const rangeMap = new Map();
+  	    const comparators = rangeList.map(comp => new Comparator(comp, this.options));
+  	    for (const comp of comparators) {
+  	      if (isNullSet(comp)) {
+  	        return [comp]
+  	      }
+  	      rangeMap.set(comp.value, comp);
+  	    }
+  	    if (rangeMap.size > 1 && rangeMap.has('')) {
+  	      rangeMap.delete('');
+  	    }
+
+  	    const result = [...rangeMap.values()];
+  	    cache.set(memoKey, result);
+  	    return result
+  	  }
+
+  	  intersects (range, options) {
+  	    if (!(range instanceof Range)) {
+  	      throw new TypeError('a Range is required')
+  	    }
+
+  	    return this.set.some((thisComparators) => {
+  	      return (
+  	        isSatisfiable(thisComparators, options) &&
+  	        range.set.some((rangeComparators) => {
+  	          return (
+  	            isSatisfiable(rangeComparators, options) &&
+  	            thisComparators.every((thisComparator) => {
+  	              return rangeComparators.every((rangeComparator) => {
+  	                return thisComparator.intersects(rangeComparator, options)
+  	              })
+  	            })
+  	          )
+  	        })
+  	      )
+  	    })
+  	  }
+
+  	  // if ANY of the sets match ALL of its comparators, then pass
+  	  test (version) {
+  	    if (!version) {
+  	      return false
+  	    }
+
+  	    if (typeof version === 'string') {
+  	      try {
+  	        version = new SemVer(version, this.options);
+  	      } catch (er) {
+  	        return false
+  	      }
+  	    }
+
+  	    for (let i = 0; i < this.set.length; i++) {
+  	      if (testSet(this.set[i], version, this.options)) {
+  	        return true
+  	      }
+  	    }
+  	    return false
+  	  }
+  	}
+
+  	range = Range;
+
+  	const LRU = requireLrucache();
+  	const cache = new LRU();
+
+  	const parseOptions = requireParseOptions();
+  	const Comparator = requireComparator();
+  	const debug = requireDebug();
+  	const SemVer = requireSemver$1();
+  	const {
+  	  safeRe: re,
+  	  t,
+  	  comparatorTrimReplace,
+  	  tildeTrimReplace,
+  	  caretTrimReplace,
+  	} = requireRe();
+  	const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = requireConstants();
+
+  	const isNullSet = c => c.value === '<0.0.0-0';
+  	const isAny = c => c.value === '';
+
+  	// take a set of comparators and determine whether there
+  	// exists a version which can satisfy it
+  	const isSatisfiable = (comparators, options) => {
+  	  let result = true;
+  	  const remainingComparators = comparators.slice();
+  	  let testComparator = remainingComparators.pop();
+
+  	  while (result && remainingComparators.length) {
+  	    result = remainingComparators.every((otherComparator) => {
+  	      return testComparator.intersects(otherComparator, options)
+  	    });
+
+  	    testComparator = remainingComparators.pop();
+  	  }
+
+  	  return result
+  	};
+
+  	// comprised of xranges, tildes, stars, and gtlt's at this point.
+  	// already replaced the hyphen ranges
+  	// turn into a set of JUST comparators.
+  	const parseComparator = (comp, options) => {
+  	  debug('comp', comp, options);
+  	  comp = replaceCarets(comp, options);
+  	  debug('caret', comp);
+  	  comp = replaceTildes(comp, options);
+  	  debug('tildes', comp);
+  	  comp = replaceXRanges(comp, options);
+  	  debug('xrange', comp);
+  	  comp = replaceStars(comp, options);
+  	  debug('stars', comp);
+  	  return comp
+  	};
+
+  	const isX = id => !id || id.toLowerCase() === 'x' || id === '*';
+
+  	// ~, ~> --> * (any, kinda silly)
+  	// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0-0
+  	// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0-0
+  	// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0-0
+  	// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0-0
+  	// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0-0
+  	// ~0.0.1 --> >=0.0.1 <0.1.0-0
+  	const replaceTildes = (comp, options) => {
+  	  return comp
+  	    .trim()
+  	    .split(/\s+/)
+  	    .map((c) => replaceTilde(c, options))
+  	    .join(' ')
+  	};
+
+  	const replaceTilde = (comp, options) => {
+  	  const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
+  	  return comp.replace(r, (_, M, m, p, pr) => {
+  	    debug('tilde', comp, _, M, m, p, pr);
+  	    let ret;
+
+  	    if (isX(M)) {
+  	      ret = '';
+  	    } else if (isX(m)) {
+  	      ret = `>=${M}.0.0 <${+M + 1}.0.0-0`;
+  	    } else if (isX(p)) {
+  	      // ~1.2 == >=1.2.0 <1.3.0-0
+  	      ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
+  	    } else if (pr) {
+  	      debug('replaceTilde pr', pr);
+  	      ret = `>=${M}.${m}.${p}-${pr
+	      } <${M}.${+m + 1}.0-0`;
+  	    } else {
+  	      // ~1.2.3 == >=1.2.3 <1.3.0-0
+  	      ret = `>=${M}.${m}.${p
+	      } <${M}.${+m + 1}.0-0`;
+  	    }
+
+  	    debug('tilde return', ret);
+  	    return ret
+  	  })
+  	};
+
+  	// ^ --> * (any, kinda silly)
+  	// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0-0
+  	// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0-0
+  	// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0-0
+  	// ^1.2.3 --> >=1.2.3 <2.0.0-0
+  	// ^1.2.0 --> >=1.2.0 <2.0.0-0
+  	// ^0.0.1 --> >=0.0.1 <0.0.2-0
+  	// ^0.1.0 --> >=0.1.0 <0.2.0-0
+  	const replaceCarets = (comp, options) => {
+  	  return comp
+  	    .trim()
+  	    .split(/\s+/)
+  	    .map((c) => replaceCaret(c, options))
+  	    .join(' ')
+  	};
+
+  	const replaceCaret = (comp, options) => {
+  	  debug('caret', comp, options);
+  	  const r = options.loose ? re[t.CARETLOOSE] : re[t.CARET];
+  	  const z = options.includePrerelease ? '-0' : '';
+  	  return comp.replace(r, (_, M, m, p, pr) => {
+  	    debug('caret', comp, _, M, m, p, pr);
+  	    let ret;
+
+  	    if (isX(M)) {
+  	      ret = '';
+  	    } else if (isX(m)) {
+  	      ret = `>=${M}.0.0${z} <${+M + 1}.0.0-0`;
+  	    } else if (isX(p)) {
+  	      if (M === '0') {
+  	        ret = `>=${M}.${m}.0${z} <${M}.${+m + 1}.0-0`;
+  	      } else {
+  	        ret = `>=${M}.${m}.0${z} <${+M + 1}.0.0-0`;
+  	      }
+  	    } else if (pr) {
+  	      debug('replaceCaret pr', pr);
+  	      if (M === '0') {
+  	        if (m === '0') {
+  	          ret = `>=${M}.${m}.${p}-${pr
+	          } <${M}.${m}.${+p + 1}-0`;
+  	        } else {
+  	          ret = `>=${M}.${m}.${p}-${pr
+	          } <${M}.${+m + 1}.0-0`;
+  	        }
+  	      } else {
+  	        ret = `>=${M}.${m}.${p}-${pr
+	        } <${+M + 1}.0.0-0`;
+  	      }
+  	    } else {
+  	      debug('no pr');
+  	      if (M === '0') {
+  	        if (m === '0') {
+  	          ret = `>=${M}.${m}.${p
+	          }${z} <${M}.${m}.${+p + 1}-0`;
+  	        } else {
+  	          ret = `>=${M}.${m}.${p
+	          }${z} <${M}.${+m + 1}.0-0`;
+  	        }
+  	      } else {
+  	        ret = `>=${M}.${m}.${p
+	        } <${+M + 1}.0.0-0`;
+  	      }
+  	    }
+
+  	    debug('caret return', ret);
+  	    return ret
+  	  })
+  	};
+
+  	const replaceXRanges = (comp, options) => {
+  	  debug('replaceXRanges', comp, options);
+  	  return comp
+  	    .split(/\s+/)
+  	    .map((c) => replaceXRange(c, options))
+  	    .join(' ')
+  	};
+
+  	const replaceXRange = (comp, options) => {
+  	  comp = comp.trim();
+  	  const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
+  	  return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
+  	    debug('xRange', comp, ret, gtlt, M, m, p, pr);
+  	    const xM = isX(M);
+  	    const xm = xM || isX(m);
+  	    const xp = xm || isX(p);
+  	    const anyX = xp;
+
+  	    if (gtlt === '=' && anyX) {
+  	      gtlt = '';
+  	    }
+
+  	    // if we're including prereleases in the match, then we need
+  	    // to fix this to -0, the lowest possible prerelease value
+  	    pr = options.includePrerelease ? '-0' : '';
+
+  	    if (xM) {
+  	      if (gtlt === '>' || gtlt === '<') {
+  	        // nothing is allowed
+  	        ret = '<0.0.0-0';
+  	      } else {
+  	        // nothing is forbidden
+  	        ret = '*';
+  	      }
+  	    } else if (gtlt && anyX) {
+  	      // we know patch is an x, because we have any x at all.
+  	      // replace X with 0
+  	      if (xm) {
+  	        m = 0;
+  	      }
+  	      p = 0;
+
+  	      if (gtlt === '>') {
+  	        // >1 => >=2.0.0
+  	        // >1.2 => >=1.3.0
+  	        gtlt = '>=';
+  	        if (xm) {
+  	          M = +M + 1;
+  	          m = 0;
+  	          p = 0;
+  	        } else {
+  	          m = +m + 1;
+  	          p = 0;
+  	        }
+  	      } else if (gtlt === '<=') {
+  	        // <=0.7.x is actually <0.8.0, since any 0.7.x should
+  	        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
+  	        gtlt = '<';
+  	        if (xm) {
+  	          M = +M + 1;
+  	        } else {
+  	          m = +m + 1;
+  	        }
+  	      }
+
+  	      if (gtlt === '<') {
+  	        pr = '-0';
+  	      }
+
+  	      ret = `${gtlt + M}.${m}.${p}${pr}`;
+  	    } else if (xm) {
+  	      ret = `>=${M}.0.0${pr} <${+M + 1}.0.0-0`;
+  	    } else if (xp) {
+  	      ret = `>=${M}.${m}.0${pr
+	      } <${M}.${+m + 1}.0-0`;
+  	    }
+
+  	    debug('xRange return', ret);
+
+  	    return ret
+  	  })
+  	};
+
+  	// Because * is AND-ed with everything else in the comparator,
+  	// and '' means "any version", just remove the *s entirely.
+  	const replaceStars = (comp, options) => {
+  	  debug('replaceStars', comp, options);
+  	  // Looseness is ignored here.  star is always as loose as it gets!
+  	  return comp
+  	    .trim()
+  	    .replace(re[t.STAR], '')
+  	};
+
+  	const replaceGTE0 = (comp, options) => {
+  	  debug('replaceGTE0', comp, options);
+  	  return comp
+  	    .trim()
+  	    .replace(re[options.includePrerelease ? t.GTE0PRE : t.GTE0], '')
+  	};
+
+  	// This function is passed to string.replace(re[t.HYPHENRANGE])
+  	// M, m, patch, prerelease, build
+  	// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
+  	// 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
+  	// 1.2 - 3.4 => >=1.2.0 <3.5.0-0
+  	// TODO build?
+  	const hyphenReplace = incPr => ($0,
+  	  from, fM, fm, fp, fpr, fb,
+  	  to, tM, tm, tp, tpr) => {
+  	  if (isX(fM)) {
+  	    from = '';
+  	  } else if (isX(fm)) {
+  	    from = `>=${fM}.0.0${incPr ? '-0' : ''}`;
+  	  } else if (isX(fp)) {
+  	    from = `>=${fM}.${fm}.0${incPr ? '-0' : ''}`;
+  	  } else if (fpr) {
+  	    from = `>=${from}`;
+  	  } else {
+  	    from = `>=${from}${incPr ? '-0' : ''}`;
+  	  }
+
+  	  if (isX(tM)) {
+  	    to = '';
+  	  } else if (isX(tm)) {
+  	    to = `<${+tM + 1}.0.0-0`;
+  	  } else if (isX(tp)) {
+  	    to = `<${tM}.${+tm + 1}.0-0`;
+  	  } else if (tpr) {
+  	    to = `<=${tM}.${tm}.${tp}-${tpr}`;
+  	  } else if (incPr) {
+  	    to = `<${tM}.${tm}.${+tp + 1}-0`;
+  	  } else {
+  	    to = `<=${to}`;
+  	  }
+
+  	  return `${from} ${to}`.trim()
+  	};
+
+  	const testSet = (set, version, options) => {
+  	  for (let i = 0; i < set.length; i++) {
+  	    if (!set[i].test(version)) {
+  	      return false
+  	    }
+  	  }
+
+  	  if (version.prerelease.length && !options.includePrerelease) {
+  	    // Find the set of versions that are allowed to have prereleases
+  	    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
+  	    // That should allow `1.2.3-pr.2` to pass.
+  	    // However, `1.2.4-alpha.notready` should NOT be allowed,
+  	    // even though it's within the range set by the comparators.
+  	    for (let i = 0; i < set.length; i++) {
+  	      debug(set[i].semver);
+  	      if (set[i].semver === Comparator.ANY) {
+  	        continue
+  	      }
+
+  	      if (set[i].semver.prerelease.length > 0) {
+  	        const allowed = set[i].semver;
+  	        if (allowed.major === version.major &&
+  	            allowed.minor === version.minor &&
+  	            allowed.patch === version.patch) {
+  	          return true
+  	        }
+  	      }
+  	    }
+
+  	    // Version has a -pre, but it's not one of the ones we like.
+  	    return false
+  	  }
+
+  	  return true
+  	};
+  	return range;
+  }
+
+  var comparator;
+  var hasRequiredComparator;
+
+  function requireComparator () {
+  	if (hasRequiredComparator) return comparator;
+  	hasRequiredComparator = 1;
+  	const ANY = Symbol('SemVer ANY');
+  	// hoisted class for cyclic dependency
+  	class Comparator {
+  	  static get ANY () {
+  	    return ANY
+  	  }
+
+  	  constructor (comp, options) {
+  	    options = parseOptions(options);
+
+  	    if (comp instanceof Comparator) {
+  	      if (comp.loose === !!options.loose) {
+  	        return comp
+  	      } else {
+  	        comp = comp.value;
+  	      }
+  	    }
+
+  	    comp = comp.trim().split(/\s+/).join(' ');
+  	    debug('comparator', comp, options);
+  	    this.options = options;
+  	    this.loose = !!options.loose;
+  	    this.parse(comp);
+
+  	    if (this.semver === ANY) {
+  	      this.value = '';
+  	    } else {
+  	      this.value = this.operator + this.semver.version;
+  	    }
+
+  	    debug('comp', this);
+  	  }
+
+  	  parse (comp) {
+  	    const r = this.options.loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR];
+  	    const m = comp.match(r);
+
+  	    if (!m) {
+  	      throw new TypeError(`Invalid comparator: ${comp}`)
+  	    }
+
+  	    this.operator = m[1] !== undefined ? m[1] : '';
+  	    if (this.operator === '=') {
+  	      this.operator = '';
+  	    }
+
+  	    // if it literally is just '>' or '' then allow anything.
+  	    if (!m[2]) {
+  	      this.semver = ANY;
+  	    } else {
+  	      this.semver = new SemVer(m[2], this.options.loose);
+  	    }
+  	  }
+
+  	  toString () {
+  	    return this.value
+  	  }
+
+  	  test (version) {
+  	    debug('Comparator.test', version, this.options.loose);
+
+  	    if (this.semver === ANY || version === ANY) {
+  	      return true
+  	    }
+
+  	    if (typeof version === 'string') {
+  	      try {
+  	        version = new SemVer(version, this.options);
+  	      } catch (er) {
+  	        return false
+  	      }
+  	    }
+
+  	    return cmp(version, this.operator, this.semver, this.options)
+  	  }
+
+  	  intersects (comp, options) {
+  	    if (!(comp instanceof Comparator)) {
+  	      throw new TypeError('a Comparator is required')
+  	    }
+
+  	    if (this.operator === '') {
+  	      if (this.value === '') {
+  	        return true
+  	      }
+  	      return new Range(comp.value, options).test(this.value)
+  	    } else if (comp.operator === '') {
+  	      if (comp.value === '') {
+  	        return true
+  	      }
+  	      return new Range(this.value, options).test(comp.semver)
+  	    }
+
+  	    options = parseOptions(options);
+
+  	    // Special cases where nothing can possibly be lower
+  	    if (options.includePrerelease &&
+  	      (this.value === '<0.0.0-0' || comp.value === '<0.0.0-0')) {
+  	      return false
+  	    }
+  	    if (!options.includePrerelease &&
+  	      (this.value.startsWith('<0.0.0') || comp.value.startsWith('<0.0.0'))) {
+  	      return false
+  	    }
+
+  	    // Same direction increasing (> or >=)
+  	    if (this.operator.startsWith('>') && comp.operator.startsWith('>')) {
+  	      return true
+  	    }
+  	    // Same direction decreasing (< or <=)
+  	    if (this.operator.startsWith('<') && comp.operator.startsWith('<')) {
+  	      return true
+  	    }
+  	    // same SemVer and both sides are inclusive (<= or >=)
+  	    if (
+  	      (this.semver.version === comp.semver.version) &&
+  	      this.operator.includes('=') && comp.operator.includes('=')) {
+  	      return true
+  	    }
+  	    // opposite directions less than
+  	    if (cmp(this.semver, '<', comp.semver, options) &&
+  	      this.operator.startsWith('>') && comp.operator.startsWith('<')) {
+  	      return true
+  	    }
+  	    // opposite directions greater than
+  	    if (cmp(this.semver, '>', comp.semver, options) &&
+  	      this.operator.startsWith('<') && comp.operator.startsWith('>')) {
+  	      return true
+  	    }
+  	    return false
+  	  }
+  	}
+
+  	comparator = Comparator;
+
+  	const parseOptions = requireParseOptions();
+  	const { safeRe: re, t } = requireRe();
+  	const cmp = requireCmp();
+  	const debug = requireDebug();
+  	const SemVer = requireSemver$1();
+  	const Range = requireRange();
+  	return comparator;
+  }
+
+  var satisfies_1;
+  var hasRequiredSatisfies;
+
+  function requireSatisfies () {
+  	if (hasRequiredSatisfies) return satisfies_1;
+  	hasRequiredSatisfies = 1;
+  	const Range = requireRange();
+  	const satisfies = (version, range, options) => {
+  	  try {
+  	    range = new Range(range, options);
+  	  } catch (er) {
+  	    return false
+  	  }
+  	  return range.test(version)
+  	};
+  	satisfies_1 = satisfies;
+  	return satisfies_1;
+  }
+
+  var toComparators_1;
+  var hasRequiredToComparators;
+
+  function requireToComparators () {
+  	if (hasRequiredToComparators) return toComparators_1;
+  	hasRequiredToComparators = 1;
+  	const Range = requireRange();
+
+  	// Mostly just for testing and legacy API reasons
+  	const toComparators = (range, options) =>
+  	  new Range(range, options).set
+  	    .map(comp => comp.map(c => c.value).join(' ').trim().split(' '));
+
+  	toComparators_1 = toComparators;
+  	return toComparators_1;
+  }
+
+  var maxSatisfying_1;
+  var hasRequiredMaxSatisfying;
+
+  function requireMaxSatisfying () {
+  	if (hasRequiredMaxSatisfying) return maxSatisfying_1;
+  	hasRequiredMaxSatisfying = 1;
+  	const SemVer = requireSemver$1();
+  	const Range = requireRange();
+
+  	const maxSatisfying = (versions, range, options) => {
+  	  let max = null;
+  	  let maxSV = null;
+  	  let rangeObj = null;
+  	  try {
+  	    rangeObj = new Range(range, options);
+  	  } catch (er) {
+  	    return null
+  	  }
+  	  versions.forEach((v) => {
+  	    if (rangeObj.test(v)) {
+  	      // satisfies(v, range, options)
+  	      if (!max || maxSV.compare(v) === -1) {
+  	        // compare(max, v, true)
+  	        max = v;
+  	        maxSV = new SemVer(max, options);
+  	      }
+  	    }
+  	  });
+  	  return max
+  	};
+  	maxSatisfying_1 = maxSatisfying;
+  	return maxSatisfying_1;
+  }
+
+  var minSatisfying_1;
+  var hasRequiredMinSatisfying;
+
+  function requireMinSatisfying () {
+  	if (hasRequiredMinSatisfying) return minSatisfying_1;
+  	hasRequiredMinSatisfying = 1;
+  	const SemVer = requireSemver$1();
+  	const Range = requireRange();
+  	const minSatisfying = (versions, range, options) => {
+  	  let min = null;
+  	  let minSV = null;
+  	  let rangeObj = null;
+  	  try {
+  	    rangeObj = new Range(range, options);
+  	  } catch (er) {
+  	    return null
+  	  }
+  	  versions.forEach((v) => {
+  	    if (rangeObj.test(v)) {
+  	      // satisfies(v, range, options)
+  	      if (!min || minSV.compare(v) === 1) {
+  	        // compare(min, v, true)
+  	        min = v;
+  	        minSV = new SemVer(min, options);
+  	      }
+  	    }
+  	  });
+  	  return min
+  	};
+  	minSatisfying_1 = minSatisfying;
+  	return minSatisfying_1;
+  }
+
+  var minVersion_1;
+  var hasRequiredMinVersion;
+
+  function requireMinVersion () {
+  	if (hasRequiredMinVersion) return minVersion_1;
+  	hasRequiredMinVersion = 1;
+  	const SemVer = requireSemver$1();
+  	const Range = requireRange();
+  	const gt = requireGt();
+
+  	const minVersion = (range, loose) => {
+  	  range = new Range(range, loose);
+
+  	  let minver = new SemVer('0.0.0');
+  	  if (range.test(minver)) {
+  	    return minver
+  	  }
+
+  	  minver = new SemVer('0.0.0-0');
+  	  if (range.test(minver)) {
+  	    return minver
+  	  }
+
+  	  minver = null;
+  	  for (let i = 0; i < range.set.length; ++i) {
+  	    const comparators = range.set[i];
+
+  	    let setMin = null;
+  	    comparators.forEach((comparator) => {
+  	      // Clone to avoid manipulating the comparator's semver object.
+  	      const compver = new SemVer(comparator.semver.version);
+  	      switch (comparator.operator) {
+  	        case '>':
+  	          if (compver.prerelease.length === 0) {
+  	            compver.patch++;
+  	          } else {
+  	            compver.prerelease.push(0);
+  	          }
+  	          compver.raw = compver.format();
+  	          /* fallthrough */
+  	        case '':
+  	        case '>=':
+  	          if (!setMin || gt(compver, setMin)) {
+  	            setMin = compver;
+  	          }
+  	          break
+  	        case '<':
+  	        case '<=':
+  	          /* Ignore maximum versions */
+  	          break
+  	        /* istanbul ignore next */
+  	        default:
+  	          throw new Error(`Unexpected operation: ${comparator.operator}`)
+  	      }
+  	    });
+  	    if (setMin && (!minver || gt(minver, setMin))) {
+  	      minver = setMin;
+  	    }
+  	  }
+
+  	  if (minver && range.test(minver)) {
+  	    return minver
+  	  }
+
+  	  return null
+  	};
+  	minVersion_1 = minVersion;
+  	return minVersion_1;
+  }
+
+  var valid;
+  var hasRequiredValid;
+
+  function requireValid () {
+  	if (hasRequiredValid) return valid;
+  	hasRequiredValid = 1;
+  	const Range = requireRange();
+  	const validRange = (range, options) => {
+  	  try {
+  	    // Return '*' instead of '' so that truthiness works.
+  	    // This will throw if it's invalid anyway
+  	    return new Range(range, options).range || '*'
+  	  } catch (er) {
+  	    return null
+  	  }
+  	};
+  	valid = validRange;
+  	return valid;
+  }
+
+  var outside_1;
+  var hasRequiredOutside;
+
+  function requireOutside () {
+  	if (hasRequiredOutside) return outside_1;
+  	hasRequiredOutside = 1;
+  	const SemVer = requireSemver$1();
+  	const Comparator = requireComparator();
+  	const { ANY } = Comparator;
+  	const Range = requireRange();
+  	const satisfies = requireSatisfies();
+  	const gt = requireGt();
+  	const lt = requireLt();
+  	const lte = requireLte();
+  	const gte = requireGte();
+
+  	const outside = (version, range, hilo, options) => {
+  	  version = new SemVer(version, options);
+  	  range = new Range(range, options);
+
+  	  let gtfn, ltefn, ltfn, comp, ecomp;
+  	  switch (hilo) {
+  	    case '>':
+  	      gtfn = gt;
+  	      ltefn = lte;
+  	      ltfn = lt;
+  	      comp = '>';
+  	      ecomp = '>=';
+  	      break
+  	    case '<':
+  	      gtfn = lt;
+  	      ltefn = gte;
+  	      ltfn = gt;
+  	      comp = '<';
+  	      ecomp = '<=';
+  	      break
+  	    default:
+  	      throw new TypeError('Must provide a hilo val of "<" or ">"')
+  	  }
+
+  	  // If it satisfies the range it is not outside
+  	  if (satisfies(version, range, options)) {
+  	    return false
+  	  }
+
+  	  // From now on, variable terms are as if we're in "gtr" mode.
+  	  // but note that everything is flipped for the "ltr" function.
+
+  	  for (let i = 0; i < range.set.length; ++i) {
+  	    const comparators = range.set[i];
+
+  	    let high = null;
+  	    let low = null;
+
+  	    comparators.forEach((comparator) => {
+  	      if (comparator.semver === ANY) {
+  	        comparator = new Comparator('>=0.0.0');
+  	      }
+  	      high = high || comparator;
+  	      low = low || comparator;
+  	      if (gtfn(comparator.semver, high.semver, options)) {
+  	        high = comparator;
+  	      } else if (ltfn(comparator.semver, low.semver, options)) {
+  	        low = comparator;
+  	      }
+  	    });
+
+  	    // If the edge version comparator has a operator then our version
+  	    // isn't outside it
+  	    if (high.operator === comp || high.operator === ecomp) {
+  	      return false
+  	    }
+
+  	    // If the lowest version comparator has an operator and our version
+  	    // is less than it then it isn't higher than the range
+  	    if ((!low.operator || low.operator === comp) &&
+  	        ltefn(version, low.semver)) {
+  	      return false
+  	    } else if (low.operator === ecomp && ltfn(version, low.semver)) {
+  	      return false
+  	    }
+  	  }
+  	  return true
+  	};
+
+  	outside_1 = outside;
+  	return outside_1;
+  }
+
+  var gtr_1;
+  var hasRequiredGtr;
+
+  function requireGtr () {
+  	if (hasRequiredGtr) return gtr_1;
+  	hasRequiredGtr = 1;
+  	// Determine if version is greater than all the versions possible in the range.
+  	const outside = requireOutside();
+  	const gtr = (version, range, options) => outside(version, range, '>', options);
+  	gtr_1 = gtr;
+  	return gtr_1;
+  }
+
+  var ltr_1;
+  var hasRequiredLtr;
+
+  function requireLtr () {
+  	if (hasRequiredLtr) return ltr_1;
+  	hasRequiredLtr = 1;
+  	const outside = requireOutside();
+  	// Determine if version is less than all the versions possible in the range
+  	const ltr = (version, range, options) => outside(version, range, '<', options);
+  	ltr_1 = ltr;
+  	return ltr_1;
+  }
+
+  var intersects_1;
+  var hasRequiredIntersects;
+
+  function requireIntersects () {
+  	if (hasRequiredIntersects) return intersects_1;
+  	hasRequiredIntersects = 1;
+  	const Range = requireRange();
+  	const intersects = (r1, r2, options) => {
+  	  r1 = new Range(r1, options);
+  	  r2 = new Range(r2, options);
+  	  return r1.intersects(r2, options)
+  	};
+  	intersects_1 = intersects;
+  	return intersects_1;
+  }
+
+  var simplify;
+  var hasRequiredSimplify;
+
+  function requireSimplify () {
+  	if (hasRequiredSimplify) return simplify;
+  	hasRequiredSimplify = 1;
+  	// given a set of versions and a range, create a "simplified" range
+  	// that includes the same versions that the original range does
+  	// If the original range is shorter than the simplified one, return that.
+  	const satisfies = requireSatisfies();
+  	const compare = requireCompare();
+  	simplify = (versions, range, options) => {
+  	  const set = [];
+  	  let first = null;
+  	  let prev = null;
+  	  const v = versions.sort((a, b) => compare(a, b, options));
+  	  for (const version of v) {
+  	    const included = satisfies(version, range, options);
+  	    if (included) {
+  	      prev = version;
+  	      if (!first) {
+  	        first = version;
+  	      }
+  	    } else {
+  	      if (prev) {
+  	        set.push([first, prev]);
+  	      }
+  	      prev = null;
+  	      first = null;
+  	    }
+  	  }
+  	  if (first) {
+  	    set.push([first, null]);
+  	  }
+
+  	  const ranges = [];
+  	  for (const [min, max] of set) {
+  	    if (min === max) {
+  	      ranges.push(min);
+  	    } else if (!max && min === v[0]) {
+  	      ranges.push('*');
+  	    } else if (!max) {
+  	      ranges.push(`>=${min}`);
+  	    } else if (min === v[0]) {
+  	      ranges.push(`<=${max}`);
+  	    } else {
+  	      ranges.push(`${min} - ${max}`);
+  	    }
+  	  }
+  	  const simplified = ranges.join(' || ');
+  	  const original = typeof range.raw === 'string' ? range.raw : String(range);
+  	  return simplified.length < original.length ? simplified : range
+  	};
+  	return simplify;
+  }
+
+  var subset_1;
+  var hasRequiredSubset;
+
+  function requireSubset () {
+  	if (hasRequiredSubset) return subset_1;
+  	hasRequiredSubset = 1;
+  	const Range = requireRange();
+  	const Comparator = requireComparator();
+  	const { ANY } = Comparator;
+  	const satisfies = requireSatisfies();
+  	const compare = requireCompare();
+
+  	// Complex range `r1 || r2 || ...` is a subset of `R1 || R2 || ...` iff:
+  	// - Every simple range `r1, r2, ...` is a null set, OR
+  	// - Every simple range `r1, r2, ...` which is not a null set is a subset of
+  	//   some `R1, R2, ...`
+  	//
+  	// Simple range `c1 c2 ...` is a subset of simple range `C1 C2 ...` iff:
+  	// - If c is only the ANY comparator
+  	//   - If C is only the ANY comparator, return true
+  	//   - Else if in prerelease mode, return false
+  	//   - else replace c with `[>=0.0.0]`
+  	// - If C is only the ANY comparator
+  	//   - if in prerelease mode, return true
+  	//   - else replace C with `[>=0.0.0]`
+  	// - Let EQ be the set of = comparators in c
+  	// - If EQ is more than one, return true (null set)
+  	// - Let GT be the highest > or >= comparator in c
+  	// - Let LT be the lowest < or <= comparator in c
+  	// - If GT and LT, and GT.semver > LT.semver, return true (null set)
+  	// - If any C is a = range, and GT or LT are set, return false
+  	// - If EQ
+  	//   - If GT, and EQ does not satisfy GT, return true (null set)
+  	//   - If LT, and EQ does not satisfy LT, return true (null set)
+  	//   - If EQ satisfies every C, return true
+  	//   - Else return false
+  	// - If GT
+  	//   - If GT.semver is lower than any > or >= comp in C, return false
+  	//   - If GT is >=, and GT.semver does not satisfy every C, return false
+  	//   - If GT.semver has a prerelease, and not in prerelease mode
+  	//     - If no C has a prerelease and the GT.semver tuple, return false
+  	// - If LT
+  	//   - If LT.semver is greater than any < or <= comp in C, return false
+  	//   - If LT is <=, and LT.semver does not satisfy every C, return false
+  	//   - If GT.semver has a prerelease, and not in prerelease mode
+  	//     - If no C has a prerelease and the LT.semver tuple, return false
+  	// - Else return true
+
+  	const subset = (sub, dom, options = {}) => {
+  	  if (sub === dom) {
+  	    return true
+  	  }
+
+  	  sub = new Range(sub, options);
+  	  dom = new Range(dom, options);
+  	  let sawNonNull = false;
+
+  	  OUTER: for (const simpleSub of sub.set) {
+  	    for (const simpleDom of dom.set) {
+  	      const isSub = simpleSubset(simpleSub, simpleDom, options);
+  	      sawNonNull = sawNonNull || isSub !== null;
+  	      if (isSub) {
+  	        continue OUTER
+  	      }
+  	    }
+  	    // the null set is a subset of everything, but null simple ranges in
+  	    // a complex range should be ignored.  so if we saw a non-null range,
+  	    // then we know this isn't a subset, but if EVERY simple range was null,
+  	    // then it is a subset.
+  	    if (sawNonNull) {
+  	      return false
+  	    }
+  	  }
+  	  return true
+  	};
+
+  	const minimumVersionWithPreRelease = [new Comparator('>=0.0.0-0')];
+  	const minimumVersion = [new Comparator('>=0.0.0')];
+
+  	const simpleSubset = (sub, dom, options) => {
+  	  if (sub === dom) {
+  	    return true
+  	  }
+
+  	  if (sub.length === 1 && sub[0].semver === ANY) {
+  	    if (dom.length === 1 && dom[0].semver === ANY) {
+  	      return true
+  	    } else if (options.includePrerelease) {
+  	      sub = minimumVersionWithPreRelease;
+  	    } else {
+  	      sub = minimumVersion;
+  	    }
+  	  }
+
+  	  if (dom.length === 1 && dom[0].semver === ANY) {
+  	    if (options.includePrerelease) {
+  	      return true
+  	    } else {
+  	      dom = minimumVersion;
+  	    }
+  	  }
+
+  	  const eqSet = new Set();
+  	  let gt, lt;
+  	  for (const c of sub) {
+  	    if (c.operator === '>' || c.operator === '>=') {
+  	      gt = higherGT(gt, c, options);
+  	    } else if (c.operator === '<' || c.operator === '<=') {
+  	      lt = lowerLT(lt, c, options);
+  	    } else {
+  	      eqSet.add(c.semver);
+  	    }
+  	  }
+
+  	  if (eqSet.size > 1) {
+  	    return null
+  	  }
+
+  	  let gtltComp;
+  	  if (gt && lt) {
+  	    gtltComp = compare(gt.semver, lt.semver, options);
+  	    if (gtltComp > 0) {
+  	      return null
+  	    } else if (gtltComp === 0 && (gt.operator !== '>=' || lt.operator !== '<=')) {
+  	      return null
+  	    }
+  	  }
+
+  	  // will iterate one or zero times
+  	  for (const eq of eqSet) {
+  	    if (gt && !satisfies(eq, String(gt), options)) {
+  	      return null
+  	    }
+
+  	    if (lt && !satisfies(eq, String(lt), options)) {
+  	      return null
+  	    }
+
+  	    for (const c of dom) {
+  	      if (!satisfies(eq, String(c), options)) {
+  	        return false
+  	      }
+  	    }
+
+  	    return true
+  	  }
+
+  	  let higher, lower;
+  	  let hasDomLT, hasDomGT;
+  	  // if the subset has a prerelease, we need a comparator in the superset
+  	  // with the same tuple and a prerelease, or it's not a subset
+  	  let needDomLTPre = lt &&
+  	    !options.includePrerelease &&
+  	    lt.semver.prerelease.length ? lt.semver : false;
+  	  let needDomGTPre = gt &&
+  	    !options.includePrerelease &&
+  	    gt.semver.prerelease.length ? gt.semver : false;
+  	  // exception: <1.2.3-0 is the same as <1.2.3
+  	  if (needDomLTPre && needDomLTPre.prerelease.length === 1 &&
+  	      lt.operator === '<' && needDomLTPre.prerelease[0] === 0) {
+  	    needDomLTPre = false;
+  	  }
+
+  	  for (const c of dom) {
+  	    hasDomGT = hasDomGT || c.operator === '>' || c.operator === '>=';
+  	    hasDomLT = hasDomLT || c.operator === '<' || c.operator === '<=';
+  	    if (gt) {
+  	      if (needDomGTPre) {
+  	        if (c.semver.prerelease && c.semver.prerelease.length &&
+  	            c.semver.major === needDomGTPre.major &&
+  	            c.semver.minor === needDomGTPre.minor &&
+  	            c.semver.patch === needDomGTPre.patch) {
+  	          needDomGTPre = false;
+  	        }
+  	      }
+  	      if (c.operator === '>' || c.operator === '>=') {
+  	        higher = higherGT(gt, c, options);
+  	        if (higher === c && higher !== gt) {
+  	          return false
+  	        }
+  	      } else if (gt.operator === '>=' && !satisfies(gt.semver, String(c), options)) {
+  	        return false
+  	      }
+  	    }
+  	    if (lt) {
+  	      if (needDomLTPre) {
+  	        if (c.semver.prerelease && c.semver.prerelease.length &&
+  	            c.semver.major === needDomLTPre.major &&
+  	            c.semver.minor === needDomLTPre.minor &&
+  	            c.semver.patch === needDomLTPre.patch) {
+  	          needDomLTPre = false;
+  	        }
+  	      }
+  	      if (c.operator === '<' || c.operator === '<=') {
+  	        lower = lowerLT(lt, c, options);
+  	        if (lower === c && lower !== lt) {
+  	          return false
+  	        }
+  	      } else if (lt.operator === '<=' && !satisfies(lt.semver, String(c), options)) {
+  	        return false
+  	      }
+  	    }
+  	    if (!c.operator && (lt || gt) && gtltComp !== 0) {
+  	      return false
+  	    }
+  	  }
+
+  	  // if there was a < or >, and nothing in the dom, then must be false
+  	  // UNLESS it was limited by another range in the other direction.
+  	  // Eg, >1.0.0 <1.0.1 is still a subset of <2.0.0
+  	  if (gt && hasDomLT && !lt && gtltComp !== 0) {
+  	    return false
+  	  }
+
+  	  if (lt && hasDomGT && !gt && gtltComp !== 0) {
+  	    return false
+  	  }
+
+  	  // we needed a prerelease range in a specific tuple, but didn't get one
+  	  // then this isn't a subset.  eg >=1.2.3-pre is not a subset of >=1.0.0,
+  	  // because it includes prereleases in the 1.2.3 tuple
+  	  if (needDomGTPre || needDomLTPre) {
+  	    return false
+  	  }
+
+  	  return true
+  	};
+
+  	// >=1.2.3 is lower than >1.2.3
+  	const higherGT = (a, b, options) => {
+  	  if (!a) {
+  	    return b
+  	  }
+  	  const comp = compare(a.semver, b.semver, options);
+  	  return comp > 0 ? a
+  	    : comp < 0 ? b
+  	    : b.operator === '>' && a.operator === '>=' ? b
+  	    : a
+  	};
+
+  	// <=1.2.3 is higher than <1.2.3
+  	const lowerLT = (a, b, options) => {
+  	  if (!a) {
+  	    return b
+  	  }
+  	  const comp = compare(a.semver, b.semver, options);
+  	  return comp < 0 ? a
+  	    : comp > 0 ? b
+  	    : b.operator === '<' && a.operator === '<=' ? b
+  	    : a
+  	};
+
+  	subset_1 = subset;
+  	return subset_1;
+  }
+
+  var semver;
+  var hasRequiredSemver;
+
+  function requireSemver () {
+  	if (hasRequiredSemver) return semver;
+  	hasRequiredSemver = 1;
+  	// just pre-load all the stuff that index.js lazily exports
+  	const internalRe = requireRe();
+  	const constants = requireConstants();
+  	const SemVer = requireSemver$1();
+  	const identifiers = requireIdentifiers();
+  	const parse = requireParse();
+  	const valid = requireValid$1();
+  	const clean = requireClean();
+  	const inc = requireInc();
+  	const diff = requireDiff();
+  	const major = requireMajor();
+  	const minor = requireMinor();
+  	const patch = requirePatch();
+  	const prerelease = requirePrerelease();
+  	const compare = requireCompare();
+  	const rcompare = requireRcompare();
+  	const compareLoose = requireCompareLoose();
+  	const compareBuild = requireCompareBuild();
+  	const sort = requireSort();
+  	const rsort = requireRsort();
+  	const gt = requireGt();
+  	const lt = requireLt();
+  	const eq = requireEq();
+  	const neq = requireNeq();
+  	const gte = requireGte();
+  	const lte = requireLte();
+  	const cmp = requireCmp();
+  	const coerce = requireCoerce();
+  	const Comparator = requireComparator();
+  	const Range = requireRange();
+  	const satisfies = requireSatisfies();
+  	const toComparators = requireToComparators();
+  	const maxSatisfying = requireMaxSatisfying();
+  	const minSatisfying = requireMinSatisfying();
+  	const minVersion = requireMinVersion();
+  	const validRange = requireValid();
+  	const outside = requireOutside();
+  	const gtr = requireGtr();
+  	const ltr = requireLtr();
+  	const intersects = requireIntersects();
+  	const simplifyRange = requireSimplify();
+  	const subset = requireSubset();
+  	semver = {
+  	  parse,
+  	  valid,
+  	  clean,
+  	  inc,
+  	  diff,
+  	  major,
+  	  minor,
+  	  patch,
+  	  prerelease,
+  	  compare,
+  	  rcompare,
+  	  compareLoose,
+  	  compareBuild,
+  	  sort,
+  	  rsort,
+  	  gt,
+  	  lt,
+  	  eq,
+  	  neq,
+  	  gte,
+  	  lte,
+  	  cmp,
+  	  coerce,
+  	  Comparator,
+  	  Range,
+  	  satisfies,
+  	  toComparators,
+  	  maxSatisfying,
+  	  minSatisfying,
+  	  minVersion,
+  	  validRange,
+  	  outside,
+  	  gtr,
+  	  ltr,
+  	  intersects,
+  	  simplifyRange,
+  	  subset,
+  	  SemVer,
+  	  re: internalRe.re,
+  	  src: internalRe.src,
+  	  tokens: internalRe.t,
+  	  SEMVER_SPEC_VERSION: constants.SEMVER_SPEC_VERSION,
+  	  RELEASE_TYPES: constants.RELEASE_TYPES,
+  	  compareIdentifiers: identifiers.compareIdentifiers,
+  	  rcompareIdentifiers: identifiers.rcompareIdentifiers,
+  	};
+  	return semver;
+  }
+
+  var version = "5.1.0";
+  var require$$1 = {
+  	version: version};
+
+  var type$3 = "object";
+  var properties$3 = {
+  	privileges: {
+  		type: "array",
+  		description: "Defines required privileges for the visual",
+  		items: {
+  			$ref: "#/definitions/privilege"
+  		}
+  	},
+  	dataRoles: {
+  		type: "array",
+  		description: "Defines data roles for the visual",
+  		items: {
+  			$ref: "#/definitions/dataRole"
+  		}
+  	},
+  	dataViewMappings: {
+  		type: "array",
+  		description: "Defines data mappings for the visual",
+  		items: {
+  			$ref: "#/definitions/dataViewMapping"
+  		}
+  	},
+  	objects: {
+  		$ref: "#/definitions/objects"
+  	},
+  	tooltips: {
+  		$ref: "#/definitions/tooltips"
+  	},
+  	sorting: {
+  		$ref: "#/definitions/sorting"
+  	},
+  	drilldown: {
+  		$ref: "#/definitions/drilldown"
+  	},
+  	expandCollapse: {
+  		$ref: "#/definitions/expandCollapse"
+  	},
+  	suppressDefaultTitle: {
+  		type: "boolean",
+  		description: "Indicates whether the visual should show a default title"
+  	},
+  	supportsKeyboardFocus: {
+  		type: "boolean",
+  		description: "Allows the visual to receive focus through keyboard navigation"
+  	},
+  	supportsHighlight: {
+  		type: "boolean",
+  		description: "Tells the host to include highlight data"
+  	},
+  	supportsSynchronizingFilterState: {
+  		type: "boolean",
+  		description: "Indicates whether the visual supports synchronization across report pages (for slicer visuals only)"
+  	},
+  	advancedEditModeSupport: {
+  		type: "number",
+  		description: "Indicates the action requested from the host when this visual enters Advanced Edit mode."
+  	},
+  	supportsLandingPage: {
+  		type: "boolean",
+  		description: "Indicates whether the visual supports a landing page"
+  	},
+  	supportsEmptyDataView: {
+  		type: "boolean",
+  		description: "Indicates whether the visual can receive formatting pane properties when it has no dataroles"
+  	},
+  	supportsMultiVisualSelection: {
+  		type: "boolean",
+  		description: "Indicates whether the visual supports multi selection"
+  	},
+  	subtotals: {
+  		description: "Specifies the subtotal customizations applied in the customizeQuery method",
+  		$ref: "#/definitions/subtotals"
+  	},
+  	migration: {
+  		$ref: "#/definitions/migration"
+  	},
+  	keepAllMetadataColumns: {
+  		type: "boolean",
+  		description: "Indicates that visual is going to receive all metadata columns, no matter what the active projections are"
+  	}
+  };
+  var required$1 = [
+  	"privileges"
+  ];
+  var additionalProperties = false;
+  var definitions$2 = {
+  	privilege: {
+  		type: "object",
+  		description: "privilege - Defines the name, essentiality, and optional parameters for a privilege",
+  		properties: {
+  			name: {
+  				type: "string",
+  				description: "The internal name of the privilege",
+  				"enum": [
+  					"WebAccess",
+  					"LocalStorage",
+  					"ExportContent"
+  				]
+  			},
+  			essential: {
+  				type: "boolean",
+  				description: "Determines if the privilege is essential for the visual. Default value is false"
+  			},
+  			parameters: {
+  				type: "array",
+  				description: "Determines a list of privilege parameters if any",
+  				items: {
+  					type: "string",
+  					description: "The privilege parameter"
+  				}
+  			}
+  		},
+  		required: [
+  			"name"
+  		]
+  	},
+  	dataRole: {
+  		type: "object",
+  		description: "dataRole - Defines the name, displayName, and kind of a data role",
+  		properties: {
+  			name: {
+  				type: "string",
+  				description: "The internal name for this data role used for all references to this role"
+  			},
+  			displayName: {
+  				type: "string",
+  				description: "The name of this data role that is shown to the user"
+  			},
+  			displayNameKey: {
+  				type: "string",
+  				description: "The localization key for the displayed name in the stringResourced file"
+  			},
+  			kind: {
+  				description: "The kind of data that can be bound do this role",
+  				$ref: "#/definitions/dataRole.kind"
+  			},
+  			description: {
+  				type: "string",
+  				description: "A description of this role shown to the user as a tooltip"
+  			},
+  			descriptionKey: {
+  				type: "string",
+  				description: "The localization key for the description in the stringResourced file"
+  			},
+  			preferredTypes: {
+  				type: "array",
+  				description: "Defines the preferred type of data for this data role",
+  				items: {
+  					$ref: "#/definitions/valueType"
+  				}
+  			},
+  			requiredTypes: {
+  				type: "array",
+  				description: "Defines the required type of data for this data role. Any values that do not match will be set to null",
+  				items: {
+  					$ref: "#/definitions/valueType"
+  				}
+  			}
+  		},
+  		required: [
+  			"name",
+  			"displayName",
+  			"kind"
+  		],
+  		additionalProperties: false
+  	},
+  	dataViewMapping: {
+  		type: "object",
+  		description: "dataMapping - Defines how data is mapped to data roles",
+  		properties: {
+  			conditions: {
+  				type: "array",
+  				description: "List of conditions that must be met for this data mapping",
+  				items: {
+  					type: "object",
+  					description: "condition - Defines conditions for a data mapping (each key needs to be a valid data role)",
+  					patternProperties: {
+  						"^[\\w\\s-]+$": {
+  							description: "Specifies the number of values that can be assigned to this data role in this mapping",
+  							$ref: "#/definitions/dataViewMapping.numberRangeWithKind"
+  						}
+  					},
+  					additionalProperties: false
+  				}
+  			},
+  			single: {
+  				$ref: "#/definitions/dataViewMapping.single"
+  			},
+  			categorical: {
+  				$ref: "#/definitions/dataViewMapping.categorical"
+  			},
+  			table: {
+  				$ref: "#/definitions/dataViewMapping.table"
+  			},
+  			matrix: {
+  				$ref: "#/definitions/dataViewMapping.matrix"
+  			},
+  			scriptResult: {
+  				$ref: "#/definitions/dataViewMapping.scriptResult"
+  			}
+  		},
+  		anyOf: [
+  			{
+  				required: [
+  					"single"
+  				]
+  			},
+  			{
+  				required: [
+  					"categorical"
+  				]
+  			},
+  			{
+  				required: [
+  					"table"
+  				]
+  			},
+  			{
+  				required: [
+  					"matrix"
+  				]
+  			},
+  			{
+  				required: [
+  					"scriptResult"
+  				]
+  			}
+  		],
+  		additionalProperties: false
+  	},
+  	"dataViewMapping.single": {
+  		type: "object",
+  		description: "single - Defines a single data mapping",
+  		properties: {
+  			role: {
+  				type: "string",
+  				description: "The data role to bind to this mapping"
+  			}
+  		},
+  		required: [
+  			"role"
+  		],
+  		additionalProperties: false
+  	},
+  	"dataViewMapping.categorical": {
+  		type: "object",
+  		description: "categorical - Defines a categorical data mapping",
+  		properties: {
+  			categories: {
+  				type: "object",
+  				description: "Defines data roles to be used as categories",
+  				properties: {
+  					bind: {
+  						$ref: "#/definitions/dataViewMapping.bindTo"
+  					},
+  					"for": {
+  						$ref: "#/definitions/dataViewMapping.forIn"
+  					},
+  					select: {
+  						$ref: "#/definitions/dataViewMapping.select"
+  					},
+  					dataReductionAlgorithm: {
+  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
+  					}
+  				},
+  				oneOf: [
+  					{
+  						required: [
+  							"for"
+  						]
+  					},
+  					{
+  						required: [
+  							"bind"
+  						]
+  					},
+  					{
+  						required: [
+  							"select"
+  						]
+  					}
+  				]
+  			},
+  			values: {
+  				type: "object",
+  				description: "Defines data roles to be used as values",
+  				properties: {
+  					bind: {
+  						$ref: "#/definitions/dataViewMapping.bindTo"
+  					},
+  					"for": {
+  						$ref: "#/definitions/dataViewMapping.forIn"
+  					},
+  					select: {
+  						$ref: "#/definitions/dataViewMapping.select"
+  					},
+  					group: {
+  						type: "object",
+  						description: "Groups on a a specific data role",
+  						properties: {
+  							by: {
+  								description: "Specifies a data role to use for grouping",
+  								type: "string"
+  							},
+  							select: {
+  								$ref: "#/definitions/dataViewMapping.select"
+  							},
+  							dataReductionAlgorithm: {
+  								$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
+  							}
+  						},
+  						required: [
+  							"by",
+  							"select"
+  						]
+  					}
+  				},
+  				oneOf: [
+  					{
+  						required: [
+  							"for"
+  						]
+  					},
+  					{
+  						required: [
+  							"bind"
+  						]
+  					},
+  					{
+  						required: [
+  							"select"
+  						]
+  					},
+  					{
+  						required: [
+  							"group"
+  						]
+  					}
+  				]
+  			},
+  			dataVolume: {
+  				$ref: "#/definitions/dataViewMapping.dataVolume"
+  			}
+  		},
+  		additionalProperties: false
+  	},
+  	"dataViewMapping.table": {
+  		type: "object",
+  		description: "table - Defines a table data mapping",
+  		properties: {
+  			rows: {
+  				type: "object",
+  				description: "Rows to use for the table",
+  				properties: {
+  					bind: {
+  						$ref: "#/definitions/dataViewMapping.bindTo"
+  					},
+  					"for": {
+  						$ref: "#/definitions/dataViewMapping.forIn"
+  					},
+  					select: {
+  						$ref: "#/definitions/dataViewMapping.select"
+  					},
+  					dataReductionAlgorithm: {
+  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
+  					}
+  				},
+  				oneOf: [
+  					{
+  						required: [
+  							"for"
+  						]
+  					},
+  					{
+  						required: [
+  							"bind"
+  						]
+  					},
+  					{
+  						required: [
+  							"select"
+  						]
+  					}
+  				]
+  			},
+  			rowCount: {
+  				type: "object",
+  				description: "Specifies a constraint on the number of data rows supported by the visual",
+  				properties: {
+  					preferred: {
+  						description: "Specifies a preferred range of values for the constraint",
+  						$ref: "#/definitions/dataViewMapping.numberRange"
+  					},
+  					supported: {
+  						description: "Specifies a supported range of values for the constraint. Defaults to preferred if not specified.",
+  						$ref: "#/definitions/dataViewMapping.numberRange"
+  					}
+  				}
+  			},
+  			dataVolume: {
+  				$ref: "#/definitions/dataViewMapping.dataVolume"
+  			}
+  		},
+  		requires: [
+  			"rows"
+  		]
+  	},
+  	"dataViewMapping.matrix": {
+  		type: "object",
+  		description: "matrix - Defines a matrix data mapping",
+  		properties: {
+  			rows: {
+  				type: "object",
+  				description: "Defines the rows used for the matrix",
+  				properties: {
+  					"for": {
+  						$ref: "#/definitions/dataViewMapping.forIn"
+  					},
+  					select: {
+  						$ref: "#/definitions/dataViewMapping.select"
+  					},
+  					dataReductionAlgorithm: {
+  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
+  					}
+  				},
+  				oneOf: [
+  					{
+  						required: [
+  							"for"
+  						]
+  					},
+  					{
+  						required: [
+  							"select"
+  						]
+  					}
+  				]
+  			},
+  			columns: {
+  				type: "object",
+  				description: "Defines the columns used for the matrix",
+  				properties: {
+  					"for": {
+  						$ref: "#/definitions/dataViewMapping.forIn"
+  					},
+  					dataReductionAlgorithm: {
+  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
+  					}
+  				},
+  				required: [
+  					"for"
+  				]
+  			},
+  			values: {
+  				type: "object",
+  				description: "Defines the values used for the matrix",
+  				properties: {
+  					"for": {
+  						$ref: "#/definitions/dataViewMapping.forIn"
+  					},
+  					select: {
+  						$ref: "#/definitions/dataViewMapping.select"
+  					}
+  				},
+  				oneOf: [
+  					{
+  						required: [
+  							"for"
+  						]
+  					},
+  					{
+  						required: [
+  							"select"
+  						]
+  					}
+  				]
+  			},
+  			dataVolume: {
+  				$ref: "#/definitions/dataViewMapping.dataVolume"
+  			}
+  		}
+  	},
+  	"dataViewMapping.scriptResult": {
+  		type: "object",
+  		description: "scriptResult - Defines a scriptResult data mapping",
+  		properties: {
+  			dataInput: {
+  				type: "object",
+  				description: "dataInput - Defines how data is mapped to data roles",
+  				properties: {
+  					table: {
+  						$ref: "#/definitions/dataViewMapping.table"
+  					}
+  				}
+  			},
+  			script: {
+  				type: "object",
+  				description: "script - Defines where the script text and provider are stored",
+  				properties: {
+  					scriptSourceDefault: {
+  						type: "string",
+  						description: "scriptSourceDefault - Defines the default script source value to be used when no script object is defined"
+  					},
+  					scriptProviderDefault: {
+  						type: "string",
+  						description: "scriptProviderDefault - Defines the default script provider value to be used when no provider object is defined"
+  					},
+  					scriptOutputType: {
+  						type: "string",
+  						description: "scriptOutputType - Defines the output type that the R script will generate"
+  					},
+  					source: {
+  						$ref: "#/definitions/dataViewObjectPropertyIdentifier"
+  					},
+  					provider: {
+  						$ref: "#/definitions/dataViewObjectPropertyIdentifier"
+  					}
+  				}
+  			}
+  		}
+  	},
+  	dataViewObjectPropertyIdentifier: {
+  		type: "object",
+  		description: "Points to an object property",
+  		properties: {
+  			objectName: {
+  				type: "string",
+  				description: "The name of a object"
+  			},
+  			propertyName: {
+  				type: "string",
+  				description: "The name of a property inside the object"
+  			}
+  		}
+  	},
+  	"dataViewMapping.bindTo": {
+  		type: "object",
+  		description: "Binds this data mapping to a single value",
+  		properties: {
+  			to: {
+  				type: "string",
+  				description: "The name of a data role to bind to"
+  			}
+  		},
+  		additionalProperties: false,
+  		required: [
+  			"to"
+  		]
+  	},
+  	"dataViewMapping.numberRange": {
+  		type: "object",
+  		description: "A number range from min to max",
+  		properties: {
+  			min: {
+  				type: "number",
+  				description: "Minimum value supported"
+  			},
+  			max: {
+  				type: "number",
+  				description: "Maximum value supported"
+  			}
+  		}
+  	},
+  	"dataViewMapping.numberRangeWithKind": {
+  		allOf: [
+  			{
+  				$ref: "#/definitions/dataViewMapping.numberRange"
+  			},
+  			{
+  				properties: {
+  					kind: {
+  						$ref: "#/definitions/dataRole.kind"
+  					}
+  				}
+  			}
+  		]
+  	},
+  	"dataRole.kind": {
+  		type: "string",
+  		"enum": [
+  			"Grouping",
+  			"Measure",
+  			"GroupingOrMeasure"
+  		]
+  	},
+  	"dataViewMapping.select": {
+  		type: "array",
+  		description: "Defines a list of properties to bind",
+  		items: {
+  			type: "object",
+  			properties: {
+  				bind: {
+  					$ref: "#/definitions/dataViewMapping.bindTo"
+  				},
+  				"for": {
+  					$ref: "#/definitions/dataViewMapping.forIn"
+  				}
+  			},
+  			oneOf: [
+  				{
+  					required: [
+  						"for"
+  					]
+  				},
+  				{
+  					required: [
+  						"bind"
+  					]
+  				}
+  			]
+  		}
+  	},
+  	"dataViewMapping.dataReductionAlgorithm": {
+  		type: "object",
+  		description: "Describes how to reduce the amount of data exposed to the visual",
+  		properties: {
+  			top: {
+  				type: "object",
+  				description: "Reduce the data to the Top count items",
+  				properties: {
+  					count: {
+  						type: "number"
+  					}
+  				}
+  			},
+  			bottom: {
+  				type: "object",
+  				description: "Reduce the data to the Bottom count items",
+  				properties: {
+  					count: {
+  						type: "number"
+  					}
+  				}
+  			},
+  			sample: {
+  				type: "object",
+  				description: "Reduce the data using a simple Sample of count items",
+  				properties: {
+  					count: {
+  						type: "number"
+  					}
+  				}
+  			},
+  			window: {
+  				type: "object",
+  				description: "Allow the data to be loaded one window, containing count items, at a time",
+  				properties: {
+  					count: {
+  						type: "number"
+  					}
+  				}
+  			}
+  		},
+  		additionalProperties: false,
+  		oneOf: [
+  			{
+  				required: [
+  					"top"
+  				]
+  			},
+  			{
+  				required: [
+  					"bottom"
+  				]
+  			},
+  			{
+  				required: [
+  					"sample"
+  				]
+  			},
+  			{
+  				required: [
+  					"window"
+  				]
+  			}
+  		]
+  	},
+  	"dataViewMapping.dataVolume": {
+  		description: "Specifies the volume of data the query should return (1-6)",
+  		type: "number",
+  		"enum": [
+  			1,
+  			2,
+  			3,
+  			4,
+  			5,
+  			6
+  		]
+  	},
+  	"dataViewMapping.forIn": {
+  		type: "object",
+  		description: "Binds this data mapping for all items in a collection",
+  		properties: {
+  			"in": {
+  				type: "string",
+  				description: "The name of a data role to iterate over"
+  			}
+  		},
+  		additionalProperties: false,
+  		required: [
+  			"in"
+  		]
+  	},
+  	objects: {
+  		type: "object",
+  		description: "A list of unique property groups",
+  		patternProperties: {
+  			"^[\\w\\s-]+$": {
+  				type: "object",
+  				description: "Settings for a group of properties",
+  				properties: {
+  					displayName: {
+  						type: "string",
+  						description: "The name shown to the user to describe this group of properties"
+  					},
+  					displayNameKey: {
+  						type: "string",
+  						description: "The localization key for the displayed name in the stringResourced file"
+  					},
+  					objectCategory: {
+  						type: "number",
+  						description: "What aspect of the visual this object controlls (1 = Formatting, 2 = Analytics). Formatting: look & feel, colors, axes, labels etc. Analytics: forcasts, trendlines, reference lines and shapes etc."
+  					},
+  					description: {
+  						type: "string",
+  						description: "A description of this object shown to the user as a tooltip"
+  					},
+  					descriptionKey: {
+  						type: "string",
+  						description: "The localization key for the description in the stringResourced file"
+  					},
+  					properties: {
+  						type: "object",
+  						description: "A list of unique properties contained in this group",
+  						patternProperties: {
+  							"^[\\w\\s-]+$": {
+  								$ref: "#/definitions/object.propertySettings"
+  							}
+  						},
+  						additionalProperties: false
+  					}
+  				},
+  				additionalProperties: false
+  			}
+  		},
+  		additionalProperties: false
+  	},
+  	tooltips: {
+  		type: "object",
+  		description: "Instructs the host to include tooltips ability",
+  		properties: {
+  			supportedTypes: {
+  				type: "object",
+  				description: "Instructs the host what tooltip types to support",
+  				properties: {
+  					"default": {
+  						type: "boolean",
+  						description: "Instructs the host to support showing default tooltips"
+  					},
+  					canvas: {
+  						type: "boolean",
+  						description: "Instructs the host to support showing canvas tooltips"
+  					}
+  				}
+  			},
+  			roles: {
+  				type: "array",
+  				items: {
+  					type: "string",
+  					description: "The name of the data role to bind the tooltips selected info to"
+  				}
+  			},
+  			supportEnhancedTooltips: {
+  				type: "boolean",
+  				description: "Indicates whether the visual support modern tooltip feature"
+  			}
+  		}
+  	},
+  	"object.propertySettings": {
+  		type: "object",
+  		description: "Settings for a property",
+  		properties: {
+  			displayName: {
+  				type: "string",
+  				description: "The name shown to the user to describe this property"
+  			},
+  			displayNameKey: {
+  				type: "string",
+  				description: "The localization key for the displayed name in the stringResourced file"
+  			},
+  			description: {
+  				type: "string",
+  				description: "A description of this property shown to the user as a tooltip"
+  			},
+  			descriptionKey: {
+  				type: "string",
+  				description: "The localization key for the description in the stringResourced file"
+  			},
+  			placeHolderText: {
+  				type: "string",
+  				description: "Text to display if the field is empty"
+  			},
+  			placeHolderTextKey: {
+  				type: "string",
+  				description: "The localization key for the placeHolderText in the stringResources file"
+  			},
+  			suppressFormatPainterCopy: {
+  				type: "boolean",
+  				description: "Indicates whether the Format Painter should ignore this property"
+  			},
+  			type: {
+  				description: "Describes what type of property this is and how it should be displayed to the user",
+  				$ref: "#/definitions/valueType"
+  			},
+  			rule: {
+  				type: "object",
+  				description: "Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",
+  				$ref: "#/definitions/substitutionRule"
+  			},
+  			filterState: {
+  				type: "boolean",
+  				description: "Indicates whether the property is a part of filtration information"
+  			}
+  		},
+  		additionalProperties: false
+  	},
+  	substitutionRule: {
+  		type: "object",
+  		description: "Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",
+  		properties: {
+  			inputRole: {
+  				type: "string",
+  				description: "The name of role. If this role is set, the substitution will be applied"
+  			},
+  			output: {
+  				type: "object",
+  				description: "Describes what exactly is necessary to replace",
+  				properties: {
+  					property: {
+  						type: "string",
+  						description: "The name of property object that will be replaced"
+  					},
+  					selector: {
+  						type: "array",
+  						description: "The array of selector names. Usually, it contains only one selector -- 'Category'",
+  						items: {
+  							type: "string",
+  							description: "The name of selector"
+  						}
+  					}
+  				}
+  			}
+  		}
+  	},
+  	sorting: {
+  		type: "object",
+  		description: "Specifies the default sorting behavior for the visual",
+  		properties: {
+  			"default": {
+  				type: "object",
+  				additionalProperties: false
+  			},
+  			custom: {
+  				type: "object",
+  				additionalProperties: false
+  			},
+  			implicit: {
+  				type: "object",
+  				description: "implicit sort",
+  				properties: {
+  					clauses: {
+  						type: "array",
+  						items: {
+  							type: "object",
+  							properties: {
+  								role: {
+  									type: "string"
+  								},
+  								direction: {
+  									type: "number",
+  									description: "Determines sort direction (1 = Ascending, 2 = Descending)",
+  									"enum": [
+  										1,
+  										2
+  									]
+  								}
+  							},
+  							additionalProperties: false
+  						}
+  					}
+  				},
+  				additionalProperties: false
+  			}
+  		},
+  		additionalProperties: false,
+  		anyOf: [
+  			{
+  				required: [
+  					"default"
+  				]
+  			},
+  			{
+  				required: [
+  					"custom"
+  				]
+  			},
+  			{
+  				required: [
+  					"implicit"
+  				]
+  			}
+  		]
+  	},
+  	drilldown: {
+  		type: "object",
+  		description: "Defines the visual's drill capability",
+  		properties: {
+  			roles: {
+  				type: "array",
+  				description: "The drillable role names for this visual",
+  				items: {
+  					type: "string",
+  					description: "The name of the role"
+  				}
+  			}
+  		}
+  	},
+  	expandCollapse: {
+  		type: "object",
+  		description: "Defines the visual's expandCollapse capability",
+  		properties: {
+  			roles: {
+  				type: "array",
+  				description: "The expandCollapsed role names for this visual",
+  				items: {
+  					type: "string",
+  					description: "The name of the role"
+  				}
+  			},
+  			addDataViewFlags: {
+  				type: "object",
+  				description: "The data view flags",
+  				defaultValue: {
+  					type: "boolean",
+  					description: "Indicates if the DataViewTreeNode will contain the isCollapsed flag by default"
+  				}
+  			},
+  			supportsMerge: {
+  				type: "boolean",
+  				description: "Indicates that the expansion state should be updated when query projections change, instead of being reset."
+  			},
+  			restoreProjectionsOrderFromBookmark: {
+  				type: "boolean",
+  				description: "Indicates that the bookmarked expansion state should be restored even if the query projections order no longer matches the expansion state levels."
+  			}
+  		}
+  	},
+  	valueType: {
+  		type: "object",
+  		properties: {
+  			bool: {
+  				type: "boolean",
+  				description: "A boolean value that will be displayed to the user as a toggle switch"
+  			},
+  			enumeration: {
+  				type: "array",
+  				description: "A list of values that will be displayed as a drop down list",
+  				items: {
+  					type: "object",
+  					description: "Describes an item in the enumeration list",
+  					properties: {
+  						displayName: {
+  							type: "string",
+  							description: "The name shown to the user to describe this item"
+  						},
+  						displayNameKey: {
+  							type: "string",
+  							description: "The localization key for the displayed name in the stringResourced file"
+  						},
+  						value: {
+  							type: "string",
+  							description: "The internal value of this property when this item is selected"
+  						}
+  					}
+  				}
+  			},
+  			fill: {
+  				type: "object",
+  				description: "A color value that will be displayed to the user as a color picker",
+  				properties: {
+  					solid: {
+  						type: "object",
+  						description: "A solid color value that will be displayed to the user as a color picker",
+  						properties: {
+  							color: {
+  								oneOf: [
+  									{
+  										type: "boolean"
+  									},
+  									{
+  										type: "object",
+  										properties: {
+  											nullable: {
+  												description: "Allows the user to select 'no fill' for the color",
+  												type: "boolean"
+  											}
+  										}
+  									}
+  								]
+  							}
+  						}
+  					}
+  				}
+  			},
+  			fillRule: {
+  				type: "object",
+  				description: "A color gradient that will be dispalyed to the user as a minimum (,medium) and maximum color pickers",
+  				properties: {
+  					linearGradient2: {
+  						type: "object",
+  						description: "Two color gradient",
+  						properties: {
+  							max: {
+  								type: "object",
+  								description: "Maximum color for gradient",
+  								properties: {
+  									color: {
+  										type: "string"
+  									},
+  									value: {
+  										type: "number"
+  									}
+  								}
+  							},
+  							min: {
+  								type: "object",
+  								description: "Minimum color for gradient",
+  								properties: {
+  									color: {
+  										type: "string"
+  									},
+  									value: {
+  										type: "number"
+  									}
+  								}
+  							},
+  							nullColoringStrategy: {
+  								type: "object",
+  								description: "Null color strategy"
+  							}
+  						}
+  					},
+  					linearGradient3: {
+  						type: "object",
+  						description: "Three color gradient",
+  						properties: {
+  							max: {
+  								type: "object",
+  								description: "Maximum color for gradient",
+  								properties: {
+  									color: {
+  										type: "string"
+  									},
+  									value: {
+  										type: "number"
+  									}
+  								}
+  							},
+  							min: {
+  								type: "object",
+  								description: "Minimum color for gradient",
+  								properties: {
+  									color: {
+  										type: "string"
+  									},
+  									value: {
+  										type: "number"
+  									}
+  								}
+  							},
+  							mid: {
+  								type: "object",
+  								description: "Middle color for gradient",
+  								properties: {
+  									color: {
+  										type: "string"
+  									},
+  									value: {
+  										type: "number"
+  									}
+  								}
+  							},
+  							nullColoringStrategy: {
+  								type: "object",
+  								description: "Null color strategy"
+  							}
+  						}
+  					}
+  				}
+  			},
+  			formatting: {
+  				type: "object",
+  				description: "A numeric value that will be displayed to the user as a text input",
+  				properties: {
+  					labelDisplayUnits: {
+  						type: "boolean",
+  						description: "Displays a dropdown with common display units (Auto, None, Thousands, Millions, Billions, Trillions)"
+  					},
+  					alignment: {
+  						type: "boolean",
+  						description: "Displays a selector to allow the user to choose left, center, or right alignment"
+  					},
+  					fontSize: {
+  						type: "boolean",
+  						description: "Displays a slider that allows the user to choose a font size in points"
+  					},
+  					fontFamily: {
+  						type: "boolean",
+  						description: "Displays a dropdown with font families"
+  					},
+  					formatString: {
+  						type: "boolean",
+  						description: "Displays dynamic format string"
+  					}
+  				},
+  				additionalProperties: false,
+  				oneOf: [
+  					{
+  						required: [
+  							"labelDisplayUnits"
+  						]
+  					},
+  					{
+  						required: [
+  							"alignment"
+  						]
+  					},
+  					{
+  						required: [
+  							"fontSize"
+  						]
+  					},
+  					{
+  						required: [
+  							"fontFamily"
+  						]
+  					},
+  					{
+  						required: [
+  							"formatString"
+  						]
+  					}
+  				]
+  			},
+  			integer: {
+  				type: "boolean",
+  				description: "An integer (whole number) value that will be displayed to the user as a text input"
+  			},
+  			numeric: {
+  				type: "boolean",
+  				description: "A numeric value that will be displayed to the user as a text input"
+  			},
+  			filter: {
+  				oneOf: [
+  					{
+  						type: "boolean"
+  					},
+  					{
+  						type: "object",
+  						properties: {
+  							selfFilter: {
+  								type: "boolean"
+  							}
+  						}
+  					}
+  				],
+  				description: "A filter"
+  			},
+  			operations: {
+  				type: "object",
+  				description: "A visual operation",
+  				properties: {
+  					searchEnabled: {
+  						type: "boolean",
+  						description: "Turns search ability on"
+  					}
+  				}
+  			},
+  			text: {
+  				type: "boolean",
+  				description: "A text value that will be displayed to the user as a text input"
+  			},
+  			scripting: {
+  				type: "object",
+  				description: "A text value that will be displayed to the user as a script",
+  				properties: {
+  					source: {
+  						type: "boolean",
+  						description: "A source code"
+  					}
+  				}
+  			},
+  			geography: {
+  				type: "object",
+  				description: "Geographical data",
+  				properties: {
+  					address: {
+  						type: "boolean"
+  					},
+  					city: {
+  						type: "boolean"
+  					},
+  					continent: {
+  						type: "boolean"
+  					},
+  					country: {
+  						type: "boolean"
+  					},
+  					county: {
+  						type: "boolean"
+  					},
+  					region: {
+  						type: "boolean"
+  					},
+  					postalCode: {
+  						type: "boolean"
+  					},
+  					stateOrProvince: {
+  						type: "boolean"
+  					},
+  					place: {
+  						type: "boolean"
+  					},
+  					latitude: {
+  						type: "boolean"
+  					},
+  					longitude: {
+  						type: "boolean"
+  					}
+  				}
+  			}
+  		},
+  		additionalProperties: false,
+  		oneOf: [
+  			{
+  				required: [
+  					"bool"
+  				]
+  			},
+  			{
+  				required: [
+  					"enumeration"
+  				]
+  			},
+  			{
+  				required: [
+  					"fill"
+  				]
+  			},
+  			{
+  				required: [
+  					"fillRule"
+  				]
+  			},
+  			{
+  				required: [
+  					"formatting"
+  				]
+  			},
+  			{
+  				required: [
+  					"integer"
+  				]
+  			},
+  			{
+  				required: [
+  					"numeric"
+  				]
+  			},
+  			{
+  				required: [
+  					"text"
+  				]
+  			},
+  			{
+  				required: [
+  					"geography"
+  				]
+  			},
+  			{
+  				required: [
+  					"scripting"
+  				]
+  			},
+  			{
+  				required: [
+  					"filter"
+  				]
+  			},
+  			{
+  				required: [
+  					"operations"
+  				]
+  			}
+  		]
+  	},
+  	subtotals: {
+  		type: "object",
+  		description: "Specifies the subtotal request customizations applied to the outgoing data query",
+  		properties: {
+  			matrix: {
+  				description: "Defines the subtotal customizations of the outgoing data query of a matrix-dataview visual",
+  				$ref: "#/definitions/subtotals.matrix"
+  			}
+  		},
+  		requires: [
+  			"matrix"
+  		]
+  	},
+  	"subtotals.matrix": {
+  		type: "object",
+  		description: "Specifies the subtotal customizations of the outgoing data query of a matrix-dataview visual",
+  		properties: {
+  			rowSubtotals: {
+  				type: "object",
+  				description: "Indicates if the subtotal data should be requested for all fields in the rows field well",
+  				properties: {
+  					propertyIdentifier: {
+  						type: "object",
+  						properties: {
+  							objectName: {
+  								type: "string"
+  							},
+  							propertyName: {
+  								type: "string"
+  							}
+  						}
+  					},
+  					defaultValue: {
+  						type: "boolean"
+  					}
+  				}
+  			},
+  			rowSubtotalsPerLevel: {
+  				type: "object",
+  				description: "Indicates if the subtotal data can be toggled for individual fields in the rows field well",
+  				properties: {
+  					propertyIdentifier: {
+  						type: "object",
+  						properties: {
+  							objectName: {
+  								type: "string"
+  							},
+  							propertyName: {
+  								type: "string"
+  							}
+  						}
+  					},
+  					defaultValue: {
+  						type: "boolean"
+  					}
+  				}
+  			},
+  			columnSubtotals: {
+  				type: "object",
+  				description: "Indicates if the subtotal data should be requested for all fields in the columns field well",
+  				properties: {
+  					propertyIdentifier: {
+  						type: "object",
+  						properties: {
+  							objectName: {
+  								type: "string"
+  							},
+  							propertyName: {
+  								type: "string"
+  							}
+  						}
+  					},
+  					defaultValue: {
+  						type: "boolean"
+  					}
+  				}
+  			},
+  			columnSubtotalsPerLevel: {
+  				type: "object",
+  				description: "Indicates if the subtotal data can be toggled for individual fields in the columns field well",
+  				properties: {
+  					propertyIdentifier: {
+  						type: "object",
+  						properties: {
+  							objectName: {
+  								type: "string"
+  							},
+  							propertyName: {
+  								type: "string"
+  							}
+  						}
+  					},
+  					defaultValue: {
+  						type: "boolean"
+  					}
+  				}
+  			},
+  			levelSubtotalEnabled: {
+  				type: "object",
+  				description: "Unlike all other properites, this property is applied to individual rows/columns. The property indicates if the subtotals are requested for the row/column",
+  				properties: {
+  					propertyIdentifier: {
+  						type: "object",
+  						properties: {
+  							objectName: {
+  								type: "string"
+  							},
+  							propertyName: {
+  								type: "string"
+  							}
+  						}
+  					},
+  					defaultValue: {
+  						type: "boolean"
+  					}
+  				}
+  			},
+  			rowSubtotalsType: {
+  				type: "object",
+  				description: "Indicates location of row subtotals locations (Top, Bottom). Top means subtotals located at the start of datasource and calculated even before all datasource rows fetched, Bottom means subtotals located at the end of datasource and shown only after all rows are fetched",
+  				properties: {
+  					propertyIdentifier: {
+  						type: "object",
+  						properties: {
+  							objectName: {
+  								type: "string"
+  							},
+  							propertyName: {
+  								type: "string"
+  							}
+  						}
+  					},
+  					defaultValue: {
+  						type: "string",
+  						"enum": [
+  							"Top",
+  							"Bottom"
+  						]
+  					}
+  				}
+  			}
+  		},
+  		requires: [
+  			"matrix"
+  		]
+  	},
+  	migration: {
+  		type: "object",
+  		description: "Defines the supported APIs for migration",
+  		properties: {
+  			filter: {
+  				$ref: "#/definitions/migration.filter"
+  			}
+  		}
+  	},
+  	"migration.filter": {
+  		type: "object",
+  		description: "Defines the capabilities for migrating the filter API",
+  		properties: {
+  			shouldUseIdentityFilter: {
+  				type: "boolean",
+  				description: "Indicates whether the new filter should migrate to an identity filter"
+  			}
+  		}
+  	}
+  };
+  var require$$2 = {
+  	type: type$3,
+  	properties: properties$3,
+  	required: required$1,
+  	additionalProperties: additionalProperties,
+  	definitions: definitions$2
+  };
+
+  var type$2 = "object";
+  var properties$2 = {
+  	apiVersion: {
+  		type: "string",
+  		description: "Version of the IVisual API"
+  	},
+  	author: {
+  		type: "object",
+  		description: "Information about the author of the visual",
+  		properties: {
+  			name: {
+  				type: "string",
+  				description: "Name of the visual author. This is displayed to users."
+  			},
+  			email: {
+  				type: "string",
+  				description: "E-mail of the visual author. This is displayed to users for support."
+  			}
+  		}
+  	},
+  	assets: {
+  		type: "object",
+  		description: "Assets used by the visual",
+  		properties: {
+  			icon: {
+  				type: "string",
+  				description: "A 20x20 png icon used to represent the visual"
+  			}
+  		}
+  	},
+  	externalJS: {
+  		type: "array",
+  		description: "An array of relative paths to 3rd party javascript libraries to load",
+  		items: {
+  			type: "string"
+  		}
+  	},
+  	stringResources: {
+  		type: "array",
+  		description: "An array of relative paths to string resources to load",
+  		items: {
+  			type: "string"
+  		},
+  		uniqueItems: true
+  	},
+  	style: {
+  		type: "string",
+  		description: "Relative path to the stylesheet (less) for the visual"
+  	},
+  	capabilities: {
+  		type: "string",
+  		description: "Relative path to the visual capabilities json file"
+  	},
+  	visual: {
+  		type: "object",
+  		description: "Details about this visual",
+  		properties: {
+  			description: {
+  				type: "string",
+  				description: "What does this visual do?"
+  			},
+  			name: {
+  				type: "string",
+  				description: "Internal visual name"
+  			},
+  			displayName: {
+  				type: "string",
+  				description: "A friendly name"
+  			},
+  			externals: {
+  				type: "array",
+  				description: "External files (such as JavaScript) that you would like to include"
+  			},
+  			guid: {
+  				type: "string",
+  				description: "Unique identifier for the visual"
+  			},
+  			visualClassName: {
+  				type: "string",
+  				description: "Class of your IVisual"
+  			},
+  			icon: {
+  				type: "string",
+  				description: "Icon path"
+  			},
+  			version: {
+  				type: "string",
+  				description: "Visual version"
+  			},
+  			gitHubUrl: {
+  				type: "string",
+  				description: "Url to the github repository for this visual"
+  			},
+  			supportUrl: {
+  				type: "string",
+  				description: "Url to the support page for this visual"
+  			}
+  		}
+  	}
+  };
+  var require$$3 = {
+  	type: type$2,
+  	properties: properties$2
+  };
+
+  var type$1 = "object";
+  var properties$1 = {
+  	cranPackages: {
+  		type: "array",
+  		description: "An array of the Cran packages required for the custom R visual script to operate",
+  		items: {
+  			$ref: "#/definitions/cranPackage"
+  		}
+  	}
+  };
+  var definitions$1 = {
+  	cranPackage: {
+  		type: "object",
+  		description: "cranPackage - Defines the name and displayName of a required Cran package",
+  		properties: {
+  			name: {
+  				type: "string",
+  				description: "The name for this Cran package"
+  			},
+  			displayName: {
+  				type: "string",
+  				description: "The name for this Cran package that is shown to the user"
+  			},
+  			url: {
+  				type: "string",
+  				description: "A url for package documentation in Cran website"
+  			}
+  		},
+  		required: [
+  			"name",
+  			"url"
+  		],
+  		additionalProperties: false
+  	}
+  };
+  var require$$4 = {
+  	type: type$1,
+  	properties: properties$1,
+  	definitions: definitions$1
+  };
+
+  var type = "object";
+  var properties = {
+  	locale: {
+  		$ref: "#/definitions/localeOptions"
+  	},
+  	values: {
+  		type: "object",
+  		description: "translations for the display name keys in the capabilities",
+  		additionalProperties: {
+  			type: "string"
+  		}
+  	}
+  };
+  var required = [
+  	"locale"
+  ];
+  var definitions = {
+  	localeOptions: {
+  		description: "Specifies the locale key from a list of supported locales",
+  		type: "string",
+  		"enum": [
+  			"ar-SA",
+  			"bg-BG",
+  			"ca-ES",
+  			"cs-CZ",
+  			"da-DK",
+  			"de-DE",
+  			"el-GR",
+  			"en-US",
+  			"es-ES",
+  			"et-EE",
+  			"eu-ES",
+  			"fi-FI",
+  			"fr-FR",
+  			"gl-ES",
+  			"he-IL",
+  			"hi-IN",
+  			"hr-HR",
+  			"hu-HU",
+  			"id-ID",
+  			"it-IT",
+  			"ja-JP",
+  			"kk-KZ",
+  			"ko-KR",
+  			"lt-LT",
+  			"lv-LV",
+  			"ms-MY",
+  			"nb-NO",
+  			"nl-NL",
+  			"pl-PL",
+  			"pt-BR",
+  			"pt-PT",
+  			"ro-RO",
+  			"ru-RU",
+  			"sk-SK",
+  			"sl-SI",
+  			"sr-Cyrl-RS",
+  			"sr-Latn-RS",
+  			"sv-SE",
+  			"th-TH",
+  			"tr-TR",
+  			"uk-UA",
+  			"vi-VN",
+  			"zh-CN",
+  			"zh-TW"
+  		]
+  	}
+  };
+  var require$$5 = {
+  	type: type,
+  	properties: properties,
+  	required: required,
+  	definitions: definitions
+  };
+
+  var hasRequiredPowerbiVisualsApi;
+
+  function requirePowerbiVisualsApi () {
+  	if (hasRequiredPowerbiVisualsApi) return powerbiVisualsApi;
+  	hasRequiredPowerbiVisualsApi = 1;
+  	const semver = requireSemver();
+
+  	let packageVersion = require$$1.version;
+  	let apiVersion = `${semver.major(packageVersion)}.${semver.minor(packageVersion)}.0`;
+
+  	powerbiVisualsApi.version = apiVersion;
+
+  	powerbiVisualsApi.schemas = {
+  	    capabilities: require$$2,
+  	    pbiviz: require$$3,
+  	    dependencies: require$$4,
+  	    stringResources: require$$5
+  	};
+  	return powerbiVisualsApi;
+  }
+
+  requirePowerbiVisualsApi();
+
+  const valueNames = {
+      "i": "Observation",
+      "i_m": "Observation",
+      "i_mm": "Observation",
+      "c": "Count",
+      "t": "Time",
+      "xbar": "Group Mean",
+      "s": "Group SD",
+      "g": "Non-Events",
+      "run": "Observation",
+      "mr": "Moving Range",
+      "p": "Proportion",
+      "pp": "Proportion",
+      "u": "Rate",
+      "up": "Rate"
+  };
+  class derivedSettingsClass {
+      update(inputSettingsSpc) {
+          const chartType = inputSettingsSpc.chart_type;
+          const pChartType = ["p", "pp"].includes(chartType);
+          const percentSettingString = inputSettingsSpc.perc_labels;
+          let multiplier = inputSettingsSpc.multiplier;
+          let percentLabels;
+          if (percentSettingString === "Yes") {
+              multiplier = 100;
+          }
+          if (pChartType && percentSettingString !== "No") {
+              multiplier = multiplier === 1 ? 100 : multiplier;
+          }
+          if (percentSettingString === "Automatic") {
+              percentLabels = pChartType && multiplier === 100;
+          }
+          else {
+              percentLabels = percentSettingString === "Yes";
+          }
+          this.chart_type_props = {
+              name: chartType,
+              needs_denominator: ["p", "pp", "u", "up", "xbar", "s"].includes(chartType),
+              denominator_optional: ["i", "i_m", "i_mm", "run", "mr"].includes(chartType),
+              numerator_non_negative: ["p", "pp", "u", "up", "s", "c", "g", "t"].includes(chartType),
+              numerator_leq_denominator: ["p", "pp", "u", "up"].includes(chartType),
+              has_control_limits: !(["run"].includes(chartType)),
+              needs_sd: ["xbar"].includes(chartType),
+              integer_num_den: ["c", "p", "pp"].includes(chartType),
+              value_name: valueNames[chartType],
+              x_axis_use_date: !(["g", "t"].includes(chartType)),
+              date_name: !(["g", "t"].includes(chartType)) ? "Date" : "Event"
+          };
+          this.multiplier = multiplier;
+          this.percentLabels = percentLabels;
+      }
+  }
+
+  class settingsClass {
+      update(inputView, groupIdxs) {
+          var _a, _b, _c;
+          this.validationStatus
+              = JSON.parse(JSON.stringify({ status: 0, messages: new Array(), error: "" }));
+          const allSettingGroups = Object.keys(this.settings);
+          const is_grouped = (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.categorical) === null || _a === void 0 ? void 0 : _a.categories) === null || _b === void 0 ? void 0 : _b.some(d => d.source.roles.indicator)) !== null && _c !== void 0 ? _c : false;
+          this.settingsGrouped = new Array();
+          if (is_grouped) {
+              groupIdxs.forEach(() => {
+                  this.settingsGrouped.push(Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
+                      return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
+                              return [settingName, defaultSettings[settingGroupName][settingName]];
+                          }))];
+                  })));
+              });
+          }
+          const all_idxs = groupIdxs.flat();
+          allSettingGroups.forEach((settingGroup) => {
+              const condFormatting = extractConditionalFormatting(inputView === null || inputView === void 0 ? void 0 : inputView.categorical, settingGroup, this.settings, all_idxs);
+              if (condFormatting.validation.status !== 0) {
+                  this.validationStatus.status = condFormatting.validation.status;
+                  this.validationStatus.error = condFormatting.validation.error;
+              }
+              if (this.validationStatus.messages.length === 0) {
+                  this.validationStatus.messages = condFormatting.validation.messages;
+              }
+              else if (!condFormatting.validation.messages.every(d => d.length === 0)) {
+                  condFormatting.validation.messages.forEach((message, idx) => {
+                      if (message.length > 0) {
+                          this.validationStatus.messages[idx] = this.validationStatus.messages[idx].concat(message);
+                      }
+                  });
+              }
+              const settingNames = Object.keys(this.settings[settingGroup]);
+              settingNames.forEach((settingName) => {
+                  this.settings[settingGroup][settingName]
+                      = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
+                          ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[0][settingName]
+                          : defaultSettings[settingGroup][settingName]["default"];
+                  if (is_grouped) {
+                      groupIdxs.forEach((idx, idx_idx) => {
+                          this.settingsGrouped[idx_idx][settingGroup][settingName]
+                              = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
+                                  ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[idx[0]][settingName]
+                                  : defaultSettings[settingGroup][settingName]["default"];
+                      });
+                  }
+              });
+          });
+          if (this.settings.nhs_icons.show_variation_icons) {
+              const patterns = ["astronomical", "shift", "trend", "two_in_three"];
+              const anyOutlierPatterns = patterns.some(d => this.settings.outliers[d]);
+              if (!anyOutlierPatterns) {
+                  this.validationStatus.status = 1;
+                  this.validationStatus.error = "Variation icons require at least one outlier pattern to be selected";
+              }
+          }
+          this.derivedSettings.update(this.settings.spc);
+          this.derivedSettingsGrouped = new Array();
+          if (is_grouped) {
+              this.settingsGrouped.forEach((d) => {
+                  const newDerived = new derivedSettingsClass();
+                  newDerived.update(d.spc);
+                  this.derivedSettingsGrouped.push(newDerived);
+              });
+          }
+      }
+      getFormattingModel() {
+          var _a, _b;
+          const formattingModel = {
+              cards: []
+          };
+          for (const curr_card_name in settingsModel) {
+              let curr_card = {
+                  description: settingsModel[curr_card_name].description,
+                  displayName: settingsModel[curr_card_name].displayName,
+                  uid: curr_card_name + "_card_uid",
+                  groups: [],
+                  revertToDefaultDescriptors: []
+              };
+              for (const card_group in settingsModel[curr_card_name].settingsGroups) {
+                  let curr_group = {
+                      displayName: card_group === "all" ? settingsModel[curr_card_name].displayName : card_group,
+                      uid: curr_card_name + "_" + card_group + "_uid",
+                      slices: []
+                  };
+                  for (const setting in settingsModel[curr_card_name].settingsGroups[card_group]) {
+                      curr_card.revertToDefaultDescriptors.push({
+                          objectName: curr_card_name,
+                          propertyName: setting
+                      });
+                      let curr_slice = {
+                          uid: curr_card_name + "_" + card_group + "_" + setting + "_slice_uid",
+                          displayName: settingsModel[curr_card_name].settingsGroups[card_group][setting].displayName,
+                          control: {
+                              type: settingsModel[curr_card_name].settingsGroups[card_group][setting].type,
+                              properties: {
+                                  descriptor: {
+                                      objectName: curr_card_name,
+                                      propertyName: setting,
+                                      selector: { data: [{ dataViewWildcard: { matchingOption: 0 } }] },
+                                      instanceKind: (typeof this.settings[curr_card_name][setting]) != "boolean" ? 3 : null
+                                  },
+                                  value: this.valueLookup(curr_card_name, card_group, setting),
+                                  items: (_a = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _a === void 0 ? void 0 : _a.items,
+                                  options: (_b = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _b === void 0 ? void 0 : _b.options
+                              }
+                          }
+                      };
+                      curr_group.slices.push(curr_slice);
+                  }
+                  curr_card.groups.push(curr_group);
+              }
+              formattingModel.cards.push(curr_card);
+          }
+          return formattingModel;
+      }
+      valueLookup(settingCardName, settingGroupName, settingName) {
+          var _a;
+          if (settingName.includes("colour")) {
+              return { value: this.settings[settingCardName][settingName] };
+          }
+          if (!isNullOrUndefined((_a = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a.items)) {
+              const allItems = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName].items;
+              const currValue = this.settings[settingCardName][settingName];
+              return allItems.find(item => item.value === currValue);
+          }
+          return this.settings[settingCardName][settingName];
+      }
+      constructor() {
+          this.settings = Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
+              return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
+                      return [settingName, defaultSettings[settingGroupName][settingName]];
+                  }))];
+          }));
+          this.derivedSettings = new derivedSettingsClass();
+      }
+  }
+
+  function cLimits(args) {
+      const cl = mean(extractValues(args.numerators, args.subset_points));
+      const sigma = Math.sqrt(cl);
+      return {
+          keys: args.keys,
+          values: args.numerators,
+          targets: rep(cl, args.keys.length),
+          ll99: rep(truncate(cl - 3 * sigma, { lower: 0 }), args.keys.length),
+          ll95: rep(truncate(cl - 2 * sigma, { lower: 0 }), args.keys.length),
+          ll68: rep(truncate(cl - 1 * sigma, { lower: 0 }), args.keys.length),
+          ul68: rep(cl + 1 * sigma, args.keys.length),
+          ul95: rep(cl + 2 * sigma, args.keys.length),
+          ul99: rep(cl + 3 * sigma, args.keys.length),
+      };
+  }
+
+  function gLimits(args) {
+      const cl = mean(extractValues(args.numerators, args.subset_points));
+      const sigma = sqrt(cl * (cl + 1));
+      return {
+          keys: args.keys,
+          values: args.numerators,
+          targets: rep(median(extractValues(args.numerators, args.subset_points)), args.keys.length),
+          ll99: rep(0, args.keys.length),
+          ll95: rep(0, args.keys.length),
+          ll68: rep(0, args.keys.length),
+          ul68: rep(cl + 1 * sigma, args.keys.length),
+          ul95: rep(cl + 2 * sigma, args.keys.length),
+          ul99: rep(cl + 3 * sigma, args.keys.length)
+      };
+  }
+
+  function iLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const ratio = useRatio
+          ? divide(args.numerators, args.denominators)
+          : args.numerators;
+      const ratio_subset = extractValues(ratio, args.subset_points);
+      const cl = mean(ratio_subset);
+      const consec_diff = abs(diff(ratio_subset));
+      const consec_diff_ulim = mean(consec_diff) * 3.267;
+      const outliers_in_limits = args.outliers_in_limits;
+      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
+      const sigma = mean(consec_diff_valid) / 1.128;
+      return {
+          keys: args.keys,
+          values: ratio.map(d => isNaN(d) ? 0 : d),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: rep(cl, args.keys.length),
+          ll99: rep(cl - 3 * sigma, args.keys.length),
+          ll95: rep(cl - 2 * sigma, args.keys.length),
+          ll68: rep(cl - 1 * sigma, args.keys.length),
+          ul68: rep(cl + 1 * sigma, args.keys.length),
+          ul95: rep(cl + 2 * sigma, args.keys.length),
+          ul99: rep(cl + 3 * sigma, args.keys.length)
+      };
+  }
+
+  function imLimits$1(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const ratio = useRatio
+          ? divide(args.numerators, args.denominators)
+          : args.numerators;
+      const ratio_subset = extractValues(ratio, args.subset_points);
+      const cl = median(ratio_subset);
+      const consec_diff = abs(diff(ratio_subset));
+      const consec_diff_ulim = mean(consec_diff) * 3.267;
+      const outliers_in_limits = args.outliers_in_limits;
+      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
+      const sigma = mean(consec_diff_valid) / 1.128;
+      return {
+          keys: args.keys,
+          values: ratio.map(d => isNaN(d) ? 0 : d),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: rep(cl, args.keys.length),
+          ll99: rep(cl - 3 * sigma, args.keys.length),
+          ll95: rep(cl - 2 * sigma, args.keys.length),
+          ll68: rep(cl - 1 * sigma, args.keys.length),
+          ul68: rep(cl + 1 * sigma, args.keys.length),
+          ul95: rep(cl + 2 * sigma, args.keys.length),
+          ul99: rep(cl + 3 * sigma, args.keys.length)
+      };
+  }
+
+  function imLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const ratio = useRatio
+          ? divide(args.numerators, args.denominators)
+          : args.numerators;
+      const ratio_subset = extractValues(ratio, args.subset_points);
+      const cl = median(ratio_subset);
+      const consec_diff = abs(diff(ratio_subset));
+      const consec_diff_ulim = median(consec_diff) * 3.267;
+      const outliers_in_limits = args.outliers_in_limits;
+      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
+      const sigma = median(consec_diff_valid) / 1.128;
+      return {
+          keys: args.keys,
+          values: ratio.map(d => isNaN(d) ? 0 : d),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: rep(cl, args.keys.length),
+          ll99: rep(cl - 3 * sigma, args.keys.length),
+          ll95: rep(cl - 2 * sigma, args.keys.length),
+          ll68: rep(cl - 1 * sigma, args.keys.length),
+          ul68: rep(cl + 1 * sigma, args.keys.length),
+          ul95: rep(cl + 2 * sigma, args.keys.length),
+          ul99: rep(cl + 3 * sigma, args.keys.length)
+      };
+  }
+
+  function mrLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const ratio = useRatio
+          ? divide(args.numerators, args.denominators)
+          : args.numerators;
+      const consec_diff = abs(diff(ratio));
+      const cl = mean(extractValues(consec_diff, args.subset_points));
+      return {
+          keys: args.keys.slice(1),
+          values: consec_diff.slice(1),
+          numerators: useRatio ? args.numerators.slice(1) : undefined,
+          denominators: useRatio ? args.denominators.slice(1) : undefined,
+          targets: rep(cl, args.keys.length - 1),
+          ll99: rep(0, args.keys.length - 1),
+          ll95: rep(0, args.keys.length - 1),
+          ll68: rep(0, args.keys.length - 1),
+          ul68: rep((3.267 / 3) * 1 * cl, args.keys.length - 1),
+          ul95: rep((3.267 / 3) * 2 * cl, args.keys.length - 1),
+          ul99: rep(3.267 * cl, args.keys.length - 1)
+      };
+  }
+
+  function pLimits(args) {
+      const cl = sum(extractValues(args.numerators, args.subset_points))
+          / sum(extractValues(args.denominators, args.subset_points));
+      const sigma = sqrt(divide(cl * (1 - cl), args.denominators));
+      return {
+          keys: args.keys,
+          values: divide(args.numerators, args.denominators),
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: rep(cl, args.keys.length),
+          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
+          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
+          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
+          ul68: truncate(add(cl, multiply(1, sigma)), { upper: 1 }),
+          ul95: truncate(add(cl, multiply(2, sigma)), { upper: 1 }),
+          ul99: truncate(add(cl, multiply(3, sigma)), { upper: 1 })
+      };
+  }
+
+  function pprimeLimits(args) {
+      const val = divide(args.numerators, args.denominators);
+      const cl = sum(extractValues(args.numerators, args.subset_points))
+          / sum(extractValues(args.denominators, args.subset_points));
+      const sd = sqrt(divide(cl * (1 - cl), args.denominators));
+      const zscore = extractValues(divide(subtract(val, cl), sd), args.subset_points);
+      const consec_diff = abs(diff(zscore));
+      const consec_diff_ulim = mean(consec_diff) * 3.267;
+      const outliers_in_limits = args.outliers_in_limits;
+      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
+      const sigma = multiply(sd, mean(consec_diff_valid) / 1.128);
+      return {
+          keys: args.keys,
+          values: val,
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: rep(cl, args.keys.length),
+          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
+          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
+          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
+          ul68: truncate(add(cl, multiply(1, sigma)), { upper: 1 }),
+          ul95: truncate(add(cl, multiply(2, sigma)), { upper: 1 }),
+          ul99: truncate(add(cl, multiply(3, sigma)), { upper: 1 })
+      };
+  }
+
+  function runLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const ratio = useRatio
+          ? divide(args.numerators, args.denominators)
+          : args.numerators;
+      const cl = median(extractValues(ratio, args.subset_points));
+      return {
+          keys: args.keys,
+          values: ratio.map(d => isNaN(d) ? 0 : d),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: rep(cl, args.keys.length)
+      };
+  }
+
+  function sLimits(args) {
+      const group_sd = args.numerators;
+      const count_per_group = args.denominators;
+      const Nm1 = subtract(extractValues(count_per_group, args.subset_points), 1);
+      const cl = sqrt(sum(multiply(Nm1, pow(extractValues(group_sd, args.subset_points), 2))) / sum(Nm1));
+      return {
+          keys: args.keys,
+          values: group_sd,
+          targets: rep(cl, args.keys.length),
+          ll99: multiply(cl, b3(count_per_group, 3)),
+          ll95: multiply(cl, b3(count_per_group, 2)),
+          ll68: multiply(cl, b3(count_per_group, 1)),
+          ul68: multiply(cl, b4(count_per_group, 1)),
+          ul95: multiply(cl, b4(count_per_group, 2)),
+          ul99: multiply(cl, b4(count_per_group, 3))
+      };
+  }
+
+  function tLimits(args) {
+      const val = pow(args.numerators, 1 / 3.6);
+      const inputArgsCopy = JSON.parse(JSON.stringify(args));
+      inputArgsCopy.numerators = val;
+      inputArgsCopy.denominators = null;
+      const limits = iLimits(inputArgsCopy);
+      limits.targets = pow(limits.targets, 3.6);
+      limits.values = pow(limits.values, 3.6);
+      limits.ll99 = truncate(pow(limits.ll99, 3.6), { lower: 0 });
+      limits.ll95 = truncate(pow(limits.ll95, 3.6), { lower: 0 });
+      limits.ll68 = truncate(pow(limits.ll68, 3.6), { lower: 0 });
+      limits.ul68 = pow(limits.ul68, 3.6);
+      limits.ul95 = pow(limits.ul95, 3.6);
+      limits.ul99 = pow(limits.ul99, 3.6);
+      return limits;
+  }
+
+  function uLimits(args) {
+      const cl = sum(extractValues(args.numerators, args.subset_points))
+          / sum(extractValues(args.denominators, args.subset_points));
+      const sigma = sqrt(divide(cl, args.denominators));
+      return {
+          keys: args.keys,
+          values: divide(args.numerators, args.denominators),
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: rep(cl, args.keys.length),
+          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
+          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
+          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
+          ul68: add(cl, multiply(1, sigma)),
+          ul95: add(cl, multiply(2, sigma)),
+          ul99: add(cl, multiply(3, sigma))
+      };
+  }
+
+  function uprimeLimits(args) {
+      const val = divide(args.numerators, args.denominators);
+      const cl = sum(extractValues(args.numerators, args.subset_points))
+          / sum(extractValues(args.denominators, args.subset_points));
+      const sd = sqrt(divide(cl, args.denominators));
+      const zscore = extractValues(divide(subtract(val, cl), sd), args.subset_points);
+      const consec_diff = abs(diff(zscore));
+      const consec_diff_ulim = mean(consec_diff) * 3.267;
+      const outliers_in_limits = args.outliers_in_limits;
+      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
+      const sigma = multiply(sd, mean(consec_diff_valid) / 1.128);
+      return {
+          keys: args.keys,
+          values: val,
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: rep(cl, args.keys.length),
+          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
+          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
+          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
+          ul68: add(cl, multiply(1, sigma)),
+          ul95: add(cl, multiply(2, sigma)),
+          ul99: add(cl, multiply(3, sigma))
+      };
+  }
+
+  function xbarLimits(args) {
+      const count_per_group = args.denominators;
+      const count_per_group_sub = extractValues(count_per_group, args.subset_points);
+      const group_means = args.numerators;
+      const group_means_sub = extractValues(group_means, args.subset_points);
+      const group_sd = args.xbar_sds;
+      const group_sd_sub = extractValues(group_sd, args.subset_points);
+      const Nm1 = subtract(count_per_group_sub, 1);
+      const sd = sqrt(sum(multiply(Nm1, square(group_sd_sub))) / sum(Nm1));
+      const cl = sum(multiply(count_per_group_sub, group_means_sub)) / sum(count_per_group_sub);
+      const A3 = a3(count_per_group);
+      return {
+          keys: args.keys,
+          values: group_means,
+          targets: rep(cl, args.keys.length),
+          ll99: subtract(cl, multiply(A3, sd)),
+          ll95: subtract(cl, multiply(multiply(divide(A3, 3), 2), sd)),
+          ll68: subtract(cl, multiply(divide(A3, 3), sd)),
+          ul68: add(cl, multiply(divide(A3, 3), sd)),
+          ul95: add(cl, multiply(multiply(divide(A3, 3), 2), sd)),
+          ul99: add(cl, multiply(A3, sd)),
+          count: count_per_group
+      };
+  }
+
+  var limitFunctions = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    c: cLimits,
+    g: gLimits,
+    i: iLimits,
+    i_m: imLimits$1,
+    i_mm: imLimits,
+    mr: mrLimits,
+    p: pLimits,
+    pp: pprimeLimits,
+    r: runLimits,
+    run: runLimits,
+    s: sLimits,
+    t: tLimits,
+    u: uLimits,
+    up: uprimeLimits,
+    xbar: xbarLimits
+  });
+
+  function astronomical(val, ll99, ul99) {
+      return val.map((d, i) => {
+          if (!between(d, ll99[i], ul99[i])) {
+              return d > ul99[i] ? "upper" : "lower";
+          }
+          else {
+              return "none";
+          }
+      });
+  }
+
+  function shift(val, targets, n) {
+      const lagged_sign = val.map((d, i) => {
+          return Math.sign(d - targets[i]);
+      });
+      const lagged_sign_sum = lagged_sign.map((_, i) => {
+          return sum(lagged_sign.slice(Math.max(0, i - (n - 1)), i + 1));
+      });
+      const shift_detected = lagged_sign_sum.map(d => {
+          if (abs(d) >= n) {
+              return d >= n ? "upper" : "lower";
+          }
+          else {
+              return "none";
+          }
+      });
+      for (let i = 0; i < shift_detected.length; i++) {
+          if (shift_detected[i] !== "none") {
+              for (let j = (i - 1); j >= (i - (n - 1)); j--) {
+                  shift_detected[j] = shift_detected[i];
+              }
+          }
+      }
+      return shift_detected;
+  }
+
+  function trend(val, n) {
+      const lagged_sign = val.map((d, i) => {
+          return (i == 0) ? i : Math.sign(d - val[i - 1]);
+      });
+      const lagged_sign_sum = lagged_sign.map((_, i) => {
+          return sum(lagged_sign.slice(Math.max(0, i - (n - 2)), i + 1));
+      });
+      const trend_detected = lagged_sign_sum.map(d => {
+          if (abs(d) >= (n - 1)) {
+              return d >= (n - 1) ? "upper" : "lower";
+          }
+          else {
+              return "none";
+          }
+      });
+      for (let i = 0; i < trend_detected.length; i++) {
+          if (trend_detected[i] !== "none") {
+              for (let j = (i - 1); j >= (i - (n - 1)); j--) {
+                  trend_detected[j] = trend_detected[i];
+              }
+          }
+      }
+      return trend_detected;
+  }
+
+  function twoInThree(val, ll95, ul95, highlight_series) {
+      const outside95 = val.map((d, i) => {
+          return d > ul95[i] ? 1 : (d < ll95[i] ? -1 : 0);
+      });
+      const lagged_sign_sum = outside95.map((_, i) => {
+          return sum(outside95.slice(Math.max(0, i - 2), i + 1));
+      });
+      const two_in_three_detected = lagged_sign_sum.map(d => {
+          if (abs(d) >= 2) {
+              return d >= 2 ? "upper" : "lower";
+          }
+          else {
+              return "none";
+          }
+      });
+      for (let i = 0; i < two_in_three_detected.length; i++) {
+          if (two_in_three_detected[i] !== "none") {
+              for (let j = (i - 1); j >= (i - 2); j--) {
+                  if (outside95[j] !== 0 || highlight_series) {
+                      two_in_three_detected[j] = two_in_three_detected[i];
+                  }
+              }
+              if (outside95[i] === 0 && !highlight_series) {
+                  two_in_three_detected[i] = "none";
+              }
+          }
+      }
+      return two_in_three_detected;
+  }
+
+  class viewModelClass {
+      constructor() {
+          this.inputData = null;
+          this.inputSettings = new settingsClass();
+          this.controlLimits = null;
+          this.plotPoints = new Array();
+          this.groupedLines = new Array();
+          this.firstRun = true;
+          this.splitIndexes = new Array();
+          this.colourPalette = null;
+          this.headless = false;
+          this.frontend = false;
+      }
+      update(options, host) {
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+          if (isNullOrUndefined(this.colourPalette)) {
+              this.colourPalette = {
+                  isHighContrast: host.colorPalette.isHighContrast,
+                  foregroundColour: host.colorPalette.foreground.value,
+                  backgroundColour: host.colorPalette.background.value,
+                  foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
+                  hyperlinkColour: host.colorPalette.hyperlink.value
+              };
+          }
+          this.svgWidth = options.viewport.width;
+          this.svgHeight = options.viewport.height;
+          this.headless = (_a = options === null || options === void 0 ? void 0 : options["headless"]) !== null && _a !== void 0 ? _a : false;
+          this.frontend = (_b = options === null || options === void 0 ? void 0 : options["frontend"]) !== null && _b !== void 0 ? _b : false;
+          const indicator_cols = (_e = (_d = (_c = options.dataViews[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories) === null || _e === void 0 ? void 0 : _e.filter(d => d.source.roles.indicator);
+          this.indicatorVarNames = (_f = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _f !== void 0 ? _f : [];
+          const n_indicators = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length;
+          const n_values = (_m = (_l = (_k = (_j = (_h = (_g = options.dataViews[0]) === null || _g === void 0 ? void 0 : _g.categorical) === null || _h === void 0 ? void 0 : _h.categories) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.length) !== null && _m !== void 0 ? _m : 1;
+          const res = { status: true };
+          const idx_per_indicator = new Array();
+          idx_per_indicator.push([0]);
+          this.groupNames = new Array();
+          this.groupNames.push((_o = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _o !== void 0 ? _o : []);
+          let curr_grp = 0;
+          for (let i = 1; i < n_values; i++) {
+              let same_indicator = true;
+              for (let j = 0; j < n_indicators; j++) {
+                  same_indicator = same_indicator && ((indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[j].values[i]) === (indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[j].values[i - 1]));
+              }
+              if (same_indicator) {
+                  idx_per_indicator[curr_grp].push(i);
+              }
+              else {
+                  idx_per_indicator.push([i]);
+                  this.groupNames.push((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _p !== void 0 ? _p : []);
+                  curr_grp += 1;
+              }
+          }
+          if (options.type === 2 || this.firstRun) {
+              this.inputSettings.update(options.dataViews[0], idx_per_indicator);
+          }
+          if (this.inputSettings.validationStatus.error !== "") {
+              res.status = false;
+              res.error = this.inputSettings.validationStatus.error;
+              res.type = "settings";
+              return res;
+          }
+          const checkDV = validateDataView(options.dataViews, this.inputSettings);
+          if (checkDV !== "valid") {
+              res.status = false;
+              res.error = checkDV;
+              return res;
+          }
+          if (options.type === 2 || this.firstRun) {
+              if (options.dataViews[0].categorical.categories.some(d => d.source.roles.indicator)) {
+                  this.showGrouped = true;
+                  this.inputDataGrouped = new Array();
+                  this.groupStartEndIndexesGrouped = new Array();
+                  this.controlLimitsGrouped = new Array();
+                  this.outliersGrouped = new Array();
+                  this.identitiesGrouped = new Array();
+                  idx_per_indicator.forEach((group_idxs, idx) => {
+                      const inpData = extractInputData(options.dataViews[0].categorical, this.inputSettings.settingsGrouped[idx], this.inputSettings.derivedSettingsGrouped[idx], this.inputSettings.validationStatus.messages, group_idxs);
+                      const invalidData = inpData.validationStatus.status !== 0;
+                      const groupStartEndIndexes = invalidData ? new Array() : this.getGroupingIndexes(inpData);
+                      const limits = invalidData ? null : this.calculateLimits(inpData, groupStartEndIndexes, this.inputSettings.settingsGrouped[idx]);
+                      const outliers = invalidData ? null : this.flagOutliers(limits, groupStartEndIndexes, this.inputSettings.settingsGrouped[idx], this.inputSettings.derivedSettingsGrouped[idx]);
+                      if (!invalidData) {
+                          this.scaleAndTruncateLimits(limits, this.inputSettings.settingsGrouped[idx], this.inputSettings.derivedSettingsGrouped[idx]);
+                      }
+                      const identities = group_idxs.map(i => {
+                          return host.createSelectionIdBuilder().withCategory(options.dataViews[0].categorical.categories[0], i).createSelectionId();
+                      });
+                      this.identitiesGrouped.push(identities);
+                      this.inputDataGrouped.push(inpData);
+                      this.groupStartEndIndexesGrouped.push(groupStartEndIndexes);
+                      this.controlLimitsGrouped.push(limits);
+                      this.outliersGrouped.push(outliers);
+                  });
+                  this.initialisePlotDataGrouped();
+              }
+              else {
+                  this.showGrouped = false;
+                  this.groupNames = null;
+                  this.inputDataGrouped = null;
+                  this.groupStartEndIndexesGrouped = null;
+                  this.controlLimitsGrouped = null;
+                  const split_indexes_str = (_u = ((_t = (_s = (_r = (_q = options.dataViews[0]) === null || _q === void 0 ? void 0 : _q.metadata) === null || _r === void 0 ? void 0 : _r.objects) === null || _s === void 0 ? void 0 : _s.split_indexes_storage) === null || _t === void 0 ? void 0 : _t.split_indexes)) !== null && _u !== void 0 ? _u : "[]";
+                  const split_indexes = JSON.parse(split_indexes_str);
+                  this.splitIndexes = split_indexes;
+                  this.inputData = extractInputData(options.dataViews[0].categorical, this.inputSettings.settings, this.inputSettings.derivedSettings, this.inputSettings.validationStatus.messages, idx_per_indicator[0]);
+                  if (this.inputData.validationStatus.status === 0) {
+                      this.groupStartEndIndexes = this.getGroupingIndexes(this.inputData, this.splitIndexes);
+                      this.controlLimits = this.calculateLimits(this.inputData, this.groupStartEndIndexes, this.inputSettings.settings);
+                      this.scaleAndTruncateLimits(this.controlLimits, this.inputSettings.settings, this.inputSettings.derivedSettings);
+                      this.outliers = this.flagOutliers(this.controlLimits, this.groupStartEndIndexes, this.inputSettings.settings, this.inputSettings.derivedSettings);
+                      this.initialisePlotData(host);
+                      this.initialiseGroupedLines();
+                  }
+              }
+          }
+          this.firstRun = false;
+          if (this.showGrouped) {
+              if (this.inputDataGrouped.map(d => d.validationStatus.status).some(d => d !== 0)) {
+                  res.status = false;
+                  res.error = this.inputDataGrouped.map(d => d.validationStatus.error).join("\n");
+                  return res;
+              }
+              if (this.inputDataGrouped.some(d => d.warningMessage !== "")) {
+                  res.warning = this.inputDataGrouped.map(d => d.warningMessage).join("\n");
+              }
+          }
+          else {
+              if (this.inputData.validationStatus.status !== 0) {
+                  res.status = false;
+                  res.error = this.inputData.validationStatus.error;
+                  return res;
+              }
+              if (this.inputData.warningMessage !== "") {
+                  res.warning = this.inputData.warningMessage;
+              }
+          }
+          return res;
+      }
+      getGroupingIndexes(inputData, splitIndexes) {
+          const allIndexes = (splitIndexes !== null && splitIndexes !== void 0 ? splitIndexes : [])
+              .concat([-1])
+              .concat(inputData.groupingIndexes)
+              .concat([inputData.limitInputArgs.keys.length - 1])
+              .filter((d, idx, arr) => arr.indexOf(d) === idx)
+              .sort((a, b) => a - b);
+          const groupStartEndIndexes = new Array();
+          for (let i = 0; i < allIndexes.length - 1; i++) {
+              groupStartEndIndexes.push([allIndexes[i] + 1, allIndexes[i + 1] + 1]);
+          }
+          return groupStartEndIndexes;
+      }
+      calculateLimits(inputData, groupStartEndIndexes, inputSettings) {
+          var _a;
+          const limitFunction = limitFunctions[inputSettings.spc.chart_type];
+          inputData.limitInputArgs.outliers_in_limits = inputSettings.spc.outliers_in_limits;
+          let controlLimits;
+          if (groupStartEndIndexes.length > 1) {
+              const groupedData = groupStartEndIndexes.map((indexes) => {
+                  const data = JSON.parse(JSON.stringify(inputData));
+                  data.limitInputArgs.denominators = data.limitInputArgs.denominators.slice(indexes[0], indexes[1]);
+                  data.limitInputArgs.numerators = data.limitInputArgs.numerators.slice(indexes[0], indexes[1]);
+                  data.limitInputArgs.keys = data.limitInputArgs.keys.slice(indexes[0], indexes[1]);
+                  return data;
+              });
+              const calcLimitsGrouped = groupedData.map(d => {
+                  const currLimits = limitFunction(d.limitInputArgs);
+                  currLimits.trend_line = calculateTrendLine(currLimits.values);
+                  return currLimits;
+              });
+              controlLimits = calcLimitsGrouped.reduce((all, curr) => {
+                  const allInner = all;
+                  Object.entries(all).forEach((entry, idx) => {
+                      var _a;
+                      const newValues = Object.entries(curr)[idx][1];
+                      allInner[entry[0]] = (_a = entry[1]) === null || _a === void 0 ? void 0 : _a.concat(newValues);
+                  });
+                  return allInner;
+              });
+          }
+          else {
+              controlLimits = limitFunction(inputData.limitInputArgs);
+              controlLimits.trend_line = calculateTrendLine(controlLimits.values);
+          }
+          controlLimits.alt_targets = inputData.alt_targets;
+          controlLimits.speclimits_lower = inputData.speclimits_lower;
+          controlLimits.speclimits_upper = inputData.speclimits_upper;
+          for (const key of Object.keys(controlLimits)) {
+              if (key === "keys") {
+                  continue;
+              }
+              controlLimits[key] = (_a = controlLimits[key]) === null || _a === void 0 ? void 0 : _a.map(d => isNaN(d) ? null : d);
+          }
+          return controlLimits;
+      }
+      initialisePlotDataGrouped() {
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+          this.plotPointsGrouped = new Array();
+          this.tableColumnsGrouped = new Array();
+          this.indicatorVarNames.forEach(indicator_name => {
+              this.tableColumnsGrouped.push({ name: indicator_name, label: indicator_name });
+          });
+          this.tableColumnsGrouped.push({ name: "latest_date", label: "Latest Date" });
+          const lineSettings = this.inputSettings.settings.lines;
+          if (lineSettings.show_main) {
+              this.tableColumnsGrouped.push({ name: "value", label: "Value" });
+          }
+          if (this.inputSettings.settings.spc.ttip_show_numerator) {
+              this.tableColumnsGrouped.push({ name: "numerator", label: "Numerator" });
+          }
+          if (this.inputSettings.settings.spc.ttip_show_denominator) {
+              this.tableColumnsGrouped.push({ name: "denominator", label: "Denominator" });
+          }
+          if (lineSettings.show_target) {
+              this.tableColumnsGrouped.push({ name: "target", label: lineSettings.ttip_label_target });
+          }
+          if (lineSettings.show_alt_target) {
+              this.tableColumnsGrouped.push({ name: "alt_target", label: lineSettings.ttip_label_alt_target });
+          }
+          ["99", "95", "68"].forEach(limit => {
+              if (lineSettings[`show_${limit}`]) {
+                  this.tableColumnsGrouped.push({
+                      name: `ucl${limit}`,
+                      label: `${lineSettings[`ttip_label_${limit}_prefix_upper`]}${lineSettings[`ttip_label_${limit}`]}`
+                  });
+              }
+          });
+          ["68", "95", "99"].forEach(limit => {
+              if (lineSettings[`show_${limit}`]) {
+                  this.tableColumnsGrouped.push({
+                      name: `lcl${limit}`,
+                      label: `${lineSettings[`ttip_label_${limit}_prefix_lower`]}${lineSettings[`ttip_label_${limit}`]}`
+                  });
+              }
+          });
+          const nhsIconSettings = this.inputSettings.settings.nhs_icons;
+          if (nhsIconSettings.show_variation_icons) {
+              this.tableColumnsGrouped.push({ name: "variation", label: "Variation" });
+          }
+          if (nhsIconSettings.show_assurance_icons) {
+              this.tableColumnsGrouped.push({ name: "assurance", label: "Assurance" });
+          }
+          const anyTooltips = this.inputDataGrouped.some(d => { var _a; return (_a = d === null || d === void 0 ? void 0 : d.tooltips) === null || _a === void 0 ? void 0 : _a.some(t => t.length > 0); });
+          if (anyTooltips) {
+              (_b = (_a = this.inputDataGrouped) === null || _a === void 0 ? void 0 : _a[0].tooltips) === null || _b === void 0 ? void 0 : _b[0].forEach(tooltip => {
+                  this.tableColumnsGrouped.push({ name: tooltip.displayName, label: tooltip.displayName });
+              });
+          }
+          for (let i = 0; i < this.groupNames.length; i++) {
+              if (isNullOrUndefined((_c = this.inputDataGrouped[i]) === null || _c === void 0 ? void 0 : _c.categories)) {
+                  continue;
+              }
+              const formatValues = valueFormatter(this.inputSettings.settingsGrouped[i], this.inputSettings.derivedSettingsGrouped[i]);
+              const varIconFilter = this.inputSettings.settingsGrouped[i].summary_table.table_variation_filter;
+              const assIconFilter = this.inputSettings.settingsGrouped[i].summary_table.table_assurance_filter;
+              const limits = this.controlLimitsGrouped[i];
+              const outliers = this.outliersGrouped[i];
+              const lastIndex = limits.keys.length - 1;
+              const varIcons = variationIconsToDraw(outliers, this.inputSettings.settingsGrouped[i]);
+              if (varIconFilter !== "all") {
+                  if (varIconFilter === "improvement" && !(["improvementHigh", "improvementLow"].includes(varIcons[0]))) {
+                      continue;
+                  }
+                  if (varIconFilter === "deterioration" && !(["concernHigh", "concernLow"].includes(varIcons[0]))) {
+                      continue;
+                  }
+                  if (varIconFilter === "neutral" && !(["neutralHigh", "neutralLow"].includes(varIcons[0]))) {
+                      continue;
+                  }
+                  if (varIconFilter === "common" && varIcons[0] !== "commonCause") {
+                      continue;
+                  }
+                  if (varIconFilter === "special" && varIcons[0] === "commonCause") {
+                      continue;
+                  }
+              }
+              const assIcon = assuranceIconToDraw(limits, this.inputSettings.settingsGrouped[i], this.inputSettings.derivedSettingsGrouped[i]);
+              if (assIconFilter !== "all") {
+                  if (assIconFilter === "any" && assIcon === "inconsistent") {
+                      continue;
+                  }
+                  if (assIconFilter === "pass" && assIcon !== "consistentPass") {
+                      continue;
+                  }
+                  if (assIconFilter === "fail" && assIcon !== "consistentFail") {
+                      continue;
+                  }
+                  if (assIconFilter === "inconsistent" && assIcon !== "inconsistent") {
+                      continue;
+                  }
+              }
+              const table_row_entries = new Array();
+              this.indicatorVarNames.forEach((indicator_name, idx) => {
+                  table_row_entries.push([indicator_name, this.groupNames[i][idx]]);
+              });
+              table_row_entries.push(["latest_date", (_d = limits.keys) === null || _d === void 0 ? void 0 : _d[lastIndex].label]);
+              table_row_entries.push(["value", formatValues((_e = limits.values) === null || _e === void 0 ? void 0 : _e[lastIndex], "value")]);
+              table_row_entries.push(["numerator", formatValues((_f = limits.numerators) === null || _f === void 0 ? void 0 : _f[lastIndex], "integer")]);
+              table_row_entries.push(["denominator", formatValues((_g = limits.denominators) === null || _g === void 0 ? void 0 : _g[lastIndex], "integer")]);
+              table_row_entries.push(["target", formatValues((_h = limits.targets) === null || _h === void 0 ? void 0 : _h[lastIndex], "value")]);
+              table_row_entries.push(["alt_target", formatValues((_j = limits.alt_targets) === null || _j === void 0 ? void 0 : _j[lastIndex], "value")]);
+              table_row_entries.push(["ucl99", formatValues((_k = limits.ul99) === null || _k === void 0 ? void 0 : _k[lastIndex], "value")]);
+              table_row_entries.push(["ucl95", formatValues((_l = limits.ul95) === null || _l === void 0 ? void 0 : _l[lastIndex], "value")]);
+              table_row_entries.push(["ucl68", formatValues((_m = limits.ul68) === null || _m === void 0 ? void 0 : _m[lastIndex], "value")]);
+              table_row_entries.push(["lcl68", formatValues((_o = limits.ll68) === null || _o === void 0 ? void 0 : _o[lastIndex], "value")]);
+              table_row_entries.push(["lcl95", formatValues((_p = limits.ll95) === null || _p === void 0 ? void 0 : _p[lastIndex], "value")]);
+              table_row_entries.push(["lcl99", formatValues((_q = limits.ll99) === null || _q === void 0 ? void 0 : _q[lastIndex], "value")]);
+              table_row_entries.push(["variation", varIcons[0]]);
+              table_row_entries.push(["assurance", assIcon]);
+              if (anyTooltips) {
+                  this.inputDataGrouped[i].tooltips[lastIndex].forEach(tooltip => {
+                      table_row_entries.push([tooltip.displayName, tooltip.value]);
+                  });
+              }
+              this.plotPointsGrouped.push({
+                  table_row: Object.fromEntries(table_row_entries),
+                  identity: this.identitiesGrouped[i],
+                  aesthetics: this.inputSettings.settingsGrouped[i].summary_table,
+                  highlighted: this.inputDataGrouped[i].anyHighlights
+              });
+          }
+      }
+      initialisePlotData(host) {
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+          this.plotPoints = new Array();
+          this.tickLabels = new Array();
+          this.tableColumns = new Array();
+          this.tableColumns.push({ name: "date", label: "Date" });
+          this.tableColumns.push({ name: "value", label: "Value" });
+          if (!isNullOrUndefined(this.controlLimits.numerators)) {
+              this.tableColumns.push({ name: "numerator", label: "Numerator" });
+          }
+          if (!isNullOrUndefined(this.controlLimits.denominators)) {
+              this.tableColumns.push({ name: "denominator", label: "Denominator" });
+          }
+          if (this.inputSettings.settings.lines.show_target) {
+              this.tableColumns.push({ name: "target", label: "Target" });
+          }
+          if (this.inputSettings.settings.lines.show_alt_target) {
+              this.tableColumns.push({ name: "alt_target", label: "Alt. Target" });
+          }
+          if (this.inputSettings.settings.lines.show_specification) {
+              this.tableColumns.push({ name: "speclimits_lower", label: "Spec. Lower" }, { name: "speclimits_upper", label: "Spec. Upper" });
+          }
+          if (this.inputSettings.settings.lines.show_trend) {
+              this.tableColumns.push({ name: "trend_line", label: "Trend Line" });
+          }
+          if (this.inputSettings.derivedSettings.chart_type_props.has_control_limits) {
+              if (this.inputSettings.settings.lines.show_99) {
+                  this.tableColumns.push({ name: "ll99", label: "LL 99%" }, { name: "ul99", label: "UL 99%" });
+              }
+              if (this.inputSettings.settings.lines.show_95) {
+                  this.tableColumns.push({ name: "ll95", label: "LL 95%" }, { name: "ul95", label: "UL 95%" });
+              }
+              if (this.inputSettings.settings.lines.show_68) {
+                  this.tableColumns.push({ name: "ll68", label: "LL 68%" }, { name: "ul68", label: "UL 68%" });
+              }
+          }
+          if (this.inputSettings.settings.outliers.astronomical) {
+              this.tableColumns.push({ name: "astpoint", label: "Ast. Point" });
+          }
+          if (this.inputSettings.settings.outliers.trend) {
+              this.tableColumns.push({ name: "trend", label: "Trend" });
+          }
+          if (this.inputSettings.settings.outliers.shift) {
+              this.tableColumns.push({ name: "shift", label: "Shift" });
+          }
+          for (let i = 0; i < this.controlLimits.keys.length; i++) {
+              const index = this.controlLimits.keys[i].x;
+              const aesthetics = this.inputData.scatter_formatting[i];
+              if (this.colourPalette.isHighContrast) {
+                  aesthetics.colour = this.colourPalette.foregroundColour;
+              }
+              if (this.outliers.shift[i] !== "none") {
+                  aesthetics.colour = getAesthetic(this.outliers.shift[i], "outliers", "shift_colour", this.inputSettings.settings);
+                  aesthetics.colour_outline = getAesthetic(this.outliers.shift[i], "outliers", "shift_colour", this.inputSettings.settings);
+              }
+              if (this.outliers.trend[i] !== "none") {
+                  aesthetics.colour = getAesthetic(this.outliers.trend[i], "outliers", "trend_colour", this.inputSettings.settings);
+                  aesthetics.colour_outline = getAesthetic(this.outliers.trend[i], "outliers", "trend_colour", this.inputSettings.settings);
+              }
+              if (this.outliers.two_in_three[i] !== "none") {
+                  aesthetics.colour = getAesthetic(this.outliers.two_in_three[i], "outliers", "twointhree_colour", this.inputSettings.settings);
+                  aesthetics.colour_outline = getAesthetic(this.outliers.two_in_three[i], "outliers", "twointhree_colour", this.inputSettings.settings);
+              }
+              if (this.outliers.astpoint[i] !== "none") {
+                  aesthetics.colour = getAesthetic(this.outliers.astpoint[i], "outliers", "ast_colour", this.inputSettings.settings);
+                  aesthetics.colour_outline = getAesthetic(this.outliers.astpoint[i], "outliers", "ast_colour", this.inputSettings.settings);
+              }
+              const table_row = {
+                  date: this.controlLimits.keys[i].label,
+                  numerator: (_a = this.controlLimits.numerators) === null || _a === void 0 ? void 0 : _a[i],
+                  denominator: (_b = this.controlLimits.denominators) === null || _b === void 0 ? void 0 : _b[i],
+                  value: this.controlLimits.values[i],
+                  target: this.controlLimits.targets[i],
+                  alt_target: this.controlLimits.alt_targets[i],
+                  ll99: (_d = (_c = this.controlLimits) === null || _c === void 0 ? void 0 : _c.ll99) === null || _d === void 0 ? void 0 : _d[i],
+                  ll95: (_f = (_e = this.controlLimits) === null || _e === void 0 ? void 0 : _e.ll95) === null || _f === void 0 ? void 0 : _f[i],
+                  ll68: (_h = (_g = this.controlLimits) === null || _g === void 0 ? void 0 : _g.ll68) === null || _h === void 0 ? void 0 : _h[i],
+                  ul68: (_k = (_j = this.controlLimits) === null || _j === void 0 ? void 0 : _j.ul68) === null || _k === void 0 ? void 0 : _k[i],
+                  ul95: (_m = (_l = this.controlLimits) === null || _l === void 0 ? void 0 : _l.ul95) === null || _m === void 0 ? void 0 : _m[i],
+                  ul99: (_p = (_o = this.controlLimits) === null || _o === void 0 ? void 0 : _o.ul99) === null || _p === void 0 ? void 0 : _p[i],
+                  speclimits_lower: (_r = (_q = this.controlLimits) === null || _q === void 0 ? void 0 : _q.speclimits_lower) === null || _r === void 0 ? void 0 : _r[i],
+                  speclimits_upper: (_t = (_s = this.controlLimits) === null || _s === void 0 ? void 0 : _s.speclimits_upper) === null || _t === void 0 ? void 0 : _t[i],
+                  trend_line: (_v = (_u = this.controlLimits) === null || _u === void 0 ? void 0 : _u.trend_line) === null || _v === void 0 ? void 0 : _v[i],
+                  astpoint: this.outliers.astpoint[i],
+                  trend: this.outliers.trend[i],
+                  shift: this.outliers.shift[i],
+                  two_in_three: this.outliers.two_in_three[i]
+              };
+              this.plotPoints.push({
+                  x: index,
+                  value: this.controlLimits.values[i],
+                  aesthetics: aesthetics,
+                  table_row: table_row,
+                  identity: host.createSelectionIdBuilder()
+                      .withCategory(this.inputData.categories, this.inputData.limitInputArgs.keys[i].id)
+                      .createSelectionId(),
+                  highlighted: !isNullOrUndefined((_w = this.inputData.highlights) === null || _w === void 0 ? void 0 : _w[index]),
+                  tooltip: buildTooltip(table_row, (_y = (_x = this.inputData) === null || _x === void 0 ? void 0 : _x.tooltips) === null || _y === void 0 ? void 0 : _y[index], this.inputSettings.settings, this.inputSettings.derivedSettings),
+                  label: {
+                      text_value: (_z = this.inputData.labels) === null || _z === void 0 ? void 0 : _z[index],
+                      aesthetics: this.inputData.label_formatting[index],
+                      angle: null,
+                      distance: null,
+                      line_offset: null,
+                      marker_offset: null
+                  }
+              });
+              this.tickLabels.push({ x: index, label: this.controlLimits.keys[i].label });
+          }
+      }
+      initialiseGroupedLines() {
+          const labels = new Array();
+          if (this.inputSettings.settings.lines.show_main) {
+              labels.push("values");
+          }
+          if (this.inputSettings.settings.lines.show_target) {
+              labels.push("targets");
+          }
+          if (this.inputSettings.settings.lines.show_alt_target) {
+              labels.push("alt_targets");
+          }
+          if (this.inputSettings.settings.lines.show_specification) {
+              labels.push("speclimits_lower", "speclimits_upper");
+          }
+          if (this.inputSettings.settings.lines.show_trend) {
+              labels.push("trend_line");
+          }
+          if (this.inputSettings.derivedSettings.chart_type_props.has_control_limits) {
+              if (this.inputSettings.settings.lines.show_99) {
+                  labels.push("ll99", "ul99");
+              }
+              if (this.inputSettings.settings.lines.show_95) {
+                  labels.push("ll95", "ul95");
+              }
+              if (this.inputSettings.settings.lines.show_68) {
+                  labels.push("ll68", "ul68");
+              }
+          }
+          const formattedLines = new Array();
+          const nLimits = this.controlLimits.keys.length;
+          for (let i = 0; i < nLimits; i++) {
+              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || this.inputData.groupingIndexes.includes(i - 1);
+              let isNewAltTarget = false;
+              if (i > 0 && this.inputSettings.settings.lines.show_alt_target) {
+                  isNewAltTarget = this.controlLimits.alt_targets[i] !== this.controlLimits.alt_targets[i - 1];
+              }
+              labels.forEach(label => {
+                  var _a, _b;
+                  const join_rebaselines = this.inputSettings.settings.lines[`join_rebaselines_${lineNameMap[label]}`];
+                  if (isRebaselinePoint || isNewAltTarget) {
+                      const is_alt_target = label === "alt_targets" && isNewAltTarget;
+                      const is_rebaseline = label !== "alt_targets" && isRebaselinePoint;
+                      formattedLines.push({
+                          x: this.controlLimits.keys[i].x,
+                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? null : (_a = this.controlLimits[label]) === null || _a === void 0 ? void 0 : _a[i],
+                          group: label,
+                          aesthetics: this.inputData.line_formatting[i]
+                      });
+                  }
+                  formattedLines.push({
+                      x: this.controlLimits.keys[i].x,
+                      line_value: (_b = this.controlLimits[label]) === null || _b === void 0 ? void 0 : _b[i],
+                      group: label,
+                      aesthetics: this.inputData.line_formatting[i]
+                  });
+              });
+          }
+          this.groupedLines = groupBy(formattedLines, "group");
+      }
+      scaleAndTruncateLimits(controlLimits, inputSettings, derivedSettings) {
+          const multiplier = derivedSettings.multiplier;
+          let lines_to_scale = ["values", "targets"];
+          if (derivedSettings.chart_type_props.has_control_limits) {
+              lines_to_scale = lines_to_scale.concat(["ll99", "ll95", "ll68", "ul68", "ul95", "ul99"]);
+          }
+          let lines_to_truncate = lines_to_scale;
+          if (inputSettings.lines.show_alt_target) {
+              lines_to_truncate = lines_to_truncate.concat(["alt_targets"]);
+              if (inputSettings.lines.multiplier_alt_target) {
+                  lines_to_scale = lines_to_scale.concat(["alt_targets"]);
+              }
+          }
+          if (inputSettings.lines.show_specification) {
+              lines_to_truncate = lines_to_truncate.concat(["speclimits_lower", "speclimits_upper"]);
+              if (inputSettings.lines.multiplier_specification) {
+                  lines_to_scale = lines_to_scale.concat(["speclimits_lower", "speclimits_upper"]);
+              }
+          }
+          const limits = {
+              lower: inputSettings.spc.ll_truncate,
+              upper: inputSettings.spc.ul_truncate
+          };
+          lines_to_scale.forEach(limit => {
+              controlLimits[limit] = multiply(controlLimits[limit], multiplier);
+          });
+          lines_to_truncate.forEach(limit => {
+              controlLimits[limit] = truncate(controlLimits[limit], limits);
+          });
+      }
+      flagOutliers(controlLimits, groupStartEndIndexes, inputSettings, derivedSettings) {
+          var _a, _b, _c, _d;
+          const process_flag_type = inputSettings.outliers.process_flag_type;
+          const improvement_direction = inputSettings.outliers.improvement_direction;
+          const trend_n = inputSettings.outliers.trend_n;
+          const shift_n = inputSettings.outliers.shift_n;
+          const ast_specification = inputSettings.outliers.astronomical_limit === "Specification";
+          const two_in_three_specification = inputSettings.outliers.two_in_three_limit === "Specification";
+          const outliers = {
+              astpoint: rep("none", controlLimits.values.length),
+              two_in_three: rep("none", controlLimits.values.length),
+              trend: rep("none", controlLimits.values.length),
+              shift: rep("none", controlLimits.values.length)
+          };
+          for (let i = 0; i < groupStartEndIndexes.length; i++) {
+              const start = groupStartEndIndexes[i][0];
+              const end = groupStartEndIndexes[i][1];
+              const group_values = controlLimits.values.slice(start, end);
+              const group_targets = controlLimits.targets.slice(start, end);
+              if (derivedSettings.chart_type_props.has_control_limits || ast_specification || two_in_three_specification) {
+                  const limit_map = {
+                      "1 Sigma": "68",
+                      "2 Sigma": "95",
+                      "3 Sigma": "99",
+                      "Specification": "",
+                  };
+                  if (inputSettings.outliers.astronomical) {
+                      const ast_limit = limit_map[inputSettings.outliers.astronomical_limit];
+                      const ll_prefix = ast_specification ? "speclimits_lower" : "ll";
+                      const ul_prefix = ast_specification ? "speclimits_upper" : "ul";
+                      const lower_limits = (_a = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ll_prefix}${ast_limit}`]) === null || _a === void 0 ? void 0 : _a.slice(start, end);
+                      const upper_limits = (_b = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ul_prefix}${ast_limit}`]) === null || _b === void 0 ? void 0 : _b.slice(start, end);
+                      astronomical(group_values, lower_limits, upper_limits)
+                          .forEach((flag, idx) => outliers.astpoint[start + idx] = flag);
+                  }
+                  if (inputSettings.outliers.two_in_three) {
+                      const highlight_series = inputSettings.outliers.two_in_three_highlight_series;
+                      const two_in_three_limit = limit_map[inputSettings.outliers.two_in_three_limit];
+                      const ll_prefix = two_in_three_specification ? "speclimits_lower" : "ll";
+                      const ul_prefix = two_in_three_specification ? "speclimits_upper" : "ul";
+                      const lower_warn_limits = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ll_prefix}${two_in_three_limit}`]) === null || _c === void 0 ? void 0 : _c.slice(start, end);
+                      const upper_warn_limits = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ul_prefix}${two_in_three_limit}`]) === null || _d === void 0 ? void 0 : _d.slice(start, end);
+                      twoInThree(group_values, lower_warn_limits, upper_warn_limits, highlight_series)
+                          .forEach((flag, idx) => outliers.two_in_three[start + idx] = flag);
+                  }
+              }
+              if (inputSettings.outliers.trend) {
+                  trend(group_values, trend_n)
+                      .forEach((flag, idx) => outliers.trend[start + idx] = flag);
+              }
+              if (inputSettings.outliers.shift) {
+                  shift(group_values, group_targets, shift_n)
+                      .forEach((flag, idx) => outliers.shift[start + idx] = flag);
+              }
+          }
+          Object.keys(outliers).forEach(key => {
+              outliers[key] = checkFlagDirection(outliers[key], { process_flag_type, improvement_direction });
+          });
+          return outliers;
+      }
+  }
+
+  class Visual {
+      constructor(options) {
+          this.tableDiv = select(options.element).append("div")
+              .style("overflow", "auto");
+          this.svg = select(options.element).append("svg");
+          this.host = options.host;
+          this.viewModel = new viewModelClass();
+          this.plotProperties = new plotPropertiesClass();
+          this.selectionManager = this.host.createSelectionManager();
+          this.selectionManager.registerOnSelectCallback(() => this.updateHighlighting());
+          this.svg.call(initialiseSVG);
+          const table = this.tableDiv.append("table")
+              .classed("table-group", true)
+              .style("border-collapse", "collapse")
+              .style("width", "100%")
+              .style("height", "100%");
+          table.append("thead").append("tr").classed("table-header", true);
+          table.append('tbody').classed("table-body", true);
+      }
+      update(options) {
+          var _a, _b, _c, _d, _e;
+          try {
+              this.host.eventService.renderingStarted(options);
+              this.svg.select(".errormessage").remove();
+              const update_status = this.viewModel.update(options, this.host);
+              if (!update_status.status) {
+                  this.resizeCanvas(options.viewport.width, options.viewport.height);
+                  if ((_e = (_d = (_c = (_b = (_a = this.viewModel) === null || _a === void 0 ? void 0 : _a.inputSettings) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c.canvas) === null || _d === void 0 ? void 0 : _d.show_errors) !== null && _e !== void 0 ? _e : true) {
+                      this.svg.call(drawErrors, options, this.viewModel.colourPalette, update_status === null || update_status === void 0 ? void 0 : update_status.error, update_status === null || update_status === void 0 ? void 0 : update_status.type);
+                  }
+                  else {
+                      this.svg.call(initialiseSVG, true);
+                  }
+                  this.host.eventService.renderingFailed(options);
+                  return;
+              }
+              this.plotProperties.update(options, this.viewModel);
+              if (update_status.warning) {
+                  this.host.displayWarningIcon("Invalid inputs or settings ignored.\n", update_status.warning);
+              }
+              if (this.viewModel.showGrouped || this.viewModel.inputSettings.settings.summary_table.show_table) {
+                  this.resizeCanvas(0, 0);
+                  this.tableDiv.call(drawSummaryTable, this)
+                      .call(addContextMenu, this);
+              }
+              else {
+                  this.resizeCanvas(options.viewport.width, options.viewport.height);
+                  this.drawVisual();
+                  this.adjustPaddingForOverflow();
+              }
+              this.updateHighlighting();
+              this.host.eventService.renderingFinished(options);
+          }
+          catch (caught_error) {
+              this.resizeCanvas(options.viewport.width, options.viewport.height);
+              this.svg.call(drawErrors, options, this.viewModel.colourPalette, caught_error.message, "internal");
+              console.error(caught_error);
+              this.host.eventService.renderingFailed(options);
+          }
+      }
+      drawVisual() {
+          this.svg.call(drawXAxis, this)
+              .call(drawYAxis, this)
+              .call(drawTooltipLine, this)
+              .call(drawLines, this)
+              .call(drawLineLabels, this)
+              .call(drawDots, this)
+              .call(drawIcons, this)
+              .call(addContextMenu, this)
+              .call(drawDownloadButton, this)
+              .call(drawLabels, this);
+      }
+      adjustPaddingForOverflow() {
+          if (this.viewModel.headless) {
+              return;
+          }
+          const svgWidth = this.viewModel.svgWidth;
+          const svgHeight = this.viewModel.svgHeight;
+          const svgBBox = this.svg.node().getBBox();
+          const overflowLeft = Math.abs(Math.min(0, svgBBox.x));
+          const overflowRight = Math.max(0, svgBBox.width + svgBBox.x - svgWidth);
+          const overflowTop = Math.abs(Math.min(0, svgBBox.y));
+          const overflowBottom = Math.max(0, svgBBox.height + svgBBox.y - svgHeight);
+          if (overflowLeft > 0) {
+              this.plotProperties.xAxis.start_padding += overflowLeft + this.plotProperties.xAxis.start_padding;
+          }
+          if (overflowRight > 0) {
+              this.plotProperties.xAxis.end_padding += overflowRight + this.plotProperties.xAxis.end_padding;
+          }
+          if (overflowTop > 0) {
+              this.plotProperties.yAxis.end_padding += overflowTop + this.plotProperties.yAxis.end_padding;
+          }
+          if (overflowBottom > 0) {
+              this.plotProperties.yAxis.start_padding += overflowBottom + this.plotProperties.yAxis.start_padding;
+          }
+          if (overflowLeft > 0 || overflowRight > 0 || overflowTop > 0 || overflowBottom > 0) {
+              this.plotProperties.initialiseScale(svgWidth, svgHeight);
+              this.drawVisual();
+          }
+      }
+      resizeCanvas(width, height) {
+          this.svg.attr("width", width).attr("height", height);
+          if (width === 0 && height === 0) {
+              this.tableDiv.style("width", "100%").style("height", "100%");
+          }
+          else {
+              this.tableDiv.style("width", "0%").style("height", "0%");
+          }
+      }
+      updateHighlighting() {
+          const anyHighlights = this.viewModel.inputData ? this.viewModel.inputData.anyHighlights : false;
+          const anyHighlightsGrouped = this.viewModel.inputDataGrouped ? this.viewModel.inputDataGrouped.some(d => d.anyHighlights) : false;
+          const allSelectionIDs = this.selectionManager.getSelectionIds();
+          const dotsSelection = this.svg.selectAll(".dotsgroup").selectChildren();
+          const linesSelection = this.svg.selectAll(".linesgroup").selectChildren();
+          const tableSelection = this.tableDiv.selectAll(".table-body").selectChildren();
+          linesSelection.style("stroke-opacity", (d) => {
+              return getAesthetic(d[0], "lines", "opacity", this.viewModel.inputSettings.settings);
+          });
+          dotsSelection.style("fill-opacity", (d) => d.aesthetics.opacity);
+          dotsSelection.style("stroke-opacity", (d) => d.aesthetics.opacity);
+          tableSelection.style("opacity", (d) => d.aesthetics["table_opacity"]);
+          if (anyHighlights || (allSelectionIDs.length > 0) || anyHighlightsGrouped) {
+              linesSelection.style("stroke-opacity", (d) => {
+                  return getAesthetic(d[0], "lines", "opacity_unselected", this.viewModel.inputSettings.settings);
+              });
+              dotsSelection.nodes().forEach(currentDotNode => {
+                  const dot = select(currentDotNode).datum();
+                  const currentPointSelected = identitySelected(dot.identity, this.selectionManager);
+                  const currentPointHighlighted = dot.highlighted;
+                  const newDotOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics.opacity_selected : dot.aesthetics.opacity_unselected;
+                  select(currentDotNode).style("fill-opacity", newDotOpacity);
+                  select(currentDotNode).style("stroke-opacity", newDotOpacity);
+              });
+              tableSelection.nodes().forEach(currentTableNode => {
+                  const dot = select(currentTableNode).datum();
+                  const currentPointSelected = identitySelected(dot.identity, this.selectionManager);
+                  const currentPointHighlighted = dot.highlighted;
+                  const newTableOpacity = (currentPointSelected || currentPointHighlighted) ? dot.aesthetics["table_opacity_selected"] : dot.aesthetics["table_opacity_unselected"];
+                  select(currentTableNode).style("opacity", newTableOpacity);
+              });
+          }
+      }
+      getFormattingModel() {
+          return this.viewModel.inputSettings.getFormattingModel();
+      }
+  }
+
+  exports.Visual = Visual;
+  exports.d3 = d3;
+  exports.defaultSettings = defaultSettings;
+
+  return exports;
+
+})({});
