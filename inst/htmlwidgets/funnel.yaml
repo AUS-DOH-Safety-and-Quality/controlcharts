@@ -1,7 +1,7 @@
 
 dependencies:
   - name: PBIFUN
-    version: 1.7.0.12
+    version: 1.7.0.13
     src: htmlwidgets/lib/PBIFUN
     script:
       - PBIFUN.js
