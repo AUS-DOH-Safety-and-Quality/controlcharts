@@ -46,7 +46,7 @@ knit_print.static_plot <- function(x, ...) {
         height = x$height * 3
       )
     } else {
-      cat(svg_string(x$svg, x$width, x$height), file=tmp)
+      cat(svg_string(x$svg, x$width, x$height), file = tmp)
     }
   })
   knitr::include_graphics(tmp)

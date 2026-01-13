@@ -33,15 +33,21 @@ funnel(
 
 \item{keys}{A vector or column name representing the categories of the chart.}
 
-\item{numerators}{A numeric vector or column name representing the numerators for each category.}
+\item{numerators}{A numeric vector or column name representing the numerators
+for each category.}
 
-\item{denominators}{A numeric vector or column name representing the denominators for each category.}
+\item{denominators}{A numeric vector or column name representing the
+denominators for each category.}
 
-\item{tooltips}{A vector or column name representing the tooltips for each category.}
+\item{tooltips}{A vector or column name representing the tooltips
+for each category.}
 
-\item{labels}{A vector or column name representing the labels for each category.}
+\item{labels}{A vector or column name representing the labels
+for each category.}
 
-\item{aggregations}{A list of aggregation function names for each field if multiple values are provided for each key. Valid options are:
+\item{aggregations}{A list of aggregation function names
+for each field if multiple values are provided for each key.
+Valid options are:
 \itemize{
 \item \code{"first"}: returns the first value
 \item \code{"last"}: returns the last value
@@ -53,44 +59,63 @@ funnel(
 \item \code{"count"}: returns the count of values
 }}
 
-\item{title}{Optional title to be added to the top of the chart. It can be a character string for the title text only, or a list with the following options:
+\item{title}{Optional title to be added to the top of the chart.
+It can be a character string for the title text only,
+or a list with the following options:
 \itemize{
 \item \code{text}: Title text (default: NULL)
 \item \code{font_size}: Font size of the title (default: "16px")
-\item \code{font_weight}: Font weight of the title (default: "bold")
-\item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
-\item \code{x}: Horizontal (x) position of the title as a percentage (default: "50\%")
+\item \code{font_weight}: Font weight of the title
+(default: "bold")
+\item \code{font_family}: Font family of the title
+(default: "'Arial', sans-serif")
+\item \code{x}: Horizontal (x) position of the title as a percentage
+(default: "50\%")
 \item \code{y}: Vertical (y) position of the title in pixels (default: 5)
 \item \code{text_anchor}: Text anchor of the title (default: "middle")
-\item \code{dominant_baseline}: Dominant baseline of the title (default: "hanging")
+\item \code{dominant_baseline}: Dominant baseline of the title
+(default: "hanging")
 }}
 
-\item{canvas_settings}{Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.}
+\item{canvas_settings}{Optional list of settings for the canvas,
+see \code{funnel_default_settings('canvas')} for valid options.}
 
-\item{funnel_settings}{Optional list of settings for the Funnel chart, see \code{funnel_default_settings('funnel')} for valid options.}
+\item{funnel_settings}{Optional list of settings for the Funnel chart,
+see \code{funnel_default_settings("funnel")} for valid options.}
 
-\item{outlier_settings}{Optional list of settings for outliers, see \code{funnel_default_settings('outliers')} for valid options.}
+\item{outlier_settings}{Optional list of settings for outliers,
+see \code{funnel_default_settings('outliers')} for valid options.}
 
-\item{scatter_settings}{Optional list of settings for scatter points, see \code{funnel_default_settings('scatter')} for valid options.}
+\item{scatter_settings}{Optional list of settings for scatter points,
+see \code{funnel_default_settings('scatter')} for valid options.}
 
-\item{line_settings}{Optional list of settings for lines, see \code{funnel_default_settings('lines')} for valid options.}
+\item{line_settings}{Optional list of settings for lines,
+see \code{funnel_default_settings('lines')} for valid options.}
 
-\item{x_axis_settings}{Optional list of settings for the x-axis, see \code{funnel_default_settings('x_axis')} for valid options.}
+\item{x_axis_settings}{Optional list of settings for the x-axis,
+see \code{funnel_default_settings('x_axis')} for valid options.}
 
-\item{y_axis_settings}{Optional list of settings for the y-axis, see \code{funnel_default_settings('y_axis')} for valid options.}
+\item{y_axis_settings}{Optional list of settings for the y-axis,
+see \code{funnel_default_settings('y_axis')} for valid options.}
 
-\item{label_settings}{Optional list of settings for labels, see \code{funnel_default_settings('labels')} for valid options.}
+\item{label_settings}{Optional list of settings for labels,
+see \code{funnel_default_settings('labels')} for valid options.}
 
-\item{tooltip_settings}{Optional list of settings for tooltips, see \code{funnel_default_settings('tooltips')} for valid options.}
+\item{tooltip_settings}{Optional list of settings for tooltips,
+see \code{funnel_default_settings('tooltips')} for valid options.}
 
-\item{width}{Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.}
+\item{width}{Optional width of the chart in pixels. If NULL (default),
+the chart will fill the width of its container.}
 
-\item{height}{Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.}
+\item{height}{Optional height of the chart in pixels. If NULL (default),
+the chart will fill the height of its container.}
 
 \item{elementId}{Optional HTML element ID for the chart.}
 }
 \value{
-An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
+An object of class \code{controlchart} containing the
+interactive plot, static plot, limits data frame, raw data,
+and a function to save the plot.
 }
 \description{
 Generate interactive Funnel chart

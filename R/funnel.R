@@ -208,13 +208,13 @@ funnel <- function(data,
   data_views <- update_static_padding(
     "funnel",
     ctx$call("makeUpdateValues", data_df, input_settings,
-            aggregations, has_conditional_formatting,
-            unique_categories)$dataViews
+             aggregations, has_conditional_formatting,
+             unique_categories)$dataViews
   )
 
   static <- create_static(
     type = "funnel",
-    dataViews = data_views,
+    data_views = data_views,
     title_settings = title_settings,
     input_settings = input_settings,
     width = width,

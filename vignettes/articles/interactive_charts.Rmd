@@ -11,10 +11,12 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-# Workaround for crosstalk bug which needs 'filter_slider' to be first HTML element when working with dates
+# Workaround for crosstalk bug which needs 'filter_slider' to be
+# first HTML element when working with dates
 # Simply create a hidden/'dummy' filter to initialise correct includes
 # https://github.com/rstudio/crosstalk/issues/65
-crosstalk::filter_slider("dummy", "dummy", crosstalk::SharedData$new(data.frame(d = as.Date("01/01/1970"))), ~d)
+dummy_data <- crosstalk::SharedData$new(data.frame(d = as.Date("01/01/1970")))
+crosstalk::filter_slider("dummy", "dummy", dummy_data, ~d)
 ```
 
 ## Introduction
@@ -39,7 +41,7 @@ dat <- do.call(
     data.frame(
       country = sample(c("C1", "C2", "C3"), 1, replace = TRUE),
       organisation = grp,
-      month_start = seq(as.Date('2024-01-01'), length.out=24, by="month"),
+      month_start = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
       numerators = rbinom(n = 24, size = denom, prob = 0.3),
       denominators = denom
     )
@@ -61,7 +63,8 @@ spc_plt <- controlcharts::spc(data = dat,
                               outlier_settings = list(astronomical = TRUE,
                                                       shift = TRUE,
                                                       two_in_three = TRUE),
-                              nhs_icon_settings = list(show_variation_icons = TRUE))
+                              nhs_icon_settings =
+                                list(show_variation_icons = TRUE))
 
 fun_plt <- controlcharts::funnel(data = dat,
                                  keys = organisation,
@@ -90,7 +93,8 @@ spc_plt <- controlcharts::spc(data = crosstalk_dat,
                               outlier_settings = list(astronomical = TRUE,
                                                       shift = TRUE,
                                                       two_in_three = TRUE),
-                              nhs_icon_settings = list(show_variation_icons = TRUE))
+                              nhs_icon_settings =
+                                list(show_variation_icons = TRUE))
 
 fun_plt <- controlcharts::funnel(data = crosstalk_dat,
                                  keys = organisation,
@@ -102,9 +106,9 @@ We can then use `crosstalk` filters to allow users to dynamically filter the dat
 
 ```{r, eval=FALSE}
 country_filter <- crosstalk::filter_select("countryFilter", "Country",
-                                             crosstalk_dat, ~country)
+                                           crosstalk_dat, ~country)
 org_filter <- crosstalk::filter_select("orgFilter", "Organisation",
-                                         crosstalk_dat, ~organisation)
+                                       crosstalk_dat, ~organisation)
 date_filter <- crosstalk::filter_slider("monthFilter", "Date",
                                         crosstalk_dat, ~month_start)
 crosstalk::bscols(
@@ -120,9 +124,9 @@ crosstalk::bscols(
 
 ```{r, echo=FALSE}
 country_filter <- crosstalk::filter_select("countryFilter", "Country",
-                                             crosstalk_dat, ~country)
+                                           crosstalk_dat, ~country)
 org_filter <- crosstalk::filter_select("orgFilter", "Organisation",
-                                         crosstalk_dat, ~organisation)
+                                       crosstalk_dat, ~organisation)
 date_filter <- crosstalk::filter_slider("monthFilter", "Date",
                                         crosstalk_dat, ~month_start)
 crosstalk::bscols(date_filter, country_filter, org_filter)

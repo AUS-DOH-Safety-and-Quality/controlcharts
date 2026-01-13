@@ -7,10 +7,12 @@
 spc_default_settings(group = NULL)
 }
 \arguments{
-\item{group}{Optional. A specific settings group to retrieve. If NULL, all settings groups are returned.}
+\item{group}{Optional. A specific settings group to retrieve.
+If NULL, all settings groups are returned.}
 }
 \value{
-A list of default settings for SPC charts or the specified settings group.
+A list of default settings for SPC charts or the specified
+settings group.
 }
 \description{
 Retrieve the default settings for SPC charts or a specific settings group.

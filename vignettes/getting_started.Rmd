@@ -27,7 +27,7 @@ Consider a basic time-series, comprised of two-years of monthly data:
 ```{r spc}
 # Simulate 2 years of monthly data
 dat <- data.frame(
-  month = seq(as.Date('2024-01-01'), length.out = 24, by = "month"),
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
   y = rnorm(24)
 )
 
@@ -82,9 +82,9 @@ For funnel plots, the default is a proportions (`PR`) chart:
 
 ```{r funnel_plot}
 funnel_chart <- controlcharts::funnel(data = funnel_data,
-                                       numerators = numerators,
-                                       denominators = denominators,
-                                       keys = organisation)
+                                      numerators = numerators,
+                                      denominators = denominators,
+                                      keys = organisation)
 ```
 
 ```{r funnel_plot_static}

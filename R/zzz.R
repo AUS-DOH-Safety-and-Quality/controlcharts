@@ -1,14 +1,17 @@
 ctx <- NULL
 
 .load_js_file <- function(context, filename) {
-  context$source(system.file(filename, package = "controlcharts", mustWork = TRUE))
+  context$source(system.file(filename, package = "controlcharts",
+                             mustWork = TRUE))
 }
 
 .onLoad <- function(libname, pkgname) {
-  # Create a new Javascript context for calculating limits and rendering static plots
+  # Create a new Javascript context for calculating limits
+  # and rendering static plots
   assign("ctx", QuickJSR::JSContext$new(), envir = topenv())
 
-  # QuickJS doesn't support the Intl family of functions for date formatting (needed for SPC)
+  # QuickJS doesn't support the Intl family of functions for
+  # date formatting (needed for SPC)
   # so we need to load a polyfill
   .load_js_file(ctx, "js/linkedom.js")
   .load_js_file(ctx, "js/Intl.polyfill.js")
@@ -16,14 +19,15 @@ ctx <- NULL
   .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/headlessUtils.js")
-  ctx$call("initialiseHeadless");
+  ctx$call("initialiseHeadless")
 
   # Extract default settings from each chart type and store in R
   for (type in c("spc", "funnel")) {
     assign(paste0(".", type, "_default_settings_internal"),
-      lapply(ctx$get(paste0(type, ".defaultSettings")), function(settings_group) {
-        lapply(settings_group, function(setting) { setting$default })
-      }),
+      lapply(ctx$get(paste0(type, ".defaultSettings")),
+             function(settings_group) {
+               lapply(settings_group, function(setting) setting$default)
+             }),
       envir = topenv()
     )
   }
