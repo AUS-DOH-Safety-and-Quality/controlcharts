@@ -6417,7 +6417,7 @@ var spc = (function (exports) {
           const derivedSettings = viewModel.inputSettings.derivedSettings[0];
           const colorPalette = viewModel.colourPalette;
           this.displayPlot = plotPoints
-              ? plotPoints.length > 1
+              ? plotPoints.length > 0
               : null;
           let xLowerLimit = inputSettings.x_axis.xlimit_l;
           let xUpperLimit = inputSettings.x_axis.xlimit_u;
@@ -8244,14 +8244,58 @@ var spc = (function (exports) {
       return { dates: inputDates, quarters: inputQuarters };
   }
 
-  function datePartsToRecord(dateParts) {
-      const datePartsRecord = Object.fromEntries(dateParts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
-      ["weekday", "day", "month", "year"].forEach(key => {
-          var _a;
-          (_a = datePartsRecord[key]) !== null && _a !== void 0 ? _a : (datePartsRecord[key] = "");
-      });
-      return datePartsRecord;
+  const weekdayShort = {
+      "en-GB": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      "en-US": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+  };
+  const weekdayLong = {
+      "en-GB": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      "en-US": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  };
+  const monthShort = {
+      "en-GB": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      "en-US": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  };
+  const monthLong = {
+      "en-GB": ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"],
+      "en-US": ["January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"]
+  };
+  function formatDateParts(date, locale, options) {
+      const result = {
+          weekday: "",
+          day: "",
+          month: "",
+          year: ""
+      };
+      if (options.weekday === "short") {
+          result.weekday = weekdayShort[locale][date.getDay()];
+      }
+      else if (options.weekday === "long") {
+          result.weekday = weekdayLong[locale][date.getDay()];
+      }
+      if (options.day === "2-digit") {
+          result.day = String(date.getDate()).padStart(2, "0");
+      }
+      if (options.month === "2-digit") {
+          result.month = String(date.getMonth() + 1).padStart(2, "0");
+      }
+      else if (options.month === "short") {
+          result.month = monthShort[locale][date.getMonth()];
+      }
+      else if (options.month === "long") {
+          result.month = monthLong[locale][date.getMonth()];
+      }
+      if (options.year === "numeric") {
+          result.year = String(date.getFullYear());
+      }
+      else if (options.year === "2-digit") {
+          result.year = String(date.getFullYear()).slice(-2);
+      }
+      return result;
   }
+
   function formatKeys(col, inputSettings, idxs) {
       var _a, _b, _c;
       const n_keys = idxs.length;
@@ -8272,17 +8316,18 @@ var spc = (function (exports) {
           return ret;
       }
       const inputDates = parseInputDates(col, idxs);
-      const formatter = new Intl.DateTimeFormat(inputSettings.dates.date_format_locale, dateSettingsToFormatOptions(inputSettings.dates));
-      let day_elem = inputSettings.dates.date_format_locale === "en-GB" ? "day" : "month";
-      let month_elem = inputSettings.dates.date_format_locale === "en-GB" ? "month" : "day";
+      const formatOptions = dateSettingsToFormatOptions(inputSettings.dates);
+      const locale = inputSettings.dates.date_format_locale;
+      let day_elem = locale === "en-GB" ? "day" : "month";
+      let month_elem = locale === "en-GB" ? "month" : "day";
       for (let i = 0; i < n_keys; i++) {
           if (isNullOrUndefined(inputDates.dates[i])) {
               ret[i] = null;
           }
           else {
-              const dateParts = datePartsToRecord(formatter.formatToParts(inputDates.dates[i]));
-              const datePartStrings = [dateParts.weekday + " " + dateParts[day_elem],
-                  dateParts[month_elem], (_c = (_b = inputDates.quarters) === null || _b === void 0 ? void 0 : _b[i]) !== null && _c !== void 0 ? _c : "", dateParts.year];
+              const datePartsRecord = formatDateParts(inputDates.dates[i], locale, formatOptions);
+              const datePartStrings = [datePartsRecord.weekday + " " + datePartsRecord[day_elem],
+                  datePartsRecord[month_elem], (_c = (_b = inputDates.quarters) === null || _b === void 0 ? void 0 : _b[i]) !== null && _c !== void 0 ? _c : "", datePartsRecord.year];
               ret[i] = datePartStrings.filter(d => String(d).trim()).join(delim);
           }
       }
