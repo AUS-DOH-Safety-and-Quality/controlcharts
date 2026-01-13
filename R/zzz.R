@@ -1,8 +1,16 @@
 ctx <- NULL
 
 .load_js_file <- function(context, filename) {
-  context$source(system.file(filename, package = "controlcharts",
-                             mustWork = TRUE))
+  # Try to load minified version first, fall back to original
+  minified <- sub("\\.js$", ".min.js", filename)
+  minified_path <- system.file(minified, package = "controlcharts")
+
+  if (file.exists(minified_path)) {
+    context$source(minified_path)
+  } else {
+    context$source(system.file(filename, package = "controlcharts",
+                               mustWork = TRUE))
+  }
 }
 
 .onLoad <- function(libname, pkgname) {

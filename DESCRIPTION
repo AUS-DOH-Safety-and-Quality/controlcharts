@@ -26,6 +26,7 @@ Suggests:
   rsvg,
   DT,
   knitr,
-  rmarkdown
+  rmarkdown,
+  jsutils
 VignetteBuilder: knitr
 URL: https://aus-doh-safety-and-quality.github.io/controlcharts/

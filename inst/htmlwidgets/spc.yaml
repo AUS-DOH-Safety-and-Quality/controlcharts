@@ -4,10 +4,10 @@ dependencies:
     version: 1.7.4.16
     src: htmlwidgets/lib/PBISPC
     script:
-      - PBISPC.js
+      - PBISPC.min.js
   - name: UTILS
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
     script:
-      - commonUtils.js
-      - interactiveUtils.js
+      - commonUtils.min.js
+      - interactiveUtils.min.js

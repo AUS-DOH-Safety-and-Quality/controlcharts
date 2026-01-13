@@ -15,3 +15,6 @@ update-lib.sh
 ^pkgdown$
 ^\.github$
 inst/bundle
+^inst/.*\.min\.js$
+.lintr
+.claude
