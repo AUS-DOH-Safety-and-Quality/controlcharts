@@ -961,7 +961,7 @@ var spc = (function (exports) {
   const cos = Math.cos;
   const min$1 = Math.min;
   const sin = Math.sin;
-  const sqrt$1 = Math.sqrt;
+  const sqrt = Math.sqrt;
   const pi$1 = Math.PI;
   const tau$1 = 2 * pi$1;
 
@@ -1228,11 +1228,11 @@ var spc = (function (exports) {
     return line;
   }
 
-  const sqrt3$1 = sqrt$1(3);
+  const sqrt3$1 = sqrt(3);
 
   var asterisk = {
     draw(context, size) {
-      const r = sqrt$1(size + min$1(size / 28, 0.75)) * 0.59436;
+      const r = sqrt(size + min$1(size / 28, 0.75)) * 0.59436;
       const t = r / 2;
       const u = t * sqrt3$1;
       context.moveTo(0, r);
@@ -1246,7 +1246,7 @@ var spc = (function (exports) {
 
   var circle = {
     draw(context, size) {
-      const r = sqrt$1(size / pi$1);
+      const r = sqrt(size / pi$1);
       context.moveTo(r, 0);
       context.arc(0, 0, r, 0, tau$1);
     }
@@ -1254,7 +1254,7 @@ var spc = (function (exports) {
 
   var cross = {
     draw(context, size) {
-      const r = sqrt$1(size / 5) / 2;
+      const r = sqrt(size / 5) / 2;
       context.moveTo(-3 * r, -r);
       context.lineTo(-r, -r);
       context.lineTo(-r, -3 * r);
@@ -1271,12 +1271,12 @@ var spc = (function (exports) {
     }
   };
 
-  const tan30 = sqrt$1(1 / 3);
+  const tan30 = sqrt(1 / 3);
   const tan30_2 = tan30 * 2;
 
   var diamond = {
     draw(context, size) {
-      const y = sqrt$1(size / tan30_2);
+      const y = sqrt(size / tan30_2);
       const x = y * tan30;
       context.moveTo(0, -y);
       context.lineTo(x, 0);
@@ -1286,9 +1286,9 @@ var spc = (function (exports) {
     }
   };
 
-  var square$1 = {
+  var square = {
     draw(context, size) {
-      const w = sqrt$1(size);
+      const w = sqrt(size);
       const x = -w / 2;
       context.rect(x, x, w, w);
     }
@@ -1301,7 +1301,7 @@ var spc = (function (exports) {
 
   var star = {
     draw(context, size) {
-      const r = sqrt$1(size * ka);
+      const r = sqrt(size * ka);
       const x = kx * r;
       const y = ky * r;
       context.moveTo(0, -r);
@@ -1317,11 +1317,11 @@ var spc = (function (exports) {
     }
   };
 
-  const sqrt3 = sqrt$1(3);
+  const sqrt3 = sqrt(3);
 
   var triangle = {
     draw(context, size) {
-      const y = -sqrt$1(size / (sqrt3 * 3));
+      const y = -sqrt(size / (sqrt3 * 3));
       context.moveTo(0, y * 2);
       context.lineTo(-sqrt3 * y, -y);
       context.lineTo(sqrt3 * y, -y);
@@ -1330,13 +1330,13 @@ var spc = (function (exports) {
   };
 
   const c = -0.5;
-  const s = sqrt$1(3) / 2;
-  const k = 1 / sqrt$1(12);
+  const s = sqrt(3) / 2;
+  const k = 1 / sqrt(12);
   const a = (k / 2 + 1) * 3;
 
   var wye = {
     draw(context, size) {
-      const r = sqrt$1(size / a);
+      const r = sqrt(size / a);
       const x0 = r / 2, y0 = r * k;
       const x1 = x0, y1 = r * k + r;
       const x2 = -x1, y2 = y1;
@@ -2291,7 +2291,7 @@ var spc = (function (exports) {
     };
   }
 
-  function constants$1(x) {
+  function constants(x) {
     return function() {
       return x;
     };
@@ -2310,7 +2310,7 @@ var spc = (function (exports) {
   function normalize(a, b) {
     return (b -= (a = +a))
         ? function(x) { return (x - a) / b; }
-        : constants$1(isNaN(b) ? NaN : 0.5);
+        : constants(isNaN(b) ? NaN : 0.5);
   }
 
   function clamper(a, b) {
@@ -2475,10 +2475,10 @@ var spc = (function (exports) {
   }
 
   // [[fill]align][sign][symbol][0][width][,][.precision][~][type]
-  var re$1 = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
+  var re = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
 
   function formatSpecifier(specifier) {
-    if (!(match = re$1.exec(specifier))) throw new Error("invalid format: " + specifier);
+    if (!(match = re.exec(specifier))) throw new Error("invalid format: " + specifier);
     var match;
     return new FormatSpecifier({
       fill: match[1],
@@ -3198,11 +3198,257 @@ var spc = (function (exports) {
     symbolCircle: circle,
     symbolCross: cross,
     symbolDiamond: diamond,
-    symbolSquare: square$1,
+    symbolSquare: square,
     symbolStar: star,
     symbolTriangle: triangle,
     symbolWye: wye
   });
+
+  const FONT_LIST = [
+      "'Arial', sans-serif",
+      "Arial",
+      "'Arial Black'",
+      "'Arial Unicode MS'",
+      "Calibri",
+      "Cambria",
+      "'Cambria Math'",
+      "Candara",
+      "'Comic Sans MS'",
+      "Consolas",
+      "Constantia",
+      "Corbel",
+      "'Courier New'",
+      "wf_standard-font, helvetica, arial, sans-serif",
+      "wf_standard-font_light, helvetica, arial, sans-serif",
+      "Georgia",
+      "'Lucida Sans Unicode'",
+      "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+      "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
+      "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
+      "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
+      "Symbol",
+      "Tahoma",
+      "'Times New Roman'",
+      "'Trebuchet MS'",
+      "Verdana",
+      "Wingdings"
+  ];
+  const LINE_TYPE_ITEMS = [
+      { displayName: "Solid", value: "10 0" },
+      { displayName: "Dashed", value: "10 10" },
+      { displayName: "Dotted", value: "2 5" }
+  ];
+  const LINE_TYPE_VALID = ["10 0", "10 10", "2 5"];
+  const POSITION_ITEMS_BASIC = [
+      { displayName: "Above", value: "above" },
+      { displayName: "Below", value: "below" },
+      { displayName: "Beside", value: "beside" }
+  ];
+  const POSITION_ITEMS_EXTENDED = [
+      { displayName: "Outside", value: "outside" },
+      { displayName: "Inside", value: "inside" },
+      ...POSITION_ITEMS_BASIC
+  ];
+  const BORDER_STYLE_ITEMS = [
+      { displayName: "Solid", value: "solid" },
+      { displayName: "Dashed", value: "dashed" },
+      { displayName: "Dotted", value: "dotted" },
+      { displayName: "Double", value: "double" },
+      { displayName: "Groove", value: "groove" },
+      { displayName: "Ridge", value: "ridge" },
+      { displayName: "Inset", value: "inset" },
+      { displayName: "Outset", value: "outset" }
+  ];
+  const BORDER_STYLE_VALID = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"];
+  const lineWidth = (displayName, defaultValue) => ({
+      displayName,
+      type: "NumUpDown",
+      default: defaultValue,
+      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+  });
+  const lineType = (displayName, defaultValue) => ({
+      displayName,
+      type: "Dropdown",
+      default: defaultValue,
+      valid: LINE_TYPE_VALID,
+      items: LINE_TYPE_ITEMS
+  });
+  const opacity = (displayName, defaultValue) => ({
+      displayName,
+      type: "NumUpDown",
+      default: defaultValue,
+      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+  });
+  const fontPicker = (displayName, defaultValue) => ({
+      displayName,
+      type: "FontPicker",
+      default: defaultValue,
+      valid: FONT_LIST
+  });
+  const fontSize = (displayName, defaultValue) => ({
+      displayName,
+      type: "NumUpDown",
+      default: defaultValue,
+      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+  });
+  const createPlotLabelSettings = (prefix, useExtendedPositions = false) => {
+      const positionItems = useExtendedPositions ? POSITION_ITEMS_EXTENDED : POSITION_ITEMS_BASIC;
+      const positionValid = positionItems.map(i => i.value);
+      return {
+          [`plot_label_show_${prefix}`]: {
+              displayName: "Show Value on Plot",
+              type: "ToggleSwitch",
+              default: false
+          },
+          [`plot_label_show_all_${prefix}`]: {
+              displayName: "Show Value at all Re-Baselines",
+              type: "ToggleSwitch",
+              default: false
+          },
+          [`plot_label_show_n_${prefix}`]: {
+              displayName: "Show Value at Last N Re-Baselines",
+              type: "NumUpDown",
+              default: 1,
+              options: { minValue: { value: 1 } }
+          },
+          [`plot_label_position_${prefix}`]: {
+              displayName: "Position of Value on Line(s)",
+              type: "Dropdown",
+              default: "beside",
+              valid: positionValid,
+              items: positionItems
+          },
+          [`plot_label_vpad_${prefix}`]: {
+              displayName: "Value Vertical Padding",
+              type: "NumUpDown",
+              default: 0
+          },
+          [`plot_label_hpad_${prefix}`]: {
+              displayName: "Value Horizontal Padding",
+              type: "NumUpDown",
+              default: 10
+          },
+          [`plot_label_font_${prefix}`]: fontPicker("Value Font", "'Arial', sans-serif"),
+          [`plot_label_size_${prefix}`]: fontSize("Value Font Size", 10),
+          [`plot_label_colour_${prefix}`]: {
+              displayName: "Value Colour",
+              type: "ColorPicker",
+              default: "#000000"
+          },
+          [`plot_label_prefix_${prefix}`]: {
+              displayName: "Value Prefix",
+              type: "TextInput",
+              default: ""
+          }
+      };
+  };
+  const createOutlierColours = (prefix, defaultColours) => {
+      const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+      return {
+          [`${prefix}_colour_improvement`]: {
+              displayName: `Imp. ${capitalize(prefix)} Colour`,
+              type: "ColorPicker",
+              default: defaultColours.improvement
+          },
+          [`${prefix}_colour_deterioration`]: {
+              displayName: `Det. ${capitalize(prefix)} Colour`,
+              type: "ColorPicker",
+              default: defaultColours.deterioration
+          },
+          [`${prefix}_colour_neutral_low`]: {
+              displayName: `Neutral (Low) ${capitalize(prefix)} Colour`,
+              type: "ColorPicker",
+              default: defaultColours.neutral_low
+          },
+          [`${prefix}_colour_neutral_high`]: {
+              displayName: `Neutral (High) ${capitalize(prefix)} Colour`,
+              type: "ColorPicker",
+              default: defaultColours.neutral_high
+          }
+      };
+  };
+  const createLimitLineSettings = (name, displayName, defaults, hasUpperLower = true) => {
+      const settings = {
+          [`show_${name}`]: {
+              displayName: `Show ${displayName} Lines`,
+              type: "ToggleSwitch",
+              default: defaults.show
+          },
+          [`width_${name}`]: lineWidth("Line Width", defaults.width),
+          [`type_${name}`]: lineType("Line Type", defaults.type),
+          [`colour_${name}`]: {
+              displayName: "Line Colour",
+              type: "ColorPicker",
+              default: defaults.colour
+          },
+          [`opacity_${name}`]: opacity("Default Opacity", defaults.opacity),
+          [`opacity_unselected_${name}`]: opacity("Opacity if Any Selected", defaults.opacity_unselected),
+          [`join_rebaselines_${name}`]: {
+              displayName: "Connect Rebaselined Limits",
+              type: "ToggleSwitch",
+              default: false
+          },
+          [`ttip_show_${name}`]: {
+              displayName: "Show value in tooltip",
+              type: "ToggleSwitch",
+              default: true
+          },
+          [`ttip_label_${name}`]: {
+              displayName: "Tooltip Label",
+              type: "TextInput",
+              default: `${displayName} Limit`
+          }
+      };
+      if (hasUpperLower) {
+          settings[`ttip_label_${name}_prefix_lower`] = {
+              displayName: "Tooltip Label - Lower Prefix",
+              type: "TextInput",
+              default: "Lower "
+          };
+          settings[`ttip_label_${name}_prefix_upper`] = {
+              displayName: "Tooltip Label - Upper Prefix",
+              type: "TextInput",
+              default: "Upper "
+          };
+      }
+      return Object.assign(Object.assign({}, settings), createPlotLabelSettings(name, hasUpperLower));
+  };
+  const createSingleLineSettings = (name, displayName, defaults, includeTooltip = false) => {
+      const settings = {
+          [`show_${name}`]: {
+              displayName: `Show ${displayName}`,
+              type: "ToggleSwitch",
+              default: defaults.show
+          },
+          [`width_${name}`]: lineWidth(`${displayName === "Main Line" ? "Main Line Width" : "Line Width"}`, defaults.width),
+          [`type_${name}`]: lineType(`${displayName === "Main Line" ? "Main Line Type" : "Line Type"}`, defaults.type),
+          [`colour_${name}`]: {
+              displayName: `${displayName === "Main Line" ? "Main Line Colour" : "Line Colour"}`,
+              type: "ColorPicker",
+              default: defaults.colour
+          },
+          [`opacity_${name}`]: opacity("Default Opacity", defaults.opacity),
+          [`opacity_unselected_${name}`]: opacity(`Opacity if Any Selected`, defaults.opacity_unselected),
+          [`join_rebaselines_${name}`]: {
+              displayName: "Connect Rebaselined Limits",
+              type: "ToggleSwitch",
+              default: false
+          }
+      };
+      if (includeTooltip) {
+          settings[`ttip_show_${name}`] = {
+              displayName: "Show value in tooltip",
+              type: "ToggleSwitch",
+              default: true
+          };
+          settings[`ttip_label_${name}`] = {
+              displayName: "Tooltip Label",
+              type: "TextInput",
+              default: defaults.tooltip_label || displayName
+          };
+      }
+      return Object.assign(Object.assign({}, settings), createPlotLabelSettings(name, false));
+  };
 
   const defaultColours = {
       improvement: "#00B0F0",
@@ -3215,41 +3461,9 @@ var spc = (function (exports) {
   };
   const textOptions = {
       font: {
-          default: "'Arial', sans-serif",
-          valid: [
-              "'Arial', sans-serif",
-              "Arial",
-              "'Arial Black'",
-              "'Arial Unicode MS'",
-              "Calibri",
-              "Cambria",
-              "'Cambria Math'",
-              "Candara",
-              "'Comic Sans MS'",
-              "Consolas",
-              "Constantia",
-              "Corbel",
-              "'Courier New'",
-              "wf_standard-font, helvetica, arial, sans-serif",
-              "wf_standard-font_light, helvetica, arial, sans-serif",
-              "Georgia",
-              "'Lucida Sans Unicode'",
-              "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
-              "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
-              "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
-              "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
-              "Symbol",
-              "Tahoma",
-              "'Times New Roman'",
-              "'Trebuchet MS'",
-              "Verdana",
-              "Wingdings"
-          ]
-      },
+          default: "'Arial', sans-serif"},
       size: {
-          default: 10,
-          options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-      },
+          default: 10},
       weight: {
           default: "normal",
           valid: ["normal", "bold", "bolder", "lighter"]
@@ -3274,7 +3488,7 @@ var spc = (function (exports) {
       },
       style: {
           default: "solid",
-          valid: ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"]
+          valid: BORDER_STYLE_VALID
       },
       colour: {
           default: "#000000"
@@ -3470,13 +3684,11 @@ var spc = (function (exports) {
                       ]
                   }
               },
-              "Astronomical Points": {
-                  astronomical: {
+              "Astronomical Points": Object.assign({ astronomical: {
                       displayName: "Highlight Astronomical Points",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  astronomical_limit: {
+                  }, astronomical_limit: {
                       displayName: "Limit for Astronomical Points",
                       type: "Dropdown",
                       default: "3 Sigma",
@@ -3487,106 +3699,36 @@ var spc = (function (exports) {
                           { displayName: "3 Sigma", value: "3 Sigma" },
                           { displayName: "Specification", value: "Specification" }
                       ]
-                  },
-                  ast_colour_improvement: {
-                      displayName: "Imp. Ast. Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.improvement
-                  },
-                  ast_colour_deterioration: {
-                      displayName: "Det. Ast. Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.deterioration
-                  },
-                  ast_colour_neutral_low: {
-                      displayName: "Neutral (Low) Ast. Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_low
-                  },
-                  ast_colour_neutral_high: {
-                      displayName: "Neutral (High) Ast. Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_high
-                  }
-              },
-              "Shifts": {
-                  shift: {
+                  } }, createOutlierColours("ast", defaultColours)),
+              "Shifts": Object.assign({ shift: {
                       displayName: "Highlight Shifts",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  shift_n: {
+                  }, shift_n: {
                       displayName: "Shift Points",
                       type: "NumUpDown",
                       default: 7,
                       options: { minValue: { value: 1 } }
-                  },
-                  shift_colour_improvement: {
-                      displayName: "Imp. Shift Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.improvement
-                  },
-                  shift_colour_deterioration: {
-                      displayName: "Det. Shift Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.deterioration
-                  },
-                  shift_colour_neutral_low: {
-                      displayName: "Neutral (Low) Shift Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_low
-                  },
-                  shift_colour_neutral_high: {
-                      displayName: "Neutral (High) Shift Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_high
-                  }
-              },
-              "Trends": {
-                  trend: {
+                  } }, createOutlierColours("shift", defaultColours)),
+              "Trends": Object.assign({ trend: {
                       displayName: "Highlight Trends",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  trend_n: {
+                  }, trend_n: {
                       displayName: "Trend Points",
                       type: "NumUpDown",
                       default: 5,
                       options: { minValue: { value: 1 } }
-                  },
-                  trend_colour_improvement: {
-                      displayName: "Imp. Trend Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.improvement
-                  },
-                  trend_colour_deterioration: {
-                      displayName: "Det. Trend Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.deterioration
-                  },
-                  trend_colour_neutral_low: {
-                      displayName: "Neutral (Low) Trend Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_low
-                  },
-                  trend_colour_neutral_high: {
-                      displayName: "Neutral (High) Trend Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_high
-                  }
-              },
-              "Two-In-Three": {
-                  two_in_three: {
+                  } }, createOutlierColours("trend", defaultColours)),
+              "Two-In-Three": Object.assign({ two_in_three: {
                       displayName: "Highlight Two-in-Three",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  two_in_three_highlight_series: {
+                  }, two_in_three_highlight_series: {
                       displayName: "Highlight all in Pattern",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  two_in_three_limit: {
+                  }, two_in_three_limit: {
                       displayName: "Warning Limit for Two-in-Three",
                       type: "Dropdown",
                       default: "2 Sigma",
@@ -3597,28 +3739,7 @@ var spc = (function (exports) {
                           { displayName: "3 Sigma", value: "3 Sigma" },
                           { displayName: "Specification", value: "Specification" }
                       ]
-                  },
-                  twointhree_colour_improvement: {
-                      displayName: "Imp. Two-in-Three Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.improvement
-                  },
-                  twointhree_colour_deterioration: {
-                      displayName: "Det. Two-in-Three Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.deterioration
-                  },
-                  twointhree_colour_neutral_low: {
-                      displayName: "Neutral (Low) Two-in-Three Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_low
-                  },
-                  twointhree_colour_neutral_high: {
-                      displayName: "Neutral (High) Two-in-Three Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.neutral_high
-                  }
-              }
+                  } }, createOutlierColours("twointhree", defaultColours))
           }
       },
       nhs_icons: {
@@ -3685,6 +3806,11 @@ var spc = (function (exports) {
           displayName: "Scatter Settings",
           settingsGroups: {
               "all": {
+                  show_dots: {
+                      displayName: "Show Scatter",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
                   shape: {
                       displayName: "Shape",
                       type: "Dropdown",
@@ -3747,989 +3873,101 @@ var spc = (function (exports) {
           description: "Line Settings",
           displayName: "Line Settings",
           settingsGroups: {
-              "Main": {
-                  show_main: {
-                      displayName: "Show Main Line",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  width_main: {
-                      displayName: "Main Line Width",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_main: {
-                      displayName: "Main Line Type",
-                      type: "Dropdown",
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_main: {
-                      displayName: "Main Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.common_cause
-                  },
-                  opacity_main: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_main: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_main: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_main: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_main: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_main: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_main: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["above", "below", "beside"],
-                      items: [
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_main: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_main: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_main: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_main: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_main: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_main: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "Target": {
-                  show_target: {
-                      displayName: "Show Target",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  width_target: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 1.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_target: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_target: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  opacity_target: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_target: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_target: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_target: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_target: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "Centerline"
-                  },
-                  plot_label_show_target: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_target: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_target: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_target: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["above", "below", "beside"],
-                      items: [
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_target: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_target: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_target: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_target: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_target: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_target: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "Alt. Target": {
-                  show_alt_target: {
+              "Main": createSingleLineSettings("main", "Main Line", {
+                  show: true,
+                  width: 1,
+                  type: "10 0",
+                  colour: defaultColours.common_cause,
+                  opacity: 1,
+                  opacity_unselected: 0.2
+              }, false),
+              "Target": createSingleLineSettings("target", "Target", {
+                  show: true,
+                  width: 1.5,
+                  type: "10 0",
+                  colour: defaultColours.standard,
+                  opacity: 1,
+                  opacity_unselected: 0.2,
+                  tooltip_label: "Centerline"
+              }, true),
+              "Alt. Target": Object.assign({ show_alt_target: {
                       displayName: "Show Alt. Target Line",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  alt_target: {
+                  }, alt_target: {
                       displayName: "Additional Target Value:",
                       type: "NumUpDown",
                       default: null
-                  },
-                  multiplier_alt_target: {
+                  }, multiplier_alt_target: {
                       displayName: "Apply Multiplier to Alt. Target",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  width_alt_target: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 1.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_alt_target: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_alt_target: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  opacity_alt_target: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_alt_target: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_alt_target: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_alt_target: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_alt_target: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "Alt. Target"
-                  },
-                  plot_label_show_alt_target: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_alt_target: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_alt_target: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_alt_target: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["above", "below", "beside"],
-                      items: [
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_alt_target: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_alt_target: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_alt_target: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_alt_target: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_alt_target: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_alt_target: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "68% Limits": {
-                  show_68: {
-                      displayName: "Show 68% Lines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  width_68: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_68: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "2 5",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_68: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.limits
-                  },
-                  opacity_68: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_68: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_68: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_68: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_68: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "68% Limit"
-                  },
-                  ttip_label_68_prefix_lower: {
-                      displayName: "Tooltip Label - Lower Prefix",
-                      type: "TextInput",
-                      default: "Lower "
-                  },
-                  ttip_label_68_prefix_upper: {
-                      displayName: "Tooltip Label - Upper Prefix",
-                      type: "TextInput",
-                      default: "Upper "
-                  },
-                  plot_label_show_68: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_68: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_68: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_68: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_68: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_68: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_68: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_68: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_68: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_68: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "95% Limits": {
-                  show_95: {
-                      displayName: "Show 95% Lines",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  width_95: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_95: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "2 5",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_95: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.limits
-                  },
-                  opacity_95: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_95: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_95: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_95: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_95: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "95% Limit"
-                  },
-                  ttip_label_95_prefix_lower: {
-                      displayName: "Tooltip Label - Lower Prefix",
-                      type: "TextInput",
-                      default: "Lower "
-                  },
-                  ttip_label_95_prefix_upper: {
-                      displayName: "Tooltip Label - Upper Prefix",
-                      type: "TextInput",
-                      default: "Upper "
-                  },
-                  plot_label_show_95: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_95: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_95: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_95: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_95: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_95: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_95: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_95: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_95: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_95: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "99% Limits": {
-                  show_99: {
-                      displayName: "Show 99% Lines",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  width_99: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_99: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "10 10",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_99: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.limits
-                  },
-                  opacity_99: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_99: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_99: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_99: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_99: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "99% Limit"
-                  },
-                  ttip_label_99_prefix_lower: {
-                      displayName: "Tooltip Label - Lower Prefix",
-                      type: "TextInput",
-                      default: "Lower "
-                  },
-                  ttip_label_99_prefix_upper: {
-                      displayName: "Tooltip Label - Upper Prefix",
-                      type: "TextInput",
-                      default: "Upper "
-                  },
-                  plot_label_show_99: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_99: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_99: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_99: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_99: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_99: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_99: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_99: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_99: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_99: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "Specification Limits": {
-                  show_specification: {
+                  } }, createSingleLineSettings("alt_target", "Alt. Target", {
+                  show: false,
+                  width: 1.5,
+                  type: "10 0",
+                  colour: defaultColours.standard,
+                  opacity: 1,
+                  opacity_unselected: 0.2,
+                  tooltip_label: "Alt. Target"
+              }, true)),
+              "68% Limits": createLimitLineSettings("68", "68%", {
+                  show: false,
+                  width: 2,
+                  type: "2 5",
+                  colour: defaultColours.limits,
+                  opacity: 1,
+                  opacity_unselected: 0.2
+              }, true),
+              "95% Limits": createLimitLineSettings("95", "95%", {
+                  show: true,
+                  width: 2,
+                  type: "2 5",
+                  colour: defaultColours.limits,
+                  opacity: 1,
+                  opacity_unselected: 0.2
+              }, true),
+              "99% Limits": createLimitLineSettings("99", "99%", {
+                  show: true,
+                  width: 2,
+                  type: "10 10",
+                  colour: defaultColours.limits,
+                  opacity: 1,
+                  opacity_unselected: 0.2
+              }, true),
+              "Specification Limits": Object.assign({ show_specification: {
                       displayName: "Show Specification Lines",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  specification_upper: {
+                  }, specification_upper: {
                       displayName: "Upper Specification Limit:",
                       type: "NumUpDown",
                       default: null
-                  },
-                  specification_lower: {
+                  }, specification_lower: {
                       displayName: "Lower Specification Limit:",
                       type: "NumUpDown",
                       default: null
-                  },
-                  multiplier_specification: {
+                  }, multiplier_specification: {
                       displayName: "Apply Multiplier to Specification Limits",
                       type: "ToggleSwitch",
                       default: false
-                  },
-                  width_specification: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_specification: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "10 10",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_specification: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.limits
-                  },
-                  opacity_specification: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_specification: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_specification: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_specification: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_specification: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "specification Limit"
-                  },
-                  ttip_label_specification_prefix_lower: {
-                      displayName: "Tooltip Label - Lower Prefix",
-                      type: "TextInput",
-                      default: "Lower "
-                  },
-                  ttip_label_specification_prefix_upper: {
-                      displayName: "Tooltip Label - Upper Prefix",
-                      type: "TextInput",
-                      default: "Upper "
-                  },
-                  plot_label_show_specification: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_specification: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_specification: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_specification: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_specification: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_specification: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_specification: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_specification: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_specification: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_specification: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              },
-              "Trend": {
-                  show_trend: {
-                      displayName: "Show Trend",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  width_trend: {
-                      displayName: "Line Width",
-                      type: "NumUpDown",
-                      default: 1.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_trend: {
-                      displayName: "Line Type",
-                      type: "Dropdown",
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_trend: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.common_cause
-                  },
-                  opacity_trend: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_trend: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_trend: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  ttip_show_trend: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_trend: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput",
-                      default: "Centerline"
-                  },
-                  plot_label_show_trend: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_all_trend: {
-                      displayName: "Show Value at all Re-Baselines",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  plot_label_show_n_trend: {
-                      displayName: "Show Value at Last N Re-Baselines",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 1 } }
-                  },
-                  plot_label_position_trend: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown",
-                      default: "beside",
-                      valid: ["above", "below", "beside"],
-                      items: [
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_trend: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown",
-                      default: 0
-                  },
-                  plot_label_hpad_trend: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  plot_label_font_trend: {
-                      displayName: "Value Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_trend: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_trend: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_trend: {
-                      displayName: "Value Prefix",
-                      type: "TextInput",
-                      default: ""
-                  }
-              }
+                  } }, createLimitLineSettings("specification", "specification", {
+                  show: false,
+                  width: 2,
+                  type: "10 10",
+                  colour: defaultColours.limits,
+                  opacity: 1,
+                  opacity_unselected: 0.2
+              }, true)),
+              "Trend": createSingleLineSettings("trend", "Trend", {
+                  show: false,
+                  width: 1.5,
+                  type: "10 0",
+                  colour: defaultColours.common_cause,
+                  opacity: 1,
+                  opacity_unselected: 0.2,
+                  tooltip_label: "Centerline"
+              }, true)
           }
       },
       x_axis: {
@@ -4737,6 +3975,11 @@ var spc = (function (exports) {
           displayName: "X Axis Settings",
           settingsGroups: {
               "Axis": {
+                  xlimit_show: {
+                      displayName: "Show X Axis",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
                   xlimit_colour: {
                       displayName: "Axis Colour",
                       type: "ColorPicker",
@@ -4765,18 +4008,8 @@ var spc = (function (exports) {
                       default: 10,
                       options: { minValue: { value: 0 }, maxValue: { value: 100 } }
                   },
-                  xlimit_tick_font: {
-                      displayName: "Tick Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  xlimit_tick_size: {
-                      displayName: "Tick Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  xlimit_tick_font: fontPicker("Tick Font", textOptions.font.default),
+                  xlimit_tick_size: fontSize("Tick Font Size", textOptions.size.default),
                   xlimit_tick_colour: {
                       displayName: "Tick Font Colour",
                       type: "ColorPicker",
@@ -4795,18 +4028,8 @@ var spc = (function (exports) {
                       type: "TextInput",
                       default: null
                   },
-                  xlimit_label_font: {
-                      displayName: "Label Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  xlimit_label_size: {
-                      displayName: "Label Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  xlimit_label_font: fontPicker("Label Font", textOptions.font.default),
+                  xlimit_label_size: fontSize("Label Font Size", textOptions.size.default),
                   xlimit_label_colour: {
                       displayName: "Label Font Colour",
                       type: "ColorPicker",
@@ -4820,6 +4043,11 @@ var spc = (function (exports) {
           displayName: "Y Axis Settings",
           settingsGroups: {
               "Axis": {
+                  ylimit_show: {
+                      displayName: "Show Y Axis",
+                      type: "ToggleSwitch",
+                      default: true
+                  },
                   ylimit_colour: {
                       displayName: "Axis Colour",
                       type: "ColorPicker",
@@ -4860,18 +4088,8 @@ var spc = (function (exports) {
                       default: 10,
                       options: { minValue: { value: 0 }, maxValue: { value: 100 } }
                   },
-                  ylimit_tick_font: {
-                      displayName: "Tick Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  ylimit_tick_size: {
-                      displayName: "Tick Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  ylimit_tick_font: fontPicker("Tick Font", textOptions.font.default),
+                  ylimit_tick_size: fontSize("Tick Font Size", textOptions.size.default),
                   ylimit_tick_colour: {
                       displayName: "Tick Font Colour",
                       type: "ColorPicker",
@@ -4890,18 +4108,8 @@ var spc = (function (exports) {
                       type: "TextInput",
                       default: null
                   },
-                  ylimit_label_font: {
-                      displayName: "Label Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  ylimit_label_size: {
-                      displayName: "Label Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  ylimit_label_font: fontPicker("Label Font", textOptions.font.default),
+                  ylimit_label_size: fontSize("Label Font Size", textOptions.size.default),
                   ylimit_label_colour: {
                       displayName: "Label Font Colour",
                       type: "ColorPicker",
@@ -5022,39 +4230,15 @@ var spc = (function (exports) {
                           { displayName: "None", value: "none" }
                       ]
                   },
-                  table_opacity: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  table_opacity_selected: {
-                      displayName: "Opacity if Selected",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  table_opacity_unselected: {
-                      displayName: "Opacity if Unselected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
+                  table_opacity: opacity("Default Opacity", 1),
+                  table_opacity_selected: opacity("Opacity if Selected", 1),
+                  table_opacity_unselected: opacity("Opacity if Unselected", 0.2),
                   table_outer_border_style: {
                       displayName: "Outer Border Style",
                       type: "Dropdown",
                       default: borderOptions.style.default,
                       valid: borderOptions.style.valid,
-                      items: [
-                          { displayName: "Solid", value: "solid" },
-                          { displayName: "Dashed", value: "dashed" },
-                          { displayName: "Dotted", value: "dotted" },
-                          { displayName: "Double", value: "double" },
-                          { displayName: "Groove", value: "groove" },
-                          { displayName: "Ridge", value: "ridge" },
-                          { displayName: "Inset", value: "inset" },
-                          { displayName: "Outset", value: "outset" }
-                      ]
+                      items: BORDER_STYLE_ITEMS
                   },
                   table_outer_border_width: {
                       displayName: "Outer Border Width",
@@ -5089,18 +4273,8 @@ var spc = (function (exports) {
                   }
               },
               "Header": {
-                  table_header_font: {
-                      displayName: "Header Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  table_header_size: {
-                      displayName: "Header Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  table_header_font: fontPicker("Header Font", textOptions.font.default),
+                  table_header_size: fontSize("Header Font Size", textOptions.size.default),
                   table_header_text_align: {
                       displayName: "Text Alignment",
                       type: "AlignmentGroup",
@@ -5150,16 +4324,7 @@ var spc = (function (exports) {
                       type: "Dropdown",
                       default: borderOptions.style.default,
                       valid: borderOptions.style.valid,
-                      items: [
-                          { displayName: "Solid", value: "solid" },
-                          { displayName: "Dashed", value: "dashed" },
-                          { displayName: "Dotted", value: "dotted" },
-                          { displayName: "Double", value: "double" },
-                          { displayName: "Groove", value: "groove" },
-                          { displayName: "Ridge", value: "ridge" },
-                          { displayName: "Inset", value: "inset" },
-                          { displayName: "Outset", value: "outset" }
-                      ]
+                      items: BORDER_STYLE_ITEMS
                   },
                   table_header_border_width: {
                       displayName: "Header Border Width",
@@ -5184,18 +4349,8 @@ var spc = (function (exports) {
                   }
               },
               "Body": {
-                  table_body_font: {
-                      displayName: "Body Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  table_body_size: {
-                      displayName: "Body Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  table_body_font: fontPicker("Body Font", textOptions.font.default),
+                  table_body_size: fontSize("Body Font Size", textOptions.size.default),
                   table_body_text_align: {
                       displayName: "Text Alignment",
                       type: "AlignmentGroup",
@@ -5245,16 +4400,7 @@ var spc = (function (exports) {
                       type: "Dropdown",
                       default: borderOptions.style.default,
                       valid: borderOptions.style.valid,
-                      items: [
-                          { displayName: "Solid", value: "solid" },
-                          { displayName: "Dashed", value: "dashed" },
-                          { displayName: "Dotted", value: "dotted" },
-                          { displayName: "Double", value: "double" },
-                          { displayName: "Groove", value: "groove" },
-                          { displayName: "Ridge", value: "ridge" },
-                          { displayName: "Inset", value: "inset" },
-                          { displayName: "Outset", value: "outset" }
-                      ]
+                      items: BORDER_STYLE_ITEMS
                   },
                   table_body_border_width: {
                       displayName: "Body Border Width",
@@ -5329,18 +4475,8 @@ var spc = (function (exports) {
                       default: 0,
                       options: { minValue: { value: -90 }, maxValue: { value: 90 } }
                   },
-                  label_font: {
-                      displayName: "Label Font",
-                      type: "FontPicker",
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  label_size: {
-                      displayName: "Label Font Size",
-                      type: "NumUpDown",
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
+                  label_font: fontPicker("Label Font", textOptions.font.default),
+                  label_size: fontSize("Label Font Size", textOptions.size.default),
                   label_colour: {
                       displayName: "Label Font Colour",
                       type: "ColorPicker",
@@ -5351,23 +4487,8 @@ var spc = (function (exports) {
                       type: "ColorPicker",
                       default: defaultColours.standard
                   },
-                  label_line_width: {
-                      displayName: "Connecting Line Width",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  label_line_type: {
-                      displayName: "Connecting Line Type",
-                      type: "Dropdown",
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
+                  label_line_width: lineWidth("Connecting Line Width", 1),
+                  label_line_type: lineType("Connecting Line Type", "10 0"),
                   label_line_max_length: {
                       displayName: "Max Connecting Line Length (px)",
                       type: "NumUpDown",
@@ -5416,623 +4537,216 @@ var spc = (function (exports) {
   }
   const defaultSettings = Object.fromEntries(defaultSettingsArray);
 
-  function addContextMenu(selection, visualObj) {
-      if (!(visualObj.plotProperties.displayPlot
-          || visualObj.viewModel.inputSettings.settings.summary_table.show_table
-          || visualObj.viewModel.showGrouped)) {
-          selection.on("contextmenu", () => { return; });
+  function drawXAxis(selection, visualObj) {
+      const xAxisGroup = selection.select(".xaxisgroup");
+      const xAxisLabel = selection.select(".xaxislabel");
+      if (!visualObj.viewModel.inputSettings.settings[0].x_axis.xlimit_show) {
+          xAxisGroup.remove();
+          xAxisLabel.remove();
           return;
       }
-      selection.on('contextmenu', (event) => {
-          const eventTarget = event.target;
-          const dataPoint = (select(eventTarget).datum());
-          visualObj.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {}, {
-              x: event.clientX,
-              y: event.clientY
-          });
-          event.preventDefault();
-      });
-  }
-
-  function assuranceIconToDraw(controlLimits, inputSettings, derivedSettings) {
-      var _a;
-      if (!(derivedSettings.chart_type_props.has_control_limits)) {
-          return "none";
+      if (xAxisGroup.empty()) {
+          selection.append('g').classed("xaxisgroup", true);
       }
-      const imp_direction = inputSettings.outliers.improvement_direction;
-      const N = controlLimits.ll99.length - 1;
-      const alt_target = (_a = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.alt_targets) === null || _a === void 0 ? void 0 : _a[N];
-      if (isNullOrUndefined(alt_target) || imp_direction === "neutral") {
-          return "none";
+      if (xAxisLabel.empty()) {
+          selection.append('text').classed('xaxislabel', true);
       }
-      const impDirectionIncrease = imp_direction === "increase";
-      if (alt_target > controlLimits.ul99[N]) {
-          return impDirectionIncrease ? "consistentFail" : "consistentPass";
-      }
-      else if (alt_target < controlLimits.ll99[N]) {
-          return impDirectionIncrease ? "consistentPass" : "consistentFail";
+      const xAxisProperties = visualObj.plotProperties.xAxis;
+      const xAxis = axisBottom(visualObj.plotProperties.xScale);
+      if (xAxisProperties.ticks) {
+          if (xAxisProperties.tick_count) {
+              xAxis.ticks(xAxisProperties.tick_count);
+          }
+          if (visualObj.viewModel.tickLabels) {
+              xAxis.tickFormat(axisX => {
+                  const targetKey = visualObj.viewModel.tickLabels.filter(d => d.x == axisX);
+                  return targetKey.length > 0 ? targetKey[0].label : "";
+              });
+          }
       }
       else {
-          return "inconsistent";
+          xAxis.tickValues([]);
       }
+      const plotHeight = visualObj.viewModel.svgHeight;
+      const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
+      const displayPlot = visualObj.plotProperties.displayPlot;
+      xAxisGroup
+          .call(xAxis)
+          .attr("color", displayPlot ? xAxisProperties.colour : "#FFFFFF")
+          .attr("transform", `translate(0, ${xAxisHeight})`)
+          .selectAll(".tick text")
+          .style("text-anchor", xAxisProperties.tick_rotation < 0.0 ? "end" : "start")
+          .attr("dx", xAxisProperties.tick_rotation < 0.0 ? "-.8em" : ".8em")
+          .attr("dy", xAxisProperties.tick_rotation < 0.0 ? "-.15em" : ".15em")
+          .attr("transform", "rotate(" + xAxisProperties.tick_rotation + ")")
+          .style("font-size", xAxisProperties.tick_size)
+          .style("font-family", xAxisProperties.tick_font)
+          .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
+      const textX = visualObj.viewModel.svgWidth / 2;
+      let textY;
+      if (visualObj.viewModel.frontend) {
+          textY = plotHeight - (visualObj.plotProperties.yAxis.start_padding / 3);
+      }
+      else {
+          const xAxisNode = selection.selectAll(".xaxisgroup").node();
+          if (!xAxisNode) {
+              selection.select(".xaxislabel")
+                  .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
+              return;
+          }
+          const xAxisCoordinates = xAxisNode.getBoundingClientRect();
+          textY = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
+      }
+      selection.select(".xaxislabel")
+          .attr("x", textX)
+          .attr("y", textY)
+          .style("text-anchor", "middle")
+          .text(xAxisProperties.label)
+          .style("font-size", xAxisProperties.label_size)
+          .style("font-family", xAxisProperties.label_font)
+          .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
   }
 
   function isNullOrUndefined(value) {
       return value === null || value === undefined;
   }
 
-  function between(x, lower, upper) {
-      let is_between = true;
-      if (!isNullOrUndefined(lower)) {
-          is_between = is_between && (x >= lower);
+  function drawYAxis(selection, visualObj) {
+      const yAxisGroup = selection.select(".yaxisgroup");
+      const yAxisLabel = selection.select(".yaxislabel");
+      if (!visualObj.viewModel.inputSettings.settings[0].y_axis.ylimit_show) {
+          yAxisGroup.remove();
+          yAxisLabel.remove();
+          return;
       }
-      if (!isNullOrUndefined(upper)) {
-          is_between = is_between && (x <= upper);
+      if (yAxisGroup.empty()) {
+          selection.append('g').classed("yaxisgroup", true);
       }
-      return is_between;
-  }
-
-  function broadcastBinary(fun) {
-      return function (x, y) {
-          if (Array.isArray(x) && Array.isArray(y)) {
-              return x.map((d, idx) => fun(d, y[idx]));
+      if (yAxisLabel.empty()) {
+          selection.append('text').classed('yaxislabel', true);
+      }
+      const yAxisProperties = visualObj.plotProperties.yAxis;
+      const yAxis = axisLeft(visualObj.plotProperties.yScale);
+      const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings[0].y_axis.ylimit_sig_figs;
+      const sig_figs = isNullOrUndefined(yaxis_sig_figs) ? visualObj.viewModel.inputSettings.settings[0].spc.sig_figs : yaxis_sig_figs;
+      const displayPlot = visualObj.plotProperties.displayPlot;
+      if (yAxisProperties.ticks) {
+          if (yAxisProperties.tick_count) {
+              yAxis.ticks(yAxisProperties.tick_count);
           }
-          else if (Array.isArray(x) && !Array.isArray(y)) {
-              return x.map(d => fun(d, y));
-          }
-          else if (!Array.isArray(x) && Array.isArray(y)) {
-              return y.map(d => fun(x, d));
-          }
-          else {
-              return fun(x, y);
-          }
-      };
-  }
-  const pow = broadcastBinary((x, y) => (x >= 0.0) ? Math.pow(x, y) : -Math.pow(-x, y));
-  const add = broadcastBinary((x, y) => x + y);
-  const subtract = broadcastBinary((x, y) => x - y);
-  const divide = broadcastBinary((x, y) => x / y);
-  const multiply = broadcastBinary((x, y) => {
-      return (isNullOrUndefined(x) || isNullOrUndefined(y)) ? null : (x * y);
-  });
-
-  function broadcastUnary(fun) {
-      return function (y) {
-          if (Array.isArray(y)) {
-              return y.map((d) => fun(d));
-          }
-          else {
-              return fun(y);
-          }
-      };
-  }
-  const sqrt = broadcastUnary(Math.sqrt);
-  const abs = broadcastUnary((x) => (x ? Math.abs(x) : x));
-  const exp = broadcastUnary(Math.exp);
-  const square = broadcastUnary((x) => Math.pow(x, 2));
-
-  const formatValues = function (value, name, inputSettings, derivedSettings) {
-      const suffix = derivedSettings.percentLabels ? "%" : "";
-      const sig_figs = inputSettings.spc.sig_figs;
-      if (isNullOrUndefined(value)) {
-          return "";
-      }
-      switch (name) {
-          case "date":
-              return value;
-          case "integer": {
-              return value.toFixed(derivedSettings.chart_type_props.integer_num_den ? 0 : sig_figs);
-          }
-          default:
-              return value.toFixed(sig_figs) + suffix;
-      }
-  };
-  function valueFormatter(inputSettings, derivedSettings) {
-      const formatValuesImpl = function (value, name) {
-          return formatValues(value, name, inputSettings, derivedSettings);
-      };
-      return formatValuesImpl;
-  }
-
-  function buildTooltip(table_row, inputTooltips, inputSettings, derivedSettings) {
-      const ast_limit = inputSettings.outliers.astronomical_limit;
-      const two_in_three_limit = inputSettings.outliers.two_in_three_limit;
-      const formatValues = valueFormatter(inputSettings, derivedSettings);
-      const tooltip = new Array();
-      if (inputSettings.spc.ttip_show_date) {
-          const ttip_label_date = inputSettings.spc.ttip_label_date;
-          tooltip.push({
-              displayName: ttip_label_date === "Automatic" ? derivedSettings.chart_type_props.date_name : ttip_label_date,
-              value: table_row.date
-          });
-      }
-      if (inputSettings.spc.ttip_show_value) {
-          const ttip_label_value = inputSettings.spc.ttip_label_value;
-          tooltip.push({
-              displayName: ttip_label_value === "Automatic" ? derivedSettings.chart_type_props.value_name : ttip_label_value,
-              value: formatValues(table_row.value, "value")
-          });
-      }
-      if (inputSettings.spc.ttip_show_numerator && !isNullOrUndefined(table_row.numerator)) {
-          tooltip.push({
-              displayName: inputSettings.spc.ttip_label_numerator,
-              value: formatValues(table_row.numerator, "integer")
-          });
-      }
-      if (inputSettings.spc.ttip_show_denominator && !isNullOrUndefined(table_row.denominator)) {
-          tooltip.push({
-              displayName: inputSettings.spc.ttip_label_denominator,
-              value: formatValues(table_row.denominator, "integer")
-          });
-      }
-      if (inputSettings.lines.ttip_show_trend && inputSettings.lines.show_trend) {
-          tooltip.push({
-              displayName: inputSettings.lines.ttip_label_trend,
-              value: formatValues(table_row.trend_line, "value")
-          });
-      }
-      if (inputSettings.lines.show_specification && inputSettings.lines.ttip_show_specification) {
-          if (!isNullOrUndefined(table_row.speclimits_upper)) {
-              tooltip.push({
-                  displayName: `Upper ${inputSettings.lines.ttip_label_specification}`,
-                  value: formatValues(table_row.speclimits_upper, "value")
-              });
-          }
-          if (!isNullOrUndefined(table_row.speclimits_lower)) {
-              tooltip.push({
-                  displayName: `Lower ${inputSettings.lines.ttip_label_specification}`,
-                  value: formatValues(table_row.speclimits_lower, "value")
+          if (visualObj.viewModel.inputData.length > 0 && visualObj.viewModel.inputData[0]) {
+              const derivedSettings = visualObj.viewModel.inputSettings.derivedSettings[0];
+              yAxis.tickFormat((d) => {
+                  return derivedSettings.percentLabels
+                      ? d.toFixed(sig_figs) + "%"
+                      : d.toFixed(sig_figs);
               });
           }
       }
-      if (derivedSettings.chart_type_props.has_control_limits) {
-          ["99", "95", "65"].forEach(limit => {
-              if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
-                  tooltip.push({
-                      displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_upper`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
-                      value: formatValues(table_row[`ul${limit}`], "value")
-                  });
-              }
-          });
+      else {
+          yAxis.tickValues([]);
       }
-      if (inputSettings.lines.show_target && inputSettings.lines.ttip_show_target) {
-          tooltip.push({
-              displayName: inputSettings.lines.ttip_label_target,
-              value: formatValues(table_row.target, "value")
-          });
-      }
-      if (inputSettings.lines.show_alt_target && inputSettings.lines.ttip_show_alt_target && !isNullOrUndefined(table_row.alt_target)) {
-          tooltip.push({
-              displayName: inputSettings.lines.ttip_label_alt_target,
-              value: formatValues(table_row.alt_target, "value")
-          });
-      }
-      if (derivedSettings.chart_type_props.has_control_limits) {
-          ["68", "95", "99"].forEach(limit => {
-              if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
-                  tooltip.push({
-                      displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_lower`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
-                      value: formatValues(table_row[`ll${limit}`], "value")
-                  });
-              }
-          });
-      }
-      if ([table_row.astpoint, table_row.trend, table_row.shift, table_row.two_in_three].some(d => d !== "none")) {
-          const patterns = new Array();
-          if (table_row.astpoint !== "none") {
-              let flag_text = "Astronomical Point";
-              if (ast_limit !== "3 Sigma") {
-                  flag_text = `${flag_text} (${ast_limit})`;
-              }
-              patterns.push(flag_text);
-          }
-          if (table_row.trend !== "none") {
-              patterns.push("Trend");
-          }
-          if (table_row.shift !== "none") {
-              patterns.push("Shift");
-          }
-          if (table_row.two_in_three !== "none") {
-              let flag_text = "Two-in-Three";
-              if (two_in_three_limit !== "2 Sigma") {
-                  flag_text = `${flag_text} (${two_in_three_limit})`;
-              }
-              patterns.push(flag_text);
-          }
-          tooltip.push({
-              displayName: "Pattern(s)",
-              value: patterns.join("\n")
-          });
-      }
-      if (!isNullOrUndefined(inputTooltips) && inputTooltips.length > 0) {
-          inputTooltips.forEach(customTooltip => tooltip.push(customTooltip));
-      }
-      return tooltip;
-  }
-
-  const checkFlagDirection = broadcastBinary((outlierStatus, flagSettings) => {
-      if (outlierStatus === "none") {
-          return outlierStatus;
-      }
-      const increaseDirectionMap = {
-          "upper": "improvement",
-          "lower": "deterioration"
-      };
-      const decreaseDirectionMap = {
-          "lower": "improvement",
-          "upper": "deterioration"
-      };
-      const neutralDirectionMap = {
-          "lower": "neutral_low",
-          "upper": "neutral_high"
-      };
-      const flagDirectionMap = {
-          "increase": increaseDirectionMap[outlierStatus],
-          "decrease": decreaseDirectionMap[outlierStatus],
-          "neutral": neutralDirectionMap[outlierStatus]
-      };
-      const mappedFlag = flagDirectionMap[flagSettings.improvement_direction];
-      if (flagSettings.process_flag_type !== "both") {
-          return mappedFlag === flagSettings.process_flag_type ? mappedFlag : "none";
+      yAxisGroup
+          .call(yAxis)
+          .attr("color", displayPlot ? yAxisProperties.colour : "#FFFFFF")
+          .attr("transform", `translate(${visualObj.plotProperties.xAxis.start_padding}, 0)`)
+          .selectAll(".tick text")
+          .style("text-anchor", "right")
+          .attr("transform", `rotate(${yAxisProperties.tick_rotation})`)
+          .style("font-size", yAxisProperties.tick_size)
+          .style("font-family", yAxisProperties.tick_font)
+          .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
+      let textX;
+      const textY = visualObj.viewModel.svgHeight / 2;
+      if (visualObj.viewModel.frontend) {
+          textX = visualObj.plotProperties.xAxis.start_padding / 2;
       }
       else {
-          return mappedFlag;
+          const yAxisNode = selection.selectAll(".yaxisgroup").node();
+          if (!yAxisNode) {
+              selection.select(".yaxislabel")
+                  .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
+              return;
+          }
+          const yAxisCoordinates = yAxisNode.getBoundingClientRect();
+          textX = yAxisCoordinates.x * 0.7;
       }
-  });
-
-  function c4(sampleSize) {
-      if ((sampleSize <= 1) || isNullOrUndefined(sampleSize)) {
-          return null;
-      }
-      const Nminus1 = sampleSize - 1;
-      return sqrt(2.0 / Nminus1)
-          * exp(lgamma(sampleSize / 2.0) - lgamma(Nminus1 / 2.0));
-  }
-  const c5 = broadcastUnary((sampleSize) => {
-      return sqrt(1 - square(c4(sampleSize)));
-  });
-  const a3 = broadcastUnary((sampleSize) => {
-      const filt_samp = sampleSize <= 1 ? null : sampleSize;
-      return 3.0 / (c4(filt_samp) * sqrt(filt_samp));
-  });
-  const b_helper = broadcastBinary((sampleSize, sigma) => {
-      return (sigma * c5(sampleSize)) / c4(sampleSize);
-  });
-  const b3 = broadcastBinary((sampleSize, sigma) => {
-      return 1 - b_helper(sampleSize, sigma);
-  });
-  const b4 = broadcastBinary((sampleSize, sigma) => {
-      return 1 + b_helper(sampleSize, sigma);
-  });
-
-  function diff(x) {
-      return x.map((d, idx, arr) => (idx > 0) ? d - arr[idx - 1] : null);
+      selection.select(".yaxislabel")
+          .attr("x", textX)
+          .attr("y", textY)
+          .attr("transform", `rotate(-90, ${textX}, ${textY})`)
+          .text(yAxisProperties.label)
+          .style("text-anchor", "middle")
+          .style("font-size", yAxisProperties.label_size)
+          .style("font-family", yAxisProperties.label_font)
+          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
   }
 
-  function rep(x, n) {
-      return Array(n).fill(x);
-  }
-
-  function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
-      var _a;
-      const propertyValue = (_a = settingObject === null || settingObject === void 0 ? void 0 : settingObject[settingGroup]) === null || _a === void 0 ? void 0 : _a[settingName];
-      if (isNullOrUndefined(propertyValue)) {
-          return defaultValue;
-      }
-      return (propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) ? propertyValue.solid.color
-          : propertyValue;
-  }
-  function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings, idxs) {
-      var _a, _b, _c;
-      if (isNullOrUndefined(categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories)) {
-          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
-      }
-      if (((_c = (_b = (_a = categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.identity) === null || _c === void 0 ? void 0 : _c.length) === 0) {
-          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
-      }
-      const inputCategories = categoricalView.categories[0];
-      const settingNames = Object.keys(inputSettings[settingGroupName]);
-      const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
-      const n = idxs.length;
-      let rtn = new Array(n);
-      for (let i = 0; i < n; i++) {
-          const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
-          rtn[i] = Object.fromEntries(settingNames.map(settingName => {
-              var _a, _b, _c, _d, _e, _f, _g;
-              const defaultSetting = defaultSettings[settingGroupName][settingName]["default"];
-              let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
-              extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
-              const valid = (_b = (_a = defaultSettings[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = defaultSettings[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
-              const isNumericRange = !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue);
-              if (valid) {
-                  let message = "";
-                  if (valid instanceof Array && !valid.includes(extractedSetting)) {
-                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
-                  }
-                  else if (isNumericRange && !between(extractedSetting, (_d = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _d === void 0 ? void 0 : _d.value, (_e = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _e === void 0 ? void 0 : _e.value)) {
-                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_f = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _f === void 0 ? void 0 : _f.value} and ${(_g = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _g === void 0 ? void 0 : _g.value}`;
-                  }
-                  if (message !== "") {
-                      extractedSetting = defaultSettings[settingGroupName][settingName]["default"];
-                      validationRtn.messages[i].push(message);
-                  }
-              }
-              return [settingName, extractedSetting];
-          }));
-      }
-      const validationMessages = validationRtn.messages.filter(d => d.length > 0);
-      if (!validationRtn.messages.some(d => d.length === 0)) {
-          validationRtn.status = 1;
-          validationRtn.error = `${validationMessages[0][0]}`;
-      }
-      return { values: rtn, validation: validationRtn };
-  }
-
-  function datePartsToRecord(dateParts) {
-      const datePartsRecord = Object.fromEntries(dateParts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
-      ["weekday", "day", "month", "year"].forEach(key => {
-          var _a;
-          (_a = datePartsRecord[key]) !== null && _a !== void 0 ? _a : (datePartsRecord[key] = "");
-      });
-      return datePartsRecord;
-  }
-  function formatKeys(col, inputSettings, idxs) {
-      var _a, _b, _c;
-      const n_keys = idxs.length;
-      let ret = new Array(n_keys);
-      if (col.length === 1 && !((_a = col[0].source.type) === null || _a === void 0 ? void 0 : _a.temporal)) {
-          for (let i = 0; i < n_keys; i++) {
-              ret[i] = isNullOrUndefined(col[0].values[idxs[i]]) ? null : String(col[0].values[idxs[i]]);
+  function drawTooltipLine(selection, visualObj) {
+      const plotProperties = visualObj.plotProperties;
+      const colour = visualObj.viewModel.colourPalette.isHighContrast
+          ? visualObj.viewModel.colourPalette.foregroundColour
+          : "black";
+      const xAxisLine = selection
+          .select(".ttip-line-x")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y1", plotProperties.yAxis.end_padding)
+          .attr("y2", visualObj.viewModel.svgHeight - plotProperties.yAxis.start_padding)
+          .attr("stroke-width", "1px")
+          .attr("stroke", colour)
+          .style("stroke-opacity", 0);
+      const yAxisLine = selection
+          .select(".ttip-line-y")
+          .attr("x1", plotProperties.xAxis.start_padding)
+          .attr("x2", visualObj.viewModel.svgWidth - plotProperties.xAxis.end_padding)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr("stroke-width", "1px")
+          .attr("stroke", colour)
+          .style("stroke-opacity", 0);
+      selection.on("mousemove", (event) => {
+          if (!plotProperties.displayPlot) {
+              return;
           }
-          return ret;
-      }
-      const delim = inputSettings.dates.date_format_delim;
-      if (!(col.every(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.type) === null || _b === void 0 ? void 0 : _b.temporal; }))) {
-          const blankKey = rep("", col.length).join(delim);
-          for (let i = 0; i < n_keys; i++) {
-              const currKey = col.map(keyCol => keyCol.values[idxs[i]]).join(delim);
-              ret[i] = currKey === blankKey ? null : currKey;
-          }
-          return ret;
-      }
-      const inputDates = parseInputDates(col, idxs);
-      const formatter = new Intl.DateTimeFormat(inputSettings.dates.date_format_locale, dateSettingsToFormatOptions(inputSettings.dates));
-      let day_elem = inputSettings.dates.date_format_locale === "en-GB" ? "day" : "month";
-      let month_elem = inputSettings.dates.date_format_locale === "en-GB" ? "month" : "day";
-      for (let i = 0; i < n_keys; i++) {
-          if (isNullOrUndefined(inputDates.dates[i])) {
-              ret[i] = null;
-          }
-          else {
-              const dateParts = datePartsToRecord(formatter.formatToParts(inputDates.dates[i]));
-              const datePartStrings = [dateParts.weekday + " " + dateParts[day_elem],
-                  dateParts[month_elem], (_c = (_b = inputDates.quarters) === null || _b === void 0 ? void 0 : _b[i]) !== null && _c !== void 0 ? _c : "", dateParts.year];
-              ret[i] = datePartStrings.filter(d => String(d).trim()).join(delim);
-          }
-      }
-      return ret;
-  }
-  function extractKeys(inputView, inputSettings, idxs) {
-      const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
-      const groupedCols = {};
-      let queryNames = col.map(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : ""; });
-      const uniqueQueryNames = new Set();
-      queryNames = queryNames.map((queryName, idx) => {
-          if (uniqueQueryNames.has(queryName)) {
-              queryName = `${idx}_${queryName}`;
-          }
-          uniqueQueryNames.add(queryName);
-          return queryName;
-      });
-      col.forEach((d, idx) => {
-          let queryName = queryNames[idx];
-          if (queryName.includes("Date Hierarchy")) {
-              const lastDotIndex = queryName.lastIndexOf(".");
-              if (lastDotIndex !== -1) {
-                  queryName = queryName.substring(0, lastDotIndex);
+          const plotPoints = visualObj.viewModel.plotPoints[0];
+          const boundRect = visualObj.svg.node().getBoundingClientRect();
+          const xValue = (event.pageX - boundRect.left);
+          let indexNearestValue;
+          let nearestDistance = Infinity;
+          let x_coord;
+          let y_coord;
+          for (let i = 0; i < plotPoints.length; i++) {
+              const curr_x = plotProperties.xScale(plotPoints[i].x);
+              const curr_diff = Math.abs(curr_x - xValue);
+              if (curr_diff < nearestDistance) {
+                  nearestDistance = curr_diff;
+                  indexNearestValue = i;
+                  x_coord = curr_x;
+                  y_coord = plotProperties.yScale(plotPoints[i].value);
               }
           }
-          if (!groupedCols[queryName]) {
-              groupedCols[queryName] = [];
-          }
-          groupedCols[queryName].push(d);
-      });
-      const formattedKeys = [];
-      for (const queryName in groupedCols) {
-          const group = groupedCols[queryName];
-          const groupKeys = formatKeys(group, inputSettings, idxs);
-          formattedKeys.push(groupKeys);
-      }
-      const combinedKeys = [];
-      const n_keys = idxs.length;
-      for (let i = 0; i < n_keys; i++) {
-          const keyParts = formattedKeys.map(keys => keys[i]).filter(k => k !== null && k !== undefined);
-          combinedKeys.push(keyParts.length > 0 ? keyParts.join(" ") : null);
-      }
-      return combinedKeys;
-  }
-  function extractTooltips(inputView, inputSettings, idxs) {
-      const tooltipColumns = inputView.values.filter(viewColumn => viewColumn.source.roles.tooltips);
-      const n_keys = idxs.length;
-      let ret = new Array(n_keys);
-      for (let i = 0; i < n_keys; i++) {
-          ret[i] = tooltipColumns.map(viewColumn => {
-              var _a;
-              const config = { valueType: viewColumn.source.type, dateSettings: inputSettings.dates };
-              const tooltipValueFormatted = formatPrimitiveValue((_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.values) === null || _a === void 0 ? void 0 : _a[idxs[i]], config);
-              return {
-                  displayName: viewColumn.source.displayName,
-                  value: tooltipValueFormatted
-              };
+          visualObj.host.tooltipService.show({
+              dataItems: plotPoints[indexNearestValue].tooltip,
+              identities: [plotPoints[indexNearestValue].identity],
+              coordinates: [x_coord, y_coord],
+              isTouchEvent: false
           });
-      }
-      return ret;
-  }
-  function extractDataColumn(inputView, name, inputSettings, idxs) {
-      var _a, _b, _c, _d;
-      if (name === "key") {
-          return extractKeys(inputView, inputSettings, idxs);
-      }
-      if (name === "tooltips") {
-          return extractTooltips(inputView, inputSettings, idxs);
-      }
-      const columnRaw = inputView.values.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b[name]; });
-      if (columnRaw.length === 0) {
-          return null;
-      }
-      const n_keys = idxs.length;
-      if (name === "groupings" || name === "labels") {
-          let ret = new Array(n_keys);
-          for (let i = 0; i < n_keys; i++) {
-              ret[i] = isNullOrUndefined((_b = (_a = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b[idxs[i]]) ? null : String(columnRaw[0].values[idxs[i]]);
+          xAxisLine.style("stroke-opacity", 0.4)
+              .attr("x1", x_coord)
+              .attr("x2", x_coord);
+          yAxisLine.style("stroke-opacity", 0.4)
+              .attr("y1", y_coord)
+              .attr("y2", y_coord);
+      })
+          .on("mouseleave", () => {
+          if (!plotProperties.displayPlot) {
+              return;
           }
-          return ret;
-      }
-      let ret = new Array(n_keys);
-      for (let i = 0; i < n_keys; i++) {
-          ret[i] = isNullOrUndefined((_d = (_c = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _c === void 0 ? void 0 : _c.values) === null || _d === void 0 ? void 0 : _d[idxs[i]]) ? null : Number(columnRaw[0].values[idxs[i]]);
-      }
-      return ret;
-  }
-
-  function invalidInputData(inputValidStatus) {
-      return {
-          limitInputArgs: null,
-          spcSettings: null,
-          highlights: null,
-          anyHighlights: false,
-          categories: null,
-          groupings: null,
-          groupingIndexes: null,
-          scatter_formatting: null,
-          line_formatting: null,
-          label_formatting: null,
-          tooltips: null,
-          labels: null,
-          anyLabels: false,
-          warningMessage: inputValidStatus.error,
-          alt_targets: null,
-          speclimits_lower: null,
-          speclimits_upper: null,
-          validationStatus: inputValidStatus
-      };
-  }
-  function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
-      var _a, _b, _c, _d, _e, _f, _g;
-      const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
-      const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
-      const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
-      const keys = extractDataColumn(inputView, "key", inputSettings, idxs);
-      const tooltips = extractDataColumn(inputView, "tooltips", inputSettings, idxs);
-      const groupings = extractDataColumn(inputView, "groupings", inputSettings, idxs);
-      const labels = extractDataColumn(inputView, "labels", inputSettings, idxs);
-      const highlights = idxs.map(d => { var _a, _b, _c; return (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) === null || _c === void 0 ? void 0 : _c[d]; });
-      let scatter_cond = (_a = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _a === void 0 ? void 0 : _a.values;
-      let lines_cond = (_b = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _b === void 0 ? void 0 : _b.values;
-      let labels_cond = (_c = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
-      let alt_targets = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values.map(d => inputSettings.lines.show_alt_target ? d.alt_target : null);
-      let speclimits_lower = (_e = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values.map(d => d.show_specification ? d.specification_lower : null);
-      let speclimits_upper = (_f = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values.map(d => d.show_specification ? d.specification_upper : null);
-      let spcSettings = (_g = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _g === void 0 ? void 0 : _g.values;
-      const inputValidStatus = validateInputData(keys, numerators, denominators, xbar_sds, derivedSettings.chart_type_props, idxs);
-      if (inputValidStatus.status !== 0) {
-          return invalidInputData(inputValidStatus);
-      }
-      const valid_ids = new Array();
-      const valid_keys = new Array();
-      const removalMessages = new Array();
-      const groupVarName = inputView.categories[0].source.displayName;
-      const settingsMessages = validationMessages;
-      let valid_x = 0;
-      const x_axis_use_date = derivedSettings.chart_type_props.x_axis_use_date;
-      idxs.forEach((i, idx) => {
-          if (inputValidStatus.messages[idx] === "") {
-              valid_ids.push(idx);
-              valid_keys.push({ x: valid_x, id: i, label: x_axis_use_date ? keys[idx] : valid_x.toString() });
-              valid_x += 1;
-              if (settingsMessages[i].length > 0) {
-                  settingsMessages[i].forEach(setting_removal_message => {
-                      removalMessages.push(`Conditional formatting for ${groupVarName} ${keys[idx]} ignored due to: ${setting_removal_message}.`);
-                  });
-              }
-          }
-          else {
-              removalMessages.push(`${groupVarName} ${keys[idx]} removed due to: ${inputValidStatus.messages[idx]}.`);
-          }
+          visualObj.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
+          xAxisLine.style("stroke-opacity", 0);
+          yAxisLine.style("stroke-opacity", 0);
       });
-      const valid_groupings = extractValues(groupings, valid_ids);
-      const groupingIndexes = new Array();
-      let current_grouping = valid_groupings[0];
-      valid_groupings.forEach((d, idx) => {
-          if (d !== current_grouping) {
-              groupingIndexes.push(idx - 1);
-              current_grouping = d;
-          }
-      });
-      const valid_alt_targets = extractValues(alt_targets, valid_ids);
-      if (inputSettings.nhs_icons.show_assurance_icons) {
-          const alt_targets_length = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets.length;
-          if (alt_targets_length > 0) {
-              const last_target = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets[alt_targets_length - 1];
-              if (isNullOrUndefined(last_target)) {
-                  removalMessages.push("NHS Assurance icon requires a valid alt. target at last observation.");
-              }
-          }
-          if (!derivedSettings.chart_type_props.has_control_limits) {
-              removalMessages.push("NHS Assurance icon requires chart with control limits.");
-          }
-      }
-      const curr_highlights = extractValues(highlights, valid_ids);
-      const num_points_subset = spcSettings[0].num_points_subset;
-      let subset_points;
-      if (isNullOrUndefined(num_points_subset) || !between(num_points_subset, 1, valid_ids.length)) {
-          subset_points = seq(0, valid_ids.length - 1);
-      }
-      else {
-          if (spcSettings[0].subset_points_from === "Start") {
-              subset_points = seq(0, spcSettings[0].num_points_subset - 1);
-          }
-          else {
-              subset_points = seq(valid_ids.length - spcSettings[0].num_points_subset, valid_ids.length - 1);
-          }
-      }
-      const valid_labels = extractValues(labels, valid_ids);
-      return {
-          limitInputArgs: {
-              keys: valid_keys,
-              numerators: extractValues(numerators, valid_ids),
-              denominators: extractValues(denominators, valid_ids),
-              xbar_sds: extractValues(xbar_sds, valid_ids),
-              outliers_in_limits: spcSettings[0].outliers_in_limits,
-              subset_points: subset_points
-          },
-          spcSettings: spcSettings[0],
-          tooltips: extractValues(tooltips, valid_ids),
-          labels: valid_labels,
-          anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
-          highlights: curr_highlights,
-          anyHighlights: curr_highlights.filter(d => !isNullOrUndefined(d)).length > 0,
-          categories: inputView.categories[0],
-          groupings: valid_groupings,
-          groupingIndexes: groupingIndexes,
-          scatter_formatting: extractValues(scatter_cond, valid_ids),
-          line_formatting: extractValues(lines_cond, valid_ids),
-          label_formatting: extractValues(labels_cond, valid_ids),
-          warningMessage: removalMessages.length > 0 ? removalMessages.join("\n") : "",
-          alt_targets: valid_alt_targets,
-          speclimits_lower: extractValues(speclimits_lower, valid_ids),
-          speclimits_upper: extractValues(speclimits_upper, valid_ids),
-          validationStatus: inputValidStatus
-      };
-  }
-
-  function extractValues(valuesArray, indexArray) {
-      if (valuesArray) {
-          return valuesArray.filter((_, idx) => indexArray.indexOf(idx) != -1);
-      }
-      else {
-          return [];
-      }
   }
 
   const lineNameMap = {
@@ -6055,919 +4769,81 @@ var spc = (function (exports) {
       return inputSettings[group][settingName];
   }
 
-  const truncate = broadcastBinary((val, limits) => {
-      let rtn = val;
-      if (limits.lower || limits.lower == 0) {
-          rtn = (rtn < limits.lower ? limits.lower : rtn);
+  function between(x, lower, upper) {
+      let is_between = true;
+      if (!isNullOrUndefined(lower)) {
+          is_between = is_between && (x >= lower);
       }
-      if (limits.upper) {
-          rtn = (rtn > limits.upper ? limits.upper : rtn);
+      if (!isNullOrUndefined(upper)) {
+          is_between = is_between && (x <= upper);
       }
-      return rtn;
-  });
-
-  function variationIconsToDraw(outliers, inputSettings) {
-      const imp_direction = inputSettings.outliers.improvement_direction;
-      const suffix_map = {
-          "increase": "High",
-          "decrease": "Low",
-          "neutral": ""
-      };
-      const invert_suffix_map = {
-          "High": "Low",
-          "Low": "High",
-          "": ""
-      };
-      const suffix = suffix_map[imp_direction];
-      const flag_last = inputSettings.nhs_icons.flag_last_point;
-      let allFlags;
-      if (flag_last) {
-          const N = outliers.astpoint.length - 1;
-          allFlags = [outliers.astpoint[N], outliers.shift[N], outliers.trend[N], outliers.two_in_three[N]];
-      }
-      else {
-          allFlags = outliers.astpoint.concat(outliers.shift, outliers.trend, outliers.two_in_three);
-      }
-      const iconsPresent = new Array();
-      if (allFlags.includes("improvement")) {
-          iconsPresent.push("improvement" + suffix);
-      }
-      if (allFlags.includes("deterioration")) {
-          iconsPresent.push("concern" + invert_suffix_map[suffix]);
-      }
-      if (allFlags.includes("neutral_low")) {
-          iconsPresent.push("neutralLow");
-      }
-      if (allFlags.includes("neutral_high")) {
-          iconsPresent.push("neutralHigh");
-      }
-      if (iconsPresent.length === 0) {
-          iconsPresent.push("commonCause");
-      }
-      return iconsPresent;
+      return is_between;
   }
 
-  function median(values) {
-      const n = values.length;
-      if (n === 0) {
-          return NaN;
-      }
-      const sortedValues = [...values].sort((a, b) => a - b);
-      const mid = Math.floor(n / 2);
-      if (n % 2 === 0) {
-          return (sortedValues[mid - 1] + sortedValues[mid]) / 2;
-      }
-      else {
-          return sortedValues[mid];
-      }
-  }
-
-  function max(values) {
-      return Math.max(...values);
-  }
-
-  function min(values) {
-      return Math.min(...values);
-  }
-
-  function mean(values) {
-      const n = values.length;
-      if (n === 0) {
-          return NaN;
-      }
-      let sum = 0;
-      for (let i = 0; i < n; i++) {
-          sum += values[i];
-      }
-      return sum / n;
-  }
-
-  function sum(values) {
-      let total = 0;
-      for (let i = 0; i < values.length; i++) {
-          total += values[i];
-      }
-      return total;
-  }
-
-  function validateDataView(inputDV, inputSettingsClass) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
-      if (isNullOrUndefined(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) || (((_e = (_d = (_c = (_b = (_a = inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.identity) === null || _e === void 0 ? void 0 : _e.length) === 0)) {
-          return "";
-      }
-      if (isNullOrUndefined((_g = (_f = inputDV[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) || isNullOrUndefined((_j = (_h = inputDV[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
-          return "";
-      }
-      const numeratorsPresent = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; });
-      if (!numeratorsPresent) {
-          return "No Numerators passed!";
-      }
-      let needs_denominator;
-      let needs_sd;
-      let chart_type;
-      if ((inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettingsGrouped.length) > 0) {
-          inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettingsGrouped.forEach((d) => {
-              if (d.chart_type_props.needs_denominator) {
-                  chart_type = d.chart_type_props.name;
-                  needs_denominator = true;
-              }
-              if (d.chart_type_props.needs_sd) {
-                  chart_type = d.chart_type_props.name;
-                  needs_sd = true;
-              }
+  function drawLines(selection, visualObj) {
+      const ylower = visualObj.plotProperties.yAxis.lower;
+      const yupper = visualObj.plotProperties.yAxis.upper;
+      const xlower = visualObj.plotProperties.xAxis.lower;
+      const xupper = visualObj.plotProperties.xAxis.upper;
+      selection
+          .select(".linesgroup")
+          .selectAll(".linegroup")
+          .data(visualObj.viewModel.groupedLines)
+          .join("g")
+          .classed("linegroup", true)
+          .each(function (currLineDataFull) {
+          const currLine = currLineDataFull[0];
+          const currLineData = currLineDataFull[1].filter((d) => between(d.x, xlower, xupper));
+          const n = currLineData.length;
+          let yValidStatus = new Array(n);
+          let anyValid = false;
+          let xValues = new Array(n);
+          let yValues = new Array(n);
+          for (let i = 0; i < n; i++) {
+              const currPoint = currLineData[i];
+              xValues[i] = visualObj.plotProperties.xScale(currPoint.x);
+              yValues[i] = visualObj.plotProperties.yScale(currPoint.line_value);
+              yValidStatus[i] = !isNullOrUndefined(currPoint.line_value) && between(currPoint.line_value, ylower, yupper);
+              anyValid = anyValid || yValidStatus[i];
+          }
+          if (!anyValid) {
+              select(this).selectAll("line").remove();
+              return;
+          }
+          select(this)
+              .selectAll("line")
+              .data(currLineData.slice(1))
+              .join("line")
+              .attr("x1", (_, idx) => yValidStatus[idx] ? xValues[idx] : xValues[idx + 1])
+              .attr("y1", (_, idx) => yValidStatus[idx] ? yValues[idx] : yValues[idx + 1])
+              .attr("x2", (_, idx) => yValidStatus[idx + 1] ? xValues[idx + 1] : xValues[idx])
+              .attr("y2", (_, idx) => yValidStatus[idx + 1] ? yValues[idx + 1] : yValues[idx])
+              .attr("fill", "none")
+              .attr("stroke", (d) => {
+              return visualObj.viewModel.colourPalette.isHighContrast
+                  ? visualObj.viewModel.colourPalette.foregroundColour
+                  : getAesthetic(currLine, "lines", "colour", { lines: d.aesthetics });
+          })
+              .attr("stroke-width", (d) => getAesthetic(currLine, "lines", "width", { lines: d.aesthetics }))
+              .attr("stroke-dasharray", (d) => getAesthetic(currLine, "lines", "type", { lines: d.aesthetics }))
+              .attr("stroke-dashoffset", (_, idx) => {
+              const prev_x = visualObj.plotProperties.xScale(currLineData[0].x);
+              const curr_x = visualObj.plotProperties.xScale(currLineData[idx].x);
+              return curr_x - prev_x;
           });
-      }
-      else {
-          chart_type = inputSettingsClass.settings.spc.chart_type;
-          needs_denominator = inputSettingsClass.derivedSettings.chart_type_props.needs_denominator;
-          needs_sd = inputSettingsClass.derivedSettings.chart_type_props.needs_sd;
-      }
-      if (needs_denominator) {
-          const denominatorsPresent = (_o = (_m = inputDV[0].categorical) === null || _m === void 0 ? void 0 : _m.values) === null || _o === void 0 ? void 0 : _o.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; });
-          if (!denominatorsPresent) {
-              return `Chart type '${chart_type}' requires denominators!`;
-          }
-      }
-      if (needs_sd) {
-          const xbarSDPresent = (_q = (_p = inputDV[0].categorical) === null || _p === void 0 ? void 0 : _p.values) === null || _q === void 0 ? void 0 : _q.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; });
-          if (!xbarSDPresent) {
-              return `Chart type '${chart_type}' requires SDs!`;
-          }
-      }
-      return "valid";
-  }
-
-  function validateInputDataImpl(key, numerator, denominator, xbar_sd, chart_type_props, check_denom) {
-      const rtn = { message: "", type: 0 };
-      if (isNullOrUndefined(key)) {
-          rtn.message = "Date missing";
-          rtn.type = 2;
-      }
-      if (isNullOrUndefined(numerator)) {
-          rtn.message = "Numerator missing";
-          rtn.type = 3;
-      }
-      if (isNaN(numerator)) {
-          rtn.message = "Numerator is not a number";
-          rtn.type = 10;
-      }
-      if (chart_type_props.numerator_non_negative && numerator < 0) {
-          rtn.message = "Numerator negative";
-          rtn.type = 4;
-      }
-      if (check_denom) {
-          if (isNullOrUndefined(denominator)) {
-              rtn.message = "Denominator missing";
-              rtn.type = 5;
-          }
-          else if (isNaN(denominator)) {
-              rtn.message = "Denominator is not a number";
-              rtn.type = 11;
-          }
-          else if (denominator < 0) {
-              rtn.message = "Denominator negative";
-              rtn.type = 6;
-          }
-          else if (chart_type_props.numerator_leq_denominator && denominator < numerator) {
-              rtn.message = "Denominator < numerator";
-              rtn.type = 7;
-          }
-      }
-      if (chart_type_props.needs_sd) {
-          if (isNullOrUndefined(xbar_sd)) {
-              rtn.message = "SD missing";
-              rtn.type = 8;
-          }
-          else if (isNaN(xbar_sd)) {
-              rtn.message = "SD is not a number";
-              rtn.type = 12;
-          }
-          else if (xbar_sd < 0) {
-              rtn.message = "SD negative";
-              rtn.type = 9;
-          }
-      }
-      return rtn;
-  }
-  function validateInputData(keys, numerators, denominators, xbar_sds, chart_type_props, idxs) {
-      let allSameType = false;
-      let messages = new Array();
-      let all_status = new Array();
-      const check_denom = chart_type_props.needs_denominator
-          || (chart_type_props.denominator_optional && !isNullOrUndefined(denominators) && denominators.length > 0);
-      const n = idxs.length;
-      for (let i = 0; i < n; i++) {
-          const validation = validateInputDataImpl(keys[i], numerators === null || numerators === void 0 ? void 0 : numerators[i], denominators === null || denominators === void 0 ? void 0 : denominators[i], xbar_sds === null || xbar_sds === void 0 ? void 0 : xbar_sds[i], chart_type_props, check_denom);
-          messages.push(validation.message);
-          all_status.push(validation.type);
-      }
-      let allSameTypeSet = new Set(all_status);
-      allSameType = allSameTypeSet.size === 1;
-      let commonType = Array.from(allSameTypeSet)[0];
-      let validationRtn = {
-          status: (allSameType && commonType !== 0) ? 1 : 0,
-          messages: messages
-      };
-      if (validationRtn.status === 0) {
-          const allInvalid = all_status.every(d => d !== 0);
-          if (allInvalid) {
-              validationRtn.status = 1;
-              validationRtn.error = "No valid data found!";
-              return validationRtn;
-          }
-      }
-      if (allSameType && commonType !== 0) {
-          switch (commonType) {
-              case 1: {
-                  validationRtn.error = "Grouping missing";
-                  break;
-              }
-              case 2: {
-                  validationRtn.error = "All dates/IDs are missing or null!";
-                  break;
-              }
-              case 3: {
-                  validationRtn.error = "All numerators are missing or null!";
-                  break;
-              }
-              case 10: {
-                  validationRtn.error = "All numerators are not numbers!";
-                  break;
-              }
-              case 4: {
-                  validationRtn.error = "All numerators are negative!";
-                  break;
-              }
-              case 5: {
-                  validationRtn.error = "All denominators missing or null!";
-                  break;
-              }
-              case 11: {
-                  validationRtn.error = "All denominators are not numbers!";
-                  break;
-              }
-              case 6: {
-                  validationRtn.error = "All denominators are negative!";
-                  break;
-              }
-              case 7: {
-                  validationRtn.error = "All denominators are smaller than numerators!";
-                  break;
-              }
-              case 8: {
-                  validationRtn.error = "All SDs missing or null!";
-                  break;
-              }
-              case 12: {
-                  validationRtn.error = "All SDs are not numbers!";
-                  break;
-              }
-              case 9: {
-                  validationRtn.error = "All SDs are negative!";
-                  break;
-              }
-          }
-      }
-      return validationRtn;
-  }
-
-  const formatPrimitiveValue = broadcastBinary((rawValue, config) => {
-      if (isNullOrUndefined(rawValue)) {
-          return null;
-      }
-      if (config.valueType.numeric) {
-          return rawValue.toString();
-      }
-      else {
-          return rawValue;
-      }
-  });
-
-  const weekdayDateMap = {
-      "DD": null,
-      "Thurs DD": "short",
-      "Thursday DD": "long",
-      "(blank)": null
-  };
-  const monthDateMap = {
-      "MM": "2-digit",
-      "Mon": "short",
-      "Month": "long",
-      "(blank)": null
-  };
-  const yearDateMap = {
-      "YYYY": "numeric",
-      "YY": "2-digit",
-      "(blank)": null
-  };
-  const dayDateMap = {
-      "DD": "2-digit",
-      "Thurs DD": "2-digit",
-      "Thursday DD": "2-digit",
-      "(blank)": null
-  };
-  const dateOptionsLookup = {
-      "weekday": weekdayDateMap,
-      "day": dayDateMap,
-      "month": monthDateMap,
-      "year": yearDateMap
-  };
-  function dateSettingsToFormatOptions(date_settings) {
-      const formatOpts = new Array();
-      Object.keys(date_settings).forEach((key) => {
-          if (key !== "date_format_locale" && key !== "date_format_delim") {
-              const formattedKey = key.replace("date_format_", "");
-              const lookup = dateOptionsLookup[formattedKey];
-              const val = lookup[date_settings[key]];
-              if (!isNullOrUndefined(val)) {
-                  formatOpts.push([formattedKey, val]);
-                  if (formattedKey === "day" && date_settings[key] !== "DD") {
-                      formatOpts.push(["weekday", weekdayDateMap[date_settings[key]]]);
-                  }
-              }
-          }
       });
-      return Object.fromEntries(formatOpts);
-  }
-
-  const monthNameToNumber = {
-      "January": 0,
-      "February": 1,
-      "March": 2,
-      "April": 3,
-      "May": 4,
-      "June": 5,
-      "July": 6,
-      "August": 7,
-      "September": 8,
-      "October": 9,
-      "November": 10,
-      "December": 11
-  };
-  function temporalTypeToKey(inputType, inputValue) {
-      if (!inputType.temporal) {
-          return null;
-      }
-      if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "DayOfMonth") {
-          return ["day", (inputValue)];
-      }
-      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Months") {
-          return ["month", monthNameToNumber[(inputValue)]];
-      }
-      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Quarters") {
-          return ["quarter", inputValue];
-      }
-      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Years") {
-          return ["year", (inputValue)];
-      }
-      else {
-          return null;
-      }
-  }
-  function parseInputDates(inputs, idxs) {
-      var _a, _b, _c, _d, _e;
-      const n_keys = idxs.length;
-      let inputDates = [];
-      const inputQuarters = [];
-      if (inputs.length > 1) {
-          for (let i = 0; i < n_keys; i++) {
-              const datePartsArray = [];
-              for (let j = 0; j < inputs.length; j++) {
-                  datePartsArray.push(temporalTypeToKey(inputs[j].source.type, inputs[j].values[idxs[i]]));
-              }
-              const datePartsObj = Object.fromEntries(datePartsArray);
-              if (datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.quarter) {
-                  inputQuarters.push(datePartsObj.quarter);
-              }
-              inputDates[i] = new Date((_a = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.year) !== null && _a !== void 0 ? _a : 1970, (_b = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.month) !== null && _b !== void 0 ? _b : 0, (_c = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.day) !== null && _c !== void 0 ? _c : 1);
-          }
-      }
-      else {
-          for (let i = 0; i < n_keys; i++) {
-              inputDates[i] = isNullOrUndefined((_d = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _d === void 0 ? void 0 : _d.values[idxs[i]]) ? null : new Date(((_e = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _e === void 0 ? void 0 : _e.values[idxs[i]]));
-          }
-      }
-      return { dates: inputDates, quarters: inputQuarters };
-  }
-
-  function identitySelected(identity, selectionManager) {
-      const allSelectedIdentities = selectionManager.getSelectionIds();
-      var identity_selected = false;
-      for (const selected of allSelectedIdentities) {
-          if (Array.isArray(identity)) {
-              for (const d of identity) {
-                  if (selected === d) {
-                      identity_selected = true;
-                      break;
-                  }
-              }
-          }
-          else {
-              if (selected === identity) {
-                  identity_selected = true;
-                  break;
-              }
-          }
-      }
-      return identity_selected;
-  }
-
-  function seq(start, end) {
-      return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  }
-
-  function calculateTrendLine(values) {
-      const n = values.length;
-      if (n === 0)
-          return [];
-      let sumY = 0;
-      let sumX = 0;
-      let sumXY = 0;
-      let sumX2 = 0;
-      for (let i = 0; i < n; i++) {
-          const x = i + 1;
-          const y = values[i];
-          sumX += x;
-          sumY += y;
-          sumXY += x * y;
-          sumX2 += x * x;
-      }
-      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
-      const intercept = (sumY - slope * sumX) / n;
-      const trendLine = [];
-      for (let i = 0; i < n; i++) {
-          trendLine.push(slope * (i + 1) + intercept);
-      }
-      return trendLine;
-  }
-
-  function isValidNumber(value) {
-      return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
-  }
-
-  function groupBy(data, key) {
-      const groupedData = new Map();
-      data.forEach(item => {
-          var _a;
-          const keyValue = item[key];
-          if (!groupedData.has(keyValue)) {
-              groupedData.set(keyValue, []);
-          }
-          (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
-      });
-      return Array.from(groupedData);
-  }
-
-  function chebyshevPolynomial(x, a, n) {
-      if (x < -1.1 || x > 1.1) {
-          throw new Error("chebyshevPolynomial: x must be in [-1,1]");
-      }
-      if (n < 1 || n > 1000) {
-          throw new Error("chebyshevPolynomial: n must be in [1,1000]");
-      }
-      const twox = x * 2;
-      let b0 = 0;
-      let b1 = 0;
-      let b2 = 0;
-      for (let i = 1; i <= n; i++) {
-          b2 = b1;
-          b1 = b0;
-          b0 = twox * b1 - b2 + a[n - i];
-      }
-      return (b0 - b2) * 0.5;
-  }
-
-  function sinpi(x) {
-      if (Number.isNaN(x) || !Number.isFinite(x)) {
-          return Number.NaN;
-      }
-      let r = x % 2;
-      if (r <= -1) {
-          r += 2;
-      }
-      else if (r > 1) {
-          r -= 2;
-      }
-      if (r === 0 || r === 1) {
-          return 0;
-      }
-      if (r === 0.5) {
-          return 1;
-      }
-      if (r === -0.5) {
-          return -1;
-      }
-      return Math.sin(Math.PI * r);
-  }
-
-  function lgammaCorrection(x) {
-      const algmcs = [
-          .1666389480451863247205729650822e+0,
-          -1384948176067564e-20,
-          .9810825646924729426157171547487e-8,
-          -1809129475572494e-26,
-          .6221098041892605227126015543416e-13,
-          -3399615005417722e-31,
-          .2683181998482698748957538846666e-17,
-          -2868042435334643e-35,
-          .3962837061046434803679306666666e-21,
-          -6831888753985767e-39,
-          .1429227355942498147573333333333e-24,
-          -35475981581010704e-43,
-          .1025680058010470912000000000000e-27,
-          -3401102254316749e-45,
-          .1276642195630062933333333333333e-30
-      ];
-      if (x < 10) {
-          throw new Error("lgammaCorrection: x must be >= 10");
-      }
-      else if (x < 94906265.62425156) {
-          const tmp = 10 / x;
-          return chebyshevPolynomial(tmp * tmp * 2 - 1, algmcs, 5) / x;
-      }
-      else {
-          return 1 / (x * 12);
-      }
-  }
-
-  function ldexp(x, exp) {
-      return x * Math.pow(2, exp);
-  }
-
-  function logcf(x, i, d, eps) {
-      let c1 = 2 * d;
-      let c2 = i + d;
-      let c4 = c2 + d;
-      let a1 = c2;
-      let b1 = i * (c2 - i * x);
-      let b2 = d * d * x;
-      let a2 = c4 * c2 - b2;
-      const scalefactor = 1.157921e+77;
-      b2 = c4 * b1 - i * b2;
-      while (Math.abs(a2 * b1 - a1 * b2) > Math.abs(eps * b1 * b2)) {
-          let c3 = c2 * c2 * x;
-          c2 += d;
-          c4 += d;
-          a1 = c4 * a2 - c3 * a1;
-          b1 = c4 * b2 - c3 * b1;
-          c3 = c1 * c1 * x;
-          c1 += d;
-          c4 += d;
-          a2 = c4 * a1 - c3 * a2;
-          b2 = c4 * b1 - c3 * b2;
-          if (Math.abs(b2) > scalefactor) {
-              a1 /= scalefactor;
-              b1 /= scalefactor;
-              a2 /= scalefactor;
-              b2 /= scalefactor;
-          }
-          else if (Math.abs(b2) < 1 / scalefactor) {
-              a1 *= scalefactor;
-              b1 *= scalefactor;
-              a2 *= scalefactor;
-              b2 *= scalefactor;
-          }
-      }
-      return a2 / b2;
-  }
-
-  function log1pmx(x) {
-      if (x > 1 || x < -0.79149064) {
-          return Math.log1p(x) - x;
-      }
-      else {
-          const r = x / (2 + x);
-          const y = r * r;
-          if (Math.abs(x) < 1e-2) {
-              const coefs = [2 / 3, 2 / 5, 2 / 7, 2 / 9];
-              let result = 0;
-              for (let i = 0; i < coefs.length; i++) {
-                  result = (result + coefs[i]) * y;
-              }
-              return r * (result - x);
-          }
-          else {
-              return r * (2 * y * logcf(y, 3, 2, 1e-14) - x);
-          }
-      }
-  }
-
-  const LOG_TWO_PI = 1.837877066409345483560659472811;
-  const LOG_SQRT_TWO_PI = 0.918938533204672741780329736406;
-  const LOG_SQRT_PI_DIV_2 = 0.225791352644727432363097614947;
-  const EULER = 0.5772156649015328606065120900824024;
-
-  function lgamma1p(a) {
-      if (Math.abs(a) >= 0.5) {
-          return lgamma(a + 1);
-      }
-      const coeffs = [
-          0.3224670334241132182362075833230126e-0,
-          0.6735230105319809513324605383715000e-1,
-          0.2058080842778454787900092413529198e-1,
-          0.7385551028673985266273097291406834e-2,
-          0.2890510330741523285752988298486755e-2,
-          0.1192753911703260977113935692828109e-2,
-          0.5096695247430424223356548135815582e-3,
-          0.2231547584535793797614188036013401e-3,
-          0.9945751278180853371459589003190170e-4,
-          0.4492623673813314170020750240635786e-4,
-          0.2050721277567069155316650397830591e-4,
-          0.9439488275268395903987425104415055e-5,
-          0.4374866789907487804181793223952411e-5,
-          0.2039215753801366236781900709670839e-5,
-          0.9551412130407419832857179772951265e-6,
-          0.4492469198764566043294290331193655e-6,
-          0.2120718480555466586923135901077628e-6,
-          0.1004322482396809960872083050053344e-6,
-          0.4769810169363980565760193417246730e-7,
-          0.2271109460894316491031998116062124e-7,
-          0.1083865921489695409107491757968159e-7,
-          0.5183475041970046655121248647057669e-8,
-          0.2483674543802478317185008663991718e-8,
-          0.1192140140586091207442548202774640e-8,
-          0.5731367241678862013330194857961011e-9,
-          0.2759522885124233145178149692816341e-9,
-          0.1330476437424448948149715720858008e-9,
-          0.6422964563838100022082448087644648e-10,
-          0.3104424774732227276239215783404066e-10,
-          0.1502138408075414217093301048780668e-10,
-          0.7275974480239079662504549924814047e-11,
-          0.3527742476575915083615072228655483e-11,
-          0.1711991790559617908601084114443031e-11,
-          0.8315385841420284819798357793954418e-12,
-          0.4042200525289440065536008957032895e-12,
-          0.1966475631096616490411045679010286e-12,
-          0.9573630387838555763782200936508615e-13,
-          0.4664076026428374224576492565974577e-13,
-          0.2273736960065972320633279596737272e-13,
-          0.1109139947083452201658320007192334e-13
-      ];
-      const N = coeffs.length;
-      const c = 0.2273736845824652515226821577978691e-12;
-      let lgam = c * logcf(-a / 2, N + 2, 1, 1e-14);
-      for (let i = N - 1; i >= 0; i--) {
-          lgam = coeffs[i] - a * lgam;
-      }
-      return (a * lgam - EULER) * a - log1pmx(a);
-  }
-
-  function stirlingError(n) {
-      const s_coeffs = [
-          0.083333333333333333333,
-          0.00277777777777777777778,
-          0.00079365079365079365079365,
-          0.000595238095238095238095238,
-          0.0008417508417508417508417508,
-          0.0019175269175269175269175262,
-          0.0064102564102564102564102561,
-          0.029550653594771241830065352,
-          0.17964437236883057316493850,
-          1.3924322169059011164274315,
-          13.402864044168391994478957,
-          156.84828462600201730636509,
-          2193.1033333333333333333333,
-          36108.771253724989357173269,
-          691472.26885131306710839498,
-          15238221.539407416192283370,
-          382900751.39141414141414141
-      ];
-      const sferr_halves = [
-          0.0,
-          0.1534264097200273452913848,
-          0.0810614667953272582196702,
-          0.0548141210519176538961390,
-          0.0413406959554092940938221,
-          0.03316287351993628748511048,
-          0.02767792568499833914878929,
-          0.02374616365629749597132920,
-          0.02079067210376509311152277,
-          0.01848845053267318523077934,
-          0.01664469118982119216319487,
-          0.01513497322191737887351255,
-          0.01387612882307074799874573,
-          0.01281046524292022692424986,
-          0.01189670994589177009505572,
-          0.01110455975820691732662991,
-          0.010411265261972096497478567,
-          0.009799416126158803298389475,
-          0.009255462182712732917728637,
-          0.008768700134139385462952823,
-          0.008330563433362871256469318,
-          0.007934114564314020547248100,
-          0.007573675487951840794972024,
-          0.007244554301320383179543912,
-          0.006942840107209529865664152,
-          0.006665247032707682442354394,
-          0.006408994188004207068439631,
-          0.006171712263039457647532867,
-          0.005951370112758847735624416,
-          0.005746216513010115682023589,
-          0.005554733551962801371038690
-      ];
-      let nn = n + n;
-      if (n <= 15 && nn === Math.trunc(nn)) {
-          return sferr_halves[nn];
-      }
-      if (n <= 5.25) {
-          if (n >= 1) {
-              const l_n = Math.log(n);
-              return lgamma(n) + n * (1 - l_n) + ldexp(l_n - LOG_TWO_PI, -1);
-          }
-          else {
-              return lgamma1p(n) - (n + 0.5) * Math.log(n) + n - LOG_SQRT_TWO_PI;
-          }
-      }
-      let start_coeff;
-      if (n > 15.7e6) {
-          start_coeff = 0;
-      }
-      else if (n > 6180) {
-          start_coeff = 1;
-      }
-      else if (n > 205) {
-          start_coeff = 2;
-      }
-      else if (n > 86) {
-          start_coeff = 3;
-      }
-      else if (n > 27) {
-          start_coeff = 4;
-      }
-      else if (n > 23.5) {
-          start_coeff = 5;
-      }
-      else if (n > 12.8) {
-          start_coeff = 6;
-      }
-      else if (n > 12.3) {
-          start_coeff = 7;
-      }
-      else if (n > 8.9) {
-          start_coeff = 8;
-      }
-      else if (n > 7.3) {
-          start_coeff = 10;
-      }
-      else if (n > 6.6) {
-          start_coeff = 12;
-      }
-      else if (n > 6.1) {
-          start_coeff = 14;
-      }
-      else {
-          start_coeff = 16;
-      }
-      nn = n * n;
-      let sum = s_coeffs[start_coeff];
-      for (let i = start_coeff - 1; i >= 0; i--) {
-          sum = s_coeffs[i] - sum / nn;
-      }
-      return sum / n;
-  }
-
-  function gamma(x) {
-      const gamcs = [
-          .8571195590989331421920062399942e-2,
-          .4415381324841006757191315771652e-2,
-          .5685043681599363378632664588789e-1,
-          -0.00421983539641856,
-          .1326808181212460220584006796352e-2,
-          -18930245297988805e-20,
-          .3606925327441245256578082217225e-4,
-          -6056761904460864e-21,
-          .1055829546302283344731823509093e-5,
-          -1.811967365542384e-7,
-          .3117724964715322277790254593169e-7,
-          -5.354219639019687e-9,
-          .9193275519859588946887786825940e-9,
-          -15779412802883398e-26,
-          .2707980622934954543266540433089e-10,
-          -464681865382573e-26,
-          .7973350192007419656460767175359e-12,
-          -1368078209830916e-28,
-          .2347319486563800657233471771688e-13,
-          -4027432614949067e-30,
-          .6910051747372100912138336975257e-15,
-          -1185584500221993e-31,
-          .2034148542496373955201026051932e-16,
-          -3490054341717406e-33,
-          .5987993856485305567135051066026e-18,
-          -1027378057872228e-34,
-          .1762702816060529824942759660748e-19,
-          -3024320653735306e-36,
-          .5188914660218397839717833550506e-21,
-          -8902770842456576e-38,
-          .1527474068493342602274596891306e-22,
-          -2620731256187363e-39,
-          .4496464047830538670331046570666e-24,
-          -7714712731336878e-41,
-          .1323635453126044036486572714666e-25,
-          -22709994129429287e-43,
-          .3896418998003991449320816639999e-27,
-          -6685198115125953e-44,
-          .1146998663140024384347613866666e-28,
-          -19679385863451348e-46,
-          .3376448816585338090334890666666e-30,
-          -5793070335782136e-47
-      ];
-      const dxrel = 1.490116119384765696e-8;
-      if (Number.isNaN(x)) {
-          return Number.NaN;
-      }
-      if (x == 0 || (x < 0 && x === Math.trunc(x))) {
-          return Number.NaN;
-      }
-      let y = Math.abs(x);
-      let value;
-      if (y <= 10) {
-          let n = Math.trunc(x);
-          if (x < 0) {
-              n--;
-          }
-          y = x - n;
-          n--;
-          value = chebyshevPolynomial(y * 2 - 1, gamcs, 22) + .9375;
-          if (n == 0) {
-              return value;
-          }
-          if (n < 0) {
-              if (x < -0.5 && Math.abs(x - Math.trunc(x - 0.5) / x) < dxrel) {
-                  return Number.NaN;
-              }
-              if (y < 2.2474362225598545e-308) {
-                  return x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
-              }
-              n *= -1;
-              for (let i = 0; i < n; i++) {
-                  value /= (x + i);
-              }
-              return value;
-          }
-          else {
-              for (let i = 1; i <= n; i++) {
-                  value *= (y + i);
-              }
-              return value;
-          }
-      }
-      else {
-          if (x > 171.61447887182298) {
-              return Number.POSITIVE_INFINITY;
-          }
-          if (x < -170.5674972726612) {
-              return 0;
-          }
-          if (y <= 50 && y == Math.trunc(y)) {
-              value = 1;
-              for (let i = 2; i < y; i++) {
-                  value *= i;
-              }
-          }
-          else {
-              const two_y = 2 * y;
-              value = Math.exp((y - 0.5) * Math.log(y) - y + LOG_SQRT_TWO_PI
-                  + ((two_y == Math.trunc(two_y)) ? stirlingError(y) : lgammaCorrection(y)));
-          }
-          if (x > 0) {
-              return value;
-          }
-          const sinpiy = sinpi(y);
-          return (sinpiy === 0) ? Number.POSITIVE_INFINITY : -Math.PI / (y * sinpiy * value);
-      }
-  }
-
-  function lgamma(x) {
-      if (Number.isNaN(x)) {
-          return Number.NaN;
-      }
-      if (x <= 0 && x === Math.trunc(x)) {
-          return Number.POSITIVE_INFINITY;
-      }
-      const y = Math.abs(x);
-      if (y < 1e-306) {
-          return -Math.log(y);
-      }
-      if (y <= 10) {
-          return Math.log(Math.abs(gamma(x)));
-      }
-      if (y > Number.MAX_VALUE) {
-          return Number.POSITIVE_INFINITY;
-      }
-      if (x > 0) {
-          if (x > 1e17) {
-              return x * (Math.log(x) - 1);
-          }
-          else {
-              return LOG_SQRT_TWO_PI + (x - 0.5) * Math.log(x) - x
-                  + ((x > 4934720) ? 0 : lgammaCorrection(x));
-          }
-      }
-      return LOG_SQRT_PI_DIV_2 + (x - 0.5) * Math.log(y)
-          - x - Math.log(Math.abs(sinpi(y))) - lgammaCorrection(y);
   }
 
   function drawDots(selection, visualObj) {
+      if (!visualObj.viewModel.inputSettings.settings[0].scatter.show_dots) {
+          selection
+              .select(".dotsgroup")
+              .selectAll("path")
+              .data([])
+              .join("path")
+              .remove();
+          return;
+      }
       const ylower = visualObj.plotProperties.yAxis.lower;
       const yupper = visualObj.plotProperties.yAxis.upper;
       const xlower = visualObj.plotProperties.xAxis.lower;
@@ -6975,7 +4851,7 @@ var spc = (function (exports) {
       selection
           .select(".dotsgroup")
           .selectAll("path")
-          .data(visualObj.viewModel.plotPoints)
+          .data(visualObj.viewModel.plotPoints[0])
           .join("path")
           .filter((d) => !isNullOrUndefined(d.value))
           .attr("d", (d) => {
@@ -6998,7 +4874,7 @@ var spc = (function (exports) {
           .style("stroke-width", (d) => d.aesthetics.width_outline)
           .on("click", (event, d) => {
           if (visualObj.host.hostCapabilities.allowInteractions) {
-              if (visualObj.viewModel.inputSettings.settings.spc.split_on_click) {
+              if (visualObj.viewModel.inputSettings.settings[0].spc.split_on_click) {
                   const xIndex = visualObj.viewModel.splitIndexes.indexOf(d.x);
                   if (xIndex > -1) {
                       visualObj.viewModel.splitIndexes.splice(xIndex, 1);
@@ -7840,12 +5716,76 @@ var spc = (function (exports) {
           .attr("fill", "#FFFFFF");
   }
 
+  function assuranceIconToDraw(controlLimits, inputSettings, derivedSettings) {
+      var _a;
+      if (!(derivedSettings.chart_type_props.has_control_limits)) {
+          return "none";
+      }
+      const imp_direction = inputSettings.outliers.improvement_direction;
+      const N = controlLimits.ll99.length - 1;
+      const alt_target = (_a = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.alt_targets) === null || _a === void 0 ? void 0 : _a[N];
+      if (isNullOrUndefined(alt_target) || imp_direction === "neutral") {
+          return "none";
+      }
+      const impDirectionIncrease = imp_direction === "increase";
+      if (alt_target > controlLimits.ul99[N]) {
+          return impDirectionIncrease ? "consistentFail" : "consistentPass";
+      }
+      else if (alt_target < controlLimits.ll99[N]) {
+          return impDirectionIncrease ? "consistentPass" : "consistentFail";
+      }
+      else {
+          return "inconsistent";
+      }
+  }
+
+  function variationIconsToDraw(outliers, inputSettings) {
+      const imp_direction = inputSettings.outliers.improvement_direction;
+      const suffix_map = {
+          "increase": "High",
+          "decrease": "Low",
+          "neutral": ""
+      };
+      const invert_suffix_map = {
+          "High": "Low",
+          "Low": "High",
+          "": ""
+      };
+      const suffix = suffix_map[imp_direction];
+      const flag_last = inputSettings.nhs_icons.flag_last_point;
+      let allFlags;
+      if (flag_last) {
+          const N = outliers.astpoint.length - 1;
+          allFlags = [outliers.astpoint[N], outliers.shift[N], outliers.trend[N], outliers.two_in_three[N]];
+      }
+      else {
+          allFlags = outliers.astpoint.concat(outliers.shift, outliers.trend, outliers.two_in_three);
+      }
+      const iconsPresent = new Array();
+      if (allFlags.includes("improvement")) {
+          iconsPresent.push("improvement" + suffix);
+      }
+      if (allFlags.includes("deterioration")) {
+          iconsPresent.push("concern" + invert_suffix_map[suffix]);
+      }
+      if (allFlags.includes("neutral_low")) {
+          iconsPresent.push("neutralLow");
+      }
+      if (allFlags.includes("neutral_high")) {
+          iconsPresent.push("neutralHigh");
+      }
+      if (iconsPresent.length === 0) {
+          iconsPresent.push("commonCause");
+      }
+      return iconsPresent;
+  }
+
   function drawIcons(selection, visualObj) {
       selection.selectAll(".icongroup").remove();
       if (!(visualObj.plotProperties.displayPlot)) {
           return;
       }
-      const nhsIconSettings = visualObj.viewModel.inputSettings.settings.nhs_icons;
+      const nhsIconSettings = visualObj.viewModel.inputSettings.settings[0].nhs_icons;
       const draw_variation = nhsIconSettings.show_variation_icons;
       const variation_location = nhsIconSettings.variation_icons_locations;
       const svg_width = visualObj.viewModel.svgWidth;
@@ -7853,7 +5793,7 @@ var spc = (function (exports) {
       let numVariationIcons = 0;
       if (draw_variation) {
           const variation_scaling = nhsIconSettings.variation_icons_scaling;
-          const variationIconsPresent = variationIconsToDraw(visualObj.viewModel.outliers, visualObj.viewModel.inputSettings.settings);
+          const variationIconsPresent = variationIconsToDraw(visualObj.viewModel.outliers[0], visualObj.viewModel.inputSettings.settings[0]);
           variationIconsPresent.forEach((icon, idx) => {
               selection
                   .call(initialiseIconSVG, icon, iconTransformSpec(svg_width, svg_height, variation_location, variation_scaling, idx))
@@ -7866,7 +5806,9 @@ var spc = (function (exports) {
       if (draw_assurance) {
           const assurance_location = nhsIconSettings.assurance_icons_locations;
           const assurance_scaling = nhsIconSettings.assurance_icons_scaling;
-          const assuranceIconPresent = assuranceIconToDraw(visualObj.viewModel.controlLimits, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
+          const settings = visualObj.viewModel.inputSettings.settings[0];
+          const derivedSettings = visualObj.viewModel.inputSettings.derivedSettings[0];
+          const assuranceIconPresent = assuranceIconToDraw(visualObj.viewModel.controlLimits[0], settings, derivedSettings);
           if (assuranceIconPresent === "none") {
               return;
           }
@@ -7880,241 +5822,22 @@ var spc = (function (exports) {
       }
   }
 
-  function drawLines(selection, visualObj) {
-      const ylower = visualObj.plotProperties.yAxis.lower;
-      const yupper = visualObj.plotProperties.yAxis.upper;
-      const xlower = visualObj.plotProperties.xAxis.lower;
-      const xupper = visualObj.plotProperties.xAxis.upper;
-      selection
-          .select(".linesgroup")
-          .selectAll(".linegroup")
-          .data(visualObj.viewModel.groupedLines)
-          .join("g")
-          .classed("linegroup", true)
-          .each(function (currLineDataFull) {
-          const currLine = currLineDataFull[0];
-          const currLineData = currLineDataFull[1].filter((d) => between(d.x, xlower, xupper));
-          const n = currLineData.length;
-          let yValidStatus = new Array(n);
-          let anyValid = false;
-          let xValues = new Array(n);
-          let yValues = new Array(n);
-          for (let i = 0; i < n; i++) {
-              const currPoint = currLineData[i];
-              xValues[i] = visualObj.plotProperties.xScale(currPoint.x);
-              yValues[i] = visualObj.plotProperties.yScale(currPoint.line_value);
-              yValidStatus[i] = !isNullOrUndefined(currPoint.line_value) && between(currPoint.line_value, ylower, yupper);
-              anyValid = anyValid || yValidStatus[i];
-          }
-          if (!anyValid) {
-              select(this).selectAll("line").remove();
-              return;
-          }
-          select(this)
-              .selectAll("line")
-              .data(currLineData.slice(1))
-              .join("line")
-              .attr("x1", (_, idx) => yValidStatus[idx] ? xValues[idx] : xValues[idx + 1])
-              .attr("y1", (_, idx) => yValidStatus[idx] ? yValues[idx] : yValues[idx + 1])
-              .attr("x2", (_, idx) => yValidStatus[idx + 1] ? xValues[idx + 1] : xValues[idx])
-              .attr("y2", (_, idx) => yValidStatus[idx + 1] ? yValues[idx + 1] : yValues[idx])
-              .attr("fill", "none")
-              .attr("stroke", (d) => {
-              return visualObj.viewModel.colourPalette.isHighContrast
-                  ? visualObj.viewModel.colourPalette.foregroundColour
-                  : getAesthetic(currLine, "lines", "colour", { lines: d.aesthetics });
-          })
-              .attr("stroke-width", (d) => getAesthetic(currLine, "lines", "width", { lines: d.aesthetics }))
-              .attr("stroke-dasharray", (d) => getAesthetic(currLine, "lines", "type", { lines: d.aesthetics }))
-              .attr("stroke-dashoffset", (_, idx) => {
-              const prev_x = visualObj.plotProperties.xScale(currLineData[0].x);
-              const curr_x = visualObj.plotProperties.xScale(currLineData[idx].x);
-              return curr_x - prev_x;
+  function addContextMenu(selection, visualObj) {
+      if (!(visualObj.plotProperties.displayPlot
+          || visualObj.viewModel.inputSettings.settings[0].summary_table.show_table
+          || visualObj.viewModel.showGrouped)) {
+          selection.on("contextmenu", () => { return; });
+          return;
+      }
+      selection.on('contextmenu', (event) => {
+          const eventTarget = event.target;
+          const dataPoint = (select(eventTarget).datum());
+          visualObj.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {}, {
+              x: event.clientX,
+              y: event.clientY
           });
+          event.preventDefault();
       });
-  }
-
-  function drawTooltipLine(selection, visualObj) {
-      const plotProperties = visualObj.plotProperties;
-      const colour = visualObj.viewModel.colourPalette.isHighContrast
-          ? visualObj.viewModel.colourPalette.foregroundColour
-          : "black";
-      const xAxisLine = selection
-          .select(".ttip-line-x")
-          .attr("x1", 0)
-          .attr("x2", 0)
-          .attr("y1", plotProperties.yAxis.end_padding)
-          .attr("y2", visualObj.viewModel.svgHeight - plotProperties.yAxis.start_padding)
-          .attr("stroke-width", "1px")
-          .attr("stroke", colour)
-          .style("stroke-opacity", 0);
-      const yAxisLine = selection
-          .select(".ttip-line-y")
-          .attr("x1", plotProperties.xAxis.start_padding)
-          .attr("x2", visualObj.viewModel.svgWidth - plotProperties.xAxis.end_padding)
-          .attr("y1", 0)
-          .attr("y2", 0)
-          .attr("stroke-width", "1px")
-          .attr("stroke", colour)
-          .style("stroke-opacity", 0);
-      selection.on("mousemove", (event) => {
-          if (!plotProperties.displayPlot) {
-              return;
-          }
-          const plotPoints = visualObj.viewModel.plotPoints;
-          const boundRect = visualObj.svg.node().getBoundingClientRect();
-          const xValue = (event.pageX - boundRect.left);
-          let indexNearestValue;
-          let nearestDistance = Infinity;
-          let x_coord;
-          let y_coord;
-          for (let i = 0; i < plotPoints.length; i++) {
-              const curr_x = plotProperties.xScale(plotPoints[i].x);
-              const curr_diff = Math.abs(curr_x - xValue);
-              if (curr_diff < nearestDistance) {
-                  nearestDistance = curr_diff;
-                  indexNearestValue = i;
-                  x_coord = curr_x;
-                  y_coord = plotProperties.yScale(plotPoints[i].value);
-              }
-          }
-          visualObj.host.tooltipService.show({
-              dataItems: plotPoints[indexNearestValue].tooltip,
-              identities: [plotPoints[indexNearestValue].identity],
-              coordinates: [x_coord, y_coord],
-              isTouchEvent: false
-          });
-          xAxisLine.style("stroke-opacity", 0.4)
-              .attr("x1", x_coord)
-              .attr("x2", x_coord);
-          yAxisLine.style("stroke-opacity", 0.4)
-              .attr("y1", y_coord)
-              .attr("y2", y_coord);
-      })
-          .on("mouseleave", () => {
-          if (!plotProperties.displayPlot) {
-              return;
-          }
-          visualObj.host.tooltipService.hide({ immediately: true, isTouchEvent: false });
-          xAxisLine.style("stroke-opacity", 0);
-          yAxisLine.style("stroke-opacity", 0);
-      });
-  }
-
-  function drawXAxis(selection, visualObj) {
-      const xAxisProperties = visualObj.plotProperties.xAxis;
-      const xAxis = axisBottom(visualObj.plotProperties.xScale);
-      if (xAxisProperties.ticks) {
-          if (xAxisProperties.tick_count) {
-              xAxis.ticks(xAxisProperties.tick_count);
-          }
-          if (visualObj.viewModel.tickLabels) {
-              xAxis.tickFormat(axisX => {
-                  const targetKey = visualObj.viewModel.tickLabels.filter(d => d.x == axisX);
-                  return targetKey.length > 0 ? targetKey[0].label : "";
-              });
-          }
-      }
-      else {
-          xAxis.tickValues([]);
-      }
-      const plotHeight = visualObj.viewModel.svgHeight;
-      const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
-      const displayPlot = visualObj.plotProperties.displayPlot;
-      const xAxisGroup = selection.select(".xaxisgroup");
-      xAxisGroup
-          .call(xAxis)
-          .attr("color", displayPlot ? xAxisProperties.colour : "#FFFFFF")
-          .attr("transform", `translate(0, ${xAxisHeight})`)
-          .selectAll(".tick text")
-          .style("text-anchor", xAxisProperties.tick_rotation < 0.0 ? "end" : "start")
-          .attr("dx", xAxisProperties.tick_rotation < 0.0 ? "-.8em" : ".8em")
-          .attr("dy", xAxisProperties.tick_rotation < 0.0 ? "-.15em" : ".15em")
-          .attr("transform", "rotate(" + xAxisProperties.tick_rotation + ")")
-          .style("font-size", xAxisProperties.tick_size)
-          .style("font-family", xAxisProperties.tick_font)
-          .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
-      const textX = visualObj.viewModel.svgWidth / 2;
-      let textY;
-      if (visualObj.viewModel.frontend) {
-          textY = plotHeight - (visualObj.plotProperties.yAxis.start_padding / 3);
-      }
-      else {
-          const xAxisNode = selection.selectAll(".xaxisgroup").node();
-          if (!xAxisNode) {
-              selection.select(".xaxislabel")
-                  .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
-              return;
-          }
-          const xAxisCoordinates = xAxisNode.getBoundingClientRect();
-          textY = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
-      }
-      selection.select(".xaxislabel")
-          .attr("x", textX)
-          .attr("y", textY)
-          .style("text-anchor", "middle")
-          .text(xAxisProperties.label)
-          .style("font-size", xAxisProperties.label_size)
-          .style("font-family", xAxisProperties.label_font)
-          .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
-  }
-
-  function drawYAxis(selection, visualObj) {
-      const yAxisProperties = visualObj.plotProperties.yAxis;
-      const yAxis = axisLeft(visualObj.plotProperties.yScale);
-      const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs;
-      const sig_figs = isNullOrUndefined(yaxis_sig_figs) ? visualObj.viewModel.inputSettings.settings.spc.sig_figs : yaxis_sig_figs;
-      const displayPlot = visualObj.plotProperties.displayPlot;
-      if (yAxisProperties.ticks) {
-          if (yAxisProperties.tick_count) {
-              yAxis.ticks(yAxisProperties.tick_count);
-          }
-          if (visualObj.viewModel.inputData) {
-              yAxis.tickFormat((d) => {
-                  return visualObj.viewModel.inputSettings.derivedSettings.percentLabels
-                      ? d.toFixed(sig_figs) + "%"
-                      : d.toFixed(sig_figs);
-              });
-          }
-      }
-      else {
-          yAxis.tickValues([]);
-      }
-      const yAxisGroup = selection.select(".yaxisgroup");
-      yAxisGroup
-          .call(yAxis)
-          .attr("color", displayPlot ? yAxisProperties.colour : "#FFFFFF")
-          .attr("transform", `translate(${visualObj.plotProperties.xAxis.start_padding}, 0)`)
-          .selectAll(".tick text")
-          .style("text-anchor", "right")
-          .attr("transform", `rotate(${yAxisProperties.tick_rotation})`)
-          .style("font-size", yAxisProperties.tick_size)
-          .style("font-family", yAxisProperties.tick_font)
-          .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
-      let textX;
-      const textY = visualObj.viewModel.svgHeight / 2;
-      if (visualObj.viewModel.frontend) {
-          textX = visualObj.plotProperties.xAxis.start_padding / 2;
-      }
-      else {
-          const yAxisNode = selection.selectAll(".yaxisgroup").node();
-          if (!yAxisNode) {
-              selection.select(".yaxislabel")
-                  .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
-              return;
-          }
-          const yAxisCoordinates = yAxisNode.getBoundingClientRect();
-          textX = yAxisCoordinates.x * 0.7;
-      }
-      selection.select(".yaxislabel")
-          .attr("x", textX)
-          .attr("y", textY)
-          .attr("transform", `rotate(-90, ${textX}, ${textY})`)
-          .text(yAxisProperties.label)
-          .style("text-anchor", "middle")
-          .style("font-size", yAxisProperties.label_size)
-          .style("font-family", yAxisProperties.label_font)
-          .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
   }
 
   function initialiseSVG(selection, removeAll = false) {
@@ -8154,6 +5877,28 @@ var spc = (function (exports) {
           .text(message)
           .style("font-size", "10px")
           .style("fill", colourPalette.foregroundColour);
+  }
+
+  function identitySelected(identity, selectionManager) {
+      const allSelectedIdentities = selectionManager.getSelectionIds();
+      var identity_selected = false;
+      for (const selected of allSelectedIdentities) {
+          if (Array.isArray(identity)) {
+              for (const d of identity) {
+                  if (selected === d) {
+                      identity_selected = true;
+                      break;
+                  }
+              }
+          }
+          else {
+              if (selected === identity) {
+                  identity_selected = true;
+                  break;
+              }
+          }
+      }
+      return identity_selected;
   }
 
   function drawTableHeaders(selection, cols, tableSettings, maxWidth) {
@@ -8323,19 +6068,19 @@ var spc = (function (exports) {
       let plotPoints;
       let cols;
       if (visualObj.viewModel.showGrouped) {
-          plotPoints = visualObj.viewModel.plotPointsGrouped;
-          cols = visualObj.viewModel.tableColumnsGrouped;
+          plotPoints = visualObj.viewModel.plotPoints.flat();
+          cols = visualObj.viewModel.tableColumns[0];
       }
       else {
-          plotPoints = visualObj.viewModel.plotPoints;
-          cols = visualObj.viewModel.tableColumns;
+          plotPoints = visualObj.viewModel.plotPoints[0];
+          cols = visualObj.viewModel.tableColumns[0];
       }
       const maxWidth = visualObj.viewModel.svgWidth / cols.length;
-      const tableSettings = visualObj.viewModel.inputSettings.settings.summary_table;
+      const tableSettings = visualObj.viewModel.inputSettings.settings[0].summary_table;
       selection.call(drawTableHeaders, cols, tableSettings, maxWidth)
           .call(drawTableRows, visualObj, plotPoints, tableSettings, maxWidth);
       if (plotPoints.length > 0) {
-          selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings, visualObj.viewModel.showGrouped);
+          selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings[0], visualObj.viewModel.showGrouped);
       }
       selection.call(drawOuterBorder, tableSettings);
       selection.on('click', () => {
@@ -8344,30 +6089,8 @@ var spc = (function (exports) {
       });
   }
 
-  function drawDownloadButton(selection, visualObj) {
-      if (!(visualObj.viewModel.inputSettings.settings.download_options.show_button)) {
-          selection.select(".download-btn-group").remove();
-          return;
-      }
-      if (selection.select(".download-btn-group").empty()) {
-          selection.append("text").classed("download-btn-group", true);
-      }
-      const table_rows = visualObj.viewModel.plotPoints.map(d => d.table_row);
-      const csv_rows = new Array();
-      csv_rows.push(Object.keys(table_rows[0]).join(","));
-      table_rows.forEach(row => {
-          csv_rows.push(Object.values(row).join(","));
-      });
-      selection.select(".download-btn-group")
-          .attr("x", visualObj.viewModel.svgWidth - 50)
-          .attr("y", visualObj.viewModel.svgHeight - 5)
-          .text("Download")
-          .style("font-size", "10px")
-          .style("text-decoration", "underline")
-          .on("click", () => {
-          visualObj.host.downloadService
-              .exportVisualsContent(csv_rows.join("\n"), "chartdata.csv", "csv", "csv file");
-      });
+  function isValidNumber(value) {
+      return !isNullOrUndefined(value) && !Number.isNaN(value) && Number.isFinite(value);
   }
 
   function getLabelAttributes(d, visualObj) {
@@ -8407,7 +6130,9 @@ var spc = (function (exports) {
       };
   }
   function drawLabels(selection, visualObj) {
-      if (!visualObj.viewModel.inputSettings.settings.labels.show_labels || !visualObj.viewModel.inputData.anyLabels) {
+      var _a;
+      if (!visualObj.viewModel.inputSettings.settings[0].labels.show_labels
+          || !((_a = visualObj.viewModel.inputData[0]) === null || _a === void 0 ? void 0 : _a.anyLabels)) {
           selection.select(".text-labels").remove();
           return;
       }
@@ -8443,7 +6168,7 @@ var spc = (function (exports) {
       });
       selection.select(".text-labels")
           .selectAll(".text-group-inner")
-          .data(visualObj.viewModel.plotPoints)
+          .data(visualObj.viewModel.plotPoints[0])
           .join("g")
           .classed("text-group-inner", true)
           .each(function (d) {
@@ -8481,9 +6206,9 @@ var spc = (function (exports) {
               .attr("y1", y + line_offset)
               .attr("x2", markerX)
               .attr("y2", markerY)
-              .style("stroke", visualObj.viewModel.inputSettings.settings.labels.label_line_colour)
-              .style("stroke-width", visualObj.viewModel.inputSettings.settings.labels.label_line_width)
-              .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings.labels.label_line_type);
+              .style("stroke", visualObj.viewModel.inputSettings.settings[0].labels.label_line_colour)
+              .style("stroke-width", visualObj.viewModel.inputSettings.settings[0].labels.label_line_width)
+              .style("stroke-dasharray", visualObj.viewModel.inputSettings.settings[0].labels.label_line_type);
           const markerRotation = angle + (d.label.aesthetics.label_position === "top" ? 90 : 270);
           pathElement
               .attr("d", Symbol$1().type(triangle).size(markerSize)())
@@ -8494,6 +6219,29 @@ var spc = (function (exports) {
               textGroup.call(dragFun);
           }
       });
+  }
+
+  const formatValues = function (value, name, inputSettings, derivedSettings) {
+      const suffix = derivedSettings.percentLabels ? "%" : "";
+      const sig_figs = inputSettings.spc.sig_figs;
+      if (isNullOrUndefined(value)) {
+          return "";
+      }
+      switch (name) {
+          case "date":
+              return value;
+          case "integer": {
+              return value.toFixed(derivedSettings.chart_type_props.integer_num_den ? 0 : sig_figs);
+          }
+          default:
+              return value.toFixed(sig_figs) + suffix;
+      }
+  };
+  function valueFormatter(inputSettings, derivedSettings) {
+      const formatValuesImpl = function (value, name) {
+          return formatValues(value, name, inputSettings, derivedSettings);
+      };
+      return formatValuesImpl;
   }
 
   const positionOffsetMap = {
@@ -8522,7 +6270,16 @@ var spc = (function (exports) {
       "speclimits_upper": "below"
   };
   function drawLineLabels(selection, visualObj) {
-      const lineSettings = visualObj.viewModel.inputSettings.settings.lines;
+      if (visualObj.viewModel.groupedLines.length === 0) {
+          selection
+              .select(".linesgroup")
+              .selectAll("text")
+              .data([])
+              .join("text")
+              .remove();
+          return;
+      }
+      const lineSettings = visualObj.viewModel.inputSettings.settings[0].lines;
       const rebaselinePoints = new Array();
       visualObj.viewModel.groupedLines[0][1].forEach((d, idx) => {
           if (d.line_value === null) {
@@ -8548,7 +6305,7 @@ var spc = (function (exports) {
               }
           });
       });
-      const formatValue = valueFormatter(visualObj.viewModel.inputSettings.settings, visualObj.viewModel.inputSettings.derivedSettings);
+      const formatValue = valueFormatter(visualObj.viewModel.inputSettings.settings[0], visualObj.viewModel.inputSettings.derivedSettings[0]);
       selection
           .select(".linesgroup")
           .selectAll("text")
@@ -8606,6 +6363,40 @@ var spc = (function (exports) {
       });
   }
 
+  function drawDownloadButton(selection, visualObj) {
+      if (!(visualObj.viewModel.inputSettings.settings[0].download_options.show_button)) {
+          selection.select(".download-btn-group").remove();
+          return;
+      }
+      if (selection.select(".download-btn-group").empty()) {
+          selection.append("text").classed("download-btn-group", true);
+      }
+      const table_rows = visualObj.viewModel.plotPoints[0].map(d => d.table_row);
+      const csv_rows = new Array();
+      csv_rows.push(Object.keys(table_rows[0]).join(","));
+      table_rows.forEach(row => {
+          csv_rows.push(Object.values(row).join(","));
+      });
+      selection.select(".download-btn-group")
+          .attr("x", visualObj.viewModel.svgWidth - 50)
+          .attr("y", visualObj.viewModel.svgHeight - 5)
+          .text("Download")
+          .style("font-size", "10px")
+          .style("text-decoration", "underline")
+          .on("click", () => {
+          visualObj.host.downloadService
+              .exportVisualsContent(csv_rows.join("\n"), "chartdata.csv", "csv", "csv file");
+      });
+  }
+
+  function min(values) {
+      return Math.min(...values);
+  }
+
+  function max(values) {
+      return Math.max(...values);
+  }
+
   class plotPropertiesClass {
       initialiseScale(svgWidth, svgHeight) {
           this.xScale = linear()
@@ -8618,12 +6409,12 @@ var spc = (function (exports) {
               this.yAxis.end_padding]);
       }
       update(options, viewModel) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-          const plotPoints = viewModel.plotPoints;
-          const controlLimits = viewModel.controlLimits;
-          const inputData = viewModel.inputData;
-          const inputSettings = viewModel.inputSettings.settings;
-          const derivedSettings = viewModel.inputSettings.derivedSettings;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+          const plotPoints = (_a = viewModel.plotPoints[0]) !== null && _a !== void 0 ? _a : [];
+          const controlLimits = viewModel.controlLimits[0];
+          const inputData = viewModel.inputData[0];
+          const inputSettings = viewModel.inputSettings.settings[0];
+          const derivedSettings = viewModel.inputSettings.derivedSettings[0];
           const colorPalette = viewModel.colourPalette;
           this.displayPlot = plotPoints
               ? plotPoints.length > 1
@@ -8632,29 +6423,29 @@ var spc = (function (exports) {
           let xUpperLimit = inputSettings.x_axis.xlimit_u;
           let yLowerLimit = inputSettings.y_axis.ylimit_l;
           let yUpperLimit = inputSettings.y_axis.ylimit_u;
-          if (((_a = inputData === null || inputData === void 0 ? void 0 : inputData.validationStatus) === null || _a === void 0 ? void 0 : _a.status) == 0 && controlLimits) {
+          if (((_b = inputData === null || inputData === void 0 ? void 0 : inputData.validationStatus) === null || _b === void 0 ? void 0 : _b.status) == 0 && controlLimits) {
               xUpperLimit = !isNullOrUndefined(xUpperLimit) ? xUpperLimit : max(controlLimits.keys.map(d => d.x));
               const limitMultiplier = inputSettings.y_axis.limit_multiplier;
               const values = controlLimits.values.filter(d => isValidNumber(d));
-              const ul99 = (_b = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _b === void 0 ? void 0 : _b.filter(d => isValidNumber(d));
-              const speclimits_upper = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d));
-              const ll99 = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _d === void 0 ? void 0 : _d.filter(d => isValidNumber(d));
-              const speclimits_lower = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d));
-              const alt_targets = (_f = controlLimits.alt_targets) === null || _f === void 0 ? void 0 : _f.filter(d => isValidNumber(d));
-              const targets = (_g = controlLimits.targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
+              const ul99 = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d));
+              const speclimits_upper = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _d === void 0 ? void 0 : _d.filter(d => isValidNumber(d));
+              const ll99 = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d));
+              const speclimits_lower = (_f = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _f === void 0 ? void 0 : _f.filter(d => isValidNumber(d));
+              const alt_targets = (_g = controlLimits.alt_targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
+              const targets = (_h = controlLimits.targets) === null || _h === void 0 ? void 0 : _h.filter(d => isValidNumber(d));
               const maxValue = max(values);
               const maxValueOrLimit = max(values.concat(ul99).concat(speclimits_upper).concat(alt_targets));
               const minValueOrLimit = min(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
-              const maxTarget = (_h = max(targets)) !== null && _h !== void 0 ? _h : 0;
-              const minTarget = (_j = min(targets)) !== null && _j !== void 0 ? _j : 0;
+              const maxTarget = (_j = max(targets)) !== null && _j !== void 0 ? _j : 0;
+              const minTarget = (_k = min(targets)) !== null && _k !== void 0 ? _k : 0;
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
               const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
               const multiplier = derivedSettings.multiplier;
               yUpperLimit !== null && yUpperLimit !== void 0 ? yUpperLimit : (yUpperLimit = (derivedSettings.percentLabels && !(maxValue > (1 * multiplier)))
-                  ? truncate(upperLimitRaw, { upper: 1 * multiplier })
+                  ? Math.min(upperLimitRaw, 1 * multiplier)
                   : upperLimitRaw);
               yLowerLimit !== null && yLowerLimit !== void 0 ? yLowerLimit : (yLowerLimit = derivedSettings.percentLabels
-                  ? truncate(lowerLimitRaw, { lower: 0 * multiplier })
+                  ? Math.max(lowerLimitRaw, 0)
                   : lowerLimitRaw);
               const keysToPlot = controlLimits.keys.map(d => d.x);
               xLowerLimit = !isNullOrUndefined(xLowerLimit)
@@ -8710,4378 +6501,1302 @@ var spc = (function (exports) {
       }
   }
 
-  var powerbiVisualsApi = {};
-
-  var re = {exports: {}};
-
-  var constants;
-  var hasRequiredConstants;
-
-  function requireConstants () {
-  	if (hasRequiredConstants) return constants;
-  	hasRequiredConstants = 1;
-  	// Note: this is the semver.org version of the spec that it implements
-  	// Not necessarily the package version of this code.
-  	const SEMVER_SPEC_VERSION = '2.0.0';
-
-  	const MAX_LENGTH = 256;
-  	const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER ||
-  	/* istanbul ignore next */ 9007199254740991;
-
-  	// Max safe segment length for coercion.
-  	const MAX_SAFE_COMPONENT_LENGTH = 16;
-
-  	// Max safe length for a build identifier. The max length minus 6 characters for
-  	// the shortest version with a build 0.0.0+BUILD.
-  	const MAX_SAFE_BUILD_LENGTH = MAX_LENGTH - 6;
-
-  	const RELEASE_TYPES = [
-  	  'major',
-  	  'premajor',
-  	  'minor',
-  	  'preminor',
-  	  'patch',
-  	  'prepatch',
-  	  'prerelease',
-  	];
-
-  	constants = {
-  	  MAX_LENGTH,
-  	  MAX_SAFE_COMPONENT_LENGTH,
-  	  MAX_SAFE_BUILD_LENGTH,
-  	  MAX_SAFE_INTEGER,
-  	  RELEASE_TYPES,
-  	  SEMVER_SPEC_VERSION,
-  	  FLAG_INCLUDE_PRERELEASE: 0b001,
-  	  FLAG_LOOSE: 0b010,
-  	};
-  	return constants;
+  function cLimits(args) {
+      const n_sub = args.subset_points.length;
+      const numerators = args.numerators;
+      const subset_points = args.subset_points;
+      let cl = 0;
+      for (let i = 0; i < n_sub; i++) {
+          cl += numerators[subset_points[i]];
+      }
+      cl = cl / n_sub;
+      const sigma = Math.sqrt(cl);
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: args.numerators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
+          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
+          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var debug_1;
-  var hasRequiredDebug;
-
-  function requireDebug () {
-  	if (hasRequiredDebug) return debug_1;
-  	hasRequiredDebug = 1;
-  	const debug = (
-  	  typeof process === 'object' &&
-  	  process.env &&
-  	  process.env.NODE_DEBUG &&
-  	  /\bsemver\b/i.test(process.env.NODE_DEBUG)
-  	) ? (...args) => console.error('SEMVER', ...args)
-  	  : () => {};
-
-  	debug_1 = debug;
-  	return debug_1;
+  function gLimits(args) {
+      const numerators = args.numerators;
+      const subset_points = args.subset_points;
+      const n_sub = subset_points.length;
+      let numerator_subset = new Array(n_sub);
+      let cl = 0;
+      for (let i = 0; i < n_sub; i++) {
+          numerator_subset[i] = numerators[subset_points[i]];
+          cl += numerators[subset_points[i]];
+      }
+      cl /= n_sub;
+      let sorted_subset = numerator_subset.slice().sort((a, b) => a - b);
+      let median_val;
+      if (n_sub % 2 === 0) {
+          median_val = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
+      }
+      else {
+          median_val = sorted_subset[Math.floor(n_sub / 2)];
+      }
+      const sigma = Math.sqrt(cl * (cl + 1));
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: args.numerators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          rtn.targets[i] = median_val;
+          rtn.ll68[i] = 0;
+          rtn.ll95[i] = 0;
+          rtn.ll99[i] = 0;
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var hasRequiredRe;
-
-  function requireRe () {
-  	if (hasRequiredRe) return re.exports;
-  	hasRequiredRe = 1;
-  	(function (module, exports$1) {
-  		const {
-  		  MAX_SAFE_COMPONENT_LENGTH,
-  		  MAX_SAFE_BUILD_LENGTH,
-  		  MAX_LENGTH,
-  		} = requireConstants();
-  		const debug = requireDebug();
-  		exports$1 = module.exports = {};
-
-  		// The actual regexps go on exports.re
-  		const re = exports$1.re = [];
-  		const safeRe = exports$1.safeRe = [];
-  		const src = exports$1.src = [];
-  		const t = exports$1.t = {};
-  		let R = 0;
-
-  		const LETTERDASHNUMBER = '[a-zA-Z0-9-]';
-
-  		// Replace some greedy regex tokens to prevent regex dos issues. These regex are
-  		// used internally via the safeRe object since all inputs in this library get
-  		// normalized first to trim and collapse all extra whitespace. The original
-  		// regexes are exported for userland consumption and lower level usage. A
-  		// future breaking change could export the safer regex only with a note that
-  		// all input should have extra whitespace removed.
-  		const safeRegexReplacements = [
-  		  ['\\s', 1],
-  		  ['\\d', MAX_LENGTH],
-  		  [LETTERDASHNUMBER, MAX_SAFE_BUILD_LENGTH],
-  		];
-
-  		const makeSafeRegex = (value) => {
-  		  for (const [token, max] of safeRegexReplacements) {
-  		    value = value
-  		      .split(`${token}*`).join(`${token}{0,${max}}`)
-  		      .split(`${token}+`).join(`${token}{1,${max}}`);
-  		  }
-  		  return value
-  		};
-
-  		const createToken = (name, value, isGlobal) => {
-  		  const safe = makeSafeRegex(value);
-  		  const index = R++;
-  		  debug(name, index, value);
-  		  t[name] = index;
-  		  src[index] = value;
-  		  re[index] = new RegExp(value, isGlobal ? 'g' : undefined);
-  		  safeRe[index] = new RegExp(safe, isGlobal ? 'g' : undefined);
-  		};
-
-  		// The following Regular Expressions can be used for tokenizing,
-  		// validating, and parsing SemVer version strings.
-
-  		// ## Numeric Identifier
-  		// A single `0`, or a non-zero digit followed by zero or more digits.
-
-  		createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*');
-  		createToken('NUMERICIDENTIFIERLOOSE', '\\d+');
-
-  		// ## Non-numeric Identifier
-  		// Zero or more digits, followed by a letter or hyphen, and then zero or
-  		// more letters, digits, or hyphens.
-
-  		createToken('NONNUMERICIDENTIFIER', `\\d*[a-zA-Z-]${LETTERDASHNUMBER}*`);
-
-  		// ## Main Version
-  		// Three dot-separated numeric identifiers.
-
-  		createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
-  		                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
-  		                   `(${src[t.NUMERICIDENTIFIER]})`);
-
-  		createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-  		                        `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-  		                        `(${src[t.NUMERICIDENTIFIERLOOSE]})`);
-
-  		// ## Pre-release Version Identifier
-  		// A numeric identifier, or a non-numeric identifier.
-
-  		createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NUMERICIDENTIFIER]
-		}|${src[t.NONNUMERICIDENTIFIER]})`);
-
-  		createToken('PRERELEASEIDENTIFIERLOOSE', `(?:${src[t.NUMERICIDENTIFIERLOOSE]
-		}|${src[t.NONNUMERICIDENTIFIER]})`);
-
-  		// ## Pre-release Version
-  		// Hyphen, followed by one or more dot-separated pre-release version
-  		// identifiers.
-
-  		createToken('PRERELEASE', `(?:-(${src[t.PRERELEASEIDENTIFIER]
-		}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`);
-
-  		createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
-		}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`);
-
-  		// ## Build Metadata Identifier
-  		// Any combination of digits, letters, or hyphens.
-
-  		createToken('BUILDIDENTIFIER', `${LETTERDASHNUMBER}+`);
-
-  		// ## Build Metadata
-  		// Plus sign, followed by one or more period-separated build metadata
-  		// identifiers.
-
-  		createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
-		}(?:\\.${src[t.BUILDIDENTIFIER]})*))`);
-
-  		// ## Full Version String
-  		// A main version, followed optionally by a pre-release version and
-  		// build metadata.
-
-  		// Note that the only major, minor, patch, and pre-release sections of
-  		// the version string are capturing groups.  The build metadata is not a
-  		// capturing group, because it should not ever be used in version
-  		// comparison.
-
-  		createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
-		}${src[t.PRERELEASE]}?${
-		  src[t.BUILD]}?`);
-
-  		createToken('FULL', `^${src[t.FULLPLAIN]}$`);
-
-  		// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
-  		// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
-  		// common in the npm registry.
-  		createToken('LOOSEPLAIN', `[v=\\s]*${src[t.MAINVERSIONLOOSE]
-		}${src[t.PRERELEASELOOSE]}?${
-		  src[t.BUILD]}?`);
-
-  		createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`);
-
-  		createToken('GTLT', '((?:<|>)?=?)');
-
-  		// Something like "2.*" or "1.2.x".
-  		// Note that "x.x" is a valid xRange identifer, meaning "any version"
-  		// Only the first item is strictly required.
-  		createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
-  		createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`);
-
-  		createToken('XRANGEPLAIN', `[v=\\s]*(${src[t.XRANGEIDENTIFIER]})` +
-  		                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-  		                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-  		                   `(?:${src[t.PRERELEASE]})?${
-		                     src[t.BUILD]}?` +
-  		                   `)?)?`);
-
-  		createToken('XRANGEPLAINLOOSE', `[v=\\s]*(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-  		                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-  		                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-  		                        `(?:${src[t.PRERELEASELOOSE]})?${
-		                          src[t.BUILD]}?` +
-  		                        `)?)?`);
-
-  		createToken('XRANGE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAIN]}$`);
-  		createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`);
-
-  		// Coercion.
-  		// Extract anything that could conceivably be a part of a valid semver
-  		createToken('COERCEPLAIN', `${'(^|[^\\d])' +
-		              '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
-  		              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-  		              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?`);
-  		createToken('COERCE', `${src[t.COERCEPLAIN]}(?:$|[^\\d])`);
-  		createToken('COERCEFULL', src[t.COERCEPLAIN] +
-  		              `(?:${src[t.PRERELEASE]})?` +
-  		              `(?:${src[t.BUILD]})?` +
-  		              `(?:$|[^\\d])`);
-  		createToken('COERCERTL', src[t.COERCE], true);
-  		createToken('COERCERTLFULL', src[t.COERCEFULL], true);
-
-  		// Tilde ranges.
-  		// Meaning is "reasonably at or greater than"
-  		createToken('LONETILDE', '(?:~>?)');
-
-  		createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
-  		exports$1.tildeTrimReplace = '$1~';
-
-  		createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
-  		createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
-
-  		// Caret ranges.
-  		// Meaning is "at least and backwards compatible with"
-  		createToken('LONECARET', '(?:\\^)');
-
-  		createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
-  		exports$1.caretTrimReplace = '$1^';
-
-  		createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
-  		createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
-
-  		// A simple gt/lt/eq thing, or just "" to indicate "any version"
-  		createToken('COMPARATORLOOSE', `^${src[t.GTLT]}\\s*(${src[t.LOOSEPLAIN]})$|^$`);
-  		createToken('COMPARATOR', `^${src[t.GTLT]}\\s*(${src[t.FULLPLAIN]})$|^$`);
-
-  		// An expression to strip any whitespace between the gtlt and the thing
-  		// it modifies, so that `> 1.2.3` ==> `>1.2.3`
-  		createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
-		}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
-  		exports$1.comparatorTrimReplace = '$1$2$3';
-
-  		// Something like `1.2.3 - 1.2.4`
-  		// Note that these all use the loose form, because they'll be
-  		// checked against either the strict or loose comparator form
-  		// later.
-  		createToken('HYPHENRANGE', `^\\s*(${src[t.XRANGEPLAIN]})` +
-  		                   `\\s+-\\s+` +
-  		                   `(${src[t.XRANGEPLAIN]})` +
-  		                   `\\s*$`);
-
-  		createToken('HYPHENRANGELOOSE', `^\\s*(${src[t.XRANGEPLAINLOOSE]})` +
-  		                        `\\s+-\\s+` +
-  		                        `(${src[t.XRANGEPLAINLOOSE]})` +
-  		                        `\\s*$`);
-
-  		// Star ranges basically just allow anything at all.
-  		createToken('STAR', '(<|>)?=?\\s*\\*');
-  		// >=0.0.0 is like a star
-  		createToken('GTE0', '^\\s*>=\\s*0\\.0\\.0\\s*$');
-  		createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$'); 
-  	} (re, re.exports));
-  	return re.exports;
+  function iLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const n_sub = args.subset_points.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      let prevVal = useRatio ? numerators[subset_points[0]] / denominators[subset_points[0]]
+          : numerators[subset_points[0]];
+      let cl = prevVal;
+      let amr = 0;
+      let consec_diff = new Array(n_sub - 1);
+      for (let i = 1; i < n_sub; i++) {
+          let currVal = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
+              : numerators[subset_points[i]];
+          consec_diff[i - 1] = Math.abs(currVal - prevVal);
+          amr += consec_diff[i - 1];
+          cl += currVal;
+          prevVal = currVal;
+      }
+      cl /= n_sub;
+      amr /= (n_sub - 1);
+      if (!args.outliers_in_limits) {
+          const consec_diff_ulim = amr * 3.267;
+          let screened_amr = 0;
+          let screened_count = 0;
+          for (let i = 0; i < consec_diff.length; i++) {
+              if (consec_diff[i] < consec_diff_ulim) {
+                  screened_amr += consec_diff[i];
+                  screened_count += 1;
+              }
+          }
+          amr = screened_amr / screened_count;
+      }
+      const sigma = amr / 1.128;
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: new Array(n),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          if (useRatio) {
+              rtn.values[i] = numerators[i] / denominators[i];
+              rtn.numerators[i] = numerators[i];
+              rtn.denominators[i] = denominators[i];
+          }
+          else {
+              rtn.values[i] = numerators[i];
+          }
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = cl - 3 * sigma;
+          rtn.ll95[i] = cl - 2 * sigma;
+          rtn.ll68[i] = cl - 1 * sigma;
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var parseOptions_1;
-  var hasRequiredParseOptions;
-
-  function requireParseOptions () {
-  	if (hasRequiredParseOptions) return parseOptions_1;
-  	hasRequiredParseOptions = 1;
-  	// parse out just the options we care about
-  	const looseOption = Object.freeze({ loose: true });
-  	const emptyOpts = Object.freeze({ });
-  	const parseOptions = options => {
-  	  if (!options) {
-  	    return emptyOpts
-  	  }
-
-  	  if (typeof options !== 'object') {
-  	    return looseOption
-  	  }
-
-  	  return options
-  	};
-  	parseOptions_1 = parseOptions;
-  	return parseOptions_1;
+  function imLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const n_sub = args.subset_points.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      let ratio_subset = new Array(n_sub);
+      for (let i = 0; i < n_sub; i++) {
+          ratio_subset[i] = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
+              : numerators[subset_points[i]];
+      }
+      let sorted_subset = ratio_subset.slice().sort((a, b) => a - b);
+      let cl;
+      if (n_sub % 2 === 0) {
+          cl = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
+      }
+      else {
+          cl = sorted_subset[Math.floor(n_sub / 2)];
+      }
+      let consec_diff = new Array(n_sub - 1);
+      let amr = 0;
+      for (let i = 1; i < n_sub; i++) {
+          consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
+          amr += consec_diff[i - 1];
+      }
+      amr /= (n_sub - 1);
+      if (!args.outliers_in_limits) {
+          const consec_diff_ulim = amr * 3.267;
+          let screened_amr = 0;
+          let screened_count = 0;
+          for (let i = 0; i < consec_diff.length; i++) {
+              if (consec_diff[i] < consec_diff_ulim) {
+                  screened_amr += consec_diff[i];
+                  screened_count += 1;
+              }
+          }
+          amr = screened_amr / screened_count;
+      }
+      const sigma = amr / 1.128;
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: new Array(n),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          if (useRatio) {
+              rtn.values[i] = numerators[i] / denominators[i];
+              rtn.numerators[i] = numerators[i];
+              rtn.denominators[i] = denominators[i];
+          }
+          else {
+              rtn.values[i] = numerators[i];
+          }
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = cl - 3 * sigma;
+          rtn.ll95[i] = cl - 2 * sigma;
+          rtn.ll68[i] = cl - 1 * sigma;
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var identifiers;
-  var hasRequiredIdentifiers;
-
-  function requireIdentifiers () {
-  	if (hasRequiredIdentifiers) return identifiers;
-  	hasRequiredIdentifiers = 1;
-  	const numeric = /^[0-9]+$/;
-  	const compareIdentifiers = (a, b) => {
-  	  const anum = numeric.test(a);
-  	  const bnum = numeric.test(b);
-
-  	  if (anum && bnum) {
-  	    a = +a;
-  	    b = +b;
-  	  }
-
-  	  return a === b ? 0
-  	    : (anum && !bnum) ? -1
-  	    : (bnum && !anum) ? 1
-  	    : a < b ? -1
-  	    : 1
-  	};
-
-  	const rcompareIdentifiers = (a, b) => compareIdentifiers(b, a);
-
-  	identifiers = {
-  	  compareIdentifiers,
-  	  rcompareIdentifiers,
-  	};
-  	return identifiers;
+  function immLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const n_sub = args.subset_points.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      let ratio_subset = new Array(n_sub);
+      for (let i = 0; i < n_sub; i++) {
+          ratio_subset[i] = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
+              : numerators[subset_points[i]];
+      }
+      let sorted_subset = ratio_subset.slice().sort((a, b) => a - b);
+      let cl;
+      if (n_sub % 2 === 0) {
+          cl = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
+      }
+      else {
+          cl = sorted_subset[Math.floor(n_sub / 2)];
+      }
+      let consec_diff = new Array(n_sub - 1);
+      for (let i = 1; i < n_sub; i++) {
+          consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
+      }
+      let sorted_consec_diff = consec_diff.slice().sort((a, b) => a - b);
+      let mmr;
+      const n_diff = consec_diff.length;
+      if (n_diff % 2 === 0) {
+          mmr = (sorted_consec_diff[n_diff / 2 - 1] + sorted_consec_diff[n_diff / 2]) / 2;
+      }
+      else {
+          mmr = sorted_consec_diff[Math.floor(n_diff / 2)];
+      }
+      if (!args.outliers_in_limits) {
+          const consec_diff_ulim = mmr * 3.267;
+          let valid_diffs = [];
+          for (let i = 0; i < consec_diff.length; i++) {
+              if (consec_diff[i] < consec_diff_ulim) {
+                  valid_diffs.push(consec_diff[i]);
+              }
+          }
+          if (valid_diffs.length > 0) {
+              let sorted_valid = valid_diffs.sort((a, b) => a - b);
+              const n_valid = valid_diffs.length;
+              if (n_valid % 2 === 0) {
+                  mmr = (sorted_valid[n_valid / 2 - 1] + sorted_valid[n_valid / 2]) / 2;
+              }
+              else {
+                  mmr = sorted_valid[Math.floor(n_valid / 2)];
+              }
+          }
+      }
+      const sigma = mmr / 1.128;
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: new Array(n),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          if (useRatio) {
+              rtn.values[i] = numerators[i] / denominators[i];
+              rtn.numerators[i] = numerators[i];
+              rtn.denominators[i] = denominators[i];
+          }
+          else {
+              rtn.values[i] = numerators[i];
+          }
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = cl - 3 * sigma;
+          rtn.ll95[i] = cl - 2 * sigma;
+          rtn.ll68[i] = cl - 1 * sigma;
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var semver$1;
-  var hasRequiredSemver$1;
-
-  function requireSemver$1 () {
-  	if (hasRequiredSemver$1) return semver$1;
-  	hasRequiredSemver$1 = 1;
-  	const debug = requireDebug();
-  	const { MAX_LENGTH, MAX_SAFE_INTEGER } = requireConstants();
-  	const { safeRe: re, t } = requireRe();
-
-  	const parseOptions = requireParseOptions();
-  	const { compareIdentifiers } = requireIdentifiers();
-  	class SemVer {
-  	  constructor (version, options) {
-  	    options = parseOptions(options);
-
-  	    if (version instanceof SemVer) {
-  	      if (version.loose === !!options.loose &&
-  	          version.includePrerelease === !!options.includePrerelease) {
-  	        return version
-  	      } else {
-  	        version = version.version;
-  	      }
-  	    } else if (typeof version !== 'string') {
-  	      throw new TypeError(`Invalid version. Must be a string. Got type "${typeof version}".`)
-  	    }
-
-  	    if (version.length > MAX_LENGTH) {
-  	      throw new TypeError(
-  	        `version is longer than ${MAX_LENGTH} characters`
-  	      )
-  	    }
-
-  	    debug('SemVer', version, options);
-  	    this.options = options;
-  	    this.loose = !!options.loose;
-  	    // this isn't actually relevant for versions, but keep it so that we
-  	    // don't run into trouble passing this.options around.
-  	    this.includePrerelease = !!options.includePrerelease;
-
-  	    const m = version.trim().match(options.loose ? re[t.LOOSE] : re[t.FULL]);
-
-  	    if (!m) {
-  	      throw new TypeError(`Invalid Version: ${version}`)
-  	    }
-
-  	    this.raw = version;
-
-  	    // these are actually numbers
-  	    this.major = +m[1];
-  	    this.minor = +m[2];
-  	    this.patch = +m[3];
-
-  	    if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
-  	      throw new TypeError('Invalid major version')
-  	    }
-
-  	    if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
-  	      throw new TypeError('Invalid minor version')
-  	    }
-
-  	    if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
-  	      throw new TypeError('Invalid patch version')
-  	    }
-
-  	    // numberify any prerelease numeric ids
-  	    if (!m[4]) {
-  	      this.prerelease = [];
-  	    } else {
-  	      this.prerelease = m[4].split('.').map((id) => {
-  	        if (/^[0-9]+$/.test(id)) {
-  	          const num = +id;
-  	          if (num >= 0 && num < MAX_SAFE_INTEGER) {
-  	            return num
-  	          }
-  	        }
-  	        return id
-  	      });
-  	    }
-
-  	    this.build = m[5] ? m[5].split('.') : [];
-  	    this.format();
-  	  }
-
-  	  format () {
-  	    this.version = `${this.major}.${this.minor}.${this.patch}`;
-  	    if (this.prerelease.length) {
-  	      this.version += `-${this.prerelease.join('.')}`;
-  	    }
-  	    return this.version
-  	  }
-
-  	  toString () {
-  	    return this.version
-  	  }
-
-  	  compare (other) {
-  	    debug('SemVer.compare', this.version, this.options, other);
-  	    if (!(other instanceof SemVer)) {
-  	      if (typeof other === 'string' && other === this.version) {
-  	        return 0
-  	      }
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    if (other.version === this.version) {
-  	      return 0
-  	    }
-
-  	    return this.compareMain(other) || this.comparePre(other)
-  	  }
-
-  	  compareMain (other) {
-  	    if (!(other instanceof SemVer)) {
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    return (
-  	      compareIdentifiers(this.major, other.major) ||
-  	      compareIdentifiers(this.minor, other.minor) ||
-  	      compareIdentifiers(this.patch, other.patch)
-  	    )
-  	  }
-
-  	  comparePre (other) {
-  	    if (!(other instanceof SemVer)) {
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    // NOT having a prerelease is > having one
-  	    if (this.prerelease.length && !other.prerelease.length) {
-  	      return -1
-  	    } else if (!this.prerelease.length && other.prerelease.length) {
-  	      return 1
-  	    } else if (!this.prerelease.length && !other.prerelease.length) {
-  	      return 0
-  	    }
-
-  	    let i = 0;
-  	    do {
-  	      const a = this.prerelease[i];
-  	      const b = other.prerelease[i];
-  	      debug('prerelease compare', i, a, b);
-  	      if (a === undefined && b === undefined) {
-  	        return 0
-  	      } else if (b === undefined) {
-  	        return 1
-  	      } else if (a === undefined) {
-  	        return -1
-  	      } else if (a === b) {
-  	        continue
-  	      } else {
-  	        return compareIdentifiers(a, b)
-  	      }
-  	    } while (++i)
-  	  }
-
-  	  compareBuild (other) {
-  	    if (!(other instanceof SemVer)) {
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    let i = 0;
-  	    do {
-  	      const a = this.build[i];
-  	      const b = other.build[i];
-  	      debug('build compare', i, a, b);
-  	      if (a === undefined && b === undefined) {
-  	        return 0
-  	      } else if (b === undefined) {
-  	        return 1
-  	      } else if (a === undefined) {
-  	        return -1
-  	      } else if (a === b) {
-  	        continue
-  	      } else {
-  	        return compareIdentifiers(a, b)
-  	      }
-  	    } while (++i)
-  	  }
-
-  	  // preminor will bump the version up to the next minor release, and immediately
-  	  // down to pre-release. premajor and prepatch work the same way.
-  	  inc (release, identifier, identifierBase) {
-  	    switch (release) {
-  	      case 'premajor':
-  	        this.prerelease.length = 0;
-  	        this.patch = 0;
-  	        this.minor = 0;
-  	        this.major++;
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      case 'preminor':
-  	        this.prerelease.length = 0;
-  	        this.patch = 0;
-  	        this.minor++;
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      case 'prepatch':
-  	        // If this is already a prerelease, it will bump to the next version
-  	        // drop any prereleases that might already exist, since they are not
-  	        // relevant at this point.
-  	        this.prerelease.length = 0;
-  	        this.inc('patch', identifier, identifierBase);
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      // If the input is a non-prerelease version, this acts the same as
-  	      // prepatch.
-  	      case 'prerelease':
-  	        if (this.prerelease.length === 0) {
-  	          this.inc('patch', identifier, identifierBase);
-  	        }
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-
-  	      case 'major':
-  	        // If this is a pre-major version, bump up to the same major version.
-  	        // Otherwise increment major.
-  	        // 1.0.0-5 bumps to 1.0.0
-  	        // 1.1.0 bumps to 2.0.0
-  	        if (
-  	          this.minor !== 0 ||
-  	          this.patch !== 0 ||
-  	          this.prerelease.length === 0
-  	        ) {
-  	          this.major++;
-  	        }
-  	        this.minor = 0;
-  	        this.patch = 0;
-  	        this.prerelease = [];
-  	        break
-  	      case 'minor':
-  	        // If this is a pre-minor version, bump up to the same minor version.
-  	        // Otherwise increment minor.
-  	        // 1.2.0-5 bumps to 1.2.0
-  	        // 1.2.1 bumps to 1.3.0
-  	        if (this.patch !== 0 || this.prerelease.length === 0) {
-  	          this.minor++;
-  	        }
-  	        this.patch = 0;
-  	        this.prerelease = [];
-  	        break
-  	      case 'patch':
-  	        // If this is not a pre-release version, it will increment the patch.
-  	        // If it is a pre-release it will bump up to the same patch version.
-  	        // 1.2.0-5 patches to 1.2.0
-  	        // 1.2.0 patches to 1.2.1
-  	        if (this.prerelease.length === 0) {
-  	          this.patch++;
-  	        }
-  	        this.prerelease = [];
-  	        break
-  	      // This probably shouldn't be used publicly.
-  	      // 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
-  	      case 'pre': {
-  	        const base = Number(identifierBase) ? 1 : 0;
-
-  	        if (!identifier && identifierBase === false) {
-  	          throw new Error('invalid increment argument: identifier is empty')
-  	        }
-
-  	        if (this.prerelease.length === 0) {
-  	          this.prerelease = [base];
-  	        } else {
-  	          let i = this.prerelease.length;
-  	          while (--i >= 0) {
-  	            if (typeof this.prerelease[i] === 'number') {
-  	              this.prerelease[i]++;
-  	              i = -2;
-  	            }
-  	          }
-  	          if (i === -1) {
-  	            // didn't increment anything
-  	            if (identifier === this.prerelease.join('.') && identifierBase === false) {
-  	              throw new Error('invalid increment argument: identifier already exists')
-  	            }
-  	            this.prerelease.push(base);
-  	          }
-  	        }
-  	        if (identifier) {
-  	          // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
-  	          // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
-  	          let prerelease = [identifier, base];
-  	          if (identifierBase === false) {
-  	            prerelease = [identifier];
-  	          }
-  	          if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
-  	            if (isNaN(this.prerelease[1])) {
-  	              this.prerelease = prerelease;
-  	            }
-  	          } else {
-  	            this.prerelease = prerelease;
-  	          }
-  	        }
-  	        break
-  	      }
-  	      default:
-  	        throw new Error(`invalid increment argument: ${release}`)
-  	    }
-  	    this.raw = this.format();
-  	    if (this.build.length) {
-  	      this.raw += `+${this.build.join('.')}`;
-  	    }
-  	    return this
-  	  }
-  	}
-
-  	semver$1 = SemVer;
-  	return semver$1;
+  function mrLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const n = args.keys.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      let consec_diff = new Array(n - 1);
+      for (let i = 1; i < n; i++) {
+          let prevVal = useRatio ? numerators[i - 1] / denominators[i - 1] : numerators[i - 1];
+          let currVal = useRatio ? numerators[i] / denominators[i] : numerators[i];
+          consec_diff[i - 1] = Math.abs(currVal - prevVal);
+      }
+      let sum_mr = 0;
+      let count = 0;
+      for (let i = 0; i < subset_points.length; i++) {
+          let idx = subset_points[i];
+          if (idx > 0 && idx - 1 < consec_diff.length) {
+              sum_mr += consec_diff[idx - 1];
+              count++;
+          }
+      }
+      const cl = sum_mr / count;
+      const n_mr = n - 1;
+      let rtn = {
+          keys: args.keys.slice(1),
+          values: new Array(n_mr),
+          numerators: useRatio ? args.numerators.slice(1) : undefined,
+          denominators: useRatio ? args.denominators.slice(1) : undefined,
+          targets: new Array(n_mr),
+          ll99: new Array(n_mr),
+          ll95: new Array(n_mr),
+          ll68: new Array(n_mr),
+          ul68: new Array(n_mr),
+          ul95: new Array(n_mr),
+          ul99: new Array(n_mr)
+      };
+      for (let i = 0; i < n_mr; i++) {
+          rtn.values[i] = consec_diff[i];
+          if (useRatio) {
+              rtn.numerators[i] = numerators[i + 1];
+              rtn.denominators[i] = denominators[i + 1];
+          }
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = 0;
+          rtn.ll95[i] = 0;
+          rtn.ll68[i] = 0;
+          rtn.ul68[i] = (3.267 / 3) * 1 * cl;
+          rtn.ul95[i] = (3.267 / 3) * 2 * cl;
+          rtn.ul99[i] = 3.267 * cl;
+      }
+      return rtn;
   }
 
-  var parse_1;
-  var hasRequiredParse;
-
-  function requireParse () {
-  	if (hasRequiredParse) return parse_1;
-  	hasRequiredParse = 1;
-  	const SemVer = requireSemver$1();
-  	const parse = (version, options, throwErrors = false) => {
-  	  if (version instanceof SemVer) {
-  	    return version
-  	  }
-  	  try {
-  	    return new SemVer(version, options)
-  	  } catch (er) {
-  	    if (!throwErrors) {
-  	      return null
-  	    }
-  	    throw er
-  	  }
-  	};
-
-  	parse_1 = parse;
-  	return parse_1;
+  function pLimits(args) {
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      const n_sub = subset_points.length;
+      let sum_num = 0;
+      let sum_den = 0;
+      for (let i = 0; i < n_sub; i++) {
+          sum_num += numerators[subset_points[i]];
+          sum_den += denominators[subset_points[i]];
+      }
+      const cl = sum_num / sum_den;
+      const cl_mult = cl * (1 - cl);
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: new Array(n),
+          denominators: args.denominators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          const sigma = Math.sqrt(cl_mult / denominators[i]);
+          const twoSigma = 2 * sigma;
+          const threeSigma = 3 * sigma;
+          rtn.values[i] = numerators[i] / denominators[i];
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = Math.max(0, cl - threeSigma);
+          rtn.ll95[i] = Math.max(0, cl - twoSigma);
+          rtn.ll68[i] = Math.max(0, cl - sigma);
+          rtn.ul68[i] = Math.min(1, cl + sigma);
+          rtn.ul95[i] = Math.min(1, cl + twoSigma);
+          rtn.ul99[i] = Math.min(1, cl + threeSigma);
+      }
+      return rtn;
   }
 
-  var valid_1;
-  var hasRequiredValid$1;
-
-  function requireValid$1 () {
-  	if (hasRequiredValid$1) return valid_1;
-  	hasRequiredValid$1 = 1;
-  	const parse = requireParse();
-  	const valid = (version, options) => {
-  	  const v = parse(version, options);
-  	  return v ? v.version : null
-  	};
-  	valid_1 = valid;
-  	return valid_1;
+  function pprimeLimits(args) {
+      const n = args.keys.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      const n_sub = subset_points.length;
+      let val = new Array(n);
+      for (let i = 0; i < n; i++) {
+          val[i] = numerators[i] / denominators[i];
+      }
+      let sum_numerators = 0;
+      let sum_denominators = 0;
+      for (let i = 0; i < n_sub; i++) {
+          let idx = subset_points[i];
+          sum_numerators += numerators[idx];
+          sum_denominators += denominators[idx];
+      }
+      const cl = sum_numerators / sum_denominators;
+      let sd = new Array(n);
+      for (let i = 0; i < n; i++) {
+          sd[i] = Math.sqrt((cl * (1 - cl)) / denominators[i]);
+      }
+      let zscore = new Array(n_sub);
+      for (let i = 0; i < n_sub; i++) {
+          let idx = subset_points[i];
+          zscore[i] = (val[idx] - cl) / sd[idx];
+      }
+      let consec_diff = new Array(n_sub - 1);
+      let amr = 0;
+      for (let i = 1; i < n_sub; i++) {
+          consec_diff[i - 1] = Math.abs(zscore[i] - zscore[i - 1]);
+          amr += consec_diff[i - 1];
+      }
+      amr /= (n_sub - 1);
+      if (!args.outliers_in_limits) {
+          const consec_diff_ulim = amr * 3.267;
+          let screened_amr = 0;
+          let screened_count = 0;
+          for (let i = 0; i < consec_diff.length; i++) {
+              if (consec_diff[i] < consec_diff_ulim) {
+                  screened_amr += consec_diff[i];
+                  screened_count += 1;
+              }
+          }
+          amr = screened_amr / screened_count;
+      }
+      const sigma_multiplier = amr / 1.128;
+      let rtn = {
+          keys: args.keys,
+          values: val,
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          const sigma = sd[i] * sigma_multiplier;
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
+          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
+          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
+          rtn.ul68[i] = Math.min(1, cl + 1 * sigma);
+          rtn.ul95[i] = Math.min(1, cl + 2 * sigma);
+          rtn.ul99[i] = Math.min(1, cl + 3 * sigma);
+      }
+      return rtn;
   }
 
-  var clean_1;
-  var hasRequiredClean;
-
-  function requireClean () {
-  	if (hasRequiredClean) return clean_1;
-  	hasRequiredClean = 1;
-  	const parse = requireParse();
-  	const clean = (version, options) => {
-  	  const s = parse(version.trim().replace(/^[=v]+/, ''), options);
-  	  return s ? s.version : null
-  	};
-  	clean_1 = clean;
-  	return clean_1;
+  function runLimits(args) {
+      const useRatio = (args.denominators && args.denominators.length > 0);
+      const n_sub = args.subset_points.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      let ratio_subset = new Array(n_sub);
+      for (let i = 0; i < n_sub; i++) {
+          ratio_subset[i] = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
+              : numerators[subset_points[i]];
+      }
+      let sorted_subset = ratio_subset.slice().sort((a, b) => a - b);
+      let cl;
+      if (n_sub % 2 === 0) {
+          cl = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
+      }
+      else {
+          cl = sorted_subset[Math.floor(n_sub / 2)];
+      }
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: new Array(n),
+          numerators: useRatio ? args.numerators : undefined,
+          denominators: useRatio ? args.denominators : undefined,
+          targets: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          if (useRatio) {
+              rtn.values[i] = numerators[i] / denominators[i];
+              rtn.numerators[i] = numerators[i];
+              rtn.denominators[i] = denominators[i];
+          }
+          else {
+              rtn.values[i] = numerators[i];
+          }
+          rtn.targets[i] = cl;
+      }
+      return rtn;
   }
 
-  var inc_1;
-  var hasRequiredInc;
-
-  function requireInc () {
-  	if (hasRequiredInc) return inc_1;
-  	hasRequiredInc = 1;
-  	const SemVer = requireSemver$1();
-
-  	const inc = (version, release, options, identifier, identifierBase) => {
-  	  if (typeof (options) === 'string') {
-  	    identifierBase = identifier;
-  	    identifier = options;
-  	    options = undefined;
-  	  }
-
-  	  try {
-  	    return new SemVer(
-  	      version instanceof SemVer ? version.version : version,
-  	      options
-  	    ).inc(release, identifier, identifierBase).version
-  	  } catch (er) {
-  	    return null
-  	  }
-  	};
-  	inc_1 = inc;
-  	return inc_1;
+  function chebyshevPolynomial(x, a, n) {
+      if (x < -1.1 || x > 1.1) {
+          throw new Error("chebyshevPolynomial: x must be in [-1,1]");
+      }
+      if (n < 1 || n > 1000) {
+          throw new Error("chebyshevPolynomial: n must be in [1,1000]");
+      }
+      const twox = x * 2;
+      let b0 = 0;
+      let b1 = 0;
+      let b2 = 0;
+      for (let i = 1; i <= n; i++) {
+          b2 = b1;
+          b1 = b0;
+          b0 = twox * b1 - b2 + a[n - i];
+      }
+      return (b0 - b2) * 0.5;
   }
 
-  var diff_1;
-  var hasRequiredDiff;
-
-  function requireDiff () {
-  	if (hasRequiredDiff) return diff_1;
-  	hasRequiredDiff = 1;
-  	const parse = requireParse();
-
-  	const diff = (version1, version2) => {
-  	  const v1 = parse(version1, null, true);
-  	  const v2 = parse(version2, null, true);
-  	  const comparison = v1.compare(v2);
-
-  	  if (comparison === 0) {
-  	    return null
-  	  }
-
-  	  const v1Higher = comparison > 0;
-  	  const highVersion = v1Higher ? v1 : v2;
-  	  const lowVersion = v1Higher ? v2 : v1;
-  	  const highHasPre = !!highVersion.prerelease.length;
-  	  const lowHasPre = !!lowVersion.prerelease.length;
-
-  	  if (lowHasPre && !highHasPre) {
-  	    // Going from prerelease -> no prerelease requires some special casing
-
-  	    // If the low version has only a major, then it will always be a major
-  	    // Some examples:
-  	    // 1.0.0-1 -> 1.0.0
-  	    // 1.0.0-1 -> 1.1.1
-  	    // 1.0.0-1 -> 2.0.0
-  	    if (!lowVersion.patch && !lowVersion.minor) {
-  	      return 'major'
-  	    }
-
-  	    // Otherwise it can be determined by checking the high version
-
-  	    if (highVersion.patch) {
-  	      // anything higher than a patch bump would result in the wrong version
-  	      return 'patch'
-  	    }
-
-  	    if (highVersion.minor) {
-  	      // anything higher than a minor bump would result in the wrong version
-  	      return 'minor'
-  	    }
-
-  	    // bumping major/minor/patch all have same result
-  	    return 'major'
-  	  }
-
-  	  // add the `pre` prefix if we are going to a prerelease version
-  	  const prefix = highHasPre ? 'pre' : '';
-
-  	  if (v1.major !== v2.major) {
-  	    return prefix + 'major'
-  	  }
-
-  	  if (v1.minor !== v2.minor) {
-  	    return prefix + 'minor'
-  	  }
-
-  	  if (v1.patch !== v2.patch) {
-  	    return prefix + 'patch'
-  	  }
-
-  	  // high and low are preleases
-  	  return 'prerelease'
-  	};
-
-  	diff_1 = diff;
-  	return diff_1;
+  function sinpi(x) {
+      if (Number.isNaN(x) || !Number.isFinite(x)) {
+          return Number.NaN;
+      }
+      let r = x % 2;
+      if (r <= -1) {
+          r += 2;
+      }
+      else if (r > 1) {
+          r -= 2;
+      }
+      if (r === 0 || r === 1) {
+          return 0;
+      }
+      if (r === 0.5) {
+          return 1;
+      }
+      if (r === -0.5) {
+          return -1;
+      }
+      return Math.sin(Math.PI * r);
   }
 
-  var major_1;
-  var hasRequiredMajor;
-
-  function requireMajor () {
-  	if (hasRequiredMajor) return major_1;
-  	hasRequiredMajor = 1;
-  	const SemVer = requireSemver$1();
-  	const major = (a, loose) => new SemVer(a, loose).major;
-  	major_1 = major;
-  	return major_1;
+  function lgammaCorrection(x) {
+      const algmcs = [
+          .1666389480451863247205729650822e+0,
+          -1384948176067564e-20,
+          .9810825646924729426157171547487e-8,
+          -1809129475572494e-26,
+          .6221098041892605227126015543416e-13,
+          -3399615005417722e-31,
+          .2683181998482698748957538846666e-17,
+          -2868042435334643e-35,
+          .3962837061046434803679306666666e-21,
+          -6831888753985767e-39,
+          .1429227355942498147573333333333e-24,
+          -35475981581010704e-43,
+          .1025680058010470912000000000000e-27,
+          -3401102254316749e-45,
+          .1276642195630062933333333333333e-30
+      ];
+      if (x < 10) {
+          throw new Error("lgammaCorrection: x must be >= 10");
+      }
+      else if (x < 94906265.62425156) {
+          const tmp = 10 / x;
+          return chebyshevPolynomial(tmp * tmp * 2 - 1, algmcs, 5) / x;
+      }
+      else {
+          return 1 / (x * 12);
+      }
   }
 
-  var minor_1;
-  var hasRequiredMinor;
-
-  function requireMinor () {
-  	if (hasRequiredMinor) return minor_1;
-  	hasRequiredMinor = 1;
-  	const SemVer = requireSemver$1();
-  	const minor = (a, loose) => new SemVer(a, loose).minor;
-  	minor_1 = minor;
-  	return minor_1;
+  function ldexp(x, exp) {
+      return x * Math.pow(2, exp);
   }
 
-  var patch_1;
-  var hasRequiredPatch;
-
-  function requirePatch () {
-  	if (hasRequiredPatch) return patch_1;
-  	hasRequiredPatch = 1;
-  	const SemVer = requireSemver$1();
-  	const patch = (a, loose) => new SemVer(a, loose).patch;
-  	patch_1 = patch;
-  	return patch_1;
+  function logcf(x, i, d, eps) {
+      let c1 = 2 * d;
+      let c2 = i + d;
+      let c4 = c2 + d;
+      let a1 = c2;
+      let b1 = i * (c2 - i * x);
+      let b2 = d * d * x;
+      let a2 = c4 * c2 - b2;
+      const scalefactor = 1.157921e+77;
+      b2 = c4 * b1 - i * b2;
+      while (Math.abs(a2 * b1 - a1 * b2) > Math.abs(eps * b1 * b2)) {
+          let c3 = c2 * c2 * x;
+          c2 += d;
+          c4 += d;
+          a1 = c4 * a2 - c3 * a1;
+          b1 = c4 * b2 - c3 * b1;
+          c3 = c1 * c1 * x;
+          c1 += d;
+          c4 += d;
+          a2 = c4 * a1 - c3 * a2;
+          b2 = c4 * b1 - c3 * b2;
+          if (Math.abs(b2) > scalefactor) {
+              a1 /= scalefactor;
+              b1 /= scalefactor;
+              a2 /= scalefactor;
+              b2 /= scalefactor;
+          }
+          else if (Math.abs(b2) < 1 / scalefactor) {
+              a1 *= scalefactor;
+              b1 *= scalefactor;
+              a2 *= scalefactor;
+              b2 *= scalefactor;
+          }
+      }
+      return a2 / b2;
   }
 
-  var prerelease_1;
-  var hasRequiredPrerelease;
-
-  function requirePrerelease () {
-  	if (hasRequiredPrerelease) return prerelease_1;
-  	hasRequiredPrerelease = 1;
-  	const parse = requireParse();
-  	const prerelease = (version, options) => {
-  	  const parsed = parse(version, options);
-  	  return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
-  	};
-  	prerelease_1 = prerelease;
-  	return prerelease_1;
+  function log1pmx(x) {
+      if (x > 1 || x < -0.79149064) {
+          return Math.log1p(x) - x;
+      }
+      else {
+          const r = x / (2 + x);
+          const y = r * r;
+          if (Math.abs(x) < 1e-2) {
+              const coefs = [2 / 3, 2 / 5, 2 / 7, 2 / 9];
+              let result = 0;
+              for (let i = 0; i < coefs.length; i++) {
+                  result = (result + coefs[i]) * y;
+              }
+              return r * (result - x);
+          }
+          else {
+              return r * (2 * y * logcf(y, 3, 2, 1e-14) - x);
+          }
+      }
   }
 
-  var compare_1;
-  var hasRequiredCompare;
+  const LOG_TWO_PI = 1.837877066409345483560659472811;
+  const LOG_SQRT_TWO_PI = 0.918938533204672741780329736406;
+  const LOG_SQRT_PI_DIV_2 = 0.225791352644727432363097614947;
+  const EULER = 0.5772156649015328606065120900824024;
 
-  function requireCompare () {
-  	if (hasRequiredCompare) return compare_1;
-  	hasRequiredCompare = 1;
-  	const SemVer = requireSemver$1();
-  	const compare = (a, b, loose) =>
-  	  new SemVer(a, loose).compare(new SemVer(b, loose));
-
-  	compare_1 = compare;
-  	return compare_1;
+  function lgamma1p(a) {
+      if (Math.abs(a) >= 0.5) {
+          return lgamma(a + 1);
+      }
+      const coeffs = [
+          0.3224670334241132182362075833230126e-0,
+          0.6735230105319809513324605383715000e-1,
+          0.2058080842778454787900092413529198e-1,
+          0.7385551028673985266273097291406834e-2,
+          0.2890510330741523285752988298486755e-2,
+          0.1192753911703260977113935692828109e-2,
+          0.5096695247430424223356548135815582e-3,
+          0.2231547584535793797614188036013401e-3,
+          0.9945751278180853371459589003190170e-4,
+          0.4492623673813314170020750240635786e-4,
+          0.2050721277567069155316650397830591e-4,
+          0.9439488275268395903987425104415055e-5,
+          0.4374866789907487804181793223952411e-5,
+          0.2039215753801366236781900709670839e-5,
+          0.9551412130407419832857179772951265e-6,
+          0.4492469198764566043294290331193655e-6,
+          0.2120718480555466586923135901077628e-6,
+          0.1004322482396809960872083050053344e-6,
+          0.4769810169363980565760193417246730e-7,
+          0.2271109460894316491031998116062124e-7,
+          0.1083865921489695409107491757968159e-7,
+          0.5183475041970046655121248647057669e-8,
+          0.2483674543802478317185008663991718e-8,
+          0.1192140140586091207442548202774640e-8,
+          0.5731367241678862013330194857961011e-9,
+          0.2759522885124233145178149692816341e-9,
+          0.1330476437424448948149715720858008e-9,
+          0.6422964563838100022082448087644648e-10,
+          0.3104424774732227276239215783404066e-10,
+          0.1502138408075414217093301048780668e-10,
+          0.7275974480239079662504549924814047e-11,
+          0.3527742476575915083615072228655483e-11,
+          0.1711991790559617908601084114443031e-11,
+          0.8315385841420284819798357793954418e-12,
+          0.4042200525289440065536008957032895e-12,
+          0.1966475631096616490411045679010286e-12,
+          0.9573630387838555763782200936508615e-13,
+          0.4664076026428374224576492565974577e-13,
+          0.2273736960065972320633279596737272e-13,
+          0.1109139947083452201658320007192334e-13
+      ];
+      const N = coeffs.length;
+      const c = 0.2273736845824652515226821577978691e-12;
+      let lgam = c * logcf(-a / 2, N + 2, 1, 1e-14);
+      for (let i = N - 1; i >= 0; i--) {
+          lgam = coeffs[i] - a * lgam;
+      }
+      return (a * lgam - EULER) * a - log1pmx(a);
   }
 
-  var rcompare_1;
-  var hasRequiredRcompare;
-
-  function requireRcompare () {
-  	if (hasRequiredRcompare) return rcompare_1;
-  	hasRequiredRcompare = 1;
-  	const compare = requireCompare();
-  	const rcompare = (a, b, loose) => compare(b, a, loose);
-  	rcompare_1 = rcompare;
-  	return rcompare_1;
+  function stirlingError(n) {
+      const s_coeffs = [
+          0.083333333333333333333,
+          0.00277777777777777777778,
+          0.00079365079365079365079365,
+          0.000595238095238095238095238,
+          0.0008417508417508417508417508,
+          0.0019175269175269175269175262,
+          0.0064102564102564102564102561,
+          0.029550653594771241830065352,
+          0.17964437236883057316493850,
+          1.3924322169059011164274315,
+          13.402864044168391994478957,
+          156.84828462600201730636509,
+          2193.1033333333333333333333,
+          36108.771253724989357173269,
+          691472.26885131306710839498,
+          15238221.539407416192283370,
+          382900751.39141414141414141
+      ];
+      const sferr_halves = [
+          0.0,
+          0.1534264097200273452913848,
+          0.0810614667953272582196702,
+          0.0548141210519176538961390,
+          0.0413406959554092940938221,
+          0.03316287351993628748511048,
+          0.02767792568499833914878929,
+          0.02374616365629749597132920,
+          0.02079067210376509311152277,
+          0.01848845053267318523077934,
+          0.01664469118982119216319487,
+          0.01513497322191737887351255,
+          0.01387612882307074799874573,
+          0.01281046524292022692424986,
+          0.01189670994589177009505572,
+          0.01110455975820691732662991,
+          0.010411265261972096497478567,
+          0.009799416126158803298389475,
+          0.009255462182712732917728637,
+          0.008768700134139385462952823,
+          0.008330563433362871256469318,
+          0.007934114564314020547248100,
+          0.007573675487951840794972024,
+          0.007244554301320383179543912,
+          0.006942840107209529865664152,
+          0.006665247032707682442354394,
+          0.006408994188004207068439631,
+          0.006171712263039457647532867,
+          0.005951370112758847735624416,
+          0.005746216513010115682023589,
+          0.005554733551962801371038690
+      ];
+      let nn = n + n;
+      if (n <= 15 && nn === Math.trunc(nn)) {
+          return sferr_halves[nn];
+      }
+      if (n <= 5.25) {
+          if (n >= 1) {
+              const l_n = Math.log(n);
+              return lgamma(n) + n * (1 - l_n) + ldexp(l_n - LOG_TWO_PI, -1);
+          }
+          else {
+              return lgamma1p(n) - (n + 0.5) * Math.log(n) + n - LOG_SQRT_TWO_PI;
+          }
+      }
+      let start_coeff;
+      if (n > 15.7e6) {
+          start_coeff = 0;
+      }
+      else if (n > 6180) {
+          start_coeff = 1;
+      }
+      else if (n > 205) {
+          start_coeff = 2;
+      }
+      else if (n > 86) {
+          start_coeff = 3;
+      }
+      else if (n > 27) {
+          start_coeff = 4;
+      }
+      else if (n > 23.5) {
+          start_coeff = 5;
+      }
+      else if (n > 12.8) {
+          start_coeff = 6;
+      }
+      else if (n > 12.3) {
+          start_coeff = 7;
+      }
+      else if (n > 8.9) {
+          start_coeff = 8;
+      }
+      else if (n > 7.3) {
+          start_coeff = 10;
+      }
+      else if (n > 6.6) {
+          start_coeff = 12;
+      }
+      else if (n > 6.1) {
+          start_coeff = 14;
+      }
+      else {
+          start_coeff = 16;
+      }
+      nn = n * n;
+      let sum = s_coeffs[start_coeff];
+      for (let i = start_coeff - 1; i >= 0; i--) {
+          sum = s_coeffs[i] - sum / nn;
+      }
+      return sum / n;
   }
 
-  var compareLoose_1;
-  var hasRequiredCompareLoose;
-
-  function requireCompareLoose () {
-  	if (hasRequiredCompareLoose) return compareLoose_1;
-  	hasRequiredCompareLoose = 1;
-  	const compare = requireCompare();
-  	const compareLoose = (a, b) => compare(a, b, true);
-  	compareLoose_1 = compareLoose;
-  	return compareLoose_1;
+  function gamma(x) {
+      const gamcs = [
+          .8571195590989331421920062399942e-2,
+          .4415381324841006757191315771652e-2,
+          .5685043681599363378632664588789e-1,
+          -0.00421983539641856,
+          .1326808181212460220584006796352e-2,
+          -18930245297988805e-20,
+          .3606925327441245256578082217225e-4,
+          -6056761904460864e-21,
+          .1055829546302283344731823509093e-5,
+          -1.811967365542384e-7,
+          .3117724964715322277790254593169e-7,
+          -5.354219639019687e-9,
+          .9193275519859588946887786825940e-9,
+          -15779412802883398e-26,
+          .2707980622934954543266540433089e-10,
+          -464681865382573e-26,
+          .7973350192007419656460767175359e-12,
+          -1368078209830916e-28,
+          .2347319486563800657233471771688e-13,
+          -4027432614949067e-30,
+          .6910051747372100912138336975257e-15,
+          -1185584500221993e-31,
+          .2034148542496373955201026051932e-16,
+          -3490054341717406e-33,
+          .5987993856485305567135051066026e-18,
+          -1027378057872228e-34,
+          .1762702816060529824942759660748e-19,
+          -3024320653735306e-36,
+          .5188914660218397839717833550506e-21,
+          -8902770842456576e-38,
+          .1527474068493342602274596891306e-22,
+          -2620731256187363e-39,
+          .4496464047830538670331046570666e-24,
+          -7714712731336878e-41,
+          .1323635453126044036486572714666e-25,
+          -22709994129429287e-43,
+          .3896418998003991449320816639999e-27,
+          -6685198115125953e-44,
+          .1146998663140024384347613866666e-28,
+          -19679385863451348e-46,
+          .3376448816585338090334890666666e-30,
+          -5793070335782136e-47
+      ];
+      const dxrel = 1.490116119384765696e-8;
+      if (Number.isNaN(x)) {
+          return Number.NaN;
+      }
+      if (x == 0 || (x < 0 && x === Math.trunc(x))) {
+          return Number.NaN;
+      }
+      let y = Math.abs(x);
+      let value;
+      if (y <= 10) {
+          let n = Math.trunc(x);
+          if (x < 0) {
+              n--;
+          }
+          y = x - n;
+          n--;
+          value = chebyshevPolynomial(y * 2 - 1, gamcs, 22) + .9375;
+          if (n == 0) {
+              return value;
+          }
+          if (n < 0) {
+              if (x < -0.5 && Math.abs(x - Math.trunc(x - 0.5) / x) < dxrel) {
+                  return Number.NaN;
+              }
+              if (y < 2.2474362225598545e-308) {
+                  return x < 0 ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+              }
+              n *= -1;
+              for (let i = 0; i < n; i++) {
+                  value /= (x + i);
+              }
+              return value;
+          }
+          else {
+              for (let i = 1; i <= n; i++) {
+                  value *= (y + i);
+              }
+              return value;
+          }
+      }
+      else {
+          if (x > 171.61447887182298) {
+              return Number.POSITIVE_INFINITY;
+          }
+          if (x < -170.5674972726612) {
+              return 0;
+          }
+          if (y <= 50 && y == Math.trunc(y)) {
+              value = 1;
+              for (let i = 2; i < y; i++) {
+                  value *= i;
+              }
+          }
+          else {
+              const two_y = 2 * y;
+              value = Math.exp((y - 0.5) * Math.log(y) - y + LOG_SQRT_TWO_PI
+                  + ((two_y == Math.trunc(two_y)) ? stirlingError(y) : lgammaCorrection(y)));
+          }
+          if (x > 0) {
+              return value;
+          }
+          const sinpiy = sinpi(y);
+          return (sinpiy === 0) ? Number.POSITIVE_INFINITY : -Math.PI / (y * sinpiy * value);
+      }
   }
 
-  var compareBuild_1;
-  var hasRequiredCompareBuild;
-
-  function requireCompareBuild () {
-  	if (hasRequiredCompareBuild) return compareBuild_1;
-  	hasRequiredCompareBuild = 1;
-  	const SemVer = requireSemver$1();
-  	const compareBuild = (a, b, loose) => {
-  	  const versionA = new SemVer(a, loose);
-  	  const versionB = new SemVer(b, loose);
-  	  return versionA.compare(versionB) || versionA.compareBuild(versionB)
-  	};
-  	compareBuild_1 = compareBuild;
-  	return compareBuild_1;
+  function lgamma(x) {
+      if (Number.isNaN(x)) {
+          return Number.NaN;
+      }
+      if (x <= 0 && x === Math.trunc(x)) {
+          return Number.POSITIVE_INFINITY;
+      }
+      const y = Math.abs(x);
+      if (y < 1e-306) {
+          return -Math.log(y);
+      }
+      if (y <= 10) {
+          return Math.log(Math.abs(gamma(x)));
+      }
+      if (y > Number.MAX_VALUE) {
+          return Number.POSITIVE_INFINITY;
+      }
+      if (x > 0) {
+          if (x > 1e17) {
+              return x * (Math.log(x) - 1);
+          }
+          else {
+              return LOG_SQRT_TWO_PI + (x - 0.5) * Math.log(x) - x
+                  + ((x > 4934720) ? 0 : lgammaCorrection(x));
+          }
+      }
+      return LOG_SQRT_PI_DIV_2 + (x - 0.5) * Math.log(y)
+          - x - Math.log(Math.abs(sinpi(y))) - lgammaCorrection(y);
   }
 
-  var sort_1;
-  var hasRequiredSort;
-
-  function requireSort () {
-  	if (hasRequiredSort) return sort_1;
-  	hasRequiredSort = 1;
-  	const compareBuild = requireCompareBuild();
-  	const sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose));
-  	sort_1 = sort;
-  	return sort_1;
+  function c4(sampleSize) {
+      if ((sampleSize <= 1) || isNullOrUndefined(sampleSize)) {
+          return null;
+      }
+      const Nminus1 = sampleSize - 1;
+      return Math.sqrt(2.0 / Nminus1)
+          * Math.exp(lgamma(sampleSize / 2.0) - lgamma(Nminus1 / 2.0));
+  }
+  function c5(sampleSize) {
+      return Math.sqrt(1 - Math.pow(c4(sampleSize), 2));
+  }
+  function a3(sampleSize) {
+      const filt_samp = sampleSize <= 1 ? null : sampleSize;
+      return 3.0 / (c4(filt_samp) * Math.sqrt(filt_samp));
+  }
+  function b_helper(sampleSize, sigma) {
+      return (sigma * c5(sampleSize)) / c4(sampleSize);
+  }
+  function b3(sampleSize, sigma) {
+      return 1 - b_helper(sampleSize, sigma);
+  }
+  function b4(sampleSize, sigma) {
+      return 1 + b_helper(sampleSize, sigma);
   }
 
-  var rsort_1;
-  var hasRequiredRsort;
-
-  function requireRsort () {
-  	if (hasRequiredRsort) return rsort_1;
-  	hasRequiredRsort = 1;
-  	const compareBuild = requireCompareBuild();
-  	const rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose));
-  	rsort_1 = rsort;
-  	return rsort_1;
+  function sLimits(args) {
+      const group_sd = args.numerators;
+      const count_per_group = args.denominators;
+      const n_sub = args.subset_points.length;
+      let Nm1_sum = 0;
+      let weighted_sd_sum = 0;
+      for (let i = 0; i < n_sub; i++) {
+          const curr_count = count_per_group[args.subset_points[i]];
+          const curr_sd = group_sd[args.subset_points[i]];
+          const Nm1 = curr_count - 1;
+          Nm1_sum += Nm1;
+          weighted_sd_sum += Nm1 * Math.pow(curr_sd, 2);
+      }
+      const cl = Math.sqrt(weighted_sd_sum / Nm1_sum);
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: group_sd,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = cl * b3(count_per_group[i], 3);
+          rtn.ll95[i] = cl * b3(count_per_group[i], 2);
+          rtn.ll68[i] = cl * b3(count_per_group[i], 1);
+          rtn.ul68[i] = cl * b4(count_per_group[i], 1);
+          rtn.ul95[i] = cl * b4(count_per_group[i], 2);
+          rtn.ul99[i] = cl * b4(count_per_group[i], 3);
+      }
+      return rtn;
   }
 
-  var gt_1;
-  var hasRequiredGt;
-
-  function requireGt () {
-  	if (hasRequiredGt) return gt_1;
-  	hasRequiredGt = 1;
-  	const compare = requireCompare();
-  	const gt = (a, b, loose) => compare(a, b, loose) > 0;
-  	gt_1 = gt;
-  	return gt_1;
+  function tLimits(args) {
+      const n = args.keys.length;
+      let val = new Array(n);
+      for (let i = 0; i < n; i++) {
+          val[i] = Math.pow(args.numerators[i], 1 / 3.6);
+      }
+      const inputArgsCopy = {
+          numerators: val,
+          denominators: null,
+          keys: args.keys,
+          subset_points: args.subset_points,
+          outliers_in_limits: args.outliers_in_limits
+      };
+      const limits = iLimits(inputArgsCopy);
+      for (let i = 0; i < n; i++) {
+          limits.targets[i] = Math.pow(limits.targets[i], 3.6);
+          limits.values[i] = Math.pow(limits.values[i], 3.6);
+          limits.ll99[i] = Math.max(0, Math.pow(limits.ll99[i], 3.6));
+          limits.ll95[i] = Math.max(0, Math.pow(limits.ll95[i], 3.6));
+          limits.ll68[i] = Math.max(0, Math.pow(limits.ll68[i], 3.6));
+          limits.ul68[i] = Math.pow(limits.ul68[i], 3.6);
+          limits.ul95[i] = Math.pow(limits.ul95[i], 3.6);
+          limits.ul99[i] = Math.pow(limits.ul99[i], 3.6);
+      }
+      return limits;
   }
 
-  var lt_1;
-  var hasRequiredLt;
-
-  function requireLt () {
-  	if (hasRequiredLt) return lt_1;
-  	hasRequiredLt = 1;
-  	const compare = requireCompare();
-  	const lt = (a, b, loose) => compare(a, b, loose) < 0;
-  	lt_1 = lt;
-  	return lt_1;
+  function uLimits(args) {
+      const n = args.keys.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      let sum_numerators = 0;
+      let sum_denominators = 0;
+      for (let i = 0; i < subset_points.length; i++) {
+          let idx = subset_points[i];
+          sum_numerators += numerators[idx];
+          sum_denominators += denominators[idx];
+      }
+      const cl = sum_numerators / sum_denominators;
+      let rtn = {
+          keys: args.keys,
+          values: new Array(n),
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          rtn.values[i] = numerators[i] / denominators[i];
+          const sigma = Math.sqrt(cl / denominators[i]);
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
+          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
+          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var eq_1;
-  var hasRequiredEq;
-
-  function requireEq () {
-  	if (hasRequiredEq) return eq_1;
-  	hasRequiredEq = 1;
-  	const compare = requireCompare();
-  	const eq = (a, b, loose) => compare(a, b, loose) === 0;
-  	eq_1 = eq;
-  	return eq_1;
+  function uprimeLimits(args) {
+      const n = args.keys.length;
+      const numerators = args.numerators;
+      const denominators = args.denominators;
+      const subset_points = args.subset_points;
+      const n_sub = subset_points.length;
+      let val = new Array(n);
+      for (let i = 0; i < n; i++) {
+          val[i] = numerators[i] / denominators[i];
+      }
+      let sum_numerators = 0;
+      let sum_denominators = 0;
+      for (let i = 0; i < n_sub; i++) {
+          let idx = subset_points[i];
+          sum_numerators += numerators[idx];
+          sum_denominators += denominators[idx];
+      }
+      const cl = sum_numerators / sum_denominators;
+      let sd = new Array(n);
+      for (let i = 0; i < n; i++) {
+          sd[i] = Math.sqrt(cl / denominators[i]);
+      }
+      let zscore = new Array(n_sub);
+      for (let i = 0; i < n_sub; i++) {
+          let idx = subset_points[i];
+          zscore[i] = (val[idx] - cl) / sd[idx];
+      }
+      let consec_diff = new Array(n_sub - 1);
+      let amr = 0;
+      for (let i = 1; i < n_sub; i++) {
+          consec_diff[i - 1] = Math.abs(zscore[i] - zscore[i - 1]);
+          amr += consec_diff[i - 1];
+      }
+      amr /= (n_sub - 1);
+      if (!args.outliers_in_limits) {
+          const consec_diff_ulim = amr * 3.267;
+          let screened_amr = 0;
+          let screened_count = 0;
+          for (let i = 0; i < consec_diff.length; i++) {
+              if (consec_diff[i] < consec_diff_ulim) {
+                  screened_amr += consec_diff[i];
+                  screened_count += 1;
+              }
+          }
+          amr = screened_amr / screened_count;
+      }
+      const sigma_multiplier = amr / 1.128;
+      let rtn = {
+          keys: args.keys,
+          values: val,
+          numerators: args.numerators,
+          denominators: args.denominators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
+      for (let i = 0; i < n; i++) {
+          const sigma = sd[i] * sigma_multiplier;
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
+          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
+          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
+          rtn.ul68[i] = cl + 1 * sigma;
+          rtn.ul95[i] = cl + 2 * sigma;
+          rtn.ul99[i] = cl + 3 * sigma;
+      }
+      return rtn;
   }
 
-  var neq_1;
-  var hasRequiredNeq;
-
-  function requireNeq () {
-  	if (hasRequiredNeq) return neq_1;
-  	hasRequiredNeq = 1;
-  	const compare = requireCompare();
-  	const neq = (a, b, loose) => compare(a, b, loose) !== 0;
-  	neq_1 = neq;
-  	return neq_1;
+  function xbarLimits(args) {
+      const count_per_group = args.denominators;
+      const group_means = args.numerators;
+      const group_sd = args.xbar_sds;
+      const n_sub = args.subset_points.length;
+      const subset_points = args.subset_points;
+      let Nm1_sum = 0;
+      let weighted_sd_sum = 0;
+      let weighted_mean_sum = 0;
+      let total_count = 0;
+      for (let i = 0; i < n_sub; i++) {
+          const curr_count = count_per_group[subset_points[i]];
+          const curr_mean = group_means[subset_points[i]];
+          const curr_sd = group_sd[subset_points[i]];
+          const Nm1 = curr_count - 1;
+          Nm1_sum += Nm1;
+          weighted_sd_sum += Nm1 * Math.pow(curr_sd, 2);
+          weighted_mean_sum += curr_count * curr_mean;
+          total_count += curr_count;
+      }
+      const sd = Math.sqrt(weighted_sd_sum / Nm1_sum);
+      const cl = weighted_mean_sum / total_count;
+      const n = args.keys.length;
+      let rtn = {
+          keys: args.keys,
+          values: group_means,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n),
+          count: count_per_group
+      };
+      for (let i = 0; i < n; i++) {
+          const A3_sd = a3(count_per_group[i]) * sd;
+          const A3_sd_div_3 = (A3_sd / 3);
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = cl - A3_sd;
+          rtn.ll95[i] = cl - A3_sd_div_3 * 2;
+          rtn.ll68[i] = cl - A3_sd_div_3;
+          rtn.ul68[i] = cl + A3_sd_div_3;
+          rtn.ul95[i] = cl + A3_sd_div_3 * 2;
+          rtn.ul99[i] = cl + A3_sd;
+      }
+      return rtn;
   }
 
-  var gte_1;
-  var hasRequiredGte;
+  var limitFunctions = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    c: cLimits,
+    g: gLimits,
+    i: iLimits,
+    i_m: imLimits,
+    i_mm: immLimits,
+    mr: mrLimits,
+    p: pLimits,
+    pp: pprimeLimits,
+    r: runLimits,
+    run: runLimits,
+    s: sLimits,
+    t: tLimits,
+    u: uLimits,
+    up: uprimeLimits,
+    xbar: xbarLimits
+  });
 
-  function requireGte () {
-  	if (hasRequiredGte) return gte_1;
-  	hasRequiredGte = 1;
-  	const compare = requireCompare();
-  	const gte = (a, b, loose) => compare(a, b, loose) >= 0;
-  	gte_1 = gte;
-  	return gte_1;
+  function rep(x, n) {
+      let result = new Array(n);
+      for (let i = 0; i < n; i++) {
+          result[i] = x;
+      }
+      return result;
   }
 
-  var lte_1;
-  var hasRequiredLte;
-
-  function requireLte () {
-  	if (hasRequiredLte) return lte_1;
-  	hasRequiredLte = 1;
-  	const compare = requireCompare();
-  	const lte = (a, b, loose) => compare(a, b, loose) <= 0;
-  	lte_1 = lte;
-  	return lte_1;
+  function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
+      var _a;
+      const propertyValue = (_a = settingObject === null || settingObject === void 0 ? void 0 : settingObject[settingGroup]) === null || _a === void 0 ? void 0 : _a[settingName];
+      if (isNullOrUndefined(propertyValue)) {
+          return defaultValue;
+      }
+      return (propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) ? propertyValue.solid.color
+          : propertyValue;
   }
-
-  var cmp_1;
-  var hasRequiredCmp;
-
-  function requireCmp () {
-  	if (hasRequiredCmp) return cmp_1;
-  	hasRequiredCmp = 1;
-  	const eq = requireEq();
-  	const neq = requireNeq();
-  	const gt = requireGt();
-  	const gte = requireGte();
-  	const lt = requireLt();
-  	const lte = requireLte();
-
-  	const cmp = (a, op, b, loose) => {
-  	  switch (op) {
-  	    case '===':
-  	      if (typeof a === 'object') {
-  	        a = a.version;
-  	      }
-  	      if (typeof b === 'object') {
-  	        b = b.version;
-  	      }
-  	      return a === b
-
-  	    case '!==':
-  	      if (typeof a === 'object') {
-  	        a = a.version;
-  	      }
-  	      if (typeof b === 'object') {
-  	        b = b.version;
-  	      }
-  	      return a !== b
-
-  	    case '':
-  	    case '=':
-  	    case '==':
-  	      return eq(a, b, loose)
-
-  	    case '!=':
-  	      return neq(a, b, loose)
-
-  	    case '>':
-  	      return gt(a, b, loose)
-
-  	    case '>=':
-  	      return gte(a, b, loose)
-
-  	    case '<':
-  	      return lt(a, b, loose)
-
-  	    case '<=':
-  	      return lte(a, b, loose)
-
-  	    default:
-  	      throw new TypeError(`Invalid operator: ${op}`)
-  	  }
-  	};
-  	cmp_1 = cmp;
-  	return cmp_1;
+  function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings, idxs) {
+      var _a, _b, _c;
+      if (isNullOrUndefined(categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories)) {
+          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+      }
+      if (((_c = (_b = (_a = categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.identity) === null || _c === void 0 ? void 0 : _c.length) === 0) {
+          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+      }
+      const inputCategories = categoricalView.categories[0];
+      const settingNames = Object.keys(inputSettings[settingGroupName]);
+      const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
+      const n = idxs.length;
+      let rtn = new Array(n);
+      for (let i = 0; i < n; i++) {
+          const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
+          rtn[i] = Object.fromEntries(settingNames.map(settingName => {
+              var _a, _b, _c, _d, _e, _f, _g;
+              const defaultSetting = defaultSettings[settingGroupName][settingName]["default"];
+              let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
+              extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
+              const valid = (_b = (_a = defaultSettings[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = defaultSettings[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
+              const isNumericRange = !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue);
+              if (valid) {
+                  let message = "";
+                  if (valid instanceof Array && !valid.includes(extractedSetting)) {
+                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
+                  }
+                  else if (isNumericRange && !between(extractedSetting, (_d = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _d === void 0 ? void 0 : _d.value, (_e = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _e === void 0 ? void 0 : _e.value)) {
+                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_f = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _f === void 0 ? void 0 : _f.value} and ${(_g = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _g === void 0 ? void 0 : _g.value}`;
+                  }
+                  if (message !== "") {
+                      extractedSetting = defaultSettings[settingGroupName][settingName]["default"];
+                      validationRtn.messages[i].push(message);
+                  }
+              }
+              return [settingName, extractedSetting];
+          }));
+      }
+      const validationMessages = validationRtn.messages.filter(d => d.length > 0);
+      if (!validationRtn.messages.some(d => d.length === 0)) {
+          validationRtn.status = 1;
+          validationRtn.error = `${validationMessages[0][0]}`;
+      }
+      return { values: rtn, validation: validationRtn };
   }
-
-  var coerce_1;
-  var hasRequiredCoerce;
-
-  function requireCoerce () {
-  	if (hasRequiredCoerce) return coerce_1;
-  	hasRequiredCoerce = 1;
-  	const SemVer = requireSemver$1();
-  	const parse = requireParse();
-  	const { safeRe: re, t } = requireRe();
-
-  	const coerce = (version, options) => {
-  	  if (version instanceof SemVer) {
-  	    return version
-  	  }
-
-  	  if (typeof version === 'number') {
-  	    version = String(version);
-  	  }
-
-  	  if (typeof version !== 'string') {
-  	    return null
-  	  }
-
-  	  options = options || {};
-
-  	  let match = null;
-  	  if (!options.rtl) {
-  	    match = version.match(options.includePrerelease ? re[t.COERCEFULL] : re[t.COERCE]);
-  	  } else {
-  	    // Find the right-most coercible string that does not share
-  	    // a terminus with a more left-ward coercible string.
-  	    // Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
-  	    // With includePrerelease option set, '1.2.3.4-rc' wants to coerce '2.3.4-rc', not '2.3.4'
-  	    //
-  	    // Walk through the string checking with a /g regexp
-  	    // Manually set the index so as to pick up overlapping matches.
-  	    // Stop when we get a match that ends at the string end, since no
-  	    // coercible string can be more right-ward without the same terminus.
-  	    const coerceRtlRegex = options.includePrerelease ? re[t.COERCERTLFULL] : re[t.COERCERTL];
-  	    let next;
-  	    while ((next = coerceRtlRegex.exec(version)) &&
-  	        (!match || match.index + match[0].length !== version.length)
-  	    ) {
-  	      if (!match ||
-  	            next.index + next[0].length !== match.index + match[0].length) {
-  	        match = next;
-  	      }
-  	      coerceRtlRegex.lastIndex = next.index + next[1].length + next[2].length;
-  	    }
-  	    // leave it in a clean state
-  	    coerceRtlRegex.lastIndex = -1;
-  	  }
-
-  	  if (match === null) {
-  	    return null
-  	  }
-
-  	  const major = match[2];
-  	  const minor = match[3] || '0';
-  	  const patch = match[4] || '0';
-  	  const prerelease = options.includePrerelease && match[5] ? `-${match[5]}` : '';
-  	  const build = options.includePrerelease && match[6] ? `+${match[6]}` : '';
-
-  	  return parse(`${major}.${minor}.${patch}${prerelease}${build}`, options)
-  	};
-  	coerce_1 = coerce;
-  	return coerce_1;
-  }
-
-  var lrucache;
-  var hasRequiredLrucache;
-
-  function requireLrucache () {
-  	if (hasRequiredLrucache) return lrucache;
-  	hasRequiredLrucache = 1;
-  	class LRUCache {
-  	  constructor () {
-  	    this.max = 1000;
-  	    this.map = new Map();
-  	  }
-
-  	  get (key) {
-  	    const value = this.map.get(key);
-  	    if (value === undefined) {
-  	      return undefined
-  	    } else {
-  	      // Remove the key from the map and add it to the end
-  	      this.map.delete(key);
-  	      this.map.set(key, value);
-  	      return value
-  	    }
-  	  }
-
-  	  delete (key) {
-  	    return this.map.delete(key)
-  	  }
-
-  	  set (key, value) {
-  	    const deleted = this.delete(key);
-
-  	    if (!deleted && value !== undefined) {
-  	      // If cache is full, delete the least recently used item
-  	      if (this.map.size >= this.max) {
-  	        const firstKey = this.map.keys().next().value;
-  	        this.delete(firstKey);
-  	      }
-
-  	      this.map.set(key, value);
-  	    }
-
-  	    return this
-  	  }
-  	}
-
-  	lrucache = LRUCache;
-  	return lrucache;
-  }
-
-  var range;
-  var hasRequiredRange;
-
-  function requireRange () {
-  	if (hasRequiredRange) return range;
-  	hasRequiredRange = 1;
-  	const SPACE_CHARACTERS = /\s+/g;
-
-  	// hoisted class for cyclic dependency
-  	class Range {
-  	  constructor (range, options) {
-  	    options = parseOptions(options);
-
-  	    if (range instanceof Range) {
-  	      if (
-  	        range.loose === !!options.loose &&
-  	        range.includePrerelease === !!options.includePrerelease
-  	      ) {
-  	        return range
-  	      } else {
-  	        return new Range(range.raw, options)
-  	      }
-  	    }
-
-  	    if (range instanceof Comparator) {
-  	      // just put it in the set and return
-  	      this.raw = range.value;
-  	      this.set = [[range]];
-  	      this.formatted = undefined;
-  	      return this
-  	    }
-
-  	    this.options = options;
-  	    this.loose = !!options.loose;
-  	    this.includePrerelease = !!options.includePrerelease;
-
-  	    // First reduce all whitespace as much as possible so we do not have to rely
-  	    // on potentially slow regexes like \s*. This is then stored and used for
-  	    // future error messages as well.
-  	    this.raw = range.trim().replace(SPACE_CHARACTERS, ' ');
-
-  	    // First, split on ||
-  	    this.set = this.raw
-  	      .split('||')
-  	      // map the range to a 2d array of comparators
-  	      .map(r => this.parseRange(r.trim()))
-  	      // throw out any comparator lists that are empty
-  	      // this generally means that it was not a valid range, which is allowed
-  	      // in loose mode, but will still throw if the WHOLE range is invalid.
-  	      .filter(c => c.length);
-
-  	    if (!this.set.length) {
-  	      throw new TypeError(`Invalid SemVer Range: ${this.raw}`)
-  	    }
-
-  	    // if we have any that are not the null set, throw out null sets.
-  	    if (this.set.length > 1) {
-  	      // keep the first one, in case they're all null sets
-  	      const first = this.set[0];
-  	      this.set = this.set.filter(c => !isNullSet(c[0]));
-  	      if (this.set.length === 0) {
-  	        this.set = [first];
-  	      } else if (this.set.length > 1) {
-  	        // if we have any that are *, then the range is just *
-  	        for (const c of this.set) {
-  	          if (c.length === 1 && isAny(c[0])) {
-  	            this.set = [c];
-  	            break
-  	          }
-  	        }
-  	      }
-  	    }
-
-  	    this.formatted = undefined;
-  	  }
-
-  	  get range () {
-  	    if (this.formatted === undefined) {
-  	      this.formatted = '';
-  	      for (let i = 0; i < this.set.length; i++) {
-  	        if (i > 0) {
-  	          this.formatted += '||';
-  	        }
-  	        const comps = this.set[i];
-  	        for (let k = 0; k < comps.length; k++) {
-  	          if (k > 0) {
-  	            this.formatted += ' ';
-  	          }
-  	          this.formatted += comps[k].toString().trim();
-  	        }
-  	      }
-  	    }
-  	    return this.formatted
-  	  }
-
-  	  format () {
-  	    return this.range
-  	  }
-
-  	  toString () {
-  	    return this.range
-  	  }
-
-  	  parseRange (range) {
-  	    // memoize range parsing for performance.
-  	    // this is a very hot path, and fully deterministic.
-  	    const memoOpts =
-  	      (this.options.includePrerelease && FLAG_INCLUDE_PRERELEASE) |
-  	      (this.options.loose && FLAG_LOOSE);
-  	    const memoKey = memoOpts + ':' + range;
-  	    const cached = cache.get(memoKey);
-  	    if (cached) {
-  	      return cached
-  	    }
-
-  	    const loose = this.options.loose;
-  	    // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
-  	    const hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE];
-  	    range = range.replace(hr, hyphenReplace(this.options.includePrerelease));
-  	    debug('hyphen replace', range);
-
-  	    // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
-  	    range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
-  	    debug('comparator trim', range);
-
-  	    // `~ 1.2.3` => `~1.2.3`
-  	    range = range.replace(re[t.TILDETRIM], tildeTrimReplace);
-  	    debug('tilde trim', range);
-
-  	    // `^ 1.2.3` => `^1.2.3`
-  	    range = range.replace(re[t.CARETTRIM], caretTrimReplace);
-  	    debug('caret trim', range);
-
-  	    // At this point, the range is completely trimmed and
-  	    // ready to be split into comparators.
-
-  	    let rangeList = range
-  	      .split(' ')
-  	      .map(comp => parseComparator(comp, this.options))
-  	      .join(' ')
-  	      .split(/\s+/)
-  	      // >=0.0.0 is equivalent to *
-  	      .map(comp => replaceGTE0(comp, this.options));
-
-  	    if (loose) {
-  	      // in loose mode, throw out any that are not valid comparators
-  	      rangeList = rangeList.filter(comp => {
-  	        debug('loose invalid filter', comp, this.options);
-  	        return !!comp.match(re[t.COMPARATORLOOSE])
-  	      });
-  	    }
-  	    debug('range list', rangeList);
-
-  	    // if any comparators are the null set, then replace with JUST null set
-  	    // if more than one comparator, remove any * comparators
-  	    // also, don't include the same comparator more than once
-  	    const rangeMap = new Map();
-  	    const comparators = rangeList.map(comp => new Comparator(comp, this.options));
-  	    for (const comp of comparators) {
-  	      if (isNullSet(comp)) {
-  	        return [comp]
-  	      }
-  	      rangeMap.set(comp.value, comp);
-  	    }
-  	    if (rangeMap.size > 1 && rangeMap.has('')) {
-  	      rangeMap.delete('');
-  	    }
-
-  	    const result = [...rangeMap.values()];
-  	    cache.set(memoKey, result);
-  	    return result
-  	  }
-
-  	  intersects (range, options) {
-  	    if (!(range instanceof Range)) {
-  	      throw new TypeError('a Range is required')
-  	    }
-
-  	    return this.set.some((thisComparators) => {
-  	      return (
-  	        isSatisfiable(thisComparators, options) &&
-  	        range.set.some((rangeComparators) => {
-  	          return (
-  	            isSatisfiable(rangeComparators, options) &&
-  	            thisComparators.every((thisComparator) => {
-  	              return rangeComparators.every((rangeComparator) => {
-  	                return thisComparator.intersects(rangeComparator, options)
-  	              })
-  	            })
-  	          )
-  	        })
-  	      )
-  	    })
-  	  }
-
-  	  // if ANY of the sets match ALL of its comparators, then pass
-  	  test (version) {
-  	    if (!version) {
-  	      return false
-  	    }
-
-  	    if (typeof version === 'string') {
-  	      try {
-  	        version = new SemVer(version, this.options);
-  	      } catch (er) {
-  	        return false
-  	      }
-  	    }
-
-  	    for (let i = 0; i < this.set.length; i++) {
-  	      if (testSet(this.set[i], version, this.options)) {
-  	        return true
-  	      }
-  	    }
-  	    return false
-  	  }
-  	}
-
-  	range = Range;
-
-  	const LRU = requireLrucache();
-  	const cache = new LRU();
-
-  	const parseOptions = requireParseOptions();
-  	const Comparator = requireComparator();
-  	const debug = requireDebug();
-  	const SemVer = requireSemver$1();
-  	const {
-  	  safeRe: re,
-  	  t,
-  	  comparatorTrimReplace,
-  	  tildeTrimReplace,
-  	  caretTrimReplace,
-  	} = requireRe();
-  	const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = requireConstants();
-
-  	const isNullSet = c => c.value === '<0.0.0-0';
-  	const isAny = c => c.value === '';
-
-  	// take a set of comparators and determine whether there
-  	// exists a version which can satisfy it
-  	const isSatisfiable = (comparators, options) => {
-  	  let result = true;
-  	  const remainingComparators = comparators.slice();
-  	  let testComparator = remainingComparators.pop();
-
-  	  while (result && remainingComparators.length) {
-  	    result = remainingComparators.every((otherComparator) => {
-  	      return testComparator.intersects(otherComparator, options)
-  	    });
-
-  	    testComparator = remainingComparators.pop();
-  	  }
-
-  	  return result
-  	};
-
-  	// comprised of xranges, tildes, stars, and gtlt's at this point.
-  	// already replaced the hyphen ranges
-  	// turn into a set of JUST comparators.
-  	const parseComparator = (comp, options) => {
-  	  debug('comp', comp, options);
-  	  comp = replaceCarets(comp, options);
-  	  debug('caret', comp);
-  	  comp = replaceTildes(comp, options);
-  	  debug('tildes', comp);
-  	  comp = replaceXRanges(comp, options);
-  	  debug('xrange', comp);
-  	  comp = replaceStars(comp, options);
-  	  debug('stars', comp);
-  	  return comp
-  	};
-
-  	const isX = id => !id || id.toLowerCase() === 'x' || id === '*';
-
-  	// ~, ~> --> * (any, kinda silly)
-  	// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0-0
-  	// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0-0
-  	// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0-0
-  	// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0-0
-  	// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0-0
-  	// ~0.0.1 --> >=0.0.1 <0.1.0-0
-  	const replaceTildes = (comp, options) => {
-  	  return comp
-  	    .trim()
-  	    .split(/\s+/)
-  	    .map((c) => replaceTilde(c, options))
-  	    .join(' ')
-  	};
-
-  	const replaceTilde = (comp, options) => {
-  	  const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
-  	  return comp.replace(r, (_, M, m, p, pr) => {
-  	    debug('tilde', comp, _, M, m, p, pr);
-  	    let ret;
-
-  	    if (isX(M)) {
-  	      ret = '';
-  	    } else if (isX(m)) {
-  	      ret = `>=${M}.0.0 <${+M + 1}.0.0-0`;
-  	    } else if (isX(p)) {
-  	      // ~1.2 == >=1.2.0 <1.3.0-0
-  	      ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
-  	    } else if (pr) {
-  	      debug('replaceTilde pr', pr);
-  	      ret = `>=${M}.${m}.${p}-${pr
-	      } <${M}.${+m + 1}.0-0`;
-  	    } else {
-  	      // ~1.2.3 == >=1.2.3 <1.3.0-0
-  	      ret = `>=${M}.${m}.${p
-	      } <${M}.${+m + 1}.0-0`;
-  	    }
-
-  	    debug('tilde return', ret);
-  	    return ret
-  	  })
-  	};
-
-  	// ^ --> * (any, kinda silly)
-  	// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0-0
-  	// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0-0
-  	// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0-0
-  	// ^1.2.3 --> >=1.2.3 <2.0.0-0
-  	// ^1.2.0 --> >=1.2.0 <2.0.0-0
-  	// ^0.0.1 --> >=0.0.1 <0.0.2-0
-  	// ^0.1.0 --> >=0.1.0 <0.2.0-0
-  	const replaceCarets = (comp, options) => {
-  	  return comp
-  	    .trim()
-  	    .split(/\s+/)
-  	    .map((c) => replaceCaret(c, options))
-  	    .join(' ')
-  	};
-
-  	const replaceCaret = (comp, options) => {
-  	  debug('caret', comp, options);
-  	  const r = options.loose ? re[t.CARETLOOSE] : re[t.CARET];
-  	  const z = options.includePrerelease ? '-0' : '';
-  	  return comp.replace(r, (_, M, m, p, pr) => {
-  	    debug('caret', comp, _, M, m, p, pr);
-  	    let ret;
-
-  	    if (isX(M)) {
-  	      ret = '';
-  	    } else if (isX(m)) {
-  	      ret = `>=${M}.0.0${z} <${+M + 1}.0.0-0`;
-  	    } else if (isX(p)) {
-  	      if (M === '0') {
-  	        ret = `>=${M}.${m}.0${z} <${M}.${+m + 1}.0-0`;
-  	      } else {
-  	        ret = `>=${M}.${m}.0${z} <${+M + 1}.0.0-0`;
-  	      }
-  	    } else if (pr) {
-  	      debug('replaceCaret pr', pr);
-  	      if (M === '0') {
-  	        if (m === '0') {
-  	          ret = `>=${M}.${m}.${p}-${pr
-	          } <${M}.${m}.${+p + 1}-0`;
-  	        } else {
-  	          ret = `>=${M}.${m}.${p}-${pr
-	          } <${M}.${+m + 1}.0-0`;
-  	        }
-  	      } else {
-  	        ret = `>=${M}.${m}.${p}-${pr
-	        } <${+M + 1}.0.0-0`;
-  	      }
-  	    } else {
-  	      debug('no pr');
-  	      if (M === '0') {
-  	        if (m === '0') {
-  	          ret = `>=${M}.${m}.${p
-	          }${z} <${M}.${m}.${+p + 1}-0`;
-  	        } else {
-  	          ret = `>=${M}.${m}.${p
-	          }${z} <${M}.${+m + 1}.0-0`;
-  	        }
-  	      } else {
-  	        ret = `>=${M}.${m}.${p
-	        } <${+M + 1}.0.0-0`;
-  	      }
-  	    }
-
-  	    debug('caret return', ret);
-  	    return ret
-  	  })
-  	};
-
-  	const replaceXRanges = (comp, options) => {
-  	  debug('replaceXRanges', comp, options);
-  	  return comp
-  	    .split(/\s+/)
-  	    .map((c) => replaceXRange(c, options))
-  	    .join(' ')
-  	};
-
-  	const replaceXRange = (comp, options) => {
-  	  comp = comp.trim();
-  	  const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
-  	  return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
-  	    debug('xRange', comp, ret, gtlt, M, m, p, pr);
-  	    const xM = isX(M);
-  	    const xm = xM || isX(m);
-  	    const xp = xm || isX(p);
-  	    const anyX = xp;
-
-  	    if (gtlt === '=' && anyX) {
-  	      gtlt = '';
-  	    }
-
-  	    // if we're including prereleases in the match, then we need
-  	    // to fix this to -0, the lowest possible prerelease value
-  	    pr = options.includePrerelease ? '-0' : '';
-
-  	    if (xM) {
-  	      if (gtlt === '>' || gtlt === '<') {
-  	        // nothing is allowed
-  	        ret = '<0.0.0-0';
-  	      } else {
-  	        // nothing is forbidden
-  	        ret = '*';
-  	      }
-  	    } else if (gtlt && anyX) {
-  	      // we know patch is an x, because we have any x at all.
-  	      // replace X with 0
-  	      if (xm) {
-  	        m = 0;
-  	      }
-  	      p = 0;
-
-  	      if (gtlt === '>') {
-  	        // >1 => >=2.0.0
-  	        // >1.2 => >=1.3.0
-  	        gtlt = '>=';
-  	        if (xm) {
-  	          M = +M + 1;
-  	          m = 0;
-  	          p = 0;
-  	        } else {
-  	          m = +m + 1;
-  	          p = 0;
-  	        }
-  	      } else if (gtlt === '<=') {
-  	        // <=0.7.x is actually <0.8.0, since any 0.7.x should
-  	        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
-  	        gtlt = '<';
-  	        if (xm) {
-  	          M = +M + 1;
-  	        } else {
-  	          m = +m + 1;
-  	        }
-  	      }
-
-  	      if (gtlt === '<') {
-  	        pr = '-0';
-  	      }
-
-  	      ret = `${gtlt + M}.${m}.${p}${pr}`;
-  	    } else if (xm) {
-  	      ret = `>=${M}.0.0${pr} <${+M + 1}.0.0-0`;
-  	    } else if (xp) {
-  	      ret = `>=${M}.${m}.0${pr
-	      } <${M}.${+m + 1}.0-0`;
-  	    }
-
-  	    debug('xRange return', ret);
-
-  	    return ret
-  	  })
-  	};
-
-  	// Because * is AND-ed with everything else in the comparator,
-  	// and '' means "any version", just remove the *s entirely.
-  	const replaceStars = (comp, options) => {
-  	  debug('replaceStars', comp, options);
-  	  // Looseness is ignored here.  star is always as loose as it gets!
-  	  return comp
-  	    .trim()
-  	    .replace(re[t.STAR], '')
-  	};
-
-  	const replaceGTE0 = (comp, options) => {
-  	  debug('replaceGTE0', comp, options);
-  	  return comp
-  	    .trim()
-  	    .replace(re[options.includePrerelease ? t.GTE0PRE : t.GTE0], '')
-  	};
-
-  	// This function is passed to string.replace(re[t.HYPHENRANGE])
-  	// M, m, patch, prerelease, build
-  	// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
-  	// 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
-  	// 1.2 - 3.4 => >=1.2.0 <3.5.0-0
-  	// TODO build?
-  	const hyphenReplace = incPr => ($0,
-  	  from, fM, fm, fp, fpr, fb,
-  	  to, tM, tm, tp, tpr) => {
-  	  if (isX(fM)) {
-  	    from = '';
-  	  } else if (isX(fm)) {
-  	    from = `>=${fM}.0.0${incPr ? '-0' : ''}`;
-  	  } else if (isX(fp)) {
-  	    from = `>=${fM}.${fm}.0${incPr ? '-0' : ''}`;
-  	  } else if (fpr) {
-  	    from = `>=${from}`;
-  	  } else {
-  	    from = `>=${from}${incPr ? '-0' : ''}`;
-  	  }
-
-  	  if (isX(tM)) {
-  	    to = '';
-  	  } else if (isX(tm)) {
-  	    to = `<${+tM + 1}.0.0-0`;
-  	  } else if (isX(tp)) {
-  	    to = `<${tM}.${+tm + 1}.0-0`;
-  	  } else if (tpr) {
-  	    to = `<=${tM}.${tm}.${tp}-${tpr}`;
-  	  } else if (incPr) {
-  	    to = `<${tM}.${tm}.${+tp + 1}-0`;
-  	  } else {
-  	    to = `<=${to}`;
-  	  }
-
-  	  return `${from} ${to}`.trim()
-  	};
-
-  	const testSet = (set, version, options) => {
-  	  for (let i = 0; i < set.length; i++) {
-  	    if (!set[i].test(version)) {
-  	      return false
-  	    }
-  	  }
-
-  	  if (version.prerelease.length && !options.includePrerelease) {
-  	    // Find the set of versions that are allowed to have prereleases
-  	    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
-  	    // That should allow `1.2.3-pr.2` to pass.
-  	    // However, `1.2.4-alpha.notready` should NOT be allowed,
-  	    // even though it's within the range set by the comparators.
-  	    for (let i = 0; i < set.length; i++) {
-  	      debug(set[i].semver);
-  	      if (set[i].semver === Comparator.ANY) {
-  	        continue
-  	      }
-
-  	      if (set[i].semver.prerelease.length > 0) {
-  	        const allowed = set[i].semver;
-  	        if (allowed.major === version.major &&
-  	            allowed.minor === version.minor &&
-  	            allowed.patch === version.patch) {
-  	          return true
-  	        }
-  	      }
-  	    }
-
-  	    // Version has a -pre, but it's not one of the ones we like.
-  	    return false
-  	  }
-
-  	  return true
-  	};
-  	return range;
-  }
-
-  var comparator;
-  var hasRequiredComparator;
-
-  function requireComparator () {
-  	if (hasRequiredComparator) return comparator;
-  	hasRequiredComparator = 1;
-  	const ANY = Symbol('SemVer ANY');
-  	// hoisted class for cyclic dependency
-  	class Comparator {
-  	  static get ANY () {
-  	    return ANY
-  	  }
-
-  	  constructor (comp, options) {
-  	    options = parseOptions(options);
-
-  	    if (comp instanceof Comparator) {
-  	      if (comp.loose === !!options.loose) {
-  	        return comp
-  	      } else {
-  	        comp = comp.value;
-  	      }
-  	    }
-
-  	    comp = comp.trim().split(/\s+/).join(' ');
-  	    debug('comparator', comp, options);
-  	    this.options = options;
-  	    this.loose = !!options.loose;
-  	    this.parse(comp);
-
-  	    if (this.semver === ANY) {
-  	      this.value = '';
-  	    } else {
-  	      this.value = this.operator + this.semver.version;
-  	    }
-
-  	    debug('comp', this);
-  	  }
-
-  	  parse (comp) {
-  	    const r = this.options.loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR];
-  	    const m = comp.match(r);
-
-  	    if (!m) {
-  	      throw new TypeError(`Invalid comparator: ${comp}`)
-  	    }
-
-  	    this.operator = m[1] !== undefined ? m[1] : '';
-  	    if (this.operator === '=') {
-  	      this.operator = '';
-  	    }
-
-  	    // if it literally is just '>' or '' then allow anything.
-  	    if (!m[2]) {
-  	      this.semver = ANY;
-  	    } else {
-  	      this.semver = new SemVer(m[2], this.options.loose);
-  	    }
-  	  }
-
-  	  toString () {
-  	    return this.value
-  	  }
-
-  	  test (version) {
-  	    debug('Comparator.test', version, this.options.loose);
-
-  	    if (this.semver === ANY || version === ANY) {
-  	      return true
-  	    }
-
-  	    if (typeof version === 'string') {
-  	      try {
-  	        version = new SemVer(version, this.options);
-  	      } catch (er) {
-  	        return false
-  	      }
-  	    }
-
-  	    return cmp(version, this.operator, this.semver, this.options)
-  	  }
-
-  	  intersects (comp, options) {
-  	    if (!(comp instanceof Comparator)) {
-  	      throw new TypeError('a Comparator is required')
-  	    }
-
-  	    if (this.operator === '') {
-  	      if (this.value === '') {
-  	        return true
-  	      }
-  	      return new Range(comp.value, options).test(this.value)
-  	    } else if (comp.operator === '') {
-  	      if (comp.value === '') {
-  	        return true
-  	      }
-  	      return new Range(this.value, options).test(comp.semver)
-  	    }
-
-  	    options = parseOptions(options);
-
-  	    // Special cases where nothing can possibly be lower
-  	    if (options.includePrerelease &&
-  	      (this.value === '<0.0.0-0' || comp.value === '<0.0.0-0')) {
-  	      return false
-  	    }
-  	    if (!options.includePrerelease &&
-  	      (this.value.startsWith('<0.0.0') || comp.value.startsWith('<0.0.0'))) {
-  	      return false
-  	    }
-
-  	    // Same direction increasing (> or >=)
-  	    if (this.operator.startsWith('>') && comp.operator.startsWith('>')) {
-  	      return true
-  	    }
-  	    // Same direction decreasing (< or <=)
-  	    if (this.operator.startsWith('<') && comp.operator.startsWith('<')) {
-  	      return true
-  	    }
-  	    // same SemVer and both sides are inclusive (<= or >=)
-  	    if (
-  	      (this.semver.version === comp.semver.version) &&
-  	      this.operator.includes('=') && comp.operator.includes('=')) {
-  	      return true
-  	    }
-  	    // opposite directions less than
-  	    if (cmp(this.semver, '<', comp.semver, options) &&
-  	      this.operator.startsWith('>') && comp.operator.startsWith('<')) {
-  	      return true
-  	    }
-  	    // opposite directions greater than
-  	    if (cmp(this.semver, '>', comp.semver, options) &&
-  	      this.operator.startsWith('<') && comp.operator.startsWith('>')) {
-  	      return true
-  	    }
-  	    return false
-  	  }
-  	}
-
-  	comparator = Comparator;
-
-  	const parseOptions = requireParseOptions();
-  	const { safeRe: re, t } = requireRe();
-  	const cmp = requireCmp();
-  	const debug = requireDebug();
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-  	return comparator;
-  }
-
-  var satisfies_1;
-  var hasRequiredSatisfies;
-
-  function requireSatisfies () {
-  	if (hasRequiredSatisfies) return satisfies_1;
-  	hasRequiredSatisfies = 1;
-  	const Range = requireRange();
-  	const satisfies = (version, range, options) => {
-  	  try {
-  	    range = new Range(range, options);
-  	  } catch (er) {
-  	    return false
-  	  }
-  	  return range.test(version)
-  	};
-  	satisfies_1 = satisfies;
-  	return satisfies_1;
-  }
-
-  var toComparators_1;
-  var hasRequiredToComparators;
-
-  function requireToComparators () {
-  	if (hasRequiredToComparators) return toComparators_1;
-  	hasRequiredToComparators = 1;
-  	const Range = requireRange();
-
-  	// Mostly just for testing and legacy API reasons
-  	const toComparators = (range, options) =>
-  	  new Range(range, options).set
-  	    .map(comp => comp.map(c => c.value).join(' ').trim().split(' '));
-
-  	toComparators_1 = toComparators;
-  	return toComparators_1;
-  }
-
-  var maxSatisfying_1;
-  var hasRequiredMaxSatisfying;
-
-  function requireMaxSatisfying () {
-  	if (hasRequiredMaxSatisfying) return maxSatisfying_1;
-  	hasRequiredMaxSatisfying = 1;
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-
-  	const maxSatisfying = (versions, range, options) => {
-  	  let max = null;
-  	  let maxSV = null;
-  	  let rangeObj = null;
-  	  try {
-  	    rangeObj = new Range(range, options);
-  	  } catch (er) {
-  	    return null
-  	  }
-  	  versions.forEach((v) => {
-  	    if (rangeObj.test(v)) {
-  	      // satisfies(v, range, options)
-  	      if (!max || maxSV.compare(v) === -1) {
-  	        // compare(max, v, true)
-  	        max = v;
-  	        maxSV = new SemVer(max, options);
-  	      }
-  	    }
-  	  });
-  	  return max
-  	};
-  	maxSatisfying_1 = maxSatisfying;
-  	return maxSatisfying_1;
-  }
-
-  var minSatisfying_1;
-  var hasRequiredMinSatisfying;
-
-  function requireMinSatisfying () {
-  	if (hasRequiredMinSatisfying) return minSatisfying_1;
-  	hasRequiredMinSatisfying = 1;
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-  	const minSatisfying = (versions, range, options) => {
-  	  let min = null;
-  	  let minSV = null;
-  	  let rangeObj = null;
-  	  try {
-  	    rangeObj = new Range(range, options);
-  	  } catch (er) {
-  	    return null
-  	  }
-  	  versions.forEach((v) => {
-  	    if (rangeObj.test(v)) {
-  	      // satisfies(v, range, options)
-  	      if (!min || minSV.compare(v) === 1) {
-  	        // compare(min, v, true)
-  	        min = v;
-  	        minSV = new SemVer(min, options);
-  	      }
-  	    }
-  	  });
-  	  return min
-  	};
-  	minSatisfying_1 = minSatisfying;
-  	return minSatisfying_1;
-  }
-
-  var minVersion_1;
-  var hasRequiredMinVersion;
-
-  function requireMinVersion () {
-  	if (hasRequiredMinVersion) return minVersion_1;
-  	hasRequiredMinVersion = 1;
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-  	const gt = requireGt();
-
-  	const minVersion = (range, loose) => {
-  	  range = new Range(range, loose);
-
-  	  let minver = new SemVer('0.0.0');
-  	  if (range.test(minver)) {
-  	    return minver
-  	  }
-
-  	  minver = new SemVer('0.0.0-0');
-  	  if (range.test(minver)) {
-  	    return minver
-  	  }
-
-  	  minver = null;
-  	  for (let i = 0; i < range.set.length; ++i) {
-  	    const comparators = range.set[i];
-
-  	    let setMin = null;
-  	    comparators.forEach((comparator) => {
-  	      // Clone to avoid manipulating the comparator's semver object.
-  	      const compver = new SemVer(comparator.semver.version);
-  	      switch (comparator.operator) {
-  	        case '>':
-  	          if (compver.prerelease.length === 0) {
-  	            compver.patch++;
-  	          } else {
-  	            compver.prerelease.push(0);
-  	          }
-  	          compver.raw = compver.format();
-  	          /* fallthrough */
-  	        case '':
-  	        case '>=':
-  	          if (!setMin || gt(compver, setMin)) {
-  	            setMin = compver;
-  	          }
-  	          break
-  	        case '<':
-  	        case '<=':
-  	          /* Ignore maximum versions */
-  	          break
-  	        /* istanbul ignore next */
-  	        default:
-  	          throw new Error(`Unexpected operation: ${comparator.operator}`)
-  	      }
-  	    });
-  	    if (setMin && (!minver || gt(minver, setMin))) {
-  	      minver = setMin;
-  	    }
-  	  }
-
-  	  if (minver && range.test(minver)) {
-  	    return minver
-  	  }
-
-  	  return null
-  	};
-  	minVersion_1 = minVersion;
-  	return minVersion_1;
-  }
-
-  var valid;
-  var hasRequiredValid;
-
-  function requireValid () {
-  	if (hasRequiredValid) return valid;
-  	hasRequiredValid = 1;
-  	const Range = requireRange();
-  	const validRange = (range, options) => {
-  	  try {
-  	    // Return '*' instead of '' so that truthiness works.
-  	    // This will throw if it's invalid anyway
-  	    return new Range(range, options).range || '*'
-  	  } catch (er) {
-  	    return null
-  	  }
-  	};
-  	valid = validRange;
-  	return valid;
-  }
-
-  var outside_1;
-  var hasRequiredOutside;
-
-  function requireOutside () {
-  	if (hasRequiredOutside) return outside_1;
-  	hasRequiredOutside = 1;
-  	const SemVer = requireSemver$1();
-  	const Comparator = requireComparator();
-  	const { ANY } = Comparator;
-  	const Range = requireRange();
-  	const satisfies = requireSatisfies();
-  	const gt = requireGt();
-  	const lt = requireLt();
-  	const lte = requireLte();
-  	const gte = requireGte();
-
-  	const outside = (version, range, hilo, options) => {
-  	  version = new SemVer(version, options);
-  	  range = new Range(range, options);
-
-  	  let gtfn, ltefn, ltfn, comp, ecomp;
-  	  switch (hilo) {
-  	    case '>':
-  	      gtfn = gt;
-  	      ltefn = lte;
-  	      ltfn = lt;
-  	      comp = '>';
-  	      ecomp = '>=';
-  	      break
-  	    case '<':
-  	      gtfn = lt;
-  	      ltefn = gte;
-  	      ltfn = gt;
-  	      comp = '<';
-  	      ecomp = '<=';
-  	      break
-  	    default:
-  	      throw new TypeError('Must provide a hilo val of "<" or ">"')
-  	  }
-
-  	  // If it satisfies the range it is not outside
-  	  if (satisfies(version, range, options)) {
-  	    return false
-  	  }
-
-  	  // From now on, variable terms are as if we're in "gtr" mode.
-  	  // but note that everything is flipped for the "ltr" function.
-
-  	  for (let i = 0; i < range.set.length; ++i) {
-  	    const comparators = range.set[i];
-
-  	    let high = null;
-  	    let low = null;
-
-  	    comparators.forEach((comparator) => {
-  	      if (comparator.semver === ANY) {
-  	        comparator = new Comparator('>=0.0.0');
-  	      }
-  	      high = high || comparator;
-  	      low = low || comparator;
-  	      if (gtfn(comparator.semver, high.semver, options)) {
-  	        high = comparator;
-  	      } else if (ltfn(comparator.semver, low.semver, options)) {
-  	        low = comparator;
-  	      }
-  	    });
-
-  	    // If the edge version comparator has a operator then our version
-  	    // isn't outside it
-  	    if (high.operator === comp || high.operator === ecomp) {
-  	      return false
-  	    }
-
-  	    // If the lowest version comparator has an operator and our version
-  	    // is less than it then it isn't higher than the range
-  	    if ((!low.operator || low.operator === comp) &&
-  	        ltefn(version, low.semver)) {
-  	      return false
-  	    } else if (low.operator === ecomp && ltfn(version, low.semver)) {
-  	      return false
-  	    }
-  	  }
-  	  return true
-  	};
-
-  	outside_1 = outside;
-  	return outside_1;
-  }
-
-  var gtr_1;
-  var hasRequiredGtr;
-
-  function requireGtr () {
-  	if (hasRequiredGtr) return gtr_1;
-  	hasRequiredGtr = 1;
-  	// Determine if version is greater than all the versions possible in the range.
-  	const outside = requireOutside();
-  	const gtr = (version, range, options) => outside(version, range, '>', options);
-  	gtr_1 = gtr;
-  	return gtr_1;
-  }
-
-  var ltr_1;
-  var hasRequiredLtr;
-
-  function requireLtr () {
-  	if (hasRequiredLtr) return ltr_1;
-  	hasRequiredLtr = 1;
-  	const outside = requireOutside();
-  	// Determine if version is less than all the versions possible in the range
-  	const ltr = (version, range, options) => outside(version, range, '<', options);
-  	ltr_1 = ltr;
-  	return ltr_1;
-  }
-
-  var intersects_1;
-  var hasRequiredIntersects;
-
-  function requireIntersects () {
-  	if (hasRequiredIntersects) return intersects_1;
-  	hasRequiredIntersects = 1;
-  	const Range = requireRange();
-  	const intersects = (r1, r2, options) => {
-  	  r1 = new Range(r1, options);
-  	  r2 = new Range(r2, options);
-  	  return r1.intersects(r2, options)
-  	};
-  	intersects_1 = intersects;
-  	return intersects_1;
-  }
-
-  var simplify;
-  var hasRequiredSimplify;
-
-  function requireSimplify () {
-  	if (hasRequiredSimplify) return simplify;
-  	hasRequiredSimplify = 1;
-  	// given a set of versions and a range, create a "simplified" range
-  	// that includes the same versions that the original range does
-  	// If the original range is shorter than the simplified one, return that.
-  	const satisfies = requireSatisfies();
-  	const compare = requireCompare();
-  	simplify = (versions, range, options) => {
-  	  const set = [];
-  	  let first = null;
-  	  let prev = null;
-  	  const v = versions.sort((a, b) => compare(a, b, options));
-  	  for (const version of v) {
-  	    const included = satisfies(version, range, options);
-  	    if (included) {
-  	      prev = version;
-  	      if (!first) {
-  	        first = version;
-  	      }
-  	    } else {
-  	      if (prev) {
-  	        set.push([first, prev]);
-  	      }
-  	      prev = null;
-  	      first = null;
-  	    }
-  	  }
-  	  if (first) {
-  	    set.push([first, null]);
-  	  }
-
-  	  const ranges = [];
-  	  for (const [min, max] of set) {
-  	    if (min === max) {
-  	      ranges.push(min);
-  	    } else if (!max && min === v[0]) {
-  	      ranges.push('*');
-  	    } else if (!max) {
-  	      ranges.push(`>=${min}`);
-  	    } else if (min === v[0]) {
-  	      ranges.push(`<=${max}`);
-  	    } else {
-  	      ranges.push(`${min} - ${max}`);
-  	    }
-  	  }
-  	  const simplified = ranges.join(' || ');
-  	  const original = typeof range.raw === 'string' ? range.raw : String(range);
-  	  return simplified.length < original.length ? simplified : range
-  	};
-  	return simplify;
-  }
-
-  var subset_1;
-  var hasRequiredSubset;
-
-  function requireSubset () {
-  	if (hasRequiredSubset) return subset_1;
-  	hasRequiredSubset = 1;
-  	const Range = requireRange();
-  	const Comparator = requireComparator();
-  	const { ANY } = Comparator;
-  	const satisfies = requireSatisfies();
-  	const compare = requireCompare();
-
-  	// Complex range `r1 || r2 || ...` is a subset of `R1 || R2 || ...` iff:
-  	// - Every simple range `r1, r2, ...` is a null set, OR
-  	// - Every simple range `r1, r2, ...` which is not a null set is a subset of
-  	//   some `R1, R2, ...`
-  	//
-  	// Simple range `c1 c2 ...` is a subset of simple range `C1 C2 ...` iff:
-  	// - If c is only the ANY comparator
-  	//   - If C is only the ANY comparator, return true
-  	//   - Else if in prerelease mode, return false
-  	//   - else replace c with `[>=0.0.0]`
-  	// - If C is only the ANY comparator
-  	//   - if in prerelease mode, return true
-  	//   - else replace C with `[>=0.0.0]`
-  	// - Let EQ be the set of = comparators in c
-  	// - If EQ is more than one, return true (null set)
-  	// - Let GT be the highest > or >= comparator in c
-  	// - Let LT be the lowest < or <= comparator in c
-  	// - If GT and LT, and GT.semver > LT.semver, return true (null set)
-  	// - If any C is a = range, and GT or LT are set, return false
-  	// - If EQ
-  	//   - If GT, and EQ does not satisfy GT, return true (null set)
-  	//   - If LT, and EQ does not satisfy LT, return true (null set)
-  	//   - If EQ satisfies every C, return true
-  	//   - Else return false
-  	// - If GT
-  	//   - If GT.semver is lower than any > or >= comp in C, return false
-  	//   - If GT is >=, and GT.semver does not satisfy every C, return false
-  	//   - If GT.semver has a prerelease, and not in prerelease mode
-  	//     - If no C has a prerelease and the GT.semver tuple, return false
-  	// - If LT
-  	//   - If LT.semver is greater than any < or <= comp in C, return false
-  	//   - If LT is <=, and LT.semver does not satisfy every C, return false
-  	//   - If GT.semver has a prerelease, and not in prerelease mode
-  	//     - If no C has a prerelease and the LT.semver tuple, return false
-  	// - Else return true
-
-  	const subset = (sub, dom, options = {}) => {
-  	  if (sub === dom) {
-  	    return true
-  	  }
-
-  	  sub = new Range(sub, options);
-  	  dom = new Range(dom, options);
-  	  let sawNonNull = false;
-
-  	  OUTER: for (const simpleSub of sub.set) {
-  	    for (const simpleDom of dom.set) {
-  	      const isSub = simpleSubset(simpleSub, simpleDom, options);
-  	      sawNonNull = sawNonNull || isSub !== null;
-  	      if (isSub) {
-  	        continue OUTER
-  	      }
-  	    }
-  	    // the null set is a subset of everything, but null simple ranges in
-  	    // a complex range should be ignored.  so if we saw a non-null range,
-  	    // then we know this isn't a subset, but if EVERY simple range was null,
-  	    // then it is a subset.
-  	    if (sawNonNull) {
-  	      return false
-  	    }
-  	  }
-  	  return true
-  	};
-
-  	const minimumVersionWithPreRelease = [new Comparator('>=0.0.0-0')];
-  	const minimumVersion = [new Comparator('>=0.0.0')];
-
-  	const simpleSubset = (sub, dom, options) => {
-  	  if (sub === dom) {
-  	    return true
-  	  }
-
-  	  if (sub.length === 1 && sub[0].semver === ANY) {
-  	    if (dom.length === 1 && dom[0].semver === ANY) {
-  	      return true
-  	    } else if (options.includePrerelease) {
-  	      sub = minimumVersionWithPreRelease;
-  	    } else {
-  	      sub = minimumVersion;
-  	    }
-  	  }
-
-  	  if (dom.length === 1 && dom[0].semver === ANY) {
-  	    if (options.includePrerelease) {
-  	      return true
-  	    } else {
-  	      dom = minimumVersion;
-  	    }
-  	  }
-
-  	  const eqSet = new Set();
-  	  let gt, lt;
-  	  for (const c of sub) {
-  	    if (c.operator === '>' || c.operator === '>=') {
-  	      gt = higherGT(gt, c, options);
-  	    } else if (c.operator === '<' || c.operator === '<=') {
-  	      lt = lowerLT(lt, c, options);
-  	    } else {
-  	      eqSet.add(c.semver);
-  	    }
-  	  }
-
-  	  if (eqSet.size > 1) {
-  	    return null
-  	  }
-
-  	  let gtltComp;
-  	  if (gt && lt) {
-  	    gtltComp = compare(gt.semver, lt.semver, options);
-  	    if (gtltComp > 0) {
-  	      return null
-  	    } else if (gtltComp === 0 && (gt.operator !== '>=' || lt.operator !== '<=')) {
-  	      return null
-  	    }
-  	  }
-
-  	  // will iterate one or zero times
-  	  for (const eq of eqSet) {
-  	    if (gt && !satisfies(eq, String(gt), options)) {
-  	      return null
-  	    }
-
-  	    if (lt && !satisfies(eq, String(lt), options)) {
-  	      return null
-  	    }
-
-  	    for (const c of dom) {
-  	      if (!satisfies(eq, String(c), options)) {
-  	        return false
-  	      }
-  	    }
-
-  	    return true
-  	  }
-
-  	  let higher, lower;
-  	  let hasDomLT, hasDomGT;
-  	  // if the subset has a prerelease, we need a comparator in the superset
-  	  // with the same tuple and a prerelease, or it's not a subset
-  	  let needDomLTPre = lt &&
-  	    !options.includePrerelease &&
-  	    lt.semver.prerelease.length ? lt.semver : false;
-  	  let needDomGTPre = gt &&
-  	    !options.includePrerelease &&
-  	    gt.semver.prerelease.length ? gt.semver : false;
-  	  // exception: <1.2.3-0 is the same as <1.2.3
-  	  if (needDomLTPre && needDomLTPre.prerelease.length === 1 &&
-  	      lt.operator === '<' && needDomLTPre.prerelease[0] === 0) {
-  	    needDomLTPre = false;
-  	  }
-
-  	  for (const c of dom) {
-  	    hasDomGT = hasDomGT || c.operator === '>' || c.operator === '>=';
-  	    hasDomLT = hasDomLT || c.operator === '<' || c.operator === '<=';
-  	    if (gt) {
-  	      if (needDomGTPre) {
-  	        if (c.semver.prerelease && c.semver.prerelease.length &&
-  	            c.semver.major === needDomGTPre.major &&
-  	            c.semver.minor === needDomGTPre.minor &&
-  	            c.semver.patch === needDomGTPre.patch) {
-  	          needDomGTPre = false;
-  	        }
-  	      }
-  	      if (c.operator === '>' || c.operator === '>=') {
-  	        higher = higherGT(gt, c, options);
-  	        if (higher === c && higher !== gt) {
-  	          return false
-  	        }
-  	      } else if (gt.operator === '>=' && !satisfies(gt.semver, String(c), options)) {
-  	        return false
-  	      }
-  	    }
-  	    if (lt) {
-  	      if (needDomLTPre) {
-  	        if (c.semver.prerelease && c.semver.prerelease.length &&
-  	            c.semver.major === needDomLTPre.major &&
-  	            c.semver.minor === needDomLTPre.minor &&
-  	            c.semver.patch === needDomLTPre.patch) {
-  	          needDomLTPre = false;
-  	        }
-  	      }
-  	      if (c.operator === '<' || c.operator === '<=') {
-  	        lower = lowerLT(lt, c, options);
-  	        if (lower === c && lower !== lt) {
-  	          return false
-  	        }
-  	      } else if (lt.operator === '<=' && !satisfies(lt.semver, String(c), options)) {
-  	        return false
-  	      }
-  	    }
-  	    if (!c.operator && (lt || gt) && gtltComp !== 0) {
-  	      return false
-  	    }
-  	  }
-
-  	  // if there was a < or >, and nothing in the dom, then must be false
-  	  // UNLESS it was limited by another range in the other direction.
-  	  // Eg, >1.0.0 <1.0.1 is still a subset of <2.0.0
-  	  if (gt && hasDomLT && !lt && gtltComp !== 0) {
-  	    return false
-  	  }
-
-  	  if (lt && hasDomGT && !gt && gtltComp !== 0) {
-  	    return false
-  	  }
-
-  	  // we needed a prerelease range in a specific tuple, but didn't get one
-  	  // then this isn't a subset.  eg >=1.2.3-pre is not a subset of >=1.0.0,
-  	  // because it includes prereleases in the 1.2.3 tuple
-  	  if (needDomGTPre || needDomLTPre) {
-  	    return false
-  	  }
-
-  	  return true
-  	};
-
-  	// >=1.2.3 is lower than >1.2.3
-  	const higherGT = (a, b, options) => {
-  	  if (!a) {
-  	    return b
-  	  }
-  	  const comp = compare(a.semver, b.semver, options);
-  	  return comp > 0 ? a
-  	    : comp < 0 ? b
-  	    : b.operator === '>' && a.operator === '>=' ? b
-  	    : a
-  	};
-
-  	// <=1.2.3 is higher than <1.2.3
-  	const lowerLT = (a, b, options) => {
-  	  if (!a) {
-  	    return b
-  	  }
-  	  const comp = compare(a.semver, b.semver, options);
-  	  return comp < 0 ? a
-  	    : comp > 0 ? b
-  	    : b.operator === '<' && a.operator === '<=' ? b
-  	    : a
-  	};
-
-  	subset_1 = subset;
-  	return subset_1;
-  }
-
-  var semver;
-  var hasRequiredSemver;
-
-  function requireSemver () {
-  	if (hasRequiredSemver) return semver;
-  	hasRequiredSemver = 1;
-  	// just pre-load all the stuff that index.js lazily exports
-  	const internalRe = requireRe();
-  	const constants = requireConstants();
-  	const SemVer = requireSemver$1();
-  	const identifiers = requireIdentifiers();
-  	const parse = requireParse();
-  	const valid = requireValid$1();
-  	const clean = requireClean();
-  	const inc = requireInc();
-  	const diff = requireDiff();
-  	const major = requireMajor();
-  	const minor = requireMinor();
-  	const patch = requirePatch();
-  	const prerelease = requirePrerelease();
-  	const compare = requireCompare();
-  	const rcompare = requireRcompare();
-  	const compareLoose = requireCompareLoose();
-  	const compareBuild = requireCompareBuild();
-  	const sort = requireSort();
-  	const rsort = requireRsort();
-  	const gt = requireGt();
-  	const lt = requireLt();
-  	const eq = requireEq();
-  	const neq = requireNeq();
-  	const gte = requireGte();
-  	const lte = requireLte();
-  	const cmp = requireCmp();
-  	const coerce = requireCoerce();
-  	const Comparator = requireComparator();
-  	const Range = requireRange();
-  	const satisfies = requireSatisfies();
-  	const toComparators = requireToComparators();
-  	const maxSatisfying = requireMaxSatisfying();
-  	const minSatisfying = requireMinSatisfying();
-  	const minVersion = requireMinVersion();
-  	const validRange = requireValid();
-  	const outside = requireOutside();
-  	const gtr = requireGtr();
-  	const ltr = requireLtr();
-  	const intersects = requireIntersects();
-  	const simplifyRange = requireSimplify();
-  	const subset = requireSubset();
-  	semver = {
-  	  parse,
-  	  valid,
-  	  clean,
-  	  inc,
-  	  diff,
-  	  major,
-  	  minor,
-  	  patch,
-  	  prerelease,
-  	  compare,
-  	  rcompare,
-  	  compareLoose,
-  	  compareBuild,
-  	  sort,
-  	  rsort,
-  	  gt,
-  	  lt,
-  	  eq,
-  	  neq,
-  	  gte,
-  	  lte,
-  	  cmp,
-  	  coerce,
-  	  Comparator,
-  	  Range,
-  	  satisfies,
-  	  toComparators,
-  	  maxSatisfying,
-  	  minSatisfying,
-  	  minVersion,
-  	  validRange,
-  	  outside,
-  	  gtr,
-  	  ltr,
-  	  intersects,
-  	  simplifyRange,
-  	  subset,
-  	  SemVer,
-  	  re: internalRe.re,
-  	  src: internalRe.src,
-  	  tokens: internalRe.t,
-  	  SEMVER_SPEC_VERSION: constants.SEMVER_SPEC_VERSION,
-  	  RELEASE_TYPES: constants.RELEASE_TYPES,
-  	  compareIdentifiers: identifiers.compareIdentifiers,
-  	  rcompareIdentifiers: identifiers.rcompareIdentifiers,
-  	};
-  	return semver;
-  }
-
-  var version = "5.1.0";
-  var require$$1 = {
-  	version: version};
-
-  var type$3 = "object";
-  var properties$3 = {
-  	privileges: {
-  		type: "array",
-  		description: "Defines required privileges for the visual",
-  		items: {
-  			$ref: "#/definitions/privilege"
-  		}
-  	},
-  	dataRoles: {
-  		type: "array",
-  		description: "Defines data roles for the visual",
-  		items: {
-  			$ref: "#/definitions/dataRole"
-  		}
-  	},
-  	dataViewMappings: {
-  		type: "array",
-  		description: "Defines data mappings for the visual",
-  		items: {
-  			$ref: "#/definitions/dataViewMapping"
-  		}
-  	},
-  	objects: {
-  		$ref: "#/definitions/objects"
-  	},
-  	tooltips: {
-  		$ref: "#/definitions/tooltips"
-  	},
-  	sorting: {
-  		$ref: "#/definitions/sorting"
-  	},
-  	drilldown: {
-  		$ref: "#/definitions/drilldown"
-  	},
-  	expandCollapse: {
-  		$ref: "#/definitions/expandCollapse"
-  	},
-  	suppressDefaultTitle: {
-  		type: "boolean",
-  		description: "Indicates whether the visual should show a default title"
-  	},
-  	supportsKeyboardFocus: {
-  		type: "boolean",
-  		description: "Allows the visual to receive focus through keyboard navigation"
-  	},
-  	supportsHighlight: {
-  		type: "boolean",
-  		description: "Tells the host to include highlight data"
-  	},
-  	supportsSynchronizingFilterState: {
-  		type: "boolean",
-  		description: "Indicates whether the visual supports synchronization across report pages (for slicer visuals only)"
-  	},
-  	advancedEditModeSupport: {
-  		type: "number",
-  		description: "Indicates the action requested from the host when this visual enters Advanced Edit mode."
-  	},
-  	supportsLandingPage: {
-  		type: "boolean",
-  		description: "Indicates whether the visual supports a landing page"
-  	},
-  	supportsEmptyDataView: {
-  		type: "boolean",
-  		description: "Indicates whether the visual can receive formatting pane properties when it has no dataroles"
-  	},
-  	supportsMultiVisualSelection: {
-  		type: "boolean",
-  		description: "Indicates whether the visual supports multi selection"
-  	},
-  	subtotals: {
-  		description: "Specifies the subtotal customizations applied in the customizeQuery method",
-  		$ref: "#/definitions/subtotals"
-  	},
-  	migration: {
-  		$ref: "#/definitions/migration"
-  	},
-  	keepAllMetadataColumns: {
-  		type: "boolean",
-  		description: "Indicates that visual is going to receive all metadata columns, no matter what the active projections are"
-  	}
-  };
-  var required$1 = [
-  	"privileges"
-  ];
-  var additionalProperties = false;
-  var definitions$2 = {
-  	privilege: {
-  		type: "object",
-  		description: "privilege - Defines the name, essentiality, and optional parameters for a privilege",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "The internal name of the privilege",
-  				"enum": [
-  					"WebAccess",
-  					"LocalStorage",
-  					"ExportContent"
-  				]
-  			},
-  			essential: {
-  				type: "boolean",
-  				description: "Determines if the privilege is essential for the visual. Default value is false"
-  			},
-  			parameters: {
-  				type: "array",
-  				description: "Determines a list of privilege parameters if any",
-  				items: {
-  					type: "string",
-  					description: "The privilege parameter"
-  				}
-  			}
-  		},
-  		required: [
-  			"name"
-  		]
-  	},
-  	dataRole: {
-  		type: "object",
-  		description: "dataRole - Defines the name, displayName, and kind of a data role",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "The internal name for this data role used for all references to this role"
-  			},
-  			displayName: {
-  				type: "string",
-  				description: "The name of this data role that is shown to the user"
-  			},
-  			displayNameKey: {
-  				type: "string",
-  				description: "The localization key for the displayed name in the stringResourced file"
-  			},
-  			kind: {
-  				description: "The kind of data that can be bound do this role",
-  				$ref: "#/definitions/dataRole.kind"
-  			},
-  			description: {
-  				type: "string",
-  				description: "A description of this role shown to the user as a tooltip"
-  			},
-  			descriptionKey: {
-  				type: "string",
-  				description: "The localization key for the description in the stringResourced file"
-  			},
-  			preferredTypes: {
-  				type: "array",
-  				description: "Defines the preferred type of data for this data role",
-  				items: {
-  					$ref: "#/definitions/valueType"
-  				}
-  			},
-  			requiredTypes: {
-  				type: "array",
-  				description: "Defines the required type of data for this data role. Any values that do not match will be set to null",
-  				items: {
-  					$ref: "#/definitions/valueType"
-  				}
-  			}
-  		},
-  		required: [
-  			"name",
-  			"displayName",
-  			"kind"
-  		],
-  		additionalProperties: false
-  	},
-  	dataViewMapping: {
-  		type: "object",
-  		description: "dataMapping - Defines how data is mapped to data roles",
-  		properties: {
-  			conditions: {
-  				type: "array",
-  				description: "List of conditions that must be met for this data mapping",
-  				items: {
-  					type: "object",
-  					description: "condition - Defines conditions for a data mapping (each key needs to be a valid data role)",
-  					patternProperties: {
-  						"^[\\w\\s-]+$": {
-  							description: "Specifies the number of values that can be assigned to this data role in this mapping",
-  							$ref: "#/definitions/dataViewMapping.numberRangeWithKind"
-  						}
-  					},
-  					additionalProperties: false
-  				}
-  			},
-  			single: {
-  				$ref: "#/definitions/dataViewMapping.single"
-  			},
-  			categorical: {
-  				$ref: "#/definitions/dataViewMapping.categorical"
-  			},
-  			table: {
-  				$ref: "#/definitions/dataViewMapping.table"
-  			},
-  			matrix: {
-  				$ref: "#/definitions/dataViewMapping.matrix"
-  			},
-  			scriptResult: {
-  				$ref: "#/definitions/dataViewMapping.scriptResult"
-  			}
-  		},
-  		anyOf: [
-  			{
-  				required: [
-  					"single"
-  				]
-  			},
-  			{
-  				required: [
-  					"categorical"
-  				]
-  			},
-  			{
-  				required: [
-  					"table"
-  				]
-  			},
-  			{
-  				required: [
-  					"matrix"
-  				]
-  			},
-  			{
-  				required: [
-  					"scriptResult"
-  				]
-  			}
-  		],
-  		additionalProperties: false
-  	},
-  	"dataViewMapping.single": {
-  		type: "object",
-  		description: "single - Defines a single data mapping",
-  		properties: {
-  			role: {
-  				type: "string",
-  				description: "The data role to bind to this mapping"
-  			}
-  		},
-  		required: [
-  			"role"
-  		],
-  		additionalProperties: false
-  	},
-  	"dataViewMapping.categorical": {
-  		type: "object",
-  		description: "categorical - Defines a categorical data mapping",
-  		properties: {
-  			categories: {
-  				type: "object",
-  				description: "Defines data roles to be used as categories",
-  				properties: {
-  					bind: {
-  						$ref: "#/definitions/dataViewMapping.bindTo"
-  					},
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"bind"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			values: {
-  				type: "object",
-  				description: "Defines data roles to be used as values",
-  				properties: {
-  					bind: {
-  						$ref: "#/definitions/dataViewMapping.bindTo"
-  					},
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					group: {
-  						type: "object",
-  						description: "Groups on a a specific data role",
-  						properties: {
-  							by: {
-  								description: "Specifies a data role to use for grouping",
-  								type: "string"
-  							},
-  							select: {
-  								$ref: "#/definitions/dataViewMapping.select"
-  							},
-  							dataReductionAlgorithm: {
-  								$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  							}
-  						},
-  						required: [
-  							"by",
-  							"select"
-  						]
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"bind"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					},
-  					{
-  						required: [
-  							"group"
-  						]
-  					}
-  				]
-  			},
-  			dataVolume: {
-  				$ref: "#/definitions/dataViewMapping.dataVolume"
-  			}
-  		},
-  		additionalProperties: false
-  	},
-  	"dataViewMapping.table": {
-  		type: "object",
-  		description: "table - Defines a table data mapping",
-  		properties: {
-  			rows: {
-  				type: "object",
-  				description: "Rows to use for the table",
-  				properties: {
-  					bind: {
-  						$ref: "#/definitions/dataViewMapping.bindTo"
-  					},
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"bind"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			rowCount: {
-  				type: "object",
-  				description: "Specifies a constraint on the number of data rows supported by the visual",
-  				properties: {
-  					preferred: {
-  						description: "Specifies a preferred range of values for the constraint",
-  						$ref: "#/definitions/dataViewMapping.numberRange"
-  					},
-  					supported: {
-  						description: "Specifies a supported range of values for the constraint. Defaults to preferred if not specified.",
-  						$ref: "#/definitions/dataViewMapping.numberRange"
-  					}
-  				}
-  			},
-  			dataVolume: {
-  				$ref: "#/definitions/dataViewMapping.dataVolume"
-  			}
-  		},
-  		requires: [
-  			"rows"
-  		]
-  	},
-  	"dataViewMapping.matrix": {
-  		type: "object",
-  		description: "matrix - Defines a matrix data mapping",
-  		properties: {
-  			rows: {
-  				type: "object",
-  				description: "Defines the rows used for the matrix",
-  				properties: {
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			columns: {
-  				type: "object",
-  				description: "Defines the columns used for the matrix",
-  				properties: {
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				required: [
-  					"for"
-  				]
-  			},
-  			values: {
-  				type: "object",
-  				description: "Defines the values used for the matrix",
-  				properties: {
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			dataVolume: {
-  				$ref: "#/definitions/dataViewMapping.dataVolume"
-  			}
-  		}
-  	},
-  	"dataViewMapping.scriptResult": {
-  		type: "object",
-  		description: "scriptResult - Defines a scriptResult data mapping",
-  		properties: {
-  			dataInput: {
-  				type: "object",
-  				description: "dataInput - Defines how data is mapped to data roles",
-  				properties: {
-  					table: {
-  						$ref: "#/definitions/dataViewMapping.table"
-  					}
-  				}
-  			},
-  			script: {
-  				type: "object",
-  				description: "script - Defines where the script text and provider are stored",
-  				properties: {
-  					scriptSourceDefault: {
-  						type: "string",
-  						description: "scriptSourceDefault - Defines the default script source value to be used when no script object is defined"
-  					},
-  					scriptProviderDefault: {
-  						type: "string",
-  						description: "scriptProviderDefault - Defines the default script provider value to be used when no provider object is defined"
-  					},
-  					scriptOutputType: {
-  						type: "string",
-  						description: "scriptOutputType - Defines the output type that the R script will generate"
-  					},
-  					source: {
-  						$ref: "#/definitions/dataViewObjectPropertyIdentifier"
-  					},
-  					provider: {
-  						$ref: "#/definitions/dataViewObjectPropertyIdentifier"
-  					}
-  				}
-  			}
-  		}
-  	},
-  	dataViewObjectPropertyIdentifier: {
-  		type: "object",
-  		description: "Points to an object property",
-  		properties: {
-  			objectName: {
-  				type: "string",
-  				description: "The name of a object"
-  			},
-  			propertyName: {
-  				type: "string",
-  				description: "The name of a property inside the object"
-  			}
-  		}
-  	},
-  	"dataViewMapping.bindTo": {
-  		type: "object",
-  		description: "Binds this data mapping to a single value",
-  		properties: {
-  			to: {
-  				type: "string",
-  				description: "The name of a data role to bind to"
-  			}
-  		},
-  		additionalProperties: false,
-  		required: [
-  			"to"
-  		]
-  	},
-  	"dataViewMapping.numberRange": {
-  		type: "object",
-  		description: "A number range from min to max",
-  		properties: {
-  			min: {
-  				type: "number",
-  				description: "Minimum value supported"
-  			},
-  			max: {
-  				type: "number",
-  				description: "Maximum value supported"
-  			}
-  		}
-  	},
-  	"dataViewMapping.numberRangeWithKind": {
-  		allOf: [
-  			{
-  				$ref: "#/definitions/dataViewMapping.numberRange"
-  			},
-  			{
-  				properties: {
-  					kind: {
-  						$ref: "#/definitions/dataRole.kind"
-  					}
-  				}
-  			}
-  		]
-  	},
-  	"dataRole.kind": {
-  		type: "string",
-  		"enum": [
-  			"Grouping",
-  			"Measure",
-  			"GroupingOrMeasure"
-  		]
-  	},
-  	"dataViewMapping.select": {
-  		type: "array",
-  		description: "Defines a list of properties to bind",
-  		items: {
-  			type: "object",
-  			properties: {
-  				bind: {
-  					$ref: "#/definitions/dataViewMapping.bindTo"
-  				},
-  				"for": {
-  					$ref: "#/definitions/dataViewMapping.forIn"
-  				}
-  			},
-  			oneOf: [
-  				{
-  					required: [
-  						"for"
-  					]
-  				},
-  				{
-  					required: [
-  						"bind"
-  					]
-  				}
-  			]
-  		}
-  	},
-  	"dataViewMapping.dataReductionAlgorithm": {
-  		type: "object",
-  		description: "Describes how to reduce the amount of data exposed to the visual",
-  		properties: {
-  			top: {
-  				type: "object",
-  				description: "Reduce the data to the Top count items",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			},
-  			bottom: {
-  				type: "object",
-  				description: "Reduce the data to the Bottom count items",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			},
-  			sample: {
-  				type: "object",
-  				description: "Reduce the data using a simple Sample of count items",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			},
-  			window: {
-  				type: "object",
-  				description: "Allow the data to be loaded one window, containing count items, at a time",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			}
-  		},
-  		additionalProperties: false,
-  		oneOf: [
-  			{
-  				required: [
-  					"top"
-  				]
-  			},
-  			{
-  				required: [
-  					"bottom"
-  				]
-  			},
-  			{
-  				required: [
-  					"sample"
-  				]
-  			},
-  			{
-  				required: [
-  					"window"
-  				]
-  			}
-  		]
-  	},
-  	"dataViewMapping.dataVolume": {
-  		description: "Specifies the volume of data the query should return (1-6)",
-  		type: "number",
-  		"enum": [
-  			1,
-  			2,
-  			3,
-  			4,
-  			5,
-  			6
-  		]
-  	},
-  	"dataViewMapping.forIn": {
-  		type: "object",
-  		description: "Binds this data mapping for all items in a collection",
-  		properties: {
-  			"in": {
-  				type: "string",
-  				description: "The name of a data role to iterate over"
-  			}
-  		},
-  		additionalProperties: false,
-  		required: [
-  			"in"
-  		]
-  	},
-  	objects: {
-  		type: "object",
-  		description: "A list of unique property groups",
-  		patternProperties: {
-  			"^[\\w\\s-]+$": {
-  				type: "object",
-  				description: "Settings for a group of properties",
-  				properties: {
-  					displayName: {
-  						type: "string",
-  						description: "The name shown to the user to describe this group of properties"
-  					},
-  					displayNameKey: {
-  						type: "string",
-  						description: "The localization key for the displayed name in the stringResourced file"
-  					},
-  					objectCategory: {
-  						type: "number",
-  						description: "What aspect of the visual this object controlls (1 = Formatting, 2 = Analytics). Formatting: look & feel, colors, axes, labels etc. Analytics: forcasts, trendlines, reference lines and shapes etc."
-  					},
-  					description: {
-  						type: "string",
-  						description: "A description of this object shown to the user as a tooltip"
-  					},
-  					descriptionKey: {
-  						type: "string",
-  						description: "The localization key for the description in the stringResourced file"
-  					},
-  					properties: {
-  						type: "object",
-  						description: "A list of unique properties contained in this group",
-  						patternProperties: {
-  							"^[\\w\\s-]+$": {
-  								$ref: "#/definitions/object.propertySettings"
-  							}
-  						},
-  						additionalProperties: false
-  					}
-  				},
-  				additionalProperties: false
-  			}
-  		},
-  		additionalProperties: false
-  	},
-  	tooltips: {
-  		type: "object",
-  		description: "Instructs the host to include tooltips ability",
-  		properties: {
-  			supportedTypes: {
-  				type: "object",
-  				description: "Instructs the host what tooltip types to support",
-  				properties: {
-  					"default": {
-  						type: "boolean",
-  						description: "Instructs the host to support showing default tooltips"
-  					},
-  					canvas: {
-  						type: "boolean",
-  						description: "Instructs the host to support showing canvas tooltips"
-  					}
-  				}
-  			},
-  			roles: {
-  				type: "array",
-  				items: {
-  					type: "string",
-  					description: "The name of the data role to bind the tooltips selected info to"
-  				}
-  			},
-  			supportEnhancedTooltips: {
-  				type: "boolean",
-  				description: "Indicates whether the visual support modern tooltip feature"
-  			}
-  		}
-  	},
-  	"object.propertySettings": {
-  		type: "object",
-  		description: "Settings for a property",
-  		properties: {
-  			displayName: {
-  				type: "string",
-  				description: "The name shown to the user to describe this property"
-  			},
-  			displayNameKey: {
-  				type: "string",
-  				description: "The localization key for the displayed name in the stringResourced file"
-  			},
-  			description: {
-  				type: "string",
-  				description: "A description of this property shown to the user as a tooltip"
-  			},
-  			descriptionKey: {
-  				type: "string",
-  				description: "The localization key for the description in the stringResourced file"
-  			},
-  			placeHolderText: {
-  				type: "string",
-  				description: "Text to display if the field is empty"
-  			},
-  			placeHolderTextKey: {
-  				type: "string",
-  				description: "The localization key for the placeHolderText in the stringResources file"
-  			},
-  			suppressFormatPainterCopy: {
-  				type: "boolean",
-  				description: "Indicates whether the Format Painter should ignore this property"
-  			},
-  			type: {
-  				description: "Describes what type of property this is and how it should be displayed to the user",
-  				$ref: "#/definitions/valueType"
-  			},
-  			rule: {
-  				type: "object",
-  				description: "Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",
-  				$ref: "#/definitions/substitutionRule"
-  			},
-  			filterState: {
-  				type: "boolean",
-  				description: "Indicates whether the property is a part of filtration information"
-  			}
-  		},
-  		additionalProperties: false
-  	},
-  	substitutionRule: {
-  		type: "object",
-  		description: "Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",
-  		properties: {
-  			inputRole: {
-  				type: "string",
-  				description: "The name of role. If this role is set, the substitution will be applied"
-  			},
-  			output: {
-  				type: "object",
-  				description: "Describes what exactly is necessary to replace",
-  				properties: {
-  					property: {
-  						type: "string",
-  						description: "The name of property object that will be replaced"
-  					},
-  					selector: {
-  						type: "array",
-  						description: "The array of selector names. Usually, it contains only one selector -- 'Category'",
-  						items: {
-  							type: "string",
-  							description: "The name of selector"
-  						}
-  					}
-  				}
-  			}
-  		}
-  	},
-  	sorting: {
-  		type: "object",
-  		description: "Specifies the default sorting behavior for the visual",
-  		properties: {
-  			"default": {
-  				type: "object",
-  				additionalProperties: false
-  			},
-  			custom: {
-  				type: "object",
-  				additionalProperties: false
-  			},
-  			implicit: {
-  				type: "object",
-  				description: "implicit sort",
-  				properties: {
-  					clauses: {
-  						type: "array",
-  						items: {
-  							type: "object",
-  							properties: {
-  								role: {
-  									type: "string"
-  								},
-  								direction: {
-  									type: "number",
-  									description: "Determines sort direction (1 = Ascending, 2 = Descending)",
-  									"enum": [
-  										1,
-  										2
-  									]
-  								}
-  							},
-  							additionalProperties: false
-  						}
-  					}
-  				},
-  				additionalProperties: false
-  			}
-  		},
-  		additionalProperties: false,
-  		anyOf: [
-  			{
-  				required: [
-  					"default"
-  				]
-  			},
-  			{
-  				required: [
-  					"custom"
-  				]
-  			},
-  			{
-  				required: [
-  					"implicit"
-  				]
-  			}
-  		]
-  	},
-  	drilldown: {
-  		type: "object",
-  		description: "Defines the visual's drill capability",
-  		properties: {
-  			roles: {
-  				type: "array",
-  				description: "The drillable role names for this visual",
-  				items: {
-  					type: "string",
-  					description: "The name of the role"
-  				}
-  			}
-  		}
-  	},
-  	expandCollapse: {
-  		type: "object",
-  		description: "Defines the visual's expandCollapse capability",
-  		properties: {
-  			roles: {
-  				type: "array",
-  				description: "The expandCollapsed role names for this visual",
-  				items: {
-  					type: "string",
-  					description: "The name of the role"
-  				}
-  			},
-  			addDataViewFlags: {
-  				type: "object",
-  				description: "The data view flags",
-  				defaultValue: {
-  					type: "boolean",
-  					description: "Indicates if the DataViewTreeNode will contain the isCollapsed flag by default"
-  				}
-  			},
-  			supportsMerge: {
-  				type: "boolean",
-  				description: "Indicates that the expansion state should be updated when query projections change, instead of being reset."
-  			},
-  			restoreProjectionsOrderFromBookmark: {
-  				type: "boolean",
-  				description: "Indicates that the bookmarked expansion state should be restored even if the query projections order no longer matches the expansion state levels."
-  			}
-  		}
-  	},
-  	valueType: {
-  		type: "object",
-  		properties: {
-  			bool: {
-  				type: "boolean",
-  				description: "A boolean value that will be displayed to the user as a toggle switch"
-  			},
-  			enumeration: {
-  				type: "array",
-  				description: "A list of values that will be displayed as a drop down list",
-  				items: {
-  					type: "object",
-  					description: "Describes an item in the enumeration list",
-  					properties: {
-  						displayName: {
-  							type: "string",
-  							description: "The name shown to the user to describe this item"
-  						},
-  						displayNameKey: {
-  							type: "string",
-  							description: "The localization key for the displayed name in the stringResourced file"
-  						},
-  						value: {
-  							type: "string",
-  							description: "The internal value of this property when this item is selected"
-  						}
-  					}
-  				}
-  			},
-  			fill: {
-  				type: "object",
-  				description: "A color value that will be displayed to the user as a color picker",
-  				properties: {
-  					solid: {
-  						type: "object",
-  						description: "A solid color value that will be displayed to the user as a color picker",
-  						properties: {
-  							color: {
-  								oneOf: [
-  									{
-  										type: "boolean"
-  									},
-  									{
-  										type: "object",
-  										properties: {
-  											nullable: {
-  												description: "Allows the user to select 'no fill' for the color",
-  												type: "boolean"
-  											}
-  										}
-  									}
-  								]
-  							}
-  						}
-  					}
-  				}
-  			},
-  			fillRule: {
-  				type: "object",
-  				description: "A color gradient that will be dispalyed to the user as a minimum (,medium) and maximum color pickers",
-  				properties: {
-  					linearGradient2: {
-  						type: "object",
-  						description: "Two color gradient",
-  						properties: {
-  							max: {
-  								type: "object",
-  								description: "Maximum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							min: {
-  								type: "object",
-  								description: "Minimum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							nullColoringStrategy: {
-  								type: "object",
-  								description: "Null color strategy"
-  							}
-  						}
-  					},
-  					linearGradient3: {
-  						type: "object",
-  						description: "Three color gradient",
-  						properties: {
-  							max: {
-  								type: "object",
-  								description: "Maximum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							min: {
-  								type: "object",
-  								description: "Minimum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							mid: {
-  								type: "object",
-  								description: "Middle color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							nullColoringStrategy: {
-  								type: "object",
-  								description: "Null color strategy"
-  							}
-  						}
-  					}
-  				}
-  			},
-  			formatting: {
-  				type: "object",
-  				description: "A numeric value that will be displayed to the user as a text input",
-  				properties: {
-  					labelDisplayUnits: {
-  						type: "boolean",
-  						description: "Displays a dropdown with common display units (Auto, None, Thousands, Millions, Billions, Trillions)"
-  					},
-  					alignment: {
-  						type: "boolean",
-  						description: "Displays a selector to allow the user to choose left, center, or right alignment"
-  					},
-  					fontSize: {
-  						type: "boolean",
-  						description: "Displays a slider that allows the user to choose a font size in points"
-  					},
-  					fontFamily: {
-  						type: "boolean",
-  						description: "Displays a dropdown with font families"
-  					},
-  					formatString: {
-  						type: "boolean",
-  						description: "Displays dynamic format string"
-  					}
-  				},
-  				additionalProperties: false,
-  				oneOf: [
-  					{
-  						required: [
-  							"labelDisplayUnits"
-  						]
-  					},
-  					{
-  						required: [
-  							"alignment"
-  						]
-  					},
-  					{
-  						required: [
-  							"fontSize"
-  						]
-  					},
-  					{
-  						required: [
-  							"fontFamily"
-  						]
-  					},
-  					{
-  						required: [
-  							"formatString"
-  						]
-  					}
-  				]
-  			},
-  			integer: {
-  				type: "boolean",
-  				description: "An integer (whole number) value that will be displayed to the user as a text input"
-  			},
-  			numeric: {
-  				type: "boolean",
-  				description: "A numeric value that will be displayed to the user as a text input"
-  			},
-  			filter: {
-  				oneOf: [
-  					{
-  						type: "boolean"
-  					},
-  					{
-  						type: "object",
-  						properties: {
-  							selfFilter: {
-  								type: "boolean"
-  							}
-  						}
-  					}
-  				],
-  				description: "A filter"
-  			},
-  			operations: {
-  				type: "object",
-  				description: "A visual operation",
-  				properties: {
-  					searchEnabled: {
-  						type: "boolean",
-  						description: "Turns search ability on"
-  					}
-  				}
-  			},
-  			text: {
-  				type: "boolean",
-  				description: "A text value that will be displayed to the user as a text input"
-  			},
-  			scripting: {
-  				type: "object",
-  				description: "A text value that will be displayed to the user as a script",
-  				properties: {
-  					source: {
-  						type: "boolean",
-  						description: "A source code"
-  					}
-  				}
-  			},
-  			geography: {
-  				type: "object",
-  				description: "Geographical data",
-  				properties: {
-  					address: {
-  						type: "boolean"
-  					},
-  					city: {
-  						type: "boolean"
-  					},
-  					continent: {
-  						type: "boolean"
-  					},
-  					country: {
-  						type: "boolean"
-  					},
-  					county: {
-  						type: "boolean"
-  					},
-  					region: {
-  						type: "boolean"
-  					},
-  					postalCode: {
-  						type: "boolean"
-  					},
-  					stateOrProvince: {
-  						type: "boolean"
-  					},
-  					place: {
-  						type: "boolean"
-  					},
-  					latitude: {
-  						type: "boolean"
-  					},
-  					longitude: {
-  						type: "boolean"
-  					}
-  				}
-  			}
-  		},
-  		additionalProperties: false,
-  		oneOf: [
-  			{
-  				required: [
-  					"bool"
-  				]
-  			},
-  			{
-  				required: [
-  					"enumeration"
-  				]
-  			},
-  			{
-  				required: [
-  					"fill"
-  				]
-  			},
-  			{
-  				required: [
-  					"fillRule"
-  				]
-  			},
-  			{
-  				required: [
-  					"formatting"
-  				]
-  			},
-  			{
-  				required: [
-  					"integer"
-  				]
-  			},
-  			{
-  				required: [
-  					"numeric"
-  				]
-  			},
-  			{
-  				required: [
-  					"text"
-  				]
-  			},
-  			{
-  				required: [
-  					"geography"
-  				]
-  			},
-  			{
-  				required: [
-  					"scripting"
-  				]
-  			},
-  			{
-  				required: [
-  					"filter"
-  				]
-  			},
-  			{
-  				required: [
-  					"operations"
-  				]
-  			}
-  		]
-  	},
-  	subtotals: {
-  		type: "object",
-  		description: "Specifies the subtotal request customizations applied to the outgoing data query",
-  		properties: {
-  			matrix: {
-  				description: "Defines the subtotal customizations of the outgoing data query of a matrix-dataview visual",
-  				$ref: "#/definitions/subtotals.matrix"
-  			}
-  		},
-  		requires: [
-  			"matrix"
-  		]
-  	},
-  	"subtotals.matrix": {
-  		type: "object",
-  		description: "Specifies the subtotal customizations of the outgoing data query of a matrix-dataview visual",
-  		properties: {
-  			rowSubtotals: {
-  				type: "object",
-  				description: "Indicates if the subtotal data should be requested for all fields in the rows field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			rowSubtotalsPerLevel: {
-  				type: "object",
-  				description: "Indicates if the subtotal data can be toggled for individual fields in the rows field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			columnSubtotals: {
-  				type: "object",
-  				description: "Indicates if the subtotal data should be requested for all fields in the columns field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			columnSubtotalsPerLevel: {
-  				type: "object",
-  				description: "Indicates if the subtotal data can be toggled for individual fields in the columns field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			levelSubtotalEnabled: {
-  				type: "object",
-  				description: "Unlike all other properites, this property is applied to individual rows/columns. The property indicates if the subtotals are requested for the row/column",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			rowSubtotalsType: {
-  				type: "object",
-  				description: "Indicates location of row subtotals locations (Top, Bottom). Top means subtotals located at the start of datasource and calculated even before all datasource rows fetched, Bottom means subtotals located at the end of datasource and shown only after all rows are fetched",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "string",
-  						"enum": [
-  							"Top",
-  							"Bottom"
-  						]
-  					}
-  				}
-  			}
-  		},
-  		requires: [
-  			"matrix"
-  		]
-  	},
-  	migration: {
-  		type: "object",
-  		description: "Defines the supported APIs for migration",
-  		properties: {
-  			filter: {
-  				$ref: "#/definitions/migration.filter"
-  			}
-  		}
-  	},
-  	"migration.filter": {
-  		type: "object",
-  		description: "Defines the capabilities for migrating the filter API",
-  		properties: {
-  			shouldUseIdentityFilter: {
-  				type: "boolean",
-  				description: "Indicates whether the new filter should migrate to an identity filter"
-  			}
-  		}
-  	}
-  };
-  var require$$2 = {
-  	type: type$3,
-  	properties: properties$3,
-  	required: required$1,
-  	additionalProperties: additionalProperties,
-  	definitions: definitions$2
-  };
-
-  var type$2 = "object";
-  var properties$2 = {
-  	apiVersion: {
-  		type: "string",
-  		description: "Version of the IVisual API"
-  	},
-  	author: {
-  		type: "object",
-  		description: "Information about the author of the visual",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "Name of the visual author. This is displayed to users."
-  			},
-  			email: {
-  				type: "string",
-  				description: "E-mail of the visual author. This is displayed to users for support."
-  			}
-  		}
-  	},
-  	assets: {
-  		type: "object",
-  		description: "Assets used by the visual",
-  		properties: {
-  			icon: {
-  				type: "string",
-  				description: "A 20x20 png icon used to represent the visual"
-  			}
-  		}
-  	},
-  	externalJS: {
-  		type: "array",
-  		description: "An array of relative paths to 3rd party javascript libraries to load",
-  		items: {
-  			type: "string"
-  		}
-  	},
-  	stringResources: {
-  		type: "array",
-  		description: "An array of relative paths to string resources to load",
-  		items: {
-  			type: "string"
-  		},
-  		uniqueItems: true
-  	},
-  	style: {
-  		type: "string",
-  		description: "Relative path to the stylesheet (less) for the visual"
-  	},
-  	capabilities: {
-  		type: "string",
-  		description: "Relative path to the visual capabilities json file"
-  	},
-  	visual: {
-  		type: "object",
-  		description: "Details about this visual",
-  		properties: {
-  			description: {
-  				type: "string",
-  				description: "What does this visual do?"
-  			},
-  			name: {
-  				type: "string",
-  				description: "Internal visual name"
-  			},
-  			displayName: {
-  				type: "string",
-  				description: "A friendly name"
-  			},
-  			externals: {
-  				type: "array",
-  				description: "External files (such as JavaScript) that you would like to include"
-  			},
-  			guid: {
-  				type: "string",
-  				description: "Unique identifier for the visual"
-  			},
-  			visualClassName: {
-  				type: "string",
-  				description: "Class of your IVisual"
-  			},
-  			icon: {
-  				type: "string",
-  				description: "Icon path"
-  			},
-  			version: {
-  				type: "string",
-  				description: "Visual version"
-  			},
-  			gitHubUrl: {
-  				type: "string",
-  				description: "Url to the github repository for this visual"
-  			},
-  			supportUrl: {
-  				type: "string",
-  				description: "Url to the support page for this visual"
-  			}
-  		}
-  	}
-  };
-  var require$$3 = {
-  	type: type$2,
-  	properties: properties$2
-  };
-
-  var type$1 = "object";
-  var properties$1 = {
-  	cranPackages: {
-  		type: "array",
-  		description: "An array of the Cran packages required for the custom R visual script to operate",
-  		items: {
-  			$ref: "#/definitions/cranPackage"
-  		}
-  	}
-  };
-  var definitions$1 = {
-  	cranPackage: {
-  		type: "object",
-  		description: "cranPackage - Defines the name and displayName of a required Cran package",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "The name for this Cran package"
-  			},
-  			displayName: {
-  				type: "string",
-  				description: "The name for this Cran package that is shown to the user"
-  			},
-  			url: {
-  				type: "string",
-  				description: "A url for package documentation in Cran website"
-  			}
-  		},
-  		required: [
-  			"name",
-  			"url"
-  		],
-  		additionalProperties: false
-  	}
-  };
-  var require$$4 = {
-  	type: type$1,
-  	properties: properties$1,
-  	definitions: definitions$1
-  };
-
-  var type = "object";
-  var properties = {
-  	locale: {
-  		$ref: "#/definitions/localeOptions"
-  	},
-  	values: {
-  		type: "object",
-  		description: "translations for the display name keys in the capabilities",
-  		additionalProperties: {
-  			type: "string"
-  		}
-  	}
-  };
-  var required = [
-  	"locale"
-  ];
-  var definitions = {
-  	localeOptions: {
-  		description: "Specifies the locale key from a list of supported locales",
-  		type: "string",
-  		"enum": [
-  			"ar-SA",
-  			"bg-BG",
-  			"ca-ES",
-  			"cs-CZ",
-  			"da-DK",
-  			"de-DE",
-  			"el-GR",
-  			"en-US",
-  			"es-ES",
-  			"et-EE",
-  			"eu-ES",
-  			"fi-FI",
-  			"fr-FR",
-  			"gl-ES",
-  			"he-IL",
-  			"hi-IN",
-  			"hr-HR",
-  			"hu-HU",
-  			"id-ID",
-  			"it-IT",
-  			"ja-JP",
-  			"kk-KZ",
-  			"ko-KR",
-  			"lt-LT",
-  			"lv-LV",
-  			"ms-MY",
-  			"nb-NO",
-  			"nl-NL",
-  			"pl-PL",
-  			"pt-BR",
-  			"pt-PT",
-  			"ro-RO",
-  			"ru-RU",
-  			"sk-SK",
-  			"sl-SI",
-  			"sr-Cyrl-RS",
-  			"sr-Latn-RS",
-  			"sv-SE",
-  			"th-TH",
-  			"tr-TR",
-  			"uk-UA",
-  			"vi-VN",
-  			"zh-CN",
-  			"zh-TW"
-  		]
-  	}
-  };
-  var require$$5 = {
-  	type: type,
-  	properties: properties,
-  	required: required,
-  	definitions: definitions
-  };
-
-  var hasRequiredPowerbiVisualsApi;
-
-  function requirePowerbiVisualsApi () {
-  	if (hasRequiredPowerbiVisualsApi) return powerbiVisualsApi;
-  	hasRequiredPowerbiVisualsApi = 1;
-  	const semver = requireSemver();
-
-  	let packageVersion = require$$1.version;
-  	let apiVersion = `${semver.major(packageVersion)}.${semver.minor(packageVersion)}.0`;
-
-  	powerbiVisualsApi.version = apiVersion;
-
-  	powerbiVisualsApi.schemas = {
-  	    capabilities: require$$2,
-  	    pbiviz: require$$3,
-  	    dependencies: require$$4,
-  	    stringResources: require$$5
-  	};
-  	return powerbiVisualsApi;
-  }
-
-  requirePowerbiVisualsApi();
 
   const valueNames = {
       "i": "Observation",
@@ -13138,24 +7853,22 @@ var spc = (function (exports) {
 
   class settingsClass {
       update(inputView, groupIdxs) {
-          var _a, _b, _c;
           this.validationStatus
               = JSON.parse(JSON.stringify({ status: 0, messages: new Array(), error: "" }));
-          const allSettingGroups = Object.keys(this.settings);
-          const is_grouped = (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.categorical) === null || _a === void 0 ? void 0 : _a.categories) === null || _b === void 0 ? void 0 : _b.some(d => d.source.roles.indicator)) !== null && _c !== void 0 ? _c : false;
-          this.settingsGrouped = new Array();
-          if (is_grouped) {
-              groupIdxs.forEach(() => {
-                  this.settingsGrouped.push(Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
-                      return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
-                              return [settingName, defaultSettings[settingGroupName][settingName]];
-                          }))];
-                  })));
-              });
-          }
+          this.settings = new Array();
+          this.derivedSettings = new Array();
+          groupIdxs.forEach(() => {
+              this.settings.push(Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
+                  return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
+                          return [settingName, defaultSettings[settingGroupName][settingName]];
+                      }))];
+              })));
+              this.derivedSettings.push(new derivedSettingsClass());
+          });
           const all_idxs = groupIdxs.flat();
+          const allSettingGroups = Object.keys(this.settings[0]);
           allSettingGroups.forEach((settingGroup) => {
-              const condFormatting = extractConditionalFormatting(inputView === null || inputView === void 0 ? void 0 : inputView.categorical, settingGroup, this.settings, all_idxs);
+              const condFormatting = extractConditionalFormatting(inputView === null || inputView === void 0 ? void 0 : inputView.categorical, settingGroup, this.settings[0], all_idxs);
               if (condFormatting.validation.status !== 0) {
                   this.validationStatus.status = condFormatting.validation.status;
                   this.validationStatus.error = condFormatting.validation.error;
@@ -13170,39 +7883,27 @@ var spc = (function (exports) {
                       }
                   });
               }
-              const settingNames = Object.keys(this.settings[settingGroup]);
+              const settingNames = Object.keys(this.settings[0][settingGroup]);
               settingNames.forEach((settingName) => {
-                  this.settings[settingGroup][settingName]
-                      = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
-                          ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[0][settingName]
-                          : defaultSettings[settingGroup][settingName]["default"];
-                  if (is_grouped) {
-                      groupIdxs.forEach((idx, idx_idx) => {
-                          this.settingsGrouped[idx_idx][settingGroup][settingName]
-                              = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
-                                  ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[idx[0]][settingName]
-                                  : defaultSettings[settingGroup][settingName]["default"];
-                      });
-                  }
+                  groupIdxs.forEach((idx, idx_idx) => {
+                      this.settings[idx_idx][settingGroup][settingName]
+                          = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
+                              ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[idx[0]][settingName]
+                              : defaultSettings[settingGroup][settingName]["default"];
+                  });
               });
           });
-          if (this.settings.nhs_icons.show_variation_icons) {
+          if (this.settings[0].nhs_icons.show_variation_icons) {
               const patterns = ["astronomical", "shift", "trend", "two_in_three"];
-              const anyOutlierPatterns = patterns.some(d => this.settings.outliers[d]);
+              const anyOutlierPatterns = patterns.some(d => this.settings[0].outliers[d]);
               if (!anyOutlierPatterns) {
                   this.validationStatus.status = 1;
                   this.validationStatus.error = "Variation icons require at least one outlier pattern to be selected";
               }
           }
-          this.derivedSettings.update(this.settings.spc);
-          this.derivedSettingsGrouped = new Array();
-          if (is_grouped) {
-              this.settingsGrouped.forEach((d) => {
-                  const newDerived = new derivedSettingsClass();
-                  newDerived.update(d.spc);
-                  this.derivedSettingsGrouped.push(newDerived);
-              });
-          }
+          this.settings.forEach((settingsItem, idx) => {
+              this.derivedSettings[idx].update(settingsItem.spc);
+          });
       }
       getFormattingModel() {
           var _a, _b;
@@ -13238,7 +7939,9 @@ var spc = (function (exports) {
                                       objectName: curr_card_name,
                                       propertyName: setting,
                                       selector: { data: [{ dataViewWildcard: { matchingOption: 0 } }] },
-                                      instanceKind: (typeof this.settings[curr_card_name][setting]) != "boolean" ? 3 : null
+                                      instanceKind: (typeof this.settings[0][curr_card_name][setting]) != "boolean"
+                                          ? 3
+                                          : null
                                   },
                                   value: this.valueLookup(curr_card_name, card_group, setting),
                                   items: (_a = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _a === void 0 ? void 0 : _a.items,
@@ -13257,343 +7960,793 @@ var spc = (function (exports) {
       valueLookup(settingCardName, settingGroupName, settingName) {
           var _a;
           if (settingName.includes("colour")) {
-              return { value: this.settings[settingCardName][settingName] };
+              return { value: this.settings[0][settingCardName][settingName] };
           }
           if (!isNullOrUndefined((_a = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a.items)) {
               const allItems = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName].items;
-              const currValue = this.settings[settingCardName][settingName];
+              const currValue = this.settings[0][settingCardName][settingName];
               return allItems.find(item => item.value === currValue);
           }
-          return this.settings[settingCardName][settingName];
+          return this.settings[0][settingCardName][settingName];
       }
       constructor() {
-          this.settings = Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
-              return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
-                      return [settingName, defaultSettings[settingGroupName][settingName]];
-                  }))];
-          }));
-          this.derivedSettings = new derivedSettingsClass();
+          this.settings = [Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
+                  return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
+                          return [settingName, defaultSettings[settingGroupName][settingName]];
+                      }))];
+              }))];
+          this.derivedSettings = [new derivedSettingsClass()];
       }
   }
 
-  function cLimits(args) {
-      const cl = mean(extractValues(args.numerators, args.subset_points));
-      const sigma = Math.sqrt(cl);
+  function buildTooltip(table_row, inputTooltips, inputSettings, derivedSettings) {
+      const ast_limit = inputSettings.outliers.astronomical_limit;
+      const two_in_three_limit = inputSettings.outliers.two_in_three_limit;
+      const formatValues = valueFormatter(inputSettings, derivedSettings);
+      const tooltip = new Array();
+      if (inputSettings.spc.ttip_show_date) {
+          const ttip_label_date = inputSettings.spc.ttip_label_date;
+          tooltip.push({
+              displayName: ttip_label_date === "Automatic" ? derivedSettings.chart_type_props.date_name : ttip_label_date,
+              value: table_row.date
+          });
+      }
+      if (inputSettings.spc.ttip_show_value) {
+          const ttip_label_value = inputSettings.spc.ttip_label_value;
+          tooltip.push({
+              displayName: ttip_label_value === "Automatic" ? derivedSettings.chart_type_props.value_name : ttip_label_value,
+              value: formatValues(table_row.value, "value")
+          });
+      }
+      if (inputSettings.spc.ttip_show_numerator && !isNullOrUndefined(table_row.numerator)) {
+          tooltip.push({
+              displayName: inputSettings.spc.ttip_label_numerator,
+              value: formatValues(table_row.numerator, "integer")
+          });
+      }
+      if (inputSettings.spc.ttip_show_denominator && !isNullOrUndefined(table_row.denominator)) {
+          tooltip.push({
+              displayName: inputSettings.spc.ttip_label_denominator,
+              value: formatValues(table_row.denominator, "integer")
+          });
+      }
+      if (inputSettings.lines.ttip_show_trend && inputSettings.lines.show_trend) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_trend,
+              value: formatValues(table_row.trend_line, "value")
+          });
+      }
+      if (inputSettings.lines.show_specification && inputSettings.lines.ttip_show_specification) {
+          if (!isNullOrUndefined(table_row.speclimits_upper)) {
+              tooltip.push({
+                  displayName: `Upper ${inputSettings.lines.ttip_label_specification}`,
+                  value: formatValues(table_row.speclimits_upper, "value")
+              });
+          }
+          if (!isNullOrUndefined(table_row.speclimits_lower)) {
+              tooltip.push({
+                  displayName: `Lower ${inputSettings.lines.ttip_label_specification}`,
+                  value: formatValues(table_row.speclimits_lower, "value")
+              });
+          }
+      }
+      if (derivedSettings.chart_type_props.has_control_limits) {
+          ["99", "95", "65"].forEach(limit => {
+              if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
+                  tooltip.push({
+                      displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_upper`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
+                      value: formatValues(table_row[`ul${limit}`], "value")
+                  });
+              }
+          });
+      }
+      if (inputSettings.lines.show_target && inputSettings.lines.ttip_show_target) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_target,
+              value: formatValues(table_row.target, "value")
+          });
+      }
+      if (inputSettings.lines.show_alt_target && inputSettings.lines.ttip_show_alt_target && !isNullOrUndefined(table_row.alt_target)) {
+          tooltip.push({
+              displayName: inputSettings.lines.ttip_label_alt_target,
+              value: formatValues(table_row.alt_target, "value")
+          });
+      }
+      if (derivedSettings.chart_type_props.has_control_limits) {
+          ["68", "95", "99"].forEach(limit => {
+              if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
+                  tooltip.push({
+                      displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_lower`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
+                      value: formatValues(table_row[`ll${limit}`], "value")
+                  });
+              }
+          });
+      }
+      if ([table_row.astpoint, table_row.trend, table_row.shift, table_row.two_in_three].some(d => d !== "none")) {
+          const patterns = new Array();
+          if (table_row.astpoint !== "none") {
+              let flag_text = "Astronomical Point";
+              if (ast_limit !== "3 Sigma") {
+                  flag_text = `${flag_text} (${ast_limit})`;
+              }
+              patterns.push(flag_text);
+          }
+          if (table_row.trend !== "none") {
+              patterns.push("Trend");
+          }
+          if (table_row.shift !== "none") {
+              patterns.push("Shift");
+          }
+          if (table_row.two_in_three !== "none") {
+              let flag_text = "Two-in-Three";
+              if (two_in_three_limit !== "2 Sigma") {
+                  flag_text = `${flag_text} (${two_in_three_limit})`;
+              }
+              patterns.push(flag_text);
+          }
+          tooltip.push({
+              displayName: "Pattern(s)",
+              value: patterns.join("\n")
+          });
+      }
+      if (!isNullOrUndefined(inputTooltips) && inputTooltips.length > 0) {
+          inputTooltips.forEach(customTooltip => tooltip.push(customTooltip));
+      }
+      return tooltip;
+  }
+
+  function checkFlagDirection(outlierStatus, flagSettings) {
+      if (outlierStatus === "none") {
+          return outlierStatus;
+      }
+      const increaseDirectionMap = {
+          "upper": "improvement",
+          "lower": "deterioration"
+      };
+      const decreaseDirectionMap = {
+          "lower": "improvement",
+          "upper": "deterioration"
+      };
+      const neutralDirectionMap = {
+          "lower": "neutral_low",
+          "upper": "neutral_high"
+      };
+      const flagDirectionMap = {
+          "increase": increaseDirectionMap[outlierStatus],
+          "decrease": decreaseDirectionMap[outlierStatus],
+          "neutral": neutralDirectionMap[outlierStatus]
+      };
+      const mappedFlag = flagDirectionMap[flagSettings.improvement_direction];
+      if (flagSettings.process_flag_type !== "both") {
+          return mappedFlag === flagSettings.process_flag_type ? mappedFlag : "none";
+      }
+      else {
+          return mappedFlag;
+      }
+  }
+
+  function formatPrimitiveValue(rawValue, config) {
+      if (isNullOrUndefined(rawValue)) {
+          return null;
+      }
+      if (config.valueType.numeric) {
+          return rawValue.toString();
+      }
+      else {
+          return rawValue;
+      }
+  }
+
+  const weekdayDateMap = {
+      "DD": null,
+      "Thurs DD": "short",
+      "Thursday DD": "long",
+      "(blank)": null
+  };
+  const monthDateMap = {
+      "MM": "2-digit",
+      "Mon": "short",
+      "Month": "long",
+      "(blank)": null
+  };
+  const yearDateMap = {
+      "YYYY": "numeric",
+      "YY": "2-digit",
+      "(blank)": null
+  };
+  const dayDateMap = {
+      "DD": "2-digit",
+      "Thurs DD": "2-digit",
+      "Thursday DD": "2-digit",
+      "(blank)": null
+  };
+  const dateOptionsLookup = {
+      "weekday": weekdayDateMap,
+      "day": dayDateMap,
+      "month": monthDateMap,
+      "year": yearDateMap
+  };
+  function dateSettingsToFormatOptions(date_settings) {
+      const formatOpts = new Array();
+      Object.keys(date_settings).forEach((key) => {
+          if (key !== "date_format_locale" && key !== "date_format_delim") {
+              const formattedKey = key.replace("date_format_", "");
+              const lookup = dateOptionsLookup[formattedKey];
+              const val = lookup[date_settings[key]];
+              if (!isNullOrUndefined(val)) {
+                  formatOpts.push([formattedKey, val]);
+                  if (formattedKey === "day" && date_settings[key] !== "DD") {
+                      formatOpts.push(["weekday", weekdayDateMap[date_settings[key]]]);
+                  }
+              }
+          }
+      });
+      return Object.fromEntries(formatOpts);
+  }
+
+  const monthNameToNumber = {
+      "January": 0,
+      "February": 1,
+      "March": 2,
+      "April": 3,
+      "May": 4,
+      "June": 5,
+      "July": 6,
+      "August": 7,
+      "September": 8,
+      "October": 9,
+      "November": 10,
+      "December": 11
+  };
+  function temporalTypeToKey(inputType, inputValue) {
+      if (!inputType.temporal) {
+          return null;
+      }
+      if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "DayOfMonth") {
+          return ["day", (inputValue)];
+      }
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Months") {
+          return ["month", monthNameToNumber[(inputValue)]];
+      }
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Quarters") {
+          return ["quarter", inputValue];
+      }
+      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Years") {
+          return ["year", (inputValue)];
+      }
+      else {
+          return null;
+      }
+  }
+  function parseInputDates(inputs, idxs) {
+      var _a, _b, _c, _d, _e;
+      const n_keys = idxs.length;
+      let inputDates = [];
+      const inputQuarters = [];
+      if (inputs.length > 1) {
+          for (let i = 0; i < n_keys; i++) {
+              const datePartsArray = [];
+              for (let j = 0; j < inputs.length; j++) {
+                  datePartsArray.push(temporalTypeToKey(inputs[j].source.type, inputs[j].values[idxs[i]]));
+              }
+              const datePartsObj = Object.fromEntries(datePartsArray);
+              if (datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.quarter) {
+                  inputQuarters.push(datePartsObj.quarter);
+              }
+              inputDates[i] = new Date((_a = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.year) !== null && _a !== void 0 ? _a : 1970, (_b = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.month) !== null && _b !== void 0 ? _b : 0, (_c = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.day) !== null && _c !== void 0 ? _c : 1);
+          }
+      }
+      else {
+          for (let i = 0; i < n_keys; i++) {
+              inputDates[i] = isNullOrUndefined((_d = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _d === void 0 ? void 0 : _d.values[idxs[i]]) ? null : new Date(((_e = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _e === void 0 ? void 0 : _e.values[idxs[i]]));
+          }
+      }
+      return { dates: inputDates, quarters: inputQuarters };
+  }
+
+  function datePartsToRecord(dateParts) {
+      const datePartsRecord = Object.fromEntries(dateParts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+      ["weekday", "day", "month", "year"].forEach(key => {
+          var _a;
+          (_a = datePartsRecord[key]) !== null && _a !== void 0 ? _a : (datePartsRecord[key] = "");
+      });
+      return datePartsRecord;
+  }
+  function formatKeys(col, inputSettings, idxs) {
+      var _a, _b, _c;
+      const n_keys = idxs.length;
+      let ret = new Array(n_keys);
+      if (col.length === 1 && !((_a = col[0].source.type) === null || _a === void 0 ? void 0 : _a.temporal)) {
+          for (let i = 0; i < n_keys; i++) {
+              ret[i] = isNullOrUndefined(col[0].values[idxs[i]]) ? null : String(col[0].values[idxs[i]]);
+          }
+          return ret;
+      }
+      const delim = inputSettings.dates.date_format_delim;
+      if (!(col.every(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.type) === null || _b === void 0 ? void 0 : _b.temporal; }))) {
+          const blankKey = rep("", col.length).join(delim);
+          for (let i = 0; i < n_keys; i++) {
+              const currKey = col.map(keyCol => keyCol.values[idxs[i]]).join(delim);
+              ret[i] = currKey === blankKey ? null : currKey;
+          }
+          return ret;
+      }
+      const inputDates = parseInputDates(col, idxs);
+      const formatter = new Intl.DateTimeFormat(inputSettings.dates.date_format_locale, dateSettingsToFormatOptions(inputSettings.dates));
+      let day_elem = inputSettings.dates.date_format_locale === "en-GB" ? "day" : "month";
+      let month_elem = inputSettings.dates.date_format_locale === "en-GB" ? "month" : "day";
+      for (let i = 0; i < n_keys; i++) {
+          if (isNullOrUndefined(inputDates.dates[i])) {
+              ret[i] = null;
+          }
+          else {
+              const dateParts = datePartsToRecord(formatter.formatToParts(inputDates.dates[i]));
+              const datePartStrings = [dateParts.weekday + " " + dateParts[day_elem],
+                  dateParts[month_elem], (_c = (_b = inputDates.quarters) === null || _b === void 0 ? void 0 : _b[i]) !== null && _c !== void 0 ? _c : "", dateParts.year];
+              ret[i] = datePartStrings.filter(d => String(d).trim()).join(delim);
+          }
+      }
+      return ret;
+  }
+  function extractKeys(inputView, inputSettings, idxs) {
+      const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
+      const groupedCols = {};
+      let queryNames = col.map(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : ""; });
+      const uniqueQueryNames = new Set();
+      queryNames = queryNames.map((queryName, idx) => {
+          if (uniqueQueryNames.has(queryName)) {
+              queryName = `${idx}_${queryName}`;
+          }
+          uniqueQueryNames.add(queryName);
+          return queryName;
+      });
+      col.forEach((d, idx) => {
+          let queryName = queryNames[idx];
+          if (queryName.includes("Date Hierarchy")) {
+              const lastDotIndex = queryName.lastIndexOf(".");
+              if (lastDotIndex !== -1) {
+                  queryName = queryName.substring(0, lastDotIndex);
+              }
+          }
+          if (!groupedCols[queryName]) {
+              groupedCols[queryName] = [];
+          }
+          groupedCols[queryName].push(d);
+      });
+      const formattedKeys = [];
+      for (const queryName in groupedCols) {
+          const group = groupedCols[queryName];
+          const groupKeys = formatKeys(group, inputSettings, idxs);
+          formattedKeys.push(groupKeys);
+      }
+      const combinedKeys = [];
+      const n_keys = idxs.length;
+      for (let i = 0; i < n_keys; i++) {
+          const keyParts = formattedKeys.map(keys => keys[i]).filter(k => k !== null && k !== undefined);
+          combinedKeys.push(keyParts.length > 0 ? keyParts.join(" ") : null);
+      }
+      return combinedKeys;
+  }
+  function extractTooltips(inputView, inputSettings, idxs) {
+      const tooltipColumns = inputView.values.filter(viewColumn => viewColumn.source.roles.tooltips);
+      const n_keys = idxs.length;
+      let ret = new Array(n_keys);
+      for (let i = 0; i < n_keys; i++) {
+          ret[i] = tooltipColumns.map(viewColumn => {
+              var _a;
+              const config = { valueType: viewColumn.source.type, dateSettings: inputSettings.dates };
+              const tooltipValueFormatted = formatPrimitiveValue((_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.values) === null || _a === void 0 ? void 0 : _a[idxs[i]], config);
+              return {
+                  displayName: viewColumn.source.displayName,
+                  value: tooltipValueFormatted
+              };
+          });
+      }
+      return ret;
+  }
+  function extractDataColumn(inputView, name, inputSettings, idxs) {
+      var _a, _b, _c, _d;
+      if (name === "key") {
+          return extractKeys(inputView, inputSettings, idxs);
+      }
+      if (name === "tooltips") {
+          return extractTooltips(inputView, inputSettings, idxs);
+      }
+      const columnRaw = inputView.values.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b[name]; });
+      if (columnRaw.length === 0) {
+          return null;
+      }
+      const n_keys = idxs.length;
+      if (name === "groupings" || name === "labels") {
+          let ret = new Array(n_keys);
+          for (let i = 0; i < n_keys; i++) {
+              ret[i] = isNullOrUndefined((_b = (_a = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b[idxs[i]]) ? null : String(columnRaw[0].values[idxs[i]]);
+          }
+          return ret;
+      }
+      let ret = new Array(n_keys);
+      for (let i = 0; i < n_keys; i++) {
+          ret[i] = isNullOrUndefined((_d = (_c = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _c === void 0 ? void 0 : _c.values) === null || _d === void 0 ? void 0 : _d[idxs[i]]) ? null : Number(columnRaw[0].values[idxs[i]]);
+      }
+      return ret;
+  }
+
+  function extractValues(valuesArray, indexArray) {
+      if (valuesArray) {
+          const validIndexArray = indexArray.filter(idx => {
+              return idx >= 0 && idx < valuesArray.length && !isNullOrUndefined(idx);
+          });
+          const n = validIndexArray.length;
+          let result = new Array(n);
+          for (let i = 0; i < n; i++) {
+              result[i] = valuesArray[validIndexArray[i]];
+          }
+          return result;
+      }
+      else {
+          return [];
+      }
+  }
+
+  function validateInputDataImpl(key, numerator, denominator, xbar_sd, chart_type_props, check_denom) {
+      const rtn = { message: "", type: 0 };
+      if (isNullOrUndefined(key)) {
+          rtn.message = "Date missing";
+          rtn.type = 2;
+      }
+      if (isNullOrUndefined(numerator)) {
+          rtn.message = "Numerator missing";
+          rtn.type = 3;
+      }
+      if (isNaN(numerator)) {
+          rtn.message = "Numerator is not a number";
+          rtn.type = 10;
+      }
+      if (chart_type_props.numerator_non_negative && numerator < 0) {
+          rtn.message = "Numerator negative";
+          rtn.type = 4;
+      }
+      if (check_denom) {
+          if (isNullOrUndefined(denominator)) {
+              rtn.message = "Denominator missing";
+              rtn.type = 5;
+          }
+          else if (isNaN(denominator)) {
+              rtn.message = "Denominator is not a number";
+              rtn.type = 11;
+          }
+          else if (denominator < 0) {
+              rtn.message = "Denominator negative";
+              rtn.type = 6;
+          }
+          else if (chart_type_props.numerator_leq_denominator && denominator < numerator) {
+              rtn.message = "Denominator < numerator";
+              rtn.type = 7;
+          }
+      }
+      if (chart_type_props.needs_sd) {
+          if (isNullOrUndefined(xbar_sd)) {
+              rtn.message = "SD missing";
+              rtn.type = 8;
+          }
+          else if (isNaN(xbar_sd)) {
+              rtn.message = "SD is not a number";
+              rtn.type = 12;
+          }
+          else if (xbar_sd < 0) {
+              rtn.message = "SD negative";
+              rtn.type = 9;
+          }
+      }
+      return rtn;
+  }
+  function validateInputData(keys, numerators, denominators, xbar_sds, chart_type_props, idxs) {
+      let allSameType = false;
+      let messages = new Array();
+      let all_status = new Array();
+      const check_denom = chart_type_props.needs_denominator
+          || (chart_type_props.denominator_optional && !isNullOrUndefined(denominators) && denominators.length > 0);
+      const n = idxs.length;
+      for (let i = 0; i < n; i++) {
+          const validation = validateInputDataImpl(keys[i], numerators === null || numerators === void 0 ? void 0 : numerators[i], denominators === null || denominators === void 0 ? void 0 : denominators[i], xbar_sds === null || xbar_sds === void 0 ? void 0 : xbar_sds[i], chart_type_props, check_denom);
+          messages.push(validation.message);
+          all_status.push(validation.type);
+      }
+      let allSameTypeSet = new Set(all_status);
+      allSameType = allSameTypeSet.size === 1;
+      let commonType = Array.from(allSameTypeSet)[0];
+      let validationRtn = {
+          status: (allSameType && commonType !== 0) ? 1 : 0,
+          messages: messages
+      };
+      if (validationRtn.status === 0) {
+          const allInvalid = all_status.every(d => d !== 0);
+          if (allInvalid) {
+              validationRtn.status = 1;
+              validationRtn.error = "No valid data found!";
+              return validationRtn;
+          }
+      }
+      if (allSameType && commonType !== 0) {
+          switch (commonType) {
+              case 1: {
+                  validationRtn.error = "Grouping missing";
+                  break;
+              }
+              case 2: {
+                  validationRtn.error = "All dates/IDs are missing or null!";
+                  break;
+              }
+              case 3: {
+                  validationRtn.error = "All numerators are missing or null!";
+                  break;
+              }
+              case 10: {
+                  validationRtn.error = "All numerators are not numbers!";
+                  break;
+              }
+              case 4: {
+                  validationRtn.error = "All numerators are negative!";
+                  break;
+              }
+              case 5: {
+                  validationRtn.error = "All denominators missing or null!";
+                  break;
+              }
+              case 11: {
+                  validationRtn.error = "All denominators are not numbers!";
+                  break;
+              }
+              case 6: {
+                  validationRtn.error = "All denominators are negative!";
+                  break;
+              }
+              case 7: {
+                  validationRtn.error = "All denominators are smaller than numerators!";
+                  break;
+              }
+              case 8: {
+                  validationRtn.error = "All SDs missing or null!";
+                  break;
+              }
+              case 12: {
+                  validationRtn.error = "All SDs are not numbers!";
+                  break;
+              }
+              case 9: {
+                  validationRtn.error = "All SDs are negative!";
+                  break;
+              }
+          }
+      }
+      return validationRtn;
+  }
+
+  function seq(start, end) {
+      const n = end - start + 1;
+      const result = new Array(n);
+      for (let i = start; i <= end; i++) {
+          result[i - start] = i;
+      }
+      return result;
+  }
+
+  function invalidInputData(inputValidStatus) {
       return {
-          keys: args.keys,
-          values: args.numerators,
-          targets: rep(cl, args.keys.length),
-          ll99: rep(truncate(cl - 3 * sigma, { lower: 0 }), args.keys.length),
-          ll95: rep(truncate(cl - 2 * sigma, { lower: 0 }), args.keys.length),
-          ll68: rep(truncate(cl - 1 * sigma, { lower: 0 }), args.keys.length),
-          ul68: rep(cl + 1 * sigma, args.keys.length),
-          ul95: rep(cl + 2 * sigma, args.keys.length),
-          ul99: rep(cl + 3 * sigma, args.keys.length),
+          limitInputArgs: null,
+          spcSettings: null,
+          highlights: null,
+          anyHighlights: false,
+          categories: null,
+          groupings: null,
+          groupingIndexes: null,
+          scatter_formatting: null,
+          line_formatting: null,
+          label_formatting: null,
+          tooltips: null,
+          labels: null,
+          anyLabels: false,
+          warningMessage: inputValidStatus.error,
+          alt_targets: null,
+          speclimits_lower: null,
+          speclimits_upper: null,
+          validationStatus: inputValidStatus
+      };
+  }
+  function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
+      var _a, _b, _c, _d, _e, _f, _g;
+      const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
+      const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
+      const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
+      const keys = extractDataColumn(inputView, "key", inputSettings, idxs);
+      const tooltips = extractDataColumn(inputView, "tooltips", inputSettings, idxs);
+      const groupings = extractDataColumn(inputView, "groupings", inputSettings, idxs);
+      const labels = extractDataColumn(inputView, "labels", inputSettings, idxs);
+      const highlights = idxs.map(d => { var _a, _b, _c; return (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) === null || _c === void 0 ? void 0 : _c[d]; });
+      let scatter_cond = (_a = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _a === void 0 ? void 0 : _a.values;
+      let lines_cond = (_b = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _b === void 0 ? void 0 : _b.values;
+      let labels_cond = (_c = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
+      let alt_targets = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values.map(d => inputSettings.lines.show_alt_target ? d.alt_target : null);
+      let speclimits_lower = (_e = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values.map(d => d.show_specification ? d.specification_lower : null);
+      let speclimits_upper = (_f = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values.map(d => d.show_specification ? d.specification_upper : null);
+      let spcSettings = (_g = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _g === void 0 ? void 0 : _g.values;
+      const inputValidStatus = validateInputData(keys, numerators, denominators, xbar_sds, derivedSettings.chart_type_props, idxs);
+      if (inputValidStatus.status !== 0) {
+          return invalidInputData(inputValidStatus);
+      }
+      const valid_ids = new Array();
+      const valid_keys = new Array();
+      const removalMessages = new Array();
+      const groupVarName = inputView.categories[0].source.displayName;
+      const settingsMessages = validationMessages;
+      let valid_x = 0;
+      const x_axis_use_date = derivedSettings.chart_type_props.x_axis_use_date;
+      idxs.forEach((i, idx) => {
+          if (inputValidStatus.messages[idx] === "") {
+              valid_ids.push(idx);
+              valid_keys.push({ x: valid_x, id: i, label: x_axis_use_date ? keys[idx] : valid_x.toString() });
+              valid_x += 1;
+              if (settingsMessages[i].length > 0) {
+                  settingsMessages[i].forEach(setting_removal_message => {
+                      removalMessages.push(`Conditional formatting for ${groupVarName} ${keys[idx]} ignored due to: ${setting_removal_message}.`);
+                  });
+              }
+          }
+          else {
+              removalMessages.push(`${groupVarName} ${keys[idx]} removed due to: ${inputValidStatus.messages[idx]}.`);
+          }
+      });
+      const valid_groupings = extractValues(groupings, valid_ids);
+      const groupingIndexes = new Array();
+      let current_grouping = valid_groupings[0];
+      valid_groupings.forEach((d, idx) => {
+          if (d !== current_grouping) {
+              groupingIndexes.push(idx - 1);
+              current_grouping = d;
+          }
+      });
+      const valid_alt_targets = extractValues(alt_targets, valid_ids);
+      if (inputSettings.nhs_icons.show_assurance_icons) {
+          const alt_targets_length = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets.length;
+          if (alt_targets_length > 0) {
+              const last_target = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets[alt_targets_length - 1];
+              if (isNullOrUndefined(last_target)) {
+                  removalMessages.push("NHS Assurance icon requires a valid alt. target at last observation.");
+              }
+          }
+          if (!derivedSettings.chart_type_props.has_control_limits) {
+              removalMessages.push("NHS Assurance icon requires chart with control limits.");
+          }
+      }
+      const curr_highlights = extractValues(highlights, valid_ids);
+      const num_points_subset = spcSettings[0].num_points_subset;
+      let subset_points;
+      if (isNullOrUndefined(num_points_subset) || !between(num_points_subset, 1, valid_ids.length)) {
+          subset_points = seq(0, valid_ids.length - 1);
+      }
+      else {
+          if (spcSettings[0].subset_points_from === "Start") {
+              subset_points = seq(0, spcSettings[0].num_points_subset - 1);
+          }
+          else {
+              subset_points = seq(valid_ids.length - spcSettings[0].num_points_subset, valid_ids.length - 1);
+          }
+      }
+      const valid_labels = extractValues(labels, valid_ids);
+      return {
+          limitInputArgs: {
+              keys: valid_keys,
+              numerators: extractValues(numerators, valid_ids),
+              denominators: extractValues(denominators, valid_ids),
+              xbar_sds: extractValues(xbar_sds, valid_ids),
+              outliers_in_limits: spcSettings[0].outliers_in_limits,
+              subset_points: subset_points
+          },
+          spcSettings: spcSettings[0],
+          tooltips: extractValues(tooltips, valid_ids),
+          labels: valid_labels,
+          anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
+          highlights: curr_highlights,
+          anyHighlights: curr_highlights.filter(d => !isNullOrUndefined(d)).length > 0,
+          categories: inputView.categories[0],
+          groupings: valid_groupings,
+          groupingIndexes: groupingIndexes,
+          scatter_formatting: extractValues(scatter_cond, valid_ids),
+          line_formatting: extractValues(lines_cond, valid_ids),
+          label_formatting: extractValues(labels_cond, valid_ids),
+          warningMessage: removalMessages.length > 0 ? removalMessages.join("\n") : "",
+          alt_targets: valid_alt_targets,
+          speclimits_lower: extractValues(speclimits_lower, valid_ids),
+          speclimits_upper: extractValues(speclimits_upper, valid_ids),
+          validationStatus: inputValidStatus
       };
   }
 
-  function gLimits(args) {
-      const cl = mean(extractValues(args.numerators, args.subset_points));
-      const sigma = sqrt(cl * (cl + 1));
-      return {
-          keys: args.keys,
-          values: args.numerators,
-          targets: rep(median(extractValues(args.numerators, args.subset_points)), args.keys.length),
-          ll99: rep(0, args.keys.length),
-          ll95: rep(0, args.keys.length),
-          ll68: rep(0, args.keys.length),
-          ul68: rep(cl + 1 * sigma, args.keys.length),
-          ul95: rep(cl + 2 * sigma, args.keys.length),
-          ul99: rep(cl + 3 * sigma, args.keys.length)
-      };
+  function validateDataView(inputDV, inputSettingsClass) {
+      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+      if (isNullOrUndefined(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) || (((_e = (_d = (_c = (_b = (_a = inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.identity) === null || _e === void 0 ? void 0 : _e.length) === 0)) {
+          return "";
+      }
+      if (isNullOrUndefined((_g = (_f = inputDV[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) || isNullOrUndefined((_j = (_h = inputDV[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
+          return "";
+      }
+      const numeratorsPresent = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; });
+      if (!numeratorsPresent) {
+          return "No Numerators passed!";
+      }
+      let needs_denominator;
+      let needs_sd;
+      let chart_type;
+      if ((inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettings.length) > 0) {
+          inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettings.forEach((d) => {
+              if (d.chart_type_props.needs_denominator) {
+                  chart_type = d.chart_type_props.name;
+                  needs_denominator = true;
+              }
+              if (d.chart_type_props.needs_sd) {
+                  chart_type = d.chart_type_props.name;
+                  needs_sd = true;
+              }
+          });
+      }
+      else {
+          chart_type = inputSettingsClass.settings[0].spc.chart_type;
+          needs_denominator = inputSettingsClass.derivedSettings[0].chart_type_props.needs_denominator;
+          needs_sd = inputSettingsClass.derivedSettings[0].chart_type_props.needs_sd;
+      }
+      if (needs_denominator) {
+          const denominatorsPresent = (_o = (_m = inputDV[0].categorical) === null || _m === void 0 ? void 0 : _m.values) === null || _o === void 0 ? void 0 : _o.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; });
+          if (!denominatorsPresent) {
+              return `Chart type '${chart_type}' requires denominators!`;
+          }
+      }
+      if (needs_sd) {
+          const xbarSDPresent = (_q = (_p = inputDV[0].categorical) === null || _p === void 0 ? void 0 : _p.values) === null || _q === void 0 ? void 0 : _q.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; });
+          if (!xbarSDPresent) {
+              return `Chart type '${chart_type}' requires SDs!`;
+          }
+      }
+      return "valid";
   }
 
-  function iLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
-      const ratio = useRatio
-          ? divide(args.numerators, args.denominators)
-          : args.numerators;
-      const ratio_subset = extractValues(ratio, args.subset_points);
-      const cl = mean(ratio_subset);
-      const consec_diff = abs(diff(ratio_subset));
-      const consec_diff_ulim = mean(consec_diff) * 3.267;
-      const outliers_in_limits = args.outliers_in_limits;
-      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
-      const sigma = mean(consec_diff_valid) / 1.128;
-      return {
-          keys: args.keys,
-          values: ratio.map(d => isNaN(d) ? 0 : d),
-          numerators: useRatio ? args.numerators : undefined,
-          denominators: useRatio ? args.denominators : undefined,
-          targets: rep(cl, args.keys.length),
-          ll99: rep(cl - 3 * sigma, args.keys.length),
-          ll95: rep(cl - 2 * sigma, args.keys.length),
-          ll68: rep(cl - 1 * sigma, args.keys.length),
-          ul68: rep(cl + 1 * sigma, args.keys.length),
-          ul95: rep(cl + 2 * sigma, args.keys.length),
-          ul99: rep(cl + 3 * sigma, args.keys.length)
-      };
+  function calculateTrendLine(values) {
+      const n = values.length;
+      if (n === 0)
+          return [];
+      let sumY = 0;
+      let sumX = 0;
+      let sumXY = 0;
+      let sumX2 = 0;
+      for (let i = 0; i < n; i++) {
+          const x = i + 1;
+          const y = values[i];
+          sumX += x;
+          sumY += y;
+          sumXY += x * y;
+          sumX2 += x * x;
+      }
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      const trendLine = [];
+      for (let i = 0; i < n; i++) {
+          trendLine.push(slope * (i + 1) + intercept);
+      }
+      return trendLine;
   }
 
-  function imLimits$1(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
-      const ratio = useRatio
-          ? divide(args.numerators, args.denominators)
-          : args.numerators;
-      const ratio_subset = extractValues(ratio, args.subset_points);
-      const cl = median(ratio_subset);
-      const consec_diff = abs(diff(ratio_subset));
-      const consec_diff_ulim = mean(consec_diff) * 3.267;
-      const outliers_in_limits = args.outliers_in_limits;
-      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
-      const sigma = mean(consec_diff_valid) / 1.128;
-      return {
-          keys: args.keys,
-          values: ratio.map(d => isNaN(d) ? 0 : d),
-          numerators: useRatio ? args.numerators : undefined,
-          denominators: useRatio ? args.denominators : undefined,
-          targets: rep(cl, args.keys.length),
-          ll99: rep(cl - 3 * sigma, args.keys.length),
-          ll95: rep(cl - 2 * sigma, args.keys.length),
-          ll68: rep(cl - 1 * sigma, args.keys.length),
-          ul68: rep(cl + 1 * sigma, args.keys.length),
-          ul95: rep(cl + 2 * sigma, args.keys.length),
-          ul99: rep(cl + 3 * sigma, args.keys.length)
-      };
+  function groupBy(data, key) {
+      var _a;
+      const groupedData = new Map();
+      for (let i = 0; i < data.length; i++) {
+          const item = data[i];
+          const keyValue = item[key];
+          if (!groupedData.has(keyValue)) {
+              groupedData.set(keyValue, []);
+          }
+          (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
+      }
+      return Array.from(groupedData);
   }
-
-  function imLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
-      const ratio = useRatio
-          ? divide(args.numerators, args.denominators)
-          : args.numerators;
-      const ratio_subset = extractValues(ratio, args.subset_points);
-      const cl = median(ratio_subset);
-      const consec_diff = abs(diff(ratio_subset));
-      const consec_diff_ulim = median(consec_diff) * 3.267;
-      const outliers_in_limits = args.outliers_in_limits;
-      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
-      const sigma = median(consec_diff_valid) / 1.128;
-      return {
-          keys: args.keys,
-          values: ratio.map(d => isNaN(d) ? 0 : d),
-          numerators: useRatio ? args.numerators : undefined,
-          denominators: useRatio ? args.denominators : undefined,
-          targets: rep(cl, args.keys.length),
-          ll99: rep(cl - 3 * sigma, args.keys.length),
-          ll95: rep(cl - 2 * sigma, args.keys.length),
-          ll68: rep(cl - 1 * sigma, args.keys.length),
-          ul68: rep(cl + 1 * sigma, args.keys.length),
-          ul95: rep(cl + 2 * sigma, args.keys.length),
-          ul99: rep(cl + 3 * sigma, args.keys.length)
-      };
-  }
-
-  function mrLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
-      const ratio = useRatio
-          ? divide(args.numerators, args.denominators)
-          : args.numerators;
-      const consec_diff = abs(diff(ratio));
-      const cl = mean(extractValues(consec_diff, args.subset_points));
-      return {
-          keys: args.keys.slice(1),
-          values: consec_diff.slice(1),
-          numerators: useRatio ? args.numerators.slice(1) : undefined,
-          denominators: useRatio ? args.denominators.slice(1) : undefined,
-          targets: rep(cl, args.keys.length - 1),
-          ll99: rep(0, args.keys.length - 1),
-          ll95: rep(0, args.keys.length - 1),
-          ll68: rep(0, args.keys.length - 1),
-          ul68: rep((3.267 / 3) * 1 * cl, args.keys.length - 1),
-          ul95: rep((3.267 / 3) * 2 * cl, args.keys.length - 1),
-          ul99: rep(3.267 * cl, args.keys.length - 1)
-      };
-  }
-
-  function pLimits(args) {
-      const cl = sum(extractValues(args.numerators, args.subset_points))
-          / sum(extractValues(args.denominators, args.subset_points));
-      const sigma = sqrt(divide(cl * (1 - cl), args.denominators));
-      return {
-          keys: args.keys,
-          values: divide(args.numerators, args.denominators),
-          numerators: args.numerators,
-          denominators: args.denominators,
-          targets: rep(cl, args.keys.length),
-          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
-          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
-          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
-          ul68: truncate(add(cl, multiply(1, sigma)), { upper: 1 }),
-          ul95: truncate(add(cl, multiply(2, sigma)), { upper: 1 }),
-          ul99: truncate(add(cl, multiply(3, sigma)), { upper: 1 })
-      };
-  }
-
-  function pprimeLimits(args) {
-      const val = divide(args.numerators, args.denominators);
-      const cl = sum(extractValues(args.numerators, args.subset_points))
-          / sum(extractValues(args.denominators, args.subset_points));
-      const sd = sqrt(divide(cl * (1 - cl), args.denominators));
-      const zscore = extractValues(divide(subtract(val, cl), sd), args.subset_points);
-      const consec_diff = abs(diff(zscore));
-      const consec_diff_ulim = mean(consec_diff) * 3.267;
-      const outliers_in_limits = args.outliers_in_limits;
-      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
-      const sigma = multiply(sd, mean(consec_diff_valid) / 1.128);
-      return {
-          keys: args.keys,
-          values: val,
-          numerators: args.numerators,
-          denominators: args.denominators,
-          targets: rep(cl, args.keys.length),
-          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
-          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
-          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
-          ul68: truncate(add(cl, multiply(1, sigma)), { upper: 1 }),
-          ul95: truncate(add(cl, multiply(2, sigma)), { upper: 1 }),
-          ul99: truncate(add(cl, multiply(3, sigma)), { upper: 1 })
-      };
-  }
-
-  function runLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
-      const ratio = useRatio
-          ? divide(args.numerators, args.denominators)
-          : args.numerators;
-      const cl = median(extractValues(ratio, args.subset_points));
-      return {
-          keys: args.keys,
-          values: ratio.map(d => isNaN(d) ? 0 : d),
-          numerators: useRatio ? args.numerators : undefined,
-          denominators: useRatio ? args.denominators : undefined,
-          targets: rep(cl, args.keys.length)
-      };
-  }
-
-  function sLimits(args) {
-      const group_sd = args.numerators;
-      const count_per_group = args.denominators;
-      const Nm1 = subtract(extractValues(count_per_group, args.subset_points), 1);
-      const cl = sqrt(sum(multiply(Nm1, pow(extractValues(group_sd, args.subset_points), 2))) / sum(Nm1));
-      return {
-          keys: args.keys,
-          values: group_sd,
-          targets: rep(cl, args.keys.length),
-          ll99: multiply(cl, b3(count_per_group, 3)),
-          ll95: multiply(cl, b3(count_per_group, 2)),
-          ll68: multiply(cl, b3(count_per_group, 1)),
-          ul68: multiply(cl, b4(count_per_group, 1)),
-          ul95: multiply(cl, b4(count_per_group, 2)),
-          ul99: multiply(cl, b4(count_per_group, 3))
-      };
-  }
-
-  function tLimits(args) {
-      const val = pow(args.numerators, 1 / 3.6);
-      const inputArgsCopy = JSON.parse(JSON.stringify(args));
-      inputArgsCopy.numerators = val;
-      inputArgsCopy.denominators = null;
-      const limits = iLimits(inputArgsCopy);
-      limits.targets = pow(limits.targets, 3.6);
-      limits.values = pow(limits.values, 3.6);
-      limits.ll99 = truncate(pow(limits.ll99, 3.6), { lower: 0 });
-      limits.ll95 = truncate(pow(limits.ll95, 3.6), { lower: 0 });
-      limits.ll68 = truncate(pow(limits.ll68, 3.6), { lower: 0 });
-      limits.ul68 = pow(limits.ul68, 3.6);
-      limits.ul95 = pow(limits.ul95, 3.6);
-      limits.ul99 = pow(limits.ul99, 3.6);
-      return limits;
-  }
-
-  function uLimits(args) {
-      const cl = sum(extractValues(args.numerators, args.subset_points))
-          / sum(extractValues(args.denominators, args.subset_points));
-      const sigma = sqrt(divide(cl, args.denominators));
-      return {
-          keys: args.keys,
-          values: divide(args.numerators, args.denominators),
-          numerators: args.numerators,
-          denominators: args.denominators,
-          targets: rep(cl, args.keys.length),
-          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
-          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
-          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
-          ul68: add(cl, multiply(1, sigma)),
-          ul95: add(cl, multiply(2, sigma)),
-          ul99: add(cl, multiply(3, sigma))
-      };
-  }
-
-  function uprimeLimits(args) {
-      const val = divide(args.numerators, args.denominators);
-      const cl = sum(extractValues(args.numerators, args.subset_points))
-          / sum(extractValues(args.denominators, args.subset_points));
-      const sd = sqrt(divide(cl, args.denominators));
-      const zscore = extractValues(divide(subtract(val, cl), sd), args.subset_points);
-      const consec_diff = abs(diff(zscore));
-      const consec_diff_ulim = mean(consec_diff) * 3.267;
-      const outliers_in_limits = args.outliers_in_limits;
-      const consec_diff_valid = outliers_in_limits ? consec_diff : consec_diff.filter(d => d < consec_diff_ulim);
-      const sigma = multiply(sd, mean(consec_diff_valid) / 1.128);
-      return {
-          keys: args.keys,
-          values: val,
-          numerators: args.numerators,
-          denominators: args.denominators,
-          targets: rep(cl, args.keys.length),
-          ll99: truncate(subtract(cl, multiply(3, sigma)), { lower: 0 }),
-          ll95: truncate(subtract(cl, multiply(2, sigma)), { lower: 0 }),
-          ll68: truncate(subtract(cl, multiply(1, sigma)), { lower: 0 }),
-          ul68: add(cl, multiply(1, sigma)),
-          ul95: add(cl, multiply(2, sigma)),
-          ul99: add(cl, multiply(3, sigma))
-      };
-  }
-
-  function xbarLimits(args) {
-      const count_per_group = args.denominators;
-      const count_per_group_sub = extractValues(count_per_group, args.subset_points);
-      const group_means = args.numerators;
-      const group_means_sub = extractValues(group_means, args.subset_points);
-      const group_sd = args.xbar_sds;
-      const group_sd_sub = extractValues(group_sd, args.subset_points);
-      const Nm1 = subtract(count_per_group_sub, 1);
-      const sd = sqrt(sum(multiply(Nm1, square(group_sd_sub))) / sum(Nm1));
-      const cl = sum(multiply(count_per_group_sub, group_means_sub)) / sum(count_per_group_sub);
-      const A3 = a3(count_per_group);
-      return {
-          keys: args.keys,
-          values: group_means,
-          targets: rep(cl, args.keys.length),
-          ll99: subtract(cl, multiply(A3, sd)),
-          ll95: subtract(cl, multiply(multiply(divide(A3, 3), 2), sd)),
-          ll68: subtract(cl, multiply(divide(A3, 3), sd)),
-          ul68: add(cl, multiply(divide(A3, 3), sd)),
-          ul95: add(cl, multiply(multiply(divide(A3, 3), 2), sd)),
-          ul99: add(cl, multiply(A3, sd)),
-          count: count_per_group
-      };
-  }
-
-  var limitFunctions = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    c: cLimits,
-    g: gLimits,
-    i: iLimits,
-    i_m: imLimits$1,
-    i_mm: imLimits,
-    mr: mrLimits,
-    p: pLimits,
-    pp: pprimeLimits,
-    r: runLimits,
-    run: runLimits,
-    s: sLimits,
-    t: tLimits,
-    u: uLimits,
-    up: uprimeLimits,
-    xbar: xbarLimits
-  });
 
   function astronomical(val, ll99, ul99) {
       return val.map((d, i) => {
@@ -13606,29 +8759,12 @@ var spc = (function (exports) {
       });
   }
 
-  function shift(val, targets, n) {
-      const lagged_sign = val.map((d, i) => {
-          return Math.sign(d - targets[i]);
-      });
-      const lagged_sign_sum = lagged_sign.map((_, i) => {
-          return sum(lagged_sign.slice(Math.max(0, i - (n - 1)), i + 1));
-      });
-      const shift_detected = lagged_sign_sum.map(d => {
-          if (abs(d) >= n) {
-              return d >= n ? "upper" : "lower";
-          }
-          else {
-              return "none";
-          }
-      });
-      for (let i = 0; i < shift_detected.length; i++) {
-          if (shift_detected[i] !== "none") {
-              for (let j = (i - 1); j >= (i - (n - 1)); j--) {
-                  shift_detected[j] = shift_detected[i];
-              }
-          }
+  function sum(values) {
+      let total = 0;
+      for (let i = 0; i < values.length; i++) {
+          total += values[i];
       }
-      return shift_detected;
+      return total;
   }
 
   function trend(val, n) {
@@ -13639,7 +8775,7 @@ var spc = (function (exports) {
           return sum(lagged_sign.slice(Math.max(0, i - (n - 2)), i + 1));
       });
       const trend_detected = lagged_sign_sum.map(d => {
-          if (abs(d) >= (n - 1)) {
+          if (Math.abs(d) >= (n - 1)) {
               return d >= (n - 1) ? "upper" : "lower";
           }
           else {
@@ -13664,7 +8800,7 @@ var spc = (function (exports) {
           return sum(outside95.slice(Math.max(0, i - 2), i + 1));
       });
       const two_in_three_detected = lagged_sign_sum.map(d => {
-          if (abs(d) >= 2) {
+          if (Math.abs(d) >= 2) {
               return d >= 2 ? "upper" : "lower";
           }
           else {
@@ -13686,15 +8822,47 @@ var spc = (function (exports) {
       return two_in_three_detected;
   }
 
+  function shift(val, targets, n) {
+      const lagged_sign = val.map((d, i) => {
+          return Math.sign(d - targets[i]);
+      });
+      const lagged_sign_sum = lagged_sign.map((_, i) => {
+          return sum(lagged_sign.slice(Math.max(0, i - (n - 1)), i + 1));
+      });
+      const shift_detected = lagged_sign_sum.map(d => {
+          if (Math.abs(d) >= n) {
+              return d >= n ? "upper" : "lower";
+          }
+          else {
+              return "none";
+          }
+      });
+      for (let i = 0; i < shift_detected.length; i++) {
+          if (shift_detected[i] !== "none") {
+              for (let j = (i - 1); j >= (i - (n - 1)); j--) {
+                  shift_detected[j] = shift_detected[i];
+              }
+          }
+      }
+      return shift_detected;
+  }
+
   class viewModelClass {
+      get showGrouped() {
+          return this.inputData && this.inputData.length > 1;
+      }
       constructor() {
-          this.inputData = null;
+          this.inputData = new Array();
           this.inputSettings = new settingsClass();
-          this.controlLimits = null;
+          this.controlLimits = new Array();
+          this.outliers = new Array();
           this.plotPoints = new Array();
           this.groupedLines = new Array();
           this.firstRun = true;
           this.splitIndexes = new Array();
+          this.groupStartEndIndexes = new Array();
+          this.identities = new Array();
+          this.tableColumns = new Array();
           this.colourPalette = null;
           this.headless = false;
           this.frontend = false;
@@ -13754,73 +8922,66 @@ var spc = (function (exports) {
               return res;
           }
           if (options.type === 2 || this.firstRun) {
-              if (options.dataViews[0].categorical.categories.some(d => d.source.roles.indicator)) {
-                  this.showGrouped = true;
-                  this.inputDataGrouped = new Array();
-                  this.groupStartEndIndexesGrouped = new Array();
-                  this.controlLimitsGrouped = new Array();
-                  this.outliersGrouped = new Array();
-                  this.identitiesGrouped = new Array();
-                  idx_per_indicator.forEach((group_idxs, idx) => {
-                      const inpData = extractInputData(options.dataViews[0].categorical, this.inputSettings.settingsGrouped[idx], this.inputSettings.derivedSettingsGrouped[idx], this.inputSettings.validationStatus.messages, group_idxs);
-                      const invalidData = inpData.validationStatus.status !== 0;
-                      const groupStartEndIndexes = invalidData ? new Array() : this.getGroupingIndexes(inpData);
-                      const limits = invalidData ? null : this.calculateLimits(inpData, groupStartEndIndexes, this.inputSettings.settingsGrouped[idx]);
-                      const outliers = invalidData ? null : this.flagOutliers(limits, groupStartEndIndexes, this.inputSettings.settingsGrouped[idx], this.inputSettings.derivedSettingsGrouped[idx]);
-                      if (!invalidData) {
-                          this.scaleAndTruncateLimits(limits, this.inputSettings.settingsGrouped[idx], this.inputSettings.derivedSettingsGrouped[idx]);
-                      }
-                      const identities = group_idxs.map(i => {
-                          return host.createSelectionIdBuilder().withCategory(options.dataViews[0].categorical.categories[0], i).createSelectionId();
-                      });
-                      this.identitiesGrouped.push(identities);
-                      this.inputDataGrouped.push(inpData);
-                      this.groupStartEndIndexesGrouped.push(groupStartEndIndexes);
-                      this.controlLimitsGrouped.push(limits);
-                      this.outliersGrouped.push(outliers);
+              const hasIndicator = options.dataViews[0].categorical.categories.some(d => d.source.roles.indicator);
+              const split_indexes_str = (_u = ((_t = (_s = (_r = (_q = options.dataViews[0]) === null || _q === void 0 ? void 0 : _q.metadata) === null || _r === void 0 ? void 0 : _r.objects) === null || _s === void 0 ? void 0 : _s.split_indexes_storage) === null || _t === void 0 ? void 0 : _t.split_indexes)) !== null && _u !== void 0 ? _u : "[]";
+              const split_indexes = JSON.parse(split_indexes_str);
+              this.splitIndexes = hasIndicator ? [] : split_indexes;
+              this.inputData = new Array();
+              this.groupStartEndIndexes = new Array();
+              this.controlLimits = new Array();
+              this.outliers = new Array();
+              this.identities = new Array();
+              this.tableColumns = new Array();
+              idx_per_indicator.forEach((group_idxs, idx) => {
+                  const settings = this.inputSettings.settings[idx];
+                  const derivedSettings = this.inputSettings.derivedSettings[idx];
+                  const inpData = extractInputData(options.dataViews[0].categorical, settings, derivedSettings, this.inputSettings.validationStatus.messages, group_idxs);
+                  const invalidData = inpData.validationStatus.status !== 0;
+                  const groupStartEnd = invalidData
+                      ? new Array()
+                      : this.getGroupingIndexes(inpData, idx === 0 ? this.splitIndexes : undefined);
+                  const limits = invalidData
+                      ? null
+                      : this.calculateLimits(inpData, groupStartEnd, settings);
+                  const outliers = invalidData
+                      ? null
+                      : this.flagOutliers(limits, groupStartEnd, settings, derivedSettings);
+                  if (!invalidData) {
+                      this.scaleAndTruncateLimits(limits, settings, derivedSettings);
+                  }
+                  const identities = group_idxs.map(i => {
+                      return host.createSelectionIdBuilder()
+                          .withCategory(options.dataViews[0].categorical.categories[0], i)
+                          .createSelectionId();
                   });
+                  this.inputData.push(inpData);
+                  this.groupStartEndIndexes.push(groupStartEnd);
+                  this.controlLimits.push(limits);
+                  this.outliers.push(outliers);
+                  this.identities.push(identities);
+              });
+              if (this.showGrouped) {
                   this.initialisePlotDataGrouped();
               }
               else {
-                  this.showGrouped = false;
-                  this.groupNames = null;
-                  this.inputDataGrouped = null;
-                  this.groupStartEndIndexesGrouped = null;
-                  this.controlLimitsGrouped = null;
-                  const split_indexes_str = (_u = ((_t = (_s = (_r = (_q = options.dataViews[0]) === null || _q === void 0 ? void 0 : _q.metadata) === null || _r === void 0 ? void 0 : _r.objects) === null || _s === void 0 ? void 0 : _s.split_indexes_storage) === null || _t === void 0 ? void 0 : _t.split_indexes)) !== null && _u !== void 0 ? _u : "[]";
-                  const split_indexes = JSON.parse(split_indexes_str);
-                  this.splitIndexes = split_indexes;
-                  this.inputData = extractInputData(options.dataViews[0].categorical, this.inputSettings.settings, this.inputSettings.derivedSettings, this.inputSettings.validationStatus.messages, idx_per_indicator[0]);
-                  if (this.inputData.validationStatus.status === 0) {
-                      this.groupStartEndIndexes = this.getGroupingIndexes(this.inputData, this.splitIndexes);
-                      this.controlLimits = this.calculateLimits(this.inputData, this.groupStartEndIndexes, this.inputSettings.settings);
-                      this.scaleAndTruncateLimits(this.controlLimits, this.inputSettings.settings, this.inputSettings.derivedSettings);
-                      this.outliers = this.flagOutliers(this.controlLimits, this.groupStartEndIndexes, this.inputSettings.settings, this.inputSettings.derivedSettings);
-                      this.initialisePlotData(host);
-                      this.initialiseGroupedLines();
-                  }
+                  this.initialisePlotData(host);
+                  this.initialiseGroupedLines();
               }
           }
           this.firstRun = false;
-          if (this.showGrouped) {
-              if (this.inputDataGrouped.map(d => d.validationStatus.status).some(d => d !== 0)) {
-                  res.status = false;
-                  res.error = this.inputDataGrouped.map(d => d.validationStatus.error).join("\n");
-                  return res;
-              }
-              if (this.inputDataGrouped.some(d => d.warningMessage !== "")) {
-                  res.warning = this.inputDataGrouped.map(d => d.warningMessage).join("\n");
-              }
+          if (this.inputData.some(d => d.validationStatus.status !== 0)) {
+              res.status = false;
+              res.error = this.inputData
+                  .filter(d => d.validationStatus.status !== 0)
+                  .map(d => d.validationStatus.error)
+                  .join("\n");
+              return res;
           }
-          else {
-              if (this.inputData.validationStatus.status !== 0) {
-                  res.status = false;
-                  res.error = this.inputData.validationStatus.error;
-                  return res;
-              }
-              if (this.inputData.warningMessage !== "") {
-                  res.warning = this.inputData.warningMessage;
-              }
+          if (this.inputData.some(d => d.warningMessage !== "")) {
+              res.warning = this.inputData
+                  .filter(d => d.warningMessage !== "")
+                  .map(d => d.warningMessage)
+                  .join("\n");
           }
           return res;
       }
@@ -13844,10 +9005,15 @@ var spc = (function (exports) {
           let controlLimits;
           if (groupStartEndIndexes.length > 1) {
               const groupedData = groupStartEndIndexes.map((indexes) => {
-                  const data = JSON.parse(JSON.stringify(inputData));
-                  data.limitInputArgs.denominators = data.limitInputArgs.denominators.slice(indexes[0], indexes[1]);
-                  data.limitInputArgs.numerators = data.limitInputArgs.numerators.slice(indexes[0], indexes[1]);
-                  data.limitInputArgs.keys = data.limitInputArgs.keys.slice(indexes[0], indexes[1]);
+                  let data = JSON.parse(JSON.stringify(inputData));
+                  Object.keys(data.limitInputArgs).forEach(key => {
+                      if (Array.isArray(data.limitInputArgs[key])) {
+                          data.limitInputArgs[key] = data.limitInputArgs[key].slice(indexes[0], indexes[1]);
+                          if (key === "subset_points") {
+                              data.limitInputArgs[key] = data.limitInputArgs[key].map((d) => d - indexes[0]);
+                          }
+                      }
+                  });
                   return data;
               });
               const calcLimitsGrouped = groupedData.map(d => {
@@ -13882,31 +9048,32 @@ var spc = (function (exports) {
       }
       initialisePlotDataGrouped() {
           var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
-          this.plotPointsGrouped = new Array();
-          this.tableColumnsGrouped = new Array();
+          this.plotPoints = new Array();
+          this.tableColumns = new Array();
+          const tableColumnsDef = new Array();
           this.indicatorVarNames.forEach(indicator_name => {
-              this.tableColumnsGrouped.push({ name: indicator_name, label: indicator_name });
+              tableColumnsDef.push({ name: indicator_name, label: indicator_name });
           });
-          this.tableColumnsGrouped.push({ name: "latest_date", label: "Latest Date" });
-          const lineSettings = this.inputSettings.settings.lines;
+          tableColumnsDef.push({ name: "latest_date", label: "Latest Date" });
+          const lineSettings = this.inputSettings.settings[0].lines;
           if (lineSettings.show_main) {
-              this.tableColumnsGrouped.push({ name: "value", label: "Value" });
+              tableColumnsDef.push({ name: "value", label: "Value" });
           }
-          if (this.inputSettings.settings.spc.ttip_show_numerator) {
-              this.tableColumnsGrouped.push({ name: "numerator", label: "Numerator" });
+          if (this.inputSettings.settings[0].spc.ttip_show_numerator) {
+              tableColumnsDef.push({ name: "numerator", label: "Numerator" });
           }
-          if (this.inputSettings.settings.spc.ttip_show_denominator) {
-              this.tableColumnsGrouped.push({ name: "denominator", label: "Denominator" });
+          if (this.inputSettings.settings[0].spc.ttip_show_denominator) {
+              tableColumnsDef.push({ name: "denominator", label: "Denominator" });
           }
           if (lineSettings.show_target) {
-              this.tableColumnsGrouped.push({ name: "target", label: lineSettings.ttip_label_target });
+              tableColumnsDef.push({ name: "target", label: lineSettings.ttip_label_target });
           }
           if (lineSettings.show_alt_target) {
-              this.tableColumnsGrouped.push({ name: "alt_target", label: lineSettings.ttip_label_alt_target });
+              tableColumnsDef.push({ name: "alt_target", label: lineSettings.ttip_label_alt_target });
           }
           ["99", "95", "68"].forEach(limit => {
               if (lineSettings[`show_${limit}`]) {
-                  this.tableColumnsGrouped.push({
+                  tableColumnsDef.push({
                       name: `ucl${limit}`,
                       label: `${lineSettings[`ttip_label_${limit}_prefix_upper`]}${lineSettings[`ttip_label_${limit}`]}`
                   });
@@ -13914,36 +9081,39 @@ var spc = (function (exports) {
           });
           ["68", "95", "99"].forEach(limit => {
               if (lineSettings[`show_${limit}`]) {
-                  this.tableColumnsGrouped.push({
+                  tableColumnsDef.push({
                       name: `lcl${limit}`,
                       label: `${lineSettings[`ttip_label_${limit}_prefix_lower`]}${lineSettings[`ttip_label_${limit}`]}`
                   });
               }
           });
-          const nhsIconSettings = this.inputSettings.settings.nhs_icons;
+          const nhsIconSettings = this.inputSettings.settings[0].nhs_icons;
           if (nhsIconSettings.show_variation_icons) {
-              this.tableColumnsGrouped.push({ name: "variation", label: "Variation" });
+              tableColumnsDef.push({ name: "variation", label: "Variation" });
           }
           if (nhsIconSettings.show_assurance_icons) {
-              this.tableColumnsGrouped.push({ name: "assurance", label: "Assurance" });
+              tableColumnsDef.push({ name: "assurance", label: "Assurance" });
           }
-          const anyTooltips = this.inputDataGrouped.some(d => { var _a; return (_a = d === null || d === void 0 ? void 0 : d.tooltips) === null || _a === void 0 ? void 0 : _a.some(t => t.length > 0); });
+          const anyTooltips = this.inputData.some(d => { var _a; return (_a = d === null || d === void 0 ? void 0 : d.tooltips) === null || _a === void 0 ? void 0 : _a.some(t => t.length > 0); });
           if (anyTooltips) {
-              (_b = (_a = this.inputDataGrouped) === null || _a === void 0 ? void 0 : _a[0].tooltips) === null || _b === void 0 ? void 0 : _b[0].forEach(tooltip => {
-                  this.tableColumnsGrouped.push({ name: tooltip.displayName, label: tooltip.displayName });
+              (_b = (_a = this.inputData) === null || _a === void 0 ? void 0 : _a[0].tooltips) === null || _b === void 0 ? void 0 : _b[0].forEach(tooltip => {
+                  tableColumnsDef.push({ name: tooltip.displayName, label: tooltip.displayName });
               });
           }
           for (let i = 0; i < this.groupNames.length; i++) {
-              if (isNullOrUndefined((_c = this.inputDataGrouped[i]) === null || _c === void 0 ? void 0 : _c.categories)) {
+              if (isNullOrUndefined((_c = this.inputData[i]) === null || _c === void 0 ? void 0 : _c.categories)) {
                   continue;
               }
-              const formatValues = valueFormatter(this.inputSettings.settingsGrouped[i], this.inputSettings.derivedSettingsGrouped[i]);
-              const varIconFilter = this.inputSettings.settingsGrouped[i].summary_table.table_variation_filter;
-              const assIconFilter = this.inputSettings.settingsGrouped[i].summary_table.table_assurance_filter;
-              const limits = this.controlLimitsGrouped[i];
-              const outliers = this.outliersGrouped[i];
+              const formatValues = valueFormatter(this.inputSettings.settings[i], this.inputSettings.derivedSettings[i]);
+              const varIconFilter = this.inputSettings.settings[i].summary_table.table_variation_filter;
+              const assIconFilter = this.inputSettings.settings[i].summary_table.table_assurance_filter;
+              const limits = this.controlLimits[i];
+              if (!limits) {
+                  continue;
+              }
+              const outliers = this.outliers[i];
               const lastIndex = limits.keys.length - 1;
-              const varIcons = variationIconsToDraw(outliers, this.inputSettings.settingsGrouped[i]);
+              const varIcons = variationIconsToDraw(outliers, this.inputSettings.settings[i]);
               if (varIconFilter !== "all") {
                   if (varIconFilter === "improvement" && !(["improvementHigh", "improvementLow"].includes(varIcons[0]))) {
                       continue;
@@ -13961,7 +9131,7 @@ var spc = (function (exports) {
                       continue;
                   }
               }
-              const assIcon = assuranceIconToDraw(limits, this.inputSettings.settingsGrouped[i], this.inputSettings.derivedSettingsGrouped[i]);
+              const assIcon = assuranceIconToDraw(limits, this.inputSettings.settings[i], this.inputSettings.derivedSettings[i]);
               if (assIconFilter !== "all") {
                   if (assIconFilter === "any" && assIcon === "inconsistent") {
                       continue;
@@ -13995,182 +9165,201 @@ var spc = (function (exports) {
               table_row_entries.push(["variation", varIcons[0]]);
               table_row_entries.push(["assurance", assIcon]);
               if (anyTooltips) {
-                  this.inputDataGrouped[i].tooltips[lastIndex].forEach(tooltip => {
+                  this.inputData[i].tooltips[lastIndex].forEach(tooltip => {
                       table_row_entries.push([tooltip.displayName, tooltip.value]);
                   });
               }
-              this.plotPointsGrouped.push({
+              if (!this.plotPoints[i]) {
+                  this.plotPoints[i] = [];
+              }
+              this.plotPoints[i].push({
                   table_row: Object.fromEntries(table_row_entries),
-                  identity: this.identitiesGrouped[i],
-                  aesthetics: this.inputSettings.settingsGrouped[i].summary_table,
-                  highlighted: this.inputDataGrouped[i].anyHighlights
+                  identity: this.identities[i],
+                  aesthetics: this.inputSettings.settings[i].summary_table,
+                  highlighted: this.inputData[i].anyHighlights
               });
+              this.tableColumns[i] = tableColumnsDef;
           }
       }
       initialisePlotData(host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
-          this.plotPoints = new Array();
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+          const inputData = this.inputData[0];
+          const controlLimits = this.controlLimits[0];
+          const outliers = this.outliers[0];
+          const settings = this.inputSettings.settings[0];
+          const derivedSettings = this.inputSettings.derivedSettings[0];
+          this.plotPoints[0] = new Array();
           this.tickLabels = new Array();
-          this.tableColumns = new Array();
-          this.tableColumns.push({ name: "date", label: "Date" });
-          this.tableColumns.push({ name: "value", label: "Value" });
-          if (!isNullOrUndefined(this.controlLimits.numerators)) {
-              this.tableColumns.push({ name: "numerator", label: "Numerator" });
+          this.tableColumns[0] = new Array();
+          this.tableColumns[0].push({ name: "date", label: "Date" });
+          this.tableColumns[0].push({ name: "value", label: "Value" });
+          if (!controlLimits) {
+              return;
           }
-          if (!isNullOrUndefined(this.controlLimits.denominators)) {
-              this.tableColumns.push({ name: "denominator", label: "Denominator" });
+          if (!isNullOrUndefined(controlLimits.numerators)) {
+              this.tableColumns[0].push({ name: "numerator", label: "Numerator" });
           }
-          if (this.inputSettings.settings.lines.show_target) {
-              this.tableColumns.push({ name: "target", label: "Target" });
+          if (!isNullOrUndefined(controlLimits.denominators)) {
+              this.tableColumns[0].push({ name: "denominator", label: "Denominator" });
           }
-          if (this.inputSettings.settings.lines.show_alt_target) {
-              this.tableColumns.push({ name: "alt_target", label: "Alt. Target" });
+          if (settings.lines.show_target) {
+              this.tableColumns[0].push({ name: "target", label: "Target" });
           }
-          if (this.inputSettings.settings.lines.show_specification) {
-              this.tableColumns.push({ name: "speclimits_lower", label: "Spec. Lower" }, { name: "speclimits_upper", label: "Spec. Upper" });
+          if (settings.lines.show_alt_target) {
+              this.tableColumns[0].push({ name: "alt_target", label: "Alt. Target" });
           }
-          if (this.inputSettings.settings.lines.show_trend) {
-              this.tableColumns.push({ name: "trend_line", label: "Trend Line" });
+          if (settings.lines.show_specification) {
+              this.tableColumns[0].push({ name: "speclimits_lower", label: "Spec. Lower" }, { name: "speclimits_upper", label: "Spec. Upper" });
           }
-          if (this.inputSettings.derivedSettings.chart_type_props.has_control_limits) {
-              if (this.inputSettings.settings.lines.show_99) {
-                  this.tableColumns.push({ name: "ll99", label: "LL 99%" }, { name: "ul99", label: "UL 99%" });
+          if (settings.lines.show_trend) {
+              this.tableColumns[0].push({ name: "trend_line", label: "Trend Line" });
+          }
+          if (derivedSettings.chart_type_props.has_control_limits) {
+              if (settings.lines.show_99) {
+                  this.tableColumns[0].push({ name: "ll99", label: "LL 99%" }, { name: "ul99", label: "UL 99%" });
               }
-              if (this.inputSettings.settings.lines.show_95) {
-                  this.tableColumns.push({ name: "ll95", label: "LL 95%" }, { name: "ul95", label: "UL 95%" });
+              if (settings.lines.show_95) {
+                  this.tableColumns[0].push({ name: "ll95", label: "LL 95%" }, { name: "ul95", label: "UL 95%" });
               }
-              if (this.inputSettings.settings.lines.show_68) {
-                  this.tableColumns.push({ name: "ll68", label: "LL 68%" }, { name: "ul68", label: "UL 68%" });
+              if (settings.lines.show_68) {
+                  this.tableColumns[0].push({ name: "ll68", label: "LL 68%" }, { name: "ul68", label: "UL 68%" });
               }
           }
-          if (this.inputSettings.settings.outliers.astronomical) {
-              this.tableColumns.push({ name: "astpoint", label: "Ast. Point" });
+          if (settings.outliers.astronomical) {
+              this.tableColumns[0].push({ name: "astpoint", label: "Ast. Point" });
           }
-          if (this.inputSettings.settings.outliers.trend) {
-              this.tableColumns.push({ name: "trend", label: "Trend" });
+          if (settings.outliers.trend) {
+              this.tableColumns[0].push({ name: "trend", label: "Trend" });
           }
-          if (this.inputSettings.settings.outliers.shift) {
-              this.tableColumns.push({ name: "shift", label: "Shift" });
+          if (settings.outliers.shift) {
+              this.tableColumns[0].push({ name: "shift", label: "Shift" });
           }
-          for (let i = 0; i < this.controlLimits.keys.length; i++) {
-              const index = this.controlLimits.keys[i].x;
-              const aesthetics = this.inputData.scatter_formatting[i];
+          for (let i = 0; i < controlLimits.keys.length; i++) {
+              const index = controlLimits.keys[i].x;
+              const aesthetics = inputData.scatter_formatting[i];
               if (this.colourPalette.isHighContrast) {
                   aesthetics.colour = this.colourPalette.foregroundColour;
               }
-              if (this.outliers.shift[i] !== "none") {
-                  aesthetics.colour = getAesthetic(this.outliers.shift[i], "outliers", "shift_colour", this.inputSettings.settings);
-                  aesthetics.colour_outline = getAesthetic(this.outliers.shift[i], "outliers", "shift_colour", this.inputSettings.settings);
+              if (outliers.shift[i] !== "none") {
+                  aesthetics.colour = getAesthetic(outliers.shift[i], "outliers", "shift_colour", settings);
+                  aesthetics.colour_outline = getAesthetic(outliers.shift[i], "outliers", "shift_colour", settings);
               }
-              if (this.outliers.trend[i] !== "none") {
-                  aesthetics.colour = getAesthetic(this.outliers.trend[i], "outliers", "trend_colour", this.inputSettings.settings);
-                  aesthetics.colour_outline = getAesthetic(this.outliers.trend[i], "outliers", "trend_colour", this.inputSettings.settings);
+              if (outliers.trend[i] !== "none") {
+                  aesthetics.colour = getAesthetic(outliers.trend[i], "outliers", "trend_colour", settings);
+                  aesthetics.colour_outline = getAesthetic(outliers.trend[i], "outliers", "trend_colour", settings);
               }
-              if (this.outliers.two_in_three[i] !== "none") {
-                  aesthetics.colour = getAesthetic(this.outliers.two_in_three[i], "outliers", "twointhree_colour", this.inputSettings.settings);
-                  aesthetics.colour_outline = getAesthetic(this.outliers.two_in_three[i], "outliers", "twointhree_colour", this.inputSettings.settings);
+              if (outliers.two_in_three[i] !== "none") {
+                  aesthetics.colour = getAesthetic(outliers.two_in_three[i], "outliers", "twointhree_colour", settings);
+                  aesthetics.colour_outline = getAesthetic(outliers.two_in_three[i], "outliers", "twointhree_colour", settings);
               }
-              if (this.outliers.astpoint[i] !== "none") {
-                  aesthetics.colour = getAesthetic(this.outliers.astpoint[i], "outliers", "ast_colour", this.inputSettings.settings);
-                  aesthetics.colour_outline = getAesthetic(this.outliers.astpoint[i], "outliers", "ast_colour", this.inputSettings.settings);
+              if (outliers.astpoint[i] !== "none") {
+                  aesthetics.colour = getAesthetic(outliers.astpoint[i], "outliers", "ast_colour", settings);
+                  aesthetics.colour_outline = getAesthetic(outliers.astpoint[i], "outliers", "ast_colour", settings);
               }
               const table_row = {
-                  date: this.controlLimits.keys[i].label,
-                  numerator: (_a = this.controlLimits.numerators) === null || _a === void 0 ? void 0 : _a[i],
-                  denominator: (_b = this.controlLimits.denominators) === null || _b === void 0 ? void 0 : _b[i],
-                  value: this.controlLimits.values[i],
-                  target: this.controlLimits.targets[i],
-                  alt_target: this.controlLimits.alt_targets[i],
-                  ll99: (_d = (_c = this.controlLimits) === null || _c === void 0 ? void 0 : _c.ll99) === null || _d === void 0 ? void 0 : _d[i],
-                  ll95: (_f = (_e = this.controlLimits) === null || _e === void 0 ? void 0 : _e.ll95) === null || _f === void 0 ? void 0 : _f[i],
-                  ll68: (_h = (_g = this.controlLimits) === null || _g === void 0 ? void 0 : _g.ll68) === null || _h === void 0 ? void 0 : _h[i],
-                  ul68: (_k = (_j = this.controlLimits) === null || _j === void 0 ? void 0 : _j.ul68) === null || _k === void 0 ? void 0 : _k[i],
-                  ul95: (_m = (_l = this.controlLimits) === null || _l === void 0 ? void 0 : _l.ul95) === null || _m === void 0 ? void 0 : _m[i],
-                  ul99: (_p = (_o = this.controlLimits) === null || _o === void 0 ? void 0 : _o.ul99) === null || _p === void 0 ? void 0 : _p[i],
-                  speclimits_lower: (_r = (_q = this.controlLimits) === null || _q === void 0 ? void 0 : _q.speclimits_lower) === null || _r === void 0 ? void 0 : _r[i],
-                  speclimits_upper: (_t = (_s = this.controlLimits) === null || _s === void 0 ? void 0 : _s.speclimits_upper) === null || _t === void 0 ? void 0 : _t[i],
-                  trend_line: (_v = (_u = this.controlLimits) === null || _u === void 0 ? void 0 : _u.trend_line) === null || _v === void 0 ? void 0 : _v[i],
-                  astpoint: this.outliers.astpoint[i],
-                  trend: this.outliers.trend[i],
-                  shift: this.outliers.shift[i],
-                  two_in_three: this.outliers.two_in_three[i]
+                  date: controlLimits.keys[i].label,
+                  numerator: (_a = controlLimits.numerators) === null || _a === void 0 ? void 0 : _a[i],
+                  denominator: (_b = controlLimits.denominators) === null || _b === void 0 ? void 0 : _b[i],
+                  value: controlLimits.values[i],
+                  target: controlLimits.targets[i],
+                  alt_target: controlLimits.alt_targets[i],
+                  ll99: (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _c === void 0 ? void 0 : _c[i],
+                  ll95: (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll95) === null || _d === void 0 ? void 0 : _d[i],
+                  ll68: (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll68) === null || _e === void 0 ? void 0 : _e[i],
+                  ul68: (_f = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul68) === null || _f === void 0 ? void 0 : _f[i],
+                  ul95: (_g = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul95) === null || _g === void 0 ? void 0 : _g[i],
+                  ul99: (_h = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _h === void 0 ? void 0 : _h[i],
+                  speclimits_lower: (_j = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _j === void 0 ? void 0 : _j[i],
+                  speclimits_upper: (_k = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _k === void 0 ? void 0 : _k[i],
+                  trend_line: (_l = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.trend_line) === null || _l === void 0 ? void 0 : _l[i],
+                  astpoint: outliers.astpoint[i],
+                  trend: outliers.trend[i],
+                  shift: outliers.shift[i],
+                  two_in_three: outliers.two_in_three[i]
               };
-              this.plotPoints.push({
+              this.plotPoints[0].push({
                   x: index,
-                  value: this.controlLimits.values[i],
+                  value: controlLimits.values[i],
                   aesthetics: aesthetics,
                   table_row: table_row,
                   identity: host.createSelectionIdBuilder()
-                      .withCategory(this.inputData.categories, this.inputData.limitInputArgs.keys[i].id)
+                      .withCategory(inputData.categories, inputData.limitInputArgs.keys[i].id)
                       .createSelectionId(),
-                  highlighted: !isNullOrUndefined((_w = this.inputData.highlights) === null || _w === void 0 ? void 0 : _w[index]),
-                  tooltip: buildTooltip(table_row, (_y = (_x = this.inputData) === null || _x === void 0 ? void 0 : _x.tooltips) === null || _y === void 0 ? void 0 : _y[index], this.inputSettings.settings, this.inputSettings.derivedSettings),
+                  highlighted: !isNullOrUndefined((_m = inputData.highlights) === null || _m === void 0 ? void 0 : _m[index]),
+                  tooltip: buildTooltip(table_row, (_o = inputData === null || inputData === void 0 ? void 0 : inputData.tooltips) === null || _o === void 0 ? void 0 : _o[index], settings, derivedSettings),
                   label: {
-                      text_value: (_z = this.inputData.labels) === null || _z === void 0 ? void 0 : _z[index],
-                      aesthetics: this.inputData.label_formatting[index],
+                      text_value: (_p = inputData.labels) === null || _p === void 0 ? void 0 : _p[index],
+                      aesthetics: inputData.label_formatting[index],
                       angle: null,
                       distance: null,
                       line_offset: null,
                       marker_offset: null
                   }
               });
-              this.tickLabels.push({ x: index, label: this.controlLimits.keys[i].label });
+              this.tickLabels.push({ x: index, label: controlLimits.keys[i].label });
           }
       }
       initialiseGroupedLines() {
+          const settings = this.inputSettings.settings[0];
+          const derivedSettings = this.inputSettings.derivedSettings[0];
+          const controlLimits = this.controlLimits[0];
+          const inputData = this.inputData[0];
           const labels = new Array();
-          if (this.inputSettings.settings.lines.show_main) {
+          if (settings.lines.show_main) {
               labels.push("values");
           }
-          if (this.inputSettings.settings.lines.show_target) {
+          if (settings.lines.show_target) {
               labels.push("targets");
           }
-          if (this.inputSettings.settings.lines.show_alt_target) {
+          if (settings.lines.show_alt_target) {
               labels.push("alt_targets");
           }
-          if (this.inputSettings.settings.lines.show_specification) {
+          if (settings.lines.show_specification) {
               labels.push("speclimits_lower", "speclimits_upper");
           }
-          if (this.inputSettings.settings.lines.show_trend) {
+          if (settings.lines.show_trend) {
               labels.push("trend_line");
           }
-          if (this.inputSettings.derivedSettings.chart_type_props.has_control_limits) {
-              if (this.inputSettings.settings.lines.show_99) {
+          if (derivedSettings.chart_type_props.has_control_limits) {
+              if (settings.lines.show_99) {
                   labels.push("ll99", "ul99");
               }
-              if (this.inputSettings.settings.lines.show_95) {
+              if (settings.lines.show_95) {
                   labels.push("ll95", "ul95");
               }
-              if (this.inputSettings.settings.lines.show_68) {
+              if (settings.lines.show_68) {
                   labels.push("ll68", "ul68");
               }
           }
           const formattedLines = new Array();
-          const nLimits = this.controlLimits.keys.length;
+          if (!controlLimits) {
+              return;
+          }
+          const nLimits = controlLimits.keys.length;
           for (let i = 0; i < nLimits; i++) {
-              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || this.inputData.groupingIndexes.includes(i - 1);
+              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || inputData.groupingIndexes.includes(i - 1);
               let isNewAltTarget = false;
-              if (i > 0 && this.inputSettings.settings.lines.show_alt_target) {
-                  isNewAltTarget = this.controlLimits.alt_targets[i] !== this.controlLimits.alt_targets[i - 1];
+              if (i > 0 && settings.lines.show_alt_target) {
+                  isNewAltTarget = controlLimits.alt_targets[i] !== controlLimits.alt_targets[i - 1];
               }
               labels.forEach(label => {
                   var _a, _b;
-                  const join_rebaselines = this.inputSettings.settings.lines[`join_rebaselines_${lineNameMap[label]}`];
+                  const join_rebaselines = settings.lines[`join_rebaselines_${lineNameMap[label]}`];
                   if (isRebaselinePoint || isNewAltTarget) {
                       const is_alt_target = label === "alt_targets" && isNewAltTarget;
                       const is_rebaseline = label !== "alt_targets" && isRebaselinePoint;
                       formattedLines.push({
-                          x: this.controlLimits.keys[i].x,
-                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? null : (_a = this.controlLimits[label]) === null || _a === void 0 ? void 0 : _a[i],
+                          x: controlLimits.keys[i].x,
+                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? null : (_a = controlLimits[label]) === null || _a === void 0 ? void 0 : _a[i],
                           group: label,
-                          aesthetics: this.inputData.line_formatting[i]
+                          aesthetics: inputData.line_formatting[i]
                       });
                   }
                   formattedLines.push({
-                      x: this.controlLimits.keys[i].x,
-                      line_value: (_b = this.controlLimits[label]) === null || _b === void 0 ? void 0 : _b[i],
+                      x: controlLimits.keys[i].x,
+                      line_value: (_b = controlLimits[label]) === null || _b === void 0 ? void 0 : _b[i],
                       group: label,
-                      aesthetics: this.inputData.line_formatting[i]
+                      aesthetics: inputData.line_formatting[i]
                   });
               });
           }
@@ -14195,15 +9384,25 @@ var spc = (function (exports) {
                   lines_to_scale = lines_to_scale.concat(["speclimits_lower", "speclimits_upper"]);
               }
           }
-          const limits = {
-              lower: inputSettings.spc.ll_truncate,
-              upper: inputSettings.spc.ul_truncate
-          };
           lines_to_scale.forEach(limit => {
-              controlLimits[limit] = multiply(controlLimits[limit], multiplier);
+              for (let i = 0; i < controlLimits[limit].length; i++) {
+                  if (!isNullOrUndefined(controlLimits[limit][i])) {
+                      controlLimits[limit][i] = controlLimits[limit][i] * multiplier;
+                  }
+              }
           });
           lines_to_truncate.forEach(limit => {
-              controlLimits[limit] = truncate(controlLimits[limit], limits);
+              for (let i = 0; i < controlLimits[limit].length; i++) {
+                  if (!isNullOrUndefined(controlLimits[limit][i])) {
+                      const lower_trunc = isValidNumber(inputSettings.spc.ll_truncate)
+                          ? Math.max(inputSettings.spc.ll_truncate, controlLimits[limit][i])
+                          : controlLimits[limit][i];
+                      const upper_trunc = isValidNumber(inputSettings.spc.ul_truncate)
+                          ? Math.min(inputSettings.spc.ul_truncate, lower_trunc)
+                          : lower_trunc;
+                      controlLimits[limit][i] = upper_trunc;
+                  }
+              }
           });
       }
       flagOutliers(controlLimits, groupStartEndIndexes, inputSettings, derivedSettings) {
@@ -14262,7 +9461,9 @@ var spc = (function (exports) {
               }
           }
           Object.keys(outliers).forEach(key => {
-              outliers[key] = checkFlagDirection(outliers[key], { process_flag_type, improvement_direction });
+              for (let i = 0; i < outliers[key].length; i++) {
+                  outliers[key][i] = checkFlagDirection(outliers[key][i], { process_flag_type, improvement_direction });
+              }
           });
           return outliers;
       }
@@ -14288,14 +9489,14 @@ var spc = (function (exports) {
           table.append('tbody').classed("table-body", true);
       }
       update(options) {
-          var _a, _b, _c, _d, _e;
+          var _a, _b, _c, _d, _e, _f;
           try {
               this.host.eventService.renderingStarted(options);
               this.svg.select(".errormessage").remove();
               const update_status = this.viewModel.update(options, this.host);
               if (!update_status.status) {
                   this.resizeCanvas(options.viewport.width, options.viewport.height);
-                  if ((_e = (_d = (_c = (_b = (_a = this.viewModel) === null || _a === void 0 ? void 0 : _a.inputSettings) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c.canvas) === null || _d === void 0 ? void 0 : _d.show_errors) !== null && _e !== void 0 ? _e : true) {
+                  if ((_f = (_e = (_d = (_c = (_b = (_a = this.viewModel) === null || _a === void 0 ? void 0 : _a.inputSettings) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.canvas) === null || _e === void 0 ? void 0 : _e.show_errors) !== null && _f !== void 0 ? _f : true) {
                       this.svg.call(drawErrors, options, this.viewModel.colourPalette, update_status === null || update_status === void 0 ? void 0 : update_status.error, update_status === null || update_status === void 0 ? void 0 : update_status.type);
                   }
                   else {
@@ -14308,7 +9509,7 @@ var spc = (function (exports) {
               if (update_status.warning) {
                   this.host.displayWarningIcon("Invalid inputs or settings ignored.\n", update_status.warning);
               }
-              if (this.viewModel.showGrouped || this.viewModel.inputSettings.settings.summary_table.show_table) {
+              if (this.viewModel.showGrouped || this.viewModel.inputSettings.settings[0].summary_table.show_table) {
                   this.resizeCanvas(0, 0);
                   this.tableDiv.call(drawSummaryTable, this)
                       .call(addContextMenu, this);
@@ -14378,21 +9579,21 @@ var spc = (function (exports) {
           }
       }
       updateHighlighting() {
-          const anyHighlights = this.viewModel.inputData ? this.viewModel.inputData.anyHighlights : false;
-          const anyHighlightsGrouped = this.viewModel.inputDataGrouped ? this.viewModel.inputDataGrouped.some(d => d.anyHighlights) : false;
+          const anyHighlights = this.viewModel.inputData.length > 0
+              && this.viewModel.inputData.some(d => d.anyHighlights);
           const allSelectionIDs = this.selectionManager.getSelectionIds();
           const dotsSelection = this.svg.selectAll(".dotsgroup").selectChildren();
           const linesSelection = this.svg.selectAll(".linesgroup").selectChildren();
           const tableSelection = this.tableDiv.selectAll(".table-body").selectChildren();
           linesSelection.style("stroke-opacity", (d) => {
-              return getAesthetic(d[0], "lines", "opacity", this.viewModel.inputSettings.settings);
+              return getAesthetic(d[0], "lines", "opacity", this.viewModel.inputSettings.settings[0]);
           });
           dotsSelection.style("fill-opacity", (d) => d.aesthetics.opacity);
           dotsSelection.style("stroke-opacity", (d) => d.aesthetics.opacity);
           tableSelection.style("opacity", (d) => d.aesthetics["table_opacity"]);
-          if (anyHighlights || (allSelectionIDs.length > 0) || anyHighlightsGrouped) {
+          if (anyHighlights || (allSelectionIDs.length > 0)) {
               linesSelection.style("stroke-opacity", (d) => {
-                  return getAesthetic(d[0], "lines", "opacity_unselected", this.viewModel.inputSettings.settings);
+                  return getAesthetic(d[0], "lines", "opacity_unselected", this.viewModel.inputSettings.settings[0]);
               });
               dotsSelection.nodes().forEach(currentDotNode => {
                   const dot = select(currentDotNode).datum();
