@@ -14,7 +14,6 @@ ctx <- NULL
   # date formatting (needed for SPC)
   # so we need to load a polyfill
   .load_js_file(ctx, "js/linkedom.js")
-  .load_js_file(ctx, "js/Intl.polyfill.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.js")
