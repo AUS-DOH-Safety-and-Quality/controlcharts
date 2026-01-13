@@ -106,7 +106,7 @@ spc <- function(data,
                 tooltip_settings = NULL,
                 width = NULL,
                 height = NULL,
-                elementId = NULL) { # nolint
+                elementId = NULL) { # nolint: object_name_linter.
   if (missing(keys)) {
     stop("keys are required", call. = FALSE)
   }
