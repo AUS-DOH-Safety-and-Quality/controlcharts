@@ -19,7 +19,7 @@ jobs:
       max-parallel: 1
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Set name variables
       run: |
@@ -34,7 +34,7 @@ jobs:
         fi
 
     - name: Clone ${{ env.REPO_NAME }} Repo
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         repository: "AUS-DOH-Safety-and-Quality/${{ env.REPO_NAME }}"
         path: ${{ env.REPO_NAME }}

@@ -1,5 +1,4 @@
 const makeConstructorArgs = function(element) {
-  var d3 = (globalThis?.spc?.d3 ?? globalThis?.funnel?.d3);
   return {
     element: element,
     host: {
@@ -13,31 +12,8 @@ const makeConstructorArgs = function(element) {
         withCategory: () => ({ createSelectionId: () => {} })
       }),
       tooltipService: {
-        show: (x) => {
-          var tooltipGroup = d3.select(element).select(".chart-tooltip-group");
-          tooltipGroup.selectAll("rect")
-                    .data([0])
-                    .join("rect")
-                    .attr("fill", "#ffffff")
-                    .attr("width", 50)
-                    .attr("height", 50);
-
-          tooltipGroup.selectAll("text")
-                      .data(x.dataItems)
-                      .join("text")
-                      .attr("fill", "black")
-                      .style("text-anchor", "left")
-                      .attr("x", 5)
-                      .attr("y", (_, i) => 0 + 15*i)
-                      .text(d => `${d.displayName}: ${d.value}`);
-          tooltipGroup.attr("transform", `translate(${x.coordinates[0]}, ${x.coordinates[1]})`);
-        },
-        hide: () => {
-          d3.select(element)
-            .select(".chart-tooltip-group")
-            .selectChildren()
-            .remove();
-        }
+        show: () => {},
+        hide: () => {}
       },
       eventService: {
         renderingStarted: () => {},

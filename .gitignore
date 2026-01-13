@@ -6,3 +6,4 @@ testing.R
 *_files
 inst/doc
 docs
+node_modules
