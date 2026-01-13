@@ -53,6 +53,7 @@
 <span>  <span class="va">labels</span>,</span>
 <span>  aggregations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numerators <span class="op">=</span> <span class="st">"sum"</span>, denominators <span class="op">=</span> <span class="st">"sum"</span>, groupings <span class="op">=</span> <span class="st">"first"</span>,</span>
 <span>    xbar_sds <span class="op">=</span> <span class="st">"first"</span>, tooltips <span class="op">=</span> <span class="st">"first"</span>, labels <span class="op">=</span> <span class="st">"first"</span><span class="op">)</span>,</span>
+<span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  canvas_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  spc_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outlier_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -115,6 +116,18 @@
 <li><p><code>"max"</code>: returns the maximum value</p></li>
 <li><p><code>"median"</code>: returns the median value</p></li>
 <li><p><code>"count"</code>: returns the count of values</p></li>
+</ul></dd>
+
+
+<dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
+<dd><p>Optional title to be added to the top of the chart. It can be a character string for the title text only, or a list with the following options:</p><ul><li><p><code>text</code>: Title text (default: NULL)</p></li>
+<li><p><code>font_size</code>: Font size of the title (default: "16px")</p></li>
+<li><p><code>font_weight</code>: Font weight of the title (default: "bold")</p></li>
+<li><p><code>font_family</code>: Font family of the title (default: "'Arial', sans-serif")</p></li>
+<li><p><code>x</code>: Horizontal (x) position of the title as a percentage (default: "50%")</p></li>
+<li><p><code>y</code>: Vertical (y) position of the title in pixels (default: 5)</p></li>
+<li><p><code>text_anchor</code>: Text anchor of the title (default: "middle")</p></li>
+<li><p><code>dominant_baseline</code>: Dominant baseline of the title (default: "hanging")</p></li>
 </ul></dd>
 
 

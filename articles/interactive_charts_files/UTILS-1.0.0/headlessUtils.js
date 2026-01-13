@@ -18,7 +18,7 @@ function initialiseHeadless() {
   globalThis.funnelVisual = new funnel.Visual(makeConstructorArgs(funnelDiv));
 }
 
-function updateHeadlessVisual(chartType, dataViews, width, height) {
+function updateHeadlessVisual(chartType, dataViews, title_settings, width, height) {
   var updateArgs = {
     dataViews: dataViews,
     viewport: { width: width, height: height },
@@ -29,6 +29,9 @@ function updateHeadlessVisual(chartType, dataViews, width, height) {
 
   var visual = globalThis[chartType + "Visual"];
   visual.update(updateArgs);
+
+  updateChartTitle(visual.svg, title_settings);
+
   // Check for presence of 'errormessage' class and return error text if it exists
   if (visual.svg.select('.errormessage').size() > 0) {
     return { error: visual.svg.select('.errormessage').text() };

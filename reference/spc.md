@@ -16,6 +16,7 @@ spc(
   labels,
   aggregations = list(numerators = "sum", denominators = "sum", groupings = "first",
     xbar_sds = "first", tooltips = "first", labels = "first"),
+  title = NULL,
   canvas_settings = NULL,
   spc_settings = NULL,
   outlier_settings = NULL,
@@ -91,6 +92,31 @@ spc(
   - `"median"`: returns the median value
 
   - `"count"`: returns the count of values
+
+- title:
+
+  Optional title to be added to the top of the chart. It can be a
+  character string for the title text only, or a list with the following
+  options:
+
+  - `text`: Title text (default: NULL)
+
+  - `font_size`: Font size of the title (default: "16px")
+
+  - `font_weight`: Font weight of the title (default: "bold")
+
+  - `font_family`: Font family of the title (default: "'Arial',
+    sans-serif")
+
+  - `x`: Horizontal (x) position of the title as a percentage (default:
+    "50%")
+
+  - `y`: Vertical (y) position of the title in pixels (default: 5)
+
+  - `text_anchor`: Text anchor of the title (default: "middle")
+
+  - `dominant_baseline`: Dominant baseline of the title (default:
+    "hanging")
 
 - canvas_settings:
 

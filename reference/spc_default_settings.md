@@ -206,6 +206,9 @@ spc_default_settings()
 #> 
 #> 
 #> $scatter
+#> $scatter$show_dots
+#> [1] TRUE
+#> 
 #> $scatter$shape
 #> [1] "Circle"
 #> 
@@ -723,6 +726,9 @@ spc_default_settings()
 #> 
 #> 
 #> $x_axis
+#> $x_axis$xlimit_show
+#> [1] TRUE
+#> 
 #> $x_axis$xlimit_colour
 #> [1] "#000000"
 #> 
@@ -764,6 +770,9 @@ spc_default_settings()
 #> 
 #> 
 #> $y_axis
+#> $y_axis$ylimit_show
+#> [1] TRUE
+#> 
 #> $y_axis$ylimit_colour
 #> [1] "#000000"
 #> 
@@ -1035,6 +1044,9 @@ spc_default_settings()
 #> 
 # # Get default settings for a specific group
 spc_default_settings("x_axis")
+#> $xlimit_show
+#> [1] TRUE
+#> 
 #> $xlimit_colour
 #> [1] "#000000"
 #> 
