@@ -124,6 +124,15 @@ spc <- function(data,
   aggregations <- validate_aggregations(aggregations)
   title_settings <- validate_chart_title(title)
 
+  # If rendering a title, adjust the upper padding so that title
+  # does not overlap the chart
+  if (!is.null(title_settings$text)) {
+    if (is.null(input_settings$canvas$upper_padding)) {
+      input_settings$canvas$upper_padding = spc_default_settings("canvas")$upper_padding
+    }
+    input_settings$canvas$upper_padding = input_settings$canvas$upper_padding + title_padding(title_settings)
+  }
+
   if (!missing(denominators)) {
     denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
     data_raw <- append(data_raw, list(denominators = denominators))

@@ -142,6 +142,21 @@ validate_aggregations <- function(aggregations) {
   all_defaults
 }
 
+title_padding <- function(title) {
+  if (is.null(title$text)) {
+    return(0)
+  }
+  title_size <- title$font_size
+
+  # If the size is provided as `{}px`, extract the numeric values
+  if (is.character(title_size) && grepl("px$", title_size)) {
+    title_size <- as.numeric(gsub("(^\\d+)px", "\\1", title_size))
+  }
+  # Return total padding as font size (as rough proxy for text height) and
+  #  y render value
+  title_size + title$y
+}
+
 validate_chart_title <- function(title) {
   # Default chart title settings
   title_settings <- list(
