@@ -142,6 +142,49 @@ validate_aggregations <- function(aggregations) {
   all_defaults
 }
 
+title_padding <- function(title) {
+  if (is.null(title$text)) {
+    return(0)
+  }
+  title_size <- title$font_size
+
+  # If the size is provided as `{}px`, extract the numeric values
+  if (is.character(title_size) && grepl("px$", title_size)) {
+    title_size <- as.numeric(gsub("(^\\d+)px", "\\1", title_size))
+  }
+  # Return total padding as font size (as rough proxy for text height) and
+  #  y render value
+  title_size + title$y
+}
+
+validate_chart_title <- function(title) {
+  # Default chart title settings
+  title_settings <- list(
+    text = NULL,
+    font_size = "16px",
+    font_weight = "bold",
+    font_family = "'Arial', sans-serif",
+    x = "50%",
+    y = 5,
+    text_anchor = "middle",
+    dominant_baseline = "hanging"
+  )
+  if (is.null(title)) {
+    return(title_settings)
+  } else if (is.character(title) && length(title) == 1) {
+    title_settings$text <- title
+  } else if (is.list(title) && any(names(title_settings) %in% names(title))) {
+    for (x in names(title_settings)) {
+      if (!is.null(title[[x]])) {
+        title_settings[[x]] <- title[[x]]
+      }
+    }
+  } else {
+    stop(paste0("Invalid title format. It should be either a character string or a list with at least one of the following valid options: ", paste0("'", names(title_settings), "'", collapse = ', '), "."), call. = FALSE)
+  }
+  title_settings
+}
+
 svg_string <- function(svg, width, height) {
   paste0('<svg viewBox="0 0 ', width, ' ', height, '" width="', width, 'px" height="', height, 'px" xmlns="http://www.w3.org/2000/svg">',
         '<rect x="0" y="0" width="100%" height="100%" fill="white"/>',
@@ -168,10 +211,10 @@ update_static_padding <- function(type, dataViews) {
   dataViews
 }
 
-create_static <- function(type, dataViews, input_settings, width, height) {
+create_static <- function(type, dataViews, title_settings, input_settings, width, height) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
-  raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, width, height)
+  raw_ret <- ctx$call("updateHeadlessVisual", type, dataViews, title_settings, width, height)
   if ("error" %in% names(raw_ret)) {
     stop(raw_ret$error, call. = FALSE)
   }

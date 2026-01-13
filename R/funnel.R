@@ -17,6 +17,17 @@
 #'     \item \code{"median"}: returns the median value
 #'     \item \code{"count"}: returns the count of values
 #'   }
+#' @param title Optional title to be added to the top of the chart. It can be a character string for the title text only, or a list with the following options:
+#' \itemize{
+#'  \item \code{text}: Title text (default: NULL)
+#'  \item \code{font_size}: Font size of the title (default: "16px")
+#'  \item \code{font_weight}: Font weight of the title (default: "bold")
+#'  \item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
+#'  \item \code{x}: Horizontal (x) position of the title as a percentage (default: "50%")
+#'  \item \code{y}: Vertical (y) position of the title in pixels (default: 5)
+#'  \item \code{text_anchor}: Text anchor of the title (default: "middle")
+#'  \item \code{dominant_baseline}: Dominant baseline of the title (default: "hanging")
+#' }
 #' @param canvas_settings Optional list of settings for the canvas, see \code{funnel_default_settings('canvas')} for valid options.
 #' @param funnel_settings Optional list of settings for the Funnel chart, see \code{funnel_default_settings('funnel')} for valid options.
 #' @param outlier_settings Optional list of settings for outliers, see \code{funnel_default_settings('outliers')} for valid options.
@@ -45,6 +56,7 @@ funnel <- function(data,
                   tooltips = "first",
                   labels = "first"
                 ),
+                title = NULL,
                 canvas_settings = NULL,
                 funnel_settings = NULL,
                 outlier_settings = NULL,
@@ -102,6 +114,17 @@ funnel <- function(data,
   input_settings <- input_settings_processed$input_settings
   has_conditional_formatting <- input_settings_processed$has_conditional_formatting
   aggregations <- validate_aggregations(aggregations)
+  title_settings <- validate_chart_title(title)
+
+  # If rendering a title, adjust the upper padding so that title
+  # does not overlap the chart
+  if (!is.null(title_settings$text)) {
+    if (is.null(input_settings$canvas$upper_padding)) {
+      input_settings$canvas$upper_padding = funnel_default_settings("canvas")$upper_padding
+    }
+    input_settings$canvas$upper_padding = input_settings$canvas$upper_padding + title_padding(title_settings)
+  }
+
 
   if (!missing(tooltips)) {
     tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
@@ -121,8 +144,10 @@ funnel <- function(data,
 
   unique_categories <- unique(data_raw$categories)
   has_aggregations <- length(unique_categories) < nrow(data_raw)
+
   widget_data <- list(
     data_raw = data_df,
+    title_settings = title_settings,
     input_settings = input_settings,
     crosstalkGroup = crosstalkGroup,
     aggregations = aggregations,
@@ -159,6 +184,7 @@ funnel <- function(data,
   static <- create_static(
     type = 'funnel',
     dataViews = dataViews,
+    title_settings = title_settings,
     input_settings = input_settings,
     width = width,
     height = height
