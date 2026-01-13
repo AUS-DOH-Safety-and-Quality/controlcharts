@@ -5,14 +5,6 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "inst/bundle" # Location of package manifests
-    schedule:
-      interval: "weekly"
-    groups:
-      js-dependencies:
-        patterns:
-          - "*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

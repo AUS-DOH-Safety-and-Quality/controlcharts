@@ -10,10 +10,10 @@ ctx <- NULL
   # and rendering static plots
   assign("ctx", QuickJSR::JSContext$new(), envir = topenv())
 
-  # QuickJS doesn't support the Intl family of functions for
-  # date formatting (needed for SPC)
-  # so we need to load a polyfill
-  .load_js_file(ctx, "js/linkedom.js")
+  # The visuals rely on DOM-manipulation (via d3) to
+  # construct the SVGs, so we use a dummy-DOM implementation
+  # for headless rendering
+  .load_js_file(ctx, "js/minidom.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.js")
