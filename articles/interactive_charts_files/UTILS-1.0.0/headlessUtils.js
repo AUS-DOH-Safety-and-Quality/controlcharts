@@ -7,7 +7,7 @@
 
 function initialiseHeadless() {
   // Create a dummy DOM to build the SVGs in
-  const {document, window} = linkedom.parseHTML('<html><head></head><body></body></html>');
+  const {document, window} = minidom.dummyDOM();
   globalThis.document = document;
   globalThis.window = window;
 
