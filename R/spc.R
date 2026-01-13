@@ -1,14 +1,22 @@
 #' Generate interactive SPC chart
 #'
 #' @param data A data frame containing the data for the chart.
-#' @param keys A vector or column name representing the categories (x-axis) of the chart.
-#' @param numerators A numeric vector or column name representing the numerators for each category.
-#' @param denominators A numeric vector or column name representing the denominators for each category.
-#' @param groupings A vector or column name representing the grouping for each category.
-#' @param xbar_sds A numeric vector or column name representing the x-bar and standard deviation values for each category.
-#' @param tooltips A vector or column name representing the tooltips for each category.
-#' @param labels A vector or column name representing the labels for each category.
-#' @param aggregations A list of aggregation function names for each field if multiple values are provided for each key. Valid options are:
+#' @param keys A vector or column name representing the categories
+#' (x-axis) of the chart.
+#' @param numerators A numeric vector or column name representing the
+#' numerators for each category.
+#' @param denominators A numeric vector or column name representing the
+#' denominators for each category.
+#' @param groupings A vector or column name representing the grouping for
+#' each category.
+#' @param xbar_sds A numeric vector or column name representing the x-bar
+#' and standard deviation values for each category.
+#' @param tooltips A vector or column name representing the tooltips for
+#' each category.
+#' @param labels A vector or column name representing the labels for each
+#' category.
+#' @param aggregations A list of aggregation function names for each field
+#' if multiple values are provided for each key. Valid options are:
 #'   \itemize{
 #'     \item \code{"first"}: returns the first value
 #'     \item \code{"last"}: returns the last value
@@ -19,33 +27,53 @@
 #'     \item \code{"median"}: returns the median value
 #'     \item \code{"count"}: returns the count of values
 #'   }
-#' @param title Optional title to be added to the top of the chart. It can be a character string for the title text only, or a list with the following options:
+#' @param title Optional title to be added to the top of the chart.
+#' It can be a character string for the title text only, or a list with
+#' the following options:
 #' \itemize{
 #'  \item \code{text}: Title text (default: NULL)
 #'  \item \code{font_size}: Font size of the title (default: "16px")
 #'  \item \code{font_weight}: Font weight of the title (default: "bold")
-#'  \item \code{font_family}: Font family of the title (default: "'Arial', sans-serif")
-#'  \item \code{x}: Horizontal (x) position of the title as a percentage (default: "50%")
+#'  \item \code{font_family}: Font family of the title
+#' (default: "'Arial', sans-serif")
+#'  \item \code{x}: Horizontal (x) position of the title
+#' as a percentage (default: "50%")
 #'  \item \code{y}: Vertical (y) position of the title in pixels (default: 5)
 #'  \item \code{text_anchor}: Text anchor of the title (default: "middle")
-#'  \item \code{dominant_baseline}: Dominant baseline of the title (default: "hanging")
+#'  \item \code{dominant_baseline}: Dominant baseline of the
+#' title (default: "hanging")
 #' }
-#' @param canvas_settings Optional list of settings for the canvas, see \code{spc_default_settings('canvas')} for valid options.
-#' @param spc_settings Optional list of settings for the SPC chart, see \code{spc_default_settings('spc')} for valid options.
-#' @param outlier_settings Optional list of settings for outliers, see \code{spc_default_settings('outliers')} for valid options.
-#' @param nhs_icon_settings Optional list of settings for NHS icons, see \code{spc_default_settings('nhs_icons')} for valid options.
-#' @param scatter_settings Optional list of settings for scatter points, see \code{spc_default_settings('scatter')} for valid options.
-#' @param line_settings Optional list of settings for lines, see \code{spc_default_settings('lines')} for valid options.
-#' @param x_axis_settings Optional list of settings for the x-axis, see \code{spc_default_settings('x_axis')} for valid options.
-#' @param y_axis_settings Optional list of settings for the y-axis, see \code{spc_default_settings('y_axis')} for valid options.
-#' @param date_settings Optional list of settings for dates, see \code{spc_default_settings('dates')} for valid options.
-#' @param label_settings Optional list of settings for labels, see \code{spc_default_settings('labels')} for valid options.
-#' @param tooltip_settings Optional list of settings for tooltips, see \code{spc_default_settings('tooltips')} for valid options.
-#' @param width Optional width of the chart in pixels. If NULL (default), the chart will fill the width of its container.
-#' @param height Optional height of the chart in pixels. If NULL (default), the chart will fill the height of its container.
+#' @param canvas_settings Optional list of settings for the canvas,
+#' see \code{spc_default_settings('canvas')} for valid options.
+#' @param spc_settings Optional list of settings for the SPC chart,
+#' see \code{spc_default_settings('spc')} for valid options.
+#' @param outlier_settings Optional list of settings for outliers,
+#' see \code{spc_default_settings('outliers')} for valid options.
+#' @param nhs_icon_settings Optional list of settings for NHS icons,
+#' see \code{spc_default_settings('nhs_icons')} for valid options.
+#' @param scatter_settings Optional list of settings for scatter points,
+#' see \code{spc_default_settings('scatter')} for valid options.
+#' @param line_settings Optional list of settings for lines,
+#' see \code{spc_default_settings('lines')} for valid options.
+#' @param x_axis_settings Optional list of settings for the x-axis,
+#' see \code{spc_default_settings('x_axis')} for valid options.
+#' @param y_axis_settings Optional list of settings for the y-axis,
+#' see \code{spc_default_settings('y_axis')} for valid options.
+#' @param date_settings Optional list of settings for dates,
+#' see \code{spc_default_settings('dates')} for valid options.
+#' @param label_settings Optional list of settings for labels,
+#' see \code{spc_default_settings('labels')} for valid options.
+#' @param tooltip_settings Optional list of settings for tooltips,
+#' see \code{spc_default_settings('tooltips')} for valid options.
+#' @param width Optional width of the chart in pixels. If NULL (default),
+#' the chart will fill the width of its container.
+#' @param height Optional height of the chart in pixels. If NULL (default),
+#' the chart will fill the height of its container.
 #' @param elementId Optional HTML element ID for the chart.
 #'
-#' @return An object of class \code{controlchart} containing the interactive plot, static plot, limits data frame, raw data, and a function to save the plot.
+#' @return An object of class \code{controlchart} containing the
+#' interactive plot, static plot, limits data frame, raw data,
+#' and a function to save the plot.
 #'
 #' @export
 spc <- function(data,
@@ -78,7 +106,7 @@ spc <- function(data,
                 tooltip_settings = NULL,
                 width = NULL,
                 height = NULL,
-                elementId = NULL) {
+                elementId = NULL) { # nolint
   if (missing(keys)) {
     stop("keys are required", call. = FALSE)
   }
@@ -90,12 +118,12 @@ spc <- function(data,
   }
 
   if (crosstalk::is.SharedData(data)) {
-    crosstalkIdentities <- data$key()
-    crosstalkGroup <- data$groupName()
+    crosstalk_identities <- data$key()
+    crosstalk_group <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalkIdentities <- as.character(seq_len(nrow(data)))
-    crosstalkGroup <- NULL
+    crosstalk_identities <- as.character(seq_len(nrow(data)))
+    crosstalk_group <- NULL
     input_data <- data
   }
 
@@ -113,14 +141,16 @@ spc <- function(data,
   )
 
   data_raw <- list(
-    crosstalkIdentities = crosstalkIdentities,
+    crosstalk_identities = crosstalk_identities,
     categories = eval(substitute(keys), input_data, parent.frame()),
     numerators = eval(substitute(numerators), input_data, parent.frame())
   )
 
-  input_settings_processed <- validate_settings('spc', input_settings, data_raw$categories)
+  input_settings_processed <- validate_settings("spc", input_settings,
+                                                data_raw$categories)
   input_settings <- input_settings_processed$input_settings
-  has_conditional_formatting <- input_settings_processed$has_conditional_formatting
+  has_conditional_formatting <-
+    input_settings_processed$has_conditional_formatting
   aggregations <- validate_aggregations(aggregations)
   title_settings <- validate_chart_title(title)
 
@@ -128,40 +158,47 @@ spc <- function(data,
   # does not overlap the chart
   if (!is.null(title_settings$text)) {
     if (is.null(input_settings$canvas$upper_padding)) {
-      input_settings$canvas$upper_padding = spc_default_settings("canvas")$upper_padding
+      input_settings$canvas$upper_padding =
+        spc_default_settings("canvas")$upper_padding
     }
-    input_settings$canvas$upper_padding = input_settings$canvas$upper_padding + title_padding(title_settings)
+    input_settings$canvas$upper_padding =
+      input_settings$canvas$upper_padding + title_padding(title_settings)
   }
 
   if (!missing(denominators)) {
-    denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
+    denominators <-
+      as.numeric(eval(substitute(denominators), input_data, parent.frame()))
     data_raw <- append(data_raw, list(denominators = denominators))
   }
 
   if (!missing(groupings)) {
-    groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))
+    groupings <-
+      as.character(eval(substitute(groupings), input_data, parent.frame()))
     data_raw <- append(data_raw, list(groupings = groupings))
   }
 
   if (!missing(xbar_sds)) {
-    xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
+    xbar_sds <-
+      as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
     data_raw <- append(data_raw, list(xbar_sds = xbar_sds))
   }
 
   if (!missing(tooltips)) {
-    tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
+    tooltips <-
+      as.character(eval(substitute(tooltips), input_data, parent.frame()))
     data_raw <- append(data_raw, list(tooltips = tooltips))
   }
 
   if (!missing(labels)) {
-    labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
+    labels <-
+      as.character(eval(substitute(labels), input_data, parent.frame()))
     data_raw <- append(data_raw, list(labels = labels))
   }
 
   data_raw <- as.data.frame(data_raw)[order(data_raw$categories), ]
   data_raw <- data_raw[!is.na(data_raw$categories), ]
   data_df <- lapply(seq_len(nrow(data_raw)), function(idx) {
-    lapply(data_raw, function(elem){ elem[idx] })
+    lapply(data_raw, function(elem) elem[idx])
   })
 
   unique_categories <- unique(data_raw$categories)
@@ -170,7 +207,7 @@ spc <- function(data,
     data_raw = data_df,
     title_settings = title_settings,
     input_settings = input_settings,
-    crosstalkGroup = crosstalkGroup,
+    crosstalk_group = crosstalk_group,
     aggregations = aggregations,
     has_conditional_formatting = has_conditional_formatting,
     unique_categories = unique_categories,
@@ -179,7 +216,7 @@ spc <- function(data,
 
   # Create interactive plot
   html_plt <- htmlwidgets::createWidget(
-    name = 'spc',
+    name = "spc",
     # Store compressed data to reduce size
     x = zlib::compress(serialize(widget_data, NULL)),
     sizingPolicy = htmlwidgets::sizingPolicy(
@@ -197,14 +234,15 @@ spc <- function(data,
     }
   )
 
-  dataViews <- update_static_padding(
+  data_views <- update_static_padding(
     "spc",
-    ctx$call("makeUpdateValues", data_df, input_settings, aggregations, has_conditional_formatting, unique_categories)$dataViews
+    ctx$call("makeUpdateValues", data_df, input_settings, aggregations,
+             has_conditional_formatting, unique_categories)$dataViews
   )
 
   static <- create_static(
-    type = 'spc',
-    dataViews = dataViews,
+    type = "spc",
+    dataViews = data_views,
     title_settings = title_settings,
     input_settings = input_settings,
     width = width,
@@ -217,7 +255,8 @@ spc <- function(data,
       static_plot = static$static_plot,
       limits = static$limits,
       raw = static$raw,
-      save_plot = create_save_function('spc', html_plt, dataViews, width, height)
+      save_plot = create_save_function("spc", html_plt, data_views,
+                                       width, height)
     ),
     class = "controlchart"
   )
@@ -240,13 +279,18 @@ spc <- function(data,
 #' @name spc-shiny
 #'
 #' @export
-spcOutput <- function(outputId, width = '100%', height = '400px'){
-  htmlwidgets::shinyWidgetOutput(outputId, 'spc', width, height, package = 'controlcharts')
+spcOutput <- function(outputId, # nolint: object_name_linter.
+                      width = "100%", height = "400px") {
+  htmlwidgets::shinyWidgetOutput(outputId, "spc", width, height,
+                                 package = "controlcharts")
 }
 
 #' @rdname spc-shiny
 #' @export
-renderSpc <- function(expr, env = parent.frame(), quoted = FALSE) {
-  if (!quoted) { expr <- substitute(expr) } # force quoted
+renderSpc <- function(expr, # nolint: object_name_linter.
+                      env = parent.frame(), quoted = FALSE) {
+  if (!quoted) {
+    expr <- substitute(expr)
+  } # force quoted
   htmlwidgets::shinyRenderWidget(expr, spcOutput, env, quoted = TRUE)
 }

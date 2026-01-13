@@ -83,12 +83,12 @@ funnel <- function(data,
   }
 
   if (crosstalk::is.SharedData(data)) {
-    crosstalkIdentities <- data$key()
-    crosstalkGroup <- data$groupName()
+    crosstalk_identities <- data$key()
+    crosstalk_group <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalkIdentities <-  as.character(seq_len(nrow(data)))
-    crosstalkGroup <- NULL
+    crosstalk_identities <-  as.character(seq_len(nrow(data)))
+    crosstalk_group <- NULL
     input_data <- data
   }
 
@@ -104,7 +104,7 @@ funnel <- function(data,
   )
 
   data_raw <- list(
-    crosstalkIdentities = crosstalkIdentities,
+    crosstalk_identities = crosstalk_identities,
     categories = eval(substitute(keys), input_data, parent.frame()),
     numerators = eval(substitute(numerators), input_data, parent.frame()),
     denominators = eval(substitute(denominators), input_data, parent.frame())
@@ -149,7 +149,7 @@ funnel <- function(data,
     data_raw = data_df,
     title_settings = title_settings,
     input_settings = input_settings,
-    crosstalkGroup = crosstalkGroup,
+    crosstalk_group = crosstalk_group,
     aggregations = aggregations,
     has_conditional_formatting = has_conditional_formatting,
     unique_categories = unique_categories,
