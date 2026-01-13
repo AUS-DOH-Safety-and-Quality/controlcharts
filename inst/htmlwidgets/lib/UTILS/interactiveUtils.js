@@ -49,8 +49,8 @@ function makeFactory(chartType) {
         visualUpdateArgs.dataViews = updateValues.dataViews;
 
         // Initialise the dataset linkage for crosstalk highlighting and filtering
-        crosstalkSelectionHandle.setGroup(x.crosstalkGroup);
-        crosstalkFilterHandle.setGroup(x.crosstalkGroup);
+        crosstalkSelectionHandle.setGroup(x.crosstalk_group);
+        crosstalkFilterHandle.setGroup(x.crosstalk_group);
 
         // Crosstalk highlighting callback - when a crosstalk highlighting event occurs,
         // use existing visual functions for handling selection and highlighting as the
@@ -74,7 +74,7 @@ function makeFactory(chartType) {
         // so that the visual will automatically assign the correct crosstalk identities
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (allCategories, categoryIndex) => ({
-            createSelectionId: () => updateValues.crosstalkIdentities[allCategories.values[categoryIndex]]
+            createSelectionId: () => updateValues.crosstalk_identities[allCategories.values[categoryIndex]]
           })
         })
 
