@@ -75,7 +75,7 @@ data:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Simulate 2 years of monthly data</span></span>
 <span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">'2024-01-01'</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">24</span>, by <span class="op">=</span> <span class="st">"month"</span><span class="op">)</span>,</span>
+<span>  month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2024-01-01"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">24</span>, by <span class="op">=</span> <span class="st">"month"</span><span class="op">)</span>,</span>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">24</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -225,9 +225,9 @@ consider proportion data recorded by 10 organisations:</p>
 chart:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">funnel_chart</span> <span class="op">&lt;-</span> <span class="fu">controlcharts</span><span class="fu">::</span><span class="fu"><a href="../reference/funnel.html">funnel</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">funnel_data</span>,</span>
-<span>                                       numerators <span class="op">=</span> <span class="va">numerators</span>,</span>
-<span>                                       denominators <span class="op">=</span> <span class="va">denominators</span>,</span>
-<span>                                       keys <span class="op">=</span> <span class="va">organisation</span><span class="op">)</span></span></code></pre></div>
+<span>                                      numerators <span class="op">=</span> <span class="va">numerators</span>,</span>
+<span>                                      denominators <span class="op">=</span> <span class="va">denominators</span>,</span>
+<span>                                      keys <span class="op">=</span> <span class="va">organisation</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">funnel_chart</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
 <p><img src="getting_started_files/figure-html/funnel_plot_static-1.svg"><!-- --></p>

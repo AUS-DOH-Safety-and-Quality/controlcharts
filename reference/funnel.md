@@ -112,7 +112,7 @@ funnel(
 - funnel_settings:
 
   Optional list of settings for the Funnel chart, see
-  `funnel_default_settings('funnel')` for valid options.
+  `funnel_default_settings("funnel")` for valid options.
 
 - outlier_settings:
 

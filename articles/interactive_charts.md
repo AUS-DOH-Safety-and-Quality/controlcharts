@@ -36,7 +36,7 @@ dat <- do.call(
     data.frame(
       country = sample(c("C1", "C2", "C3"), 1, replace = TRUE),
       organisation = grp,
-      month_start = seq(as.Date('2024-01-01'), length.out=24, by="month"),
+      month_start = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
       numerators = rbinom(n = 24, size = denom, prob = 0.3),
       denominators = denom
     )
@@ -59,7 +59,8 @@ spc_plt <- controlcharts::spc(data = dat,
                               outlier_settings = list(astronomical = TRUE,
                                                       shift = TRUE,
                                                       two_in_three = TRUE),
-                              nhs_icon_settings = list(show_variation_icons = TRUE))
+                              nhs_icon_settings =
+                                list(show_variation_icons = TRUE))
 
 fun_plt <- controlcharts::funnel(data = dat,
                                  keys = organisation,
@@ -97,7 +98,8 @@ spc_plt <- controlcharts::spc(data = crosstalk_dat,
                               outlier_settings = list(astronomical = TRUE,
                                                       shift = TRUE,
                                                       two_in_three = TRUE),
-                              nhs_icon_settings = list(show_variation_icons = TRUE))
+                              nhs_icon_settings =
+                                list(show_variation_icons = TRUE))
 
 fun_plt <- controlcharts::funnel(data = crosstalk_dat,
                                  keys = organisation,
@@ -112,9 +114,9 @@ within the charts:
 
 ``` r
 country_filter <- crosstalk::filter_select("countryFilter", "Country",
-                                             crosstalk_dat, ~country)
+                                           crosstalk_dat, ~country)
 org_filter <- crosstalk::filter_select("orgFilter", "Organisation",
-                                         crosstalk_dat, ~organisation)
+                                       crosstalk_dat, ~organisation)
 date_filter <- crosstalk::filter_slider("monthFilter", "Date",
                                         crosstalk_dat, ~month_start)
 crosstalk::bscols(

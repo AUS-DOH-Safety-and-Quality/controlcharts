@@ -64,14 +64,14 @@ const aggregateColumn = function(column, aggregation) {
 
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
   if (crosstalkFilters) {
-    rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalkIdentities));
+    rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalk_identities));
   }
   var dataGrouped = Object.groupBy(rawData, d => d.categories);
   Object.freeze(dataGrouped);
   var identitiesGrouped = [];
   for (group in dataGrouped) {
     // Group crosstalk identities for each category group
-    identitiesGrouped.push([group, dataGrouped[group].map(d => d.crosstalkIdentities)]);
+    identitiesGrouped.push([group, dataGrouped[group].map(d => d.crosstalk_identities)]);
   }
 
   var args = {
@@ -81,10 +81,10 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       objects: []
     }],
     values: [],
-    crosstalkIdentities: Object.fromEntries(identitiesGrouped)
+    crosstalk_identities: Object.fromEntries(identitiesGrouped)
   };
 
-  var valueNames = Object.keys(rawData[0]).filter(k => !["categories", "crosstalkIdentities"].includes(k));
+  var valueNames = Object.keys(rawData[0]).filter(k => !["categories", "crosstalk_identities"].includes(k));
 
   args.values = valueNames.map(name => ({
     source: { roles: {[name]: true} },
@@ -128,7 +128,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
         values: args.values
       }
     }],
-    crosstalkIdentities: args.crosstalkIdentities
+    crosstalk_identities: args.crosstalk_identities
   };
 }
 
