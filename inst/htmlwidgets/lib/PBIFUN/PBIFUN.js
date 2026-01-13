@@ -4543,12 +4543,33 @@ var funnel = (function (exports) {
       });
   }
 
+  /**
+   * Basic utility function to check for null or undefined values.
+   *
+   * @template T The type of the input value.
+   * @param value The value to check.
+   * @returns True if the value is null or undefined, false otherwise.
+   */
+  function isNullOrUndefined(value) {
+      return value === null || value === undefined;
+  }
+
+  /**
+   * Checks if a value is between a lower and upper bound (inclusive).
+   *
+   * @template T - The type of the value and bounds.
+   * @param x - The value to check.
+   * @param lower - The lower bound.
+   * @param upper - The upper bound.
+   * @returns True if the value is between the lower and upper bounds,
+   *            false otherwise.
+   */
   function between(x, lower, upper) {
       let is_between = true;
-      if (lower !== null && lower !== undefined) {
+      if (!isNullOrUndefined(lower)) {
           is_between = is_between && (x >= lower);
       }
-      if (upper !== null && upper !== undefined) {
+      if (!isNullOrUndefined(upper)) {
           is_between = is_between && (x <= upper);
       }
       return is_between;
@@ -4690,12 +4711,21 @@ var funnel = (function (exports) {
       return tooltip;
   }
 
+  /**
+   * Creates an array with `n` elements, where each element is a copy of the
+   * provided value `x`.
+   *
+   * @template T The type of the value `x`.
+   * @param x The value to be repeated.
+   * @param n The number of times the value should be repeated.
+   * @returns An array containing `n` copies of the value `x`.
+   */
   function rep(x, n) {
-      return Array(n).fill(x);
-  }
-
-  function isNullOrUndefined(value) {
-      return value === null || value === undefined;
+      let result = new Array(n);
+      for (let i = 0; i < n; i++) {
+          result[i] = x;
+      }
+      return result;
   }
 
   function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
@@ -4877,9 +4907,23 @@ var funnel = (function (exports) {
       };
   }
 
+  /**
+   * Extracts values from valuesArray at the specified indices in indexArray.
+   * If valuesArray is null or undefined, returns an empty array.
+   *
+   * @template T The type of the values in the valuesArray.
+   * @param valuesArray The array of values to extract from.
+   * @param indexArray The array of indices specifying which values to extract.
+   * @returns An array of extracted values.
+   */
   function extractValues(valuesArray, indexArray) {
       if (valuesArray) {
-          return valuesArray.filter((_, idx) => indexArray.indexOf(idx) != -1);
+          const n = indexArray.length;
+          let result = new Array(n);
+          for (let i = 0; i < n; i++) {
+              result[i] = valuesArray[indexArray[i]];
+          }
+          return result;
       }
       else {
           return [];
@@ -4902,6 +4946,14 @@ var funnel = (function (exports) {
       return inputSettings[group][settingName];
   }
 
+  /**
+   * Generates a sequence of numbers from 'from' to 'to' with a step of 'by'.
+   *
+   * @param from The starting number of the sequence.
+   * @param to The ending number of the sequence.
+   * @param by The step increment between each number in the sequence.
+   * @returns An array containing the generated sequence of numbers.
+   */
   function seq(from, to, by) {
       const n_iter = Math.floor((to - from) / by);
       const res = new Array(n_iter);
@@ -5148,20 +5200,35 @@ var funnel = (function (exports) {
       return formatValuesImpl;
   }
 
+  /**
+   * Checks if a value is a valid number (not null, undefined, NaN, or infinite).
+   *
+   * @param value The number to check.
+   * @returns True if the value is a valid number, false otherwise.
+   */
   function isValidNumber(value) {
-      return !isNullOrUndefined(value) && !isNaN(value) && isFinite(value);
+      return !isNullOrUndefined(value) && !Number.isNaN(value) && Number.isFinite(value);
   }
 
+  /**
+   * Groups an array of objects by a specified key. This is a backwards-compatible
+   * implementation of the ES2026 Object.groupBy method.
+   *
+   * @param data The array of objects to group.
+   * @param key The key to group the objects by.
+   * @returns An array of tuples, where each tuple contains a key and an array of objects with that key.
+   */
   function groupBy(data, key) {
+      var _a;
       const groupedData = new Map();
-      data.forEach(item => {
-          var _a;
+      for (let i = 0; i < data.length; i++) {
+          const item = data[i];
           const keyValue = item[key];
           if (!groupedData.has(keyValue)) {
               groupedData.set(keyValue, []);
           }
           (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
-      });
+      }
       return Array.from(groupedData);
   }
 
@@ -6078,21 +6145,29 @@ var funnel = (function (exports) {
    * @returns The value of the Chebyshev polynomial at point x
    */
   function chebyshevPolynomial(x, a, n) {
+      // Validate input range: Chebyshev polynomials are defined on [-1, 1]
+      // Allow slight tolerance for numerical errors
       if (x < -1.1 || x > 1.1) {
           throw new Error("chebyshevPolynomial: x must be in [-1,1]");
       }
       if (n < 1 || n > 1000) {
           throw new Error("chebyshevPolynomial: n must be in [1,1000]");
       }
+      // Clenshaw recurrence algorithm for evaluating Chebyshev series
+      // Given: S(x) = sum_{k=0}^{n-1} a_k * T_k(x)
+      // where T_k(x) are Chebyshev polynomials of the first kind
       const twox = x * 2;
-      let b0 = 0;
-      let b1 = 0;
-      let b2 = 0;
+      let b0 = 0; // Current term
+      let b1 = 0; // Previous term
+      let b2 = 0; // Two terms back
+      // Recurrence: b_k = 2x * b_{k+1} - b_{k+2} + a_k
+      // Iterate from highest degree term down to constant term
       for (let i = 1; i <= n; i++) {
           b2 = b1;
           b1 = b0;
           b0 = twox * b1 - b2 + a[n - i];
       }
+      // Final result: S(x) = (b0 - b2) / 2
       return (b0 - b2) * 0.5;
   }
 
@@ -6109,6 +6184,7 @@ var funnel = (function (exports) {
       if (Number.isNaN(x) || !Number.isFinite(x)) {
           return Number.NaN;
       }
+      // Reduce range to [-1, 1] using x % 2
       let r = x % 2;
       if (r <= -1) {
           r += 2;
@@ -6116,15 +6192,17 @@ var funnel = (function (exports) {
       else if (r > 1) {
           r -= 2;
       }
+      // Handle exact cases to avoid floating point inaccuracies
       if (r === 0 || r === 1) {
-          return 0;
+          return 0; // sin(0), sin(2pi), etc
       }
       if (r === 0.5) {
-          return 1;
+          return 1; // sin(pi/2)
       }
       if (r === -0.5) {
-          return -1;
+          return -1; // sin(-pi/2)
       }
+      // Compute standard sin(pi * r) for the reduced r
       return Math.sin(Math.PI * r);
   }
 
@@ -6139,6 +6217,7 @@ var funnel = (function (exports) {
    * @returns The correction term for the logarithm of the gamma function at x
    */
   function lgammaCorrection(x) {
+      // Coefficients for the Chebyshev approximation
       const algmcs = [
           .1666389480451863247205729650822e+0,
           -1384948176067564e-20,
@@ -6160,10 +6239,12 @@ var funnel = (function (exports) {
           throw new Error("lgammaCorrection: x must be >= 10");
       }
       else if (x < 94906265.62425156) {
+          // For intermediate values 10 <= x < ~9.5e7, use Chebyshev approximation
           const tmp = 10 / x;
           return chebyshevPolynomial(tmp * tmp * 2 - 1, algmcs, 5) / x;
       }
       else {
+          // For very large x, use simple asymptotic approximation 1/(12x)
           return 1 / (x * 12);
       }
   }
@@ -6202,6 +6283,7 @@ var funnel = (function (exports) {
       let a2 = c4 * c2 - b2;
       const scalefactor = 1.157921e+77;
       b2 = c4 * b1 - i * b2;
+      // Evaluate continued fraction using modified Lentz's method
       while (Math.abs(a2 * b1 - a1 * b2) > Math.abs(eps * b1 * b2)) {
           let c3 = c2 * c2 * x;
           c2 += d;
@@ -6213,6 +6295,7 @@ var funnel = (function (exports) {
           c4 += d;
           a2 = c4 * a1 - c3 * a2;
           b2 = c4 * b1 - c3 * b2;
+          // Rescale to prevent overflow/underflow
           if (Math.abs(b2) > scalefactor) {
               a1 /= scalefactor;
               b1 /= scalefactor;
@@ -6240,12 +6323,16 @@ var funnel = (function (exports) {
    */
   function log1pmx(x) {
       if (x > 1 || x < -0.79149064) {
+          // For values far from 0, standard calculation is sufficient
           return Math.log1p(x) - x;
       }
       else {
+          // For values close to 0, use more precise approximations
           const r = x / (2 + x);
           const y = r * r;
           if (Math.abs(x) < 1e-2) {
+              // For very small x, use Taylor series expansion:
+              // 2 * r * (1/1 + 1/3*y + 1/5*y^2 + ...) - x
               const coefs = [2 / 3, 2 / 5, 2 / 7, 2 / 9];
               let result = 0;
               for (let i = 0; i < coefs.length; i++) {
@@ -6254,6 +6341,7 @@ var funnel = (function (exports) {
               return r * (result - x);
           }
           else {
+              // For moderately small x, use continued fraction for log(1+x)
               return r * (2 * y * logcf(y, 3, 2, 1e-14) - x);
           }
       }
@@ -6285,6 +6373,7 @@ var funnel = (function (exports) {
       if (Math.abs(a) >= 0.5) {
           return lgamma(a + 1);
       }
+      // Coefficients for the polynomial approximation of ln(gamma(1+x))
       const coeffs = [
           0.3224670334241132182362075833230126e-0,
           0.6735230105319809513324605383715000e-1,
@@ -6329,7 +6418,9 @@ var funnel = (function (exports) {
       ];
       const N = coeffs.length;
       const c = 0.2273736845824652515226821577978691e-12;
+      // Use continued fraction approximation for the tail of the expansion
       let lgam = c * logcf(-a / 2, N + 2, 1, 1e-14);
+      // Evaluate the polynomial using Horner's method
       for (let i = N - 1; i >= 0; i--) {
           lgam = coeffs[i] - a * lgam;
       }
@@ -6399,9 +6490,11 @@ var funnel = (function (exports) {
           0.005554733551962801371038690
       ];
       let nn = n + n;
+      // If n is a half-integer <= 15, use precomputed table
       if (n <= 15 && nn === Math.trunc(nn)) {
           return sferr_halves[nn];
       }
+      // Direct calculation for small values (n <= 5.25) to avoid loss of precision
       if (n <= 5.25) {
           if (n >= 1) {
               const l_n = Math.log(n);
@@ -6411,6 +6504,8 @@ var funnel = (function (exports) {
               return lgamma1p(n) - (n + 0.5) * Math.log(n) + n - LOG_SQRT_TWO_PI;
           }
       }
+      // Determine the number of terms in the series expansion based on the magnitude of n.
+      // Larger n requires fewer terms for the same precision.
       let start_coeff;
       if (n > 15.7e6) {
           start_coeff = 0;
@@ -6451,6 +6546,7 @@ var funnel = (function (exports) {
       else {
           start_coeff = 16;
       }
+      // Evaluate the series expansion using Horner's method
       nn = n * n;
       let sum = s_coeffs[start_coeff];
       for (let i = start_coeff - 1; i >= 0; i--) {
@@ -6469,6 +6565,7 @@ var funnel = (function (exports) {
    * @returns The value of the gamma function at x
    */
   function gamma(x) {
+      // Coefficients for the Chebyshev approximation
       const gamcs = [
           .8571195590989331421920062399942e-2,
           .4415381324841006757191315771652e-2,
@@ -6517,11 +6614,13 @@ var funnel = (function (exports) {
       if (Number.isNaN(x)) {
           return Number.NaN;
       }
+      // Gamma function has singularities at zero and negative integers.
       if (x == 0 || (x < 0 && x === Math.trunc(x))) {
           return Number.NaN;
       }
       let y = Math.abs(x);
       let value;
+      // Use Chebyshev polynomial approximation for small values (|x| <= 10).
       if (y <= 10) {
           let n = Math.trunc(x);
           if (x < 0) {
@@ -6533,7 +6632,9 @@ var funnel = (function (exports) {
           if (n == 0) {
               return value;
           }
+          // Handle negative range by recursion: Gamma(z) = Gamma(z+1) / z
           if (n < 0) {
+              // Check for proximity to non-positive integers (singularities)
               if (x < -0.5 && Math.abs(x - Math.trunc(x - 0.5) / x) < dxrel) {
                   return Number.NaN;
               }
@@ -6547,6 +6648,7 @@ var funnel = (function (exports) {
               return value;
           }
           else {
+              // Handle positive range recursion: Gamma(z+1) = z * Gamma(z)
               for (let i = 1; i <= n; i++) {
                   value *= (y + i);
               }
@@ -6554,12 +6656,15 @@ var funnel = (function (exports) {
           }
       }
       else {
+          // Check for overflow (Gamma(172) > Number.MAX_VALUE).
           if (x > 171.61447887182298) {
               return Number.POSITIVE_INFINITY;
           }
+          // For very small negative numbers, Gamma approaches zero.
           if (x < -170.5674972726612) {
               return 0;
           }
+          // For integer values <= 50, compute factorial directly.
           if (y <= 50 && y == Math.trunc(y)) {
               value = 1;
               for (let i = 2; i < y; i++) {
@@ -6567,6 +6672,7 @@ var funnel = (function (exports) {
               }
           }
           else {
+              // For larger values, use Stirling's approximation
               const two_y = 2 * y;
               value = Math.exp((y - 0.5) * Math.log(y) - y + LOG_SQRT_TWO_PI
                   + ((two_y == Math.trunc(two_y)) ? stirlingError(y) : lgammaCorrection(y)));
@@ -6574,6 +6680,7 @@ var funnel = (function (exports) {
           if (x > 0) {
               return value;
           }
+          // Reflection formula for negative numbers: Gamma(x) = -pi / (x * sin(pi*x) * Gamma(-x))
           const sinpiy = sinpi(y);
           return (sinpiy === 0) ? Number.POSITIVE_INFINITY : -Math.PI / (y * sinpiy * value);
       }
@@ -6593,28 +6700,41 @@ var funnel = (function (exports) {
       if (Number.isNaN(x)) {
           return Number.NaN;
       }
+      // Gamma function has singularities at non-positive integers.
+      // The limit of |Gamma(x)| approaches infinity, so lgamma approaches infinity.
       if (x <= 0 && x === Math.trunc(x)) {
           return Number.POSITIVE_INFINITY;
       }
       const y = Math.abs(x);
+      // For very small numbers, Gamma(x) ~ 1/x, so lgamma(x) ~ -ln(x)
       if (y < 1e-306) {
           return -Math.log(y);
       }
+      // For small numbers, compute Gamma directly and take the log.
+      // This avoids complexity of approximation for this range.
       if (y <= 10) {
           return Math.log(Math.abs(gamma(x)));
       }
+      // Check for overflow.
       if (y > Number.MAX_VALUE) {
           return Number.POSITIVE_INFINITY;
       }
       if (x > 0) {
+          // For very large positive numbers, use a simplified Stirling's approximation:
+          // ln(Gamma(x)) ~ x * (ln(x) - 1)
           if (x > 1e17) {
               return x * (Math.log(x) - 1);
           }
           else {
+              // For moderately large positive numbers, use a more precise Stirling's approximation
+              // with correction terms.
               return LOG_SQRT_TWO_PI + (x - 0.5) * Math.log(x) - x
                   + ((x > 4934720) ? 0 : lgammaCorrection(x));
           }
       }
+      // Reflection formula for negative numbers:
+      // Gamma(1-z) * Gamma(z) = pi / sin(pi * z)
+      // Used to compute lgamma for negative x using positive y = |x|.
       return LOG_SQRT_PI_DIV_2 + (x - 0.5) * Math.log(y)
           - x - Math.log(Math.abs(sinpi(y))) - lgammaCorrection(y);
   }
@@ -6627,17 +6747,29 @@ var funnel = (function (exports) {
    * @returns An object containing the mantissa and exponent.
    */
   function frexp(value) {
+      // Handle zero as a special case
       if (value === 0) {
           return { mantissa: 0, exponent: 0 };
       }
+      // Use DataView to access the raw IEEE 754 binary representation
+      // Float64 format: 1 sign bit | 11 exponent bits | 52 mantissa bits
       const data = new DataView(new ArrayBuffer(8));
       data.setFloat64(0, value);
+      // Extract the 11-bit exponent field from the high 32 bits
+      // Bits 20-30 of the high word contain the exponent (after masking with 0x7FF)
       let bits = (data.getUint32(0) >>> 20) & 0x7FF;
-      if (bits === 0) { // subnormal
+      // Handle subnormal (denormalized) numbers
+      // Subnormal numbers have exponent field = 0 and represent values very close to zero
+      if (bits === 0) {
+          // Scale up by 2^64 to normalize, then adjust exponent back
           data.setFloat64(0, value * Math.pow(2, 64));
           bits = ((data.getUint32(0) >>> 20) & 0x7FF) - 64;
       }
+      // Convert biased exponent to actual exponent
+      // IEEE 754 uses bias of 1023, but we want mantissa in [0.5, 1), so use 1022
       const exponent = bits - 1022;
+      // Compute mantissa by dividing out the power of 2
+      // Result will be in the range [0.5, 1) for positive numbers
       const mantissa = value / Math.pow(2, exponent);
       return { mantissa: mantissa, exponent: exponent };
   }
@@ -6802,8 +6934,9 @@ var funnel = (function (exports) {
   function binomialDeviance(x, M) {
       const Sb = 10;
       const S = 1 << Sb;
-      const N = 128;
+      const N = 128; // Table size factor
       let yh = 0, yl = 0;
+      // Handle special cases matching R's dbinom logic
       if (x === M) {
           return { yh: 0, yl: 0 };
       }
@@ -6814,22 +6947,28 @@ var funnel = (function (exports) {
           return { yh: Number.POSITIVE_INFINITY, yl: 0 };
       }
       if (M / x === Number.POSITIVE_INFINITY) {
+          // This case happens when x is very small relative to M
           return { yh: M, yl: 0 };
       }
+      // Argument reduction: M/x = 2^e * r
       let { mantissa: r, exponent: e } = frexp(M / x);
+      // Check for potential overflow
       if (Math.LN2 * -e > 1 + Number.MAX_VALUE / x) {
           return { yh: Number.POSITIVE_INFINITY, yl: 0 };
       }
+      // Calculate table index and interpolation factor
       const i = Math.floor((r - 0.5) * (2 * N) + 0.5);
       const f = Math.floor(S / (0.5 + i / (2.0 * N)) + 0.5);
       const fg = ldexp(f, -(e + Sb));
       if (fg === Number.POSITIVE_INFINITY) {
           return { yh: Number.POSITIVE_INFINITY, yl: 0 };
       }
+      // First term of the expansion
       ({ yh, yl } = addHighLow(-x * log1pmx((M * fg - x) / x), yh, yl));
       if (fg === 1) {
           return { yh: yh, yl: yl };
       }
+      // Add terms from the precomputed scale table
       for (let j = 0; j < 4; j++) {
           ({ yh, yl } = addHighLow(x * bd0_scale[i][j], yh, yl));
           ({ yh, yl } = addHighLow(-x * bd0_scale[0][j] * e, yh, yl));
@@ -6837,6 +6976,7 @@ var funnel = (function (exports) {
               return { yh: Number.POSITIVE_INFINITY, yl: 0 };
           }
       }
+      // Final adjustment
       ({ yh, yl } = addHighLow(M, yh, yl));
       ({ yh, yl } = addHighLow(-M * fg, yh, yl));
       return { yh: yh, yl: yl };
@@ -6854,15 +6994,20 @@ var funnel = (function (exports) {
    */
   function poissonDensity(x, lambda, log_p) {
       const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
+      // Handle degenerate case: lambda = 0 is a point mass at x = 0
       if (lambda === 0) {
           return (x === 0) ? (log_p ? 0 : 1) : zeroBound;
       }
+      // Invalid inputs
       if (!Number.isFinite(lambda) || x < 0) {
           return zeroBound;
       }
+      // For very small x relative to lambda, use limit: f(x) ≈ exp(-lambda)
       if (x <= lambda * Number.MIN_VALUE) {
           return log_p ? -lambda : Math.exp(-lambda);
       }
+      // For very small lambda relative to x, use direct formula
+      // f(x) = exp(-lambda + x*log(lambda) - log(Gamma(x+1)))
       if (lambda < x * Number.MIN_VALUE) {
           if (!Number.isFinite(x)) {
               return zeroBound;
@@ -6870,8 +7015,12 @@ var funnel = (function (exports) {
           const rtn = -lambda + x * Math.log(lambda) - lgamma1p(x);
           return log_p ? rtn : Math.exp(rtn);
       }
+      // General case: use Stirling's approximation for improved precision
+      // f(x) = exp(-stirlingError(x) - binomialDeviance(x, lambda)) / sqrt(2*pi*x)
+      // This formulation avoids catastrophic cancellation for x ≈ lambda
       let { yh, yl } = binomialDeviance(x, lambda);
       yl += stirlingError(x);
+      // Handle very large x separately to avoid overflow in sqrt(2*pi*x)
       let Lrg_x = (x >= Number.MAX_VALUE);
       let r = Lrg_x ? SQRT_TWO_PI * Math.sqrt(x)
           : TWO_PI * x;
@@ -6890,18 +7039,26 @@ var funnel = (function (exports) {
    * @returns The Poisson density or its logarithm for the previous value.
    */
   function poissonDensityPrev(x_plus_1, lambda, log_p) {
+      // Handle infinite lambda
       if (!Number.isFinite(lambda)) {
           return log_p ? Number.NEGATIVE_INFINITY : 0;
       }
+      // For x >= 1, directly compute poissonDensity(x, lambda)
       if (x_plus_1 > 1) {
           return poissonDensity(x_plus_1 - 1, lambda, log_p);
       }
+      // For x < 1, use relationship: f(x) = f(x+1) * (x+1) / lambda
+      // In log scale: log(f(x)) = log(f(x+1)) + log(x+1) - log(lambda)
       let rtn;
+      // Cutoff for when lambda is very large relative to |x|
       const M_cutoff = 3.196577161300664E18;
       if (lambda > Math.abs(x_plus_1 - 1) * M_cutoff) {
+          // For very large lambda, use direct formula
+          // log(f(x)) = -lambda - log(Gamma(x+1))
           rtn = -lambda - lgamma(x_plus_1);
       }
       else {
+          // Use recurrence relation: f(x) = f(x+1) * (x+1) / lambda
           const d = poissonDensity(x_plus_1, lambda, true);
           rtn = d + Math.log(x_plus_1) - Math.log(lambda);
       }
@@ -6917,24 +7074,33 @@ var funnel = (function (exports) {
    * @returns Continued fraction value
    */
   function gammaContFrac(y, d) {
+      // Handle trivial case
       if (y == 0) {
           return 0;
       }
+      // Initial approximation: f0 = y/d
       let f0 = y / d;
+      // If y is approximately 1, return the simple ratio
       if (Math.abs(y - 1) < Math.abs(d) * Number.EPSILON) {
           return f0;
       }
+      // Clamp f0 to 1 for numerical stability
       if (f0 > 1) {
           f0 = 1;
       }
+      // Initialize recurrence coefficients for continued fraction
+      // The continued fraction is evaluated using the modified Lentz algorithm
       let c3;
       let c2 = y;
       let c4 = d;
+      // a1/b1 and a2/b2 are successive convergents of the continued fraction
       let a1 = 0;
       let b1 = 1;
       let a2 = y;
       let b2 = d;
+      // Scale factor to prevent overflow in intermediate calculations
       const scalefactor = 1.157921e+77;
+      // Initial scaling if needed
       while (b2 > scalefactor) {
           a1 /= scalefactor;
           b1 /= scalefactor;
@@ -6942,27 +7108,33 @@ var funnel = (function (exports) {
           b2 /= scalefactor;
       }
       let i = 0;
-      let of = -1;
-      let f = 0.0;
+      let of = -1; // Previous value of f for convergence check
+      let f = 0.0; // Current convergent value
+      // Main iteration loop: compute successive convergents
+      // Each iteration computes two terms of the continued fraction
       while (i < 200000) {
+          // First term of the pair
           i++;
           c2--;
           c3 = i * c2;
           c4 += 2;
           a1 = c4 * a2 + c3 * a1;
           b1 = c4 * b2 + c3 * b1;
+          // Second term of the pair
           i++;
           c2--;
           c3 = i * c2;
           c4 += 2;
           a2 = c4 * a1 + c3 * a2;
           b2 = c4 * b1 + c3 * b2;
+          // Rescale to prevent overflow
           if (b2 > scalefactor) {
               a1 /= scalefactor;
               b1 /= scalefactor;
               a2 /= scalefactor;
               b2 /= scalefactor;
           }
+          // Check convergence: |f - f_prev| <= epsilon * max(f0, |f|)
           if (b2 !== 0) {
               f = a2 / b2;
               if (Math.abs(f - of) <= Number.EPSILON * Math.max(f0, Math.abs(f))) {
@@ -6971,7 +7143,7 @@ var funnel = (function (exports) {
               of = f;
           }
       }
-      return f; /* did not converge */
+      return f; // Did not converge within iteration limit
   }
 
   /**
@@ -6986,6 +7158,9 @@ var funnel = (function (exports) {
    */
   function normalCDFImpl(x, lower_tail, log_p) {
       let i_tail = lower_tail ? 0 : 1;
+      // Polynomial coefficients for different approximation regions
+      // Region 1: |x| <= 0.67448975 (central region)
+      // Uses rational approximation: Phi(x) ≈ 0.5 + x * P(x²) / Q(x²)
       const a = [
           2.2352520354606839287,
           161.02823106855587881,
@@ -6999,6 +7174,8 @@ var funnel = (function (exports) {
           10260.932208618978205,
           45507.789335026729956
       ];
+      // Region 2: 0.67448975 < |x| <= sqrt(32) (intermediate region)
+      // Uses rational approximation with exponential scaling
       const c = [
           0.39894151208813466764,
           8.8831497943883759412,
@@ -7020,6 +7197,8 @@ var funnel = (function (exports) {
           38912.003286093271411,
           19685.429676859990727
       ];
+      // Region 3: |x| > sqrt(32) (tail region)
+      // Uses asymptotic expansion for extreme tails
       const p = [
           0.21589853405795699,
           0.1274011611602473639,
@@ -7043,9 +7222,11 @@ var funnel = (function (exports) {
       eps = Number.EPSILON * 0.5;
       lower = i_tail != 1;
       upper = i_tail != 0;
-      let cum = 0;
-      let ccum = 0;
+      let cum = 0; // Lower tail probability
+      let ccum = 0; // Upper tail probability (complement)
       y = Math.abs(x);
+      // Region 1: Central region |x| <= 0.67448975
+      // Use Taylor series expansion around 0
       if (y <= 0.67448975) {
           if (y > eps) {
               xsq = x * x;
@@ -7059,6 +7240,7 @@ var funnel = (function (exports) {
           else {
               xnum = xden = 0.0;
           }
+          // Phi(x) = 0.5 + x * R(x²) where R is a rational function
           temp = x * (xnum + a[3]) / (xden + b[3]);
           if (lower) {
               cum = 0.5 + temp;
@@ -7076,6 +7258,8 @@ var funnel = (function (exports) {
           }
       }
       else if (y <= SQRT_THIRTY_TWO) {
+          // Region 2: Intermediate region 0.67448975 < |x| <= sqrt(32)
+          // Use rational approximation with careful exponential handling
           xnum = c[8] * y;
           xden = y;
           for (i = 0; i < 7; ++i) {
@@ -7083,6 +7267,8 @@ var funnel = (function (exports) {
               xden = (xden + d[i]) * y;
           }
           temp = (xnum + c[7]) / (xden + d[7]);
+          // Split x² into integer and fractional parts for precision
+          // Compute exp(-x²/2) as exp(-xsq²/2) * exp(-del/2)
           xsq = ldexp(Math.trunc(ldexp(y, 4)), -4);
           del = (y - xsq) * (y + xsq);
           if (log_p) {
@@ -7095,6 +7281,7 @@ var funnel = (function (exports) {
               cum = Math.exp(-xsq * ldexp(xsq, -1)) * Math.exp(-ldexp(del, -1)) * temp;
               ccum = 1.0 - cum;
           }
+          // Swap if x > 0 (we computed the upper tail)
           if (x > 0.) {
               temp = cum;
               if (lower) {
@@ -7104,6 +7291,8 @@ var funnel = (function (exports) {
           }
       }
       else if ((log_p && y < 1e170) || (lower && -38.4674 < x && x < 8.2924) || (upper && -8.2924 < x && x < 38.4674)) {
+          // Region 3: Tail region |x| > sqrt(32)
+          // Use asymptotic expansion: Phi(x) ≈ phi(x) * (1/x - 1/x³ + ...)
           xsq = 1.0 / (x * x);
           xnum = p[5] * xsq;
           xden = xsq;
@@ -7113,6 +7302,7 @@ var funnel = (function (exports) {
           }
           temp = xsq * (xnum + p[4]) / (xden + q[4]);
           temp = (ONE_DIV_SQRT_TWO_PI - temp) / y;
+          // Same precision technique as Region 2
           xsq = ldexp(Math.trunc(ldexp(x, 4)), -4);
           del = (x - xsq) * (x + xsq);
           if (log_p) {
@@ -7134,6 +7324,7 @@ var funnel = (function (exports) {
           }
       }
       else {
+          // Region 4: Extreme tails - return 0 or 1
           if (x > 0) {
               cum = (log_p ? 0 : 1);
               ccum = (log_p ? Number.NEGATIVE_INFINITY : 0);
@@ -7159,18 +7350,24 @@ var funnel = (function (exports) {
    * @returns The cumulative probability up to x for the standard normal distribution.
    */
   function normalCDF(x, mu, sigma, lower_tail = true, log_p = false) {
+      // Handle NaN inputs: propagate NaN
       if (Number.isNaN(x) || Number.isNaN(mu) || Number.isNaN(sigma)) {
           return x + mu + sigma;
       }
+      // Handle infinity - infinity case (indeterminate form)
       if (!Number.isFinite(x) && mu == x) {
           return Number.NaN;
       }
+      // Precompute boundary values for edge cases
       const zeroBoundLower = (lower_tail ? (log_p ? Number.NEGATIVE_INFINITY : 0) : (log_p ? 0 : 1));
       const zeroBoundUpper = (lower_tail ? (log_p ? 0 : 1) : (log_p ? Number.NEGATIVE_INFINITY : 0));
+      // Standardize: z = (x - mu) / sigma transforms N(mu, sigma) to N(0, 1)
       let p = (x - mu) / sigma;
+      // Handle overflow in standardization
       if (!Number.isFinite(p)) {
           return (x < mu) ? zeroBoundLower : zeroBoundUpper;
       }
+      // Delegate to implementation for standard normal N(0, 1)
       return normalCDFImpl(p, lower_tail, log_p);
   }
 
@@ -7186,34 +7383,45 @@ var funnel = (function (exports) {
    * @returns The probability density or log-density at the given point.
    */
   function normalDensity(x, mu, sigma, log_p = false) {
+      // Handle NaN inputs
       if (Number.isNaN(x) || Number.isNaN(mu) || Number.isNaN(sigma)) {
           return x + mu + sigma;
       }
       const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
+      // Infinite sigma means density is 0 everywhere
       if (!Number.isFinite(sigma)) {
           return zeroBound;
       }
+      // Handle infinity - infinity case
       if (!Number.isFinite(x) && mu == x) {
           return Number.NaN;
       }
+      // Standardize: z = (x - mu) / sigma
       const z = (x - mu) / sigma;
       if (!Number.isFinite(z)) {
           return zeroBound;
       }
       const absZ = Math.abs(z);
+      // Check for potential overflow in z²
       if (absZ >= 2 * Math.sqrt(Number.MAX_VALUE)) {
           return zeroBound;
       }
+      // Compute density: f(x) = (1 / (sigma * sqrt(2*pi))) * exp(-z²/2)
+      // In log scale: log(f) = -log(sqrt(2*pi)) - log(sigma) - z²/2
       if (log_p) {
           return -(LOG_SQRT_TWO_PI + 0.5 * absZ * absZ + Math.log(sigma));
       }
+      // For small |z|, direct computation is stable
       if (absZ < 5) {
           return ONE_DIV_SQRT_TWO_PI * Math.exp(-0.5 * absZ * absZ) / sigma;
       }
-      // Point at which algorithm underflows
+      // Underflow threshold: exp(-z²/2) underflows for |z| > 38.57
       if (absZ > 38.56804181549334) {
           return 0;
       }
+      // For larger |z|, split z to avoid precision loss in z²
+      // z = x1 + x2 where x1 has limited precision
+      // exp(-z²/2) = exp(-x1²/2) * exp((-x2/2 - x1) * x2)
       let x1 = ldexp(Math.trunc(ldexp(absZ, 16)), -16);
       let x2 = absZ - x1;
       return ONE_DIV_SQRT_TWO_PI / sigma
@@ -7232,6 +7440,8 @@ var funnel = (function (exports) {
    * @returns The cumulative probability up to x for the Poisson distribution with given parameters.
    */
   function poissonCDFAsymp(x, lambda, lower_tail, log_p) {
+      // Coefficients for asymptotic expansion
+      // These are derived from the Edgeworth expansion of the Poisson distribution
       const coefs_a = [
           -1e99, /* placeholder used for 1-indexing */
           2 / 3.,
@@ -7256,12 +7466,17 @@ var funnel = (function (exports) {
       let res12, res1_term, res1_ig, res2_term, res2_ig;
       let dfm, pt_, s2pt, f, np;
       let i;
+      // Compute deviation from mean
       dfm = lambda - x;
+      // pt_ is related to the relative deviation: -log(1 + (lambda-x)/x) + (lambda-x)/x
       pt_ = -log1pmx(dfm / x);
+      // s2pt is the signed square root: sqrt(2 * x * pt_)
+      // This transforms the Poisson to approximate normal
       s2pt = Math.sqrt(2 * x * pt_);
       if (dfm < 0) {
-          s2pt = -s2pt;
+          s2pt = -s2pt; // Preserve sign based on deviation direction
       }
+      // Compute the correction terms using asymptotic series
       res12 = 0;
       res1_ig = res1_term = Math.sqrt(x);
       res2_ig = res2_term = s2pt;
@@ -7273,6 +7488,7 @@ var funnel = (function (exports) {
           res1_ig = res1_ig / x + res1_term;
           res2_ig = res2_ig / x + res2_term;
       }
+      // Compute the leading factor for the expansion
       elfb = x;
       elfb_term = 1;
       for (i = 1; i < 8; i++) {
@@ -7282,16 +7498,24 @@ var funnel = (function (exports) {
       if (!lower_tail) {
           elfb = -elfb;
       }
+      // f is the correction factor to apply to the normal approximation
+      // f is the correction factor to apply to the normal approximation
       f = res12 / elfb;
+      // Get base normal CDF at the transformed point
       np = normalCDF(s2pt, 0, 1, !lower_tail, log_p);
+      // Apply correction to normal approximation
       if (log_p) {
           let i_tail = !lower_tail;
-          let n_d_over_p;
+          let n_d_over_p; // Ratio of normal density to probability
+          // Handle sign for tail computation
           if (s2pt < 0) {
               s2pt = -s2pt;
               i_tail = !i_tail;
           }
+          // For large s2pt in the correct tail, use asymptotic expansion
+          // This avoids computing exp(np) which could underflow
           if (s2pt > 10 && !i_tail) {
+              // Asymptotic expansion: phi(x)/Phi(x) ≈ x / (1 + 1/x² - 1/x⁴ + ...)
               let term = 1 / s2pt;
               let sum = term;
               let x2 = s2pt * s2pt;
@@ -7304,12 +7528,15 @@ var funnel = (function (exports) {
               n_d_over_p = 1 / sum;
           }
           else {
+              // Direct computation for moderate values
               let d = normalDensity(s2pt, 0, 1, false);
               n_d_over_p = d / Math.exp(np);
           }
+          // log(P) = log(Phi(s2pt)) + log(1 + f * phi(s2pt)/Phi(s2pt))
           return np + Math.log1p(f * n_d_over_p);
       }
       else {
+          // Non-log case: P = Phi(s2pt) + f * phi(s2pt)
           return np + f * normalDensity(s2pt, 0, 1, log_p);
       }
   }
@@ -7339,12 +7566,17 @@ var funnel = (function (exports) {
       let res;
       const zeroBoundLower = log_p ? Number.NEGATIVE_INFINITY : 0;
       const zeroBoundUpper = log_p ? 0 : 1;
+      // Handle edge cases
       if (x <= 0) {
           return lower_tail ? zeroBoundLower : zeroBoundUpper;
       }
       if (x >= Number.POSITIVE_INFINITY) {
           return lower_tail ? zeroBoundUpper : zeroBoundLower;
       }
+      // Case 1: Small x. Use series expansion.
+      // This corresponds to the power series expansion of the lower incomplete gamma function:
+      // gamma(alpha, x) = x^alpha * sum_{n=0}^{infinity} ((-1)^n * x^n) / (n! * (alpha + n))
+      //                 = x^alpha * sum_{n=0}^{infinity} (c_n / (alpha + n))
       if (x < 1) {
           let sum = 0, c = alph, n = 0, term = 1;
           while (Math.abs(term) > Number.EPSILON * Math.abs(sum)) {
@@ -7381,6 +7613,10 @@ var funnel = (function (exports) {
           }
       }
       else if (x <= alph - 1 && x < 0.8 * (alph + 50)) {
+          // Case 2: x is smaller than mean (alpha). Use series approximation.
+          // Computes lower tail using a series related to the Poisson distribution:
+          // P(X <= x) = P(Y >= alpha) where Y ~ Poisson(x).
+          // Uses the identity: integral_0^x t^(a-1) e^(-t) dt / Gamma(a) = sum_{k=0}^infinity e^(-x) x^(a+k) / Gamma(a+k+1)
           let y = alph;
           let term = x / y;
           let sum = term;
@@ -7399,6 +7635,9 @@ var funnel = (function (exports) {
           }
       }
       else if (alph - 1 < x && alph < 0.8 * (x + 50)) {
+          // Case 3: x is larger than mean. Use continued fraction or finite sum.
+          // Computes upper tail using reduction or continued fractions.
+          // For integer alpha, summation is finite. Use Legendre's continued fraction for Gamma(alpha, x).
           let sum = 0;
           const d = poissonDensityPrev(alph, x, log_p);
           if (alph < 1) {
@@ -7431,8 +7670,11 @@ var funnel = (function (exports) {
           }
       }
       else {
+          // Case 4: Asymptotic approximation for large parameters
+          // Uses Peizer-Pratt approximation via Poisson CDF asymp.
           res = poissonCDFAsymp(alph - 1, x, !lower_tail, log_p);
       }
+      // Final check for underflow in non-log case to improve precision by using log scale first
       if (!log_p && res < Number.MIN_VALUE / Number.EPSILON) {
           return Math.exp(gammaCDFImpl(x, alph, lower_tail, true));
       }
@@ -7452,22 +7694,28 @@ var funnel = (function (exports) {
    * @returns The cumulative probability up to x for the gamma distribution with given parameters.
    */
   function gammaCDF(x, alpha, scale, lower_tail = true, log_p = false) {
+      // Handle NaN inputs: propagate NaN
       if (Number.isNaN(x) || Number.isNaN(alpha) || Number.isNaN(scale)) {
           return x + alpha + scale;
       }
+      // Validate parameters: alpha >= 0, scale > 0
       if (alpha < 0 || scale <= 0) {
           return Number.NaN;
       }
+      // Standardize to unit scale: X/scale ~ Gamma(alpha, 1)
+      // This simplifies the implementation to only handle scale = 1
       x /= scale;
       if (Number.isNaN(x)) {
           return x;
       }
+      // Degenerate case: alpha = 0 is a point mass at 0
       if (alpha === 0) {
           const zeroBoundLower = log_p ? Number.NEGATIVE_INFINITY : 0;
           const zeroBoundUpper = log_p ? 0 : 1;
           return (x <= 0) ? (lower_tail ? zeroBoundLower : zeroBoundUpper)
               : (lower_tail ? zeroBoundUpper : zeroBoundLower);
       }
+      // Delegate to implementation for standardized gamma
       return gammaCDFImpl(x, alpha, lower_tail, log_p);
   }
 
@@ -7483,19 +7731,26 @@ var funnel = (function (exports) {
    * @returns The value of the gamma density function at x.
    */
   function gammaDensity(x, shape, scale, log_p) {
+      // Handle NaN inputs: propagate NaN
       if (Number.isNaN(x) || Number.isNaN(shape) || Number.isNaN(scale)) {
           return x + shape + scale;
       }
+      // Validate parameters: shape >= 0, scale > 0
       if (shape < 0 || scale <= 0) {
           return Number.NaN;
       }
       const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
+      // Density is zero for negative x
       if (x < 0) {
           return zeroBound;
       }
+      // Degenerate case: shape = 0 is a point mass at 0
       if (shape === 0) {
           return (x === 0) ? Number.POSITIVE_INFINITY : zeroBound;
       }
+      // Handle x = 0 separately based on shape parameter
+      // Gamma density: f(x) = x^(shape-1) * exp(-x/scale) / (Gamma(shape) * scale^shape)
+      // At x = 0: f(0) = infinity if shape < 1, 0 if shape > 1, 1/scale if shape = 1
       if (x === 0) {
           if (shape < 1) {
               return Number.POSITIVE_INFINITY;
@@ -7503,8 +7758,12 @@ var funnel = (function (exports) {
           if (shape > 1) {
               return zeroBound;
           }
+          // shape === 1: Exponential distribution, f(0) = 1/scale
           return log_p ? -Math.log(scale) : 1 / scale;
       }
+      // Use relationship between Gamma and Poisson densities:
+      // For shape < 1: f_Gamma(x; shape, scale) = (shape/x) * f_Poisson(shape; x/scale)
+      // For shape >= 1: f_Gamma(x; shape, scale) = (1/scale) * f_Poisson(shape-1; x/scale)
       let pr;
       if (shape < 1) {
           pr = poissonDensity(shape, x / scale, log_p);
@@ -7519,7 +7778,7 @@ var funnel = (function (exports) {
               return pr * shape / x;
           }
       }
-      /* else  shape >= 1 */
+      // shape >= 1: use f_Gamma = f_Poisson(shape-1, x/scale) / scale
       pr = poissonDensity(shape - 1, x / scale, log_p);
       return log_p ? pr - Math.log(scale) : pr / scale;
   }
@@ -7541,20 +7800,25 @@ var funnel = (function (exports) {
    * @returns Refined estimate of the quantile
    */
   function gammaNewtonIter(ch, p, alpha, scale, lower_tail, log_p, max_it_Newton, EPS_N) {
+      // Convert chi-squared estimate to gamma scale: x = (scale * ch) / 2
       let x = 0.5 * scale * ch;
+      // If no iterations requested, return the initial estimate
       if (max_it_Newton === 0) {
           return x;
       }
+      // Work in log scale for better numerical precision
       if (!log_p) {
           p = Math.log(p);
           log_p = true;
       }
-      let p_;
+      let p_; // Current CDF value at x
+      // Handle x = 0 edge case
       if (x === 0) {
-          const _1_p = 1. + 1e-7;
-          const _1_m = 1. - 1e-7;
+          const _1_p = 1. + 1e-7; // Tolerance factor (upper)
+          const _1_m = 1. - 1e-7; // Tolerance factor (lower)
           x = Number.MIN_VALUE;
           p_ = gammaCDF(x, alpha, scale, lower_tail, log_p);
+          // Check if p is so small that the quantile is effectively 0
           if ((lower_tail && p_ > p * _1_p) || (!lower_tail && p_ < p * _1_m)) {
               return 0;
           }
@@ -7562,22 +7826,32 @@ var funnel = (function (exports) {
       else {
           p_ = gammaCDF(x, alpha, scale, lower_tail, log_p);
       }
+      // If CDF is -infinity (log scale), quantile is 0
       if (p_ === Number.NEGATIVE_INFINITY) {
           return 0;
       }
       const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
+      // Newton-Raphson iteration loop
+      // Update rule: x_{n+1} = x_n - (F(x_n) - p) / f(x_n)
+      // where F is the CDF and f is the PDF (density)
       for (let i = 1; i <= max_it_Newton; i++) {
-          const p1 = p_ - p;
+          const p1 = p_ - p; // Residual: F(x) - p
+          // Check convergence: |F(x) - p| < epsilon * |p|
           if (Math.abs(p1) < Math.abs(EPS_N * p)) {
               break;
           }
+          // Compute density (derivative of CDF) for Newton step
           const g = gammaDensity(x, alpha, scale, log_p);
           if (g === zeroBound) {
-              break;
+              break; // Density is 0, cannot continue
           }
+          // Compute Newton step: delta = (F(x) - p) / f(x)
+          // In log scale: delta = (p_ - p) * exp(p_ - g)
           let t = log_p ? p1 * Math.exp(p_ - g) : p1 / g;
-          t = lower_tail ? x - t : x + t;
+          t = lower_tail ? x - t : x + t; // Apply step in correct direction
+          // Evaluate CDF at new point
           p_ = gammaCDF(t, alpha, scale, lower_tail, log_p);
+          // Check if we are making progress; stop if not improving
           const absDiff = Math.abs(p_ - p);
           const absP1 = Math.abs(p1);
           if (absDiff > absP1 || (i > 1 && absDiff === absP1)) {
@@ -7588,6 +7862,15 @@ var funnel = (function (exports) {
       return x;
   }
 
+  /**
+   * Evaluates a rational polynomial P(x)/Q(x) using Horner's method.
+   *
+   * @param x The point at which to evaluate
+   * @param q Multiplier for the result
+   * @param num_coeffs Numerator polynomial coefficients (highest degree first)
+   * @param den_coeffs Denominator polynomial coefficients (highest degree first)
+   * @returns q * P(x) / Q(x)
+   */
   function polyEval(x, q, num_coeffs, den_coeffs) {
       let numerator = num_coeffs[0];
       let denominator = den_coeffs[0];
@@ -7611,18 +7894,20 @@ var funnel = (function (exports) {
    */
   function normalQuantile(p, mu, sigma, lower_tail, log_p) {
       let p_, q, r, val;
+      // Handle NaN inputs
       if (Number.isNaN(p) || Number.isNaN(mu) || Number.isNaN(sigma)) {
           return p + mu + sigma;
       }
+      // Validate probability bounds and handle edge cases
       if (log_p) {
           if (p > 0) {
-              return Number.NaN;
+              return Number.NaN; // log(p) > 0 means p > 1
           }
           if (p == 0) {
-              return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+              return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY; // p = 1
           }
           if (p == Number.NEGATIVE_INFINITY) {
-              return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+              return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY; // p = 0
           }
       }
       else {
@@ -7636,9 +7921,12 @@ var funnel = (function (exports) {
               return lower_tail ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
           }
       }
+      // Convert to standard form: compute p_ as lower-tail probability
       p_ = log_p ? (lower_tail ? Math.exp(p) : -Math.expm1(p))
           : (lower_tail ? p : (0.5 - p + 0.5));
-      q = p_ - 0.5;
+      q = p_ - 0.5; // Deviation from median  // Deviation from median
+      // Rational approximation coefficients for central region |q| <= 0.425
+      // Based on Wichura's AS 241 algorithm
       const coeffs_a = [
           2509.0809287301226727,
           33430.575583588128105,
@@ -7659,6 +7947,7 @@ var funnel = (function (exports) {
           42.313330701600911252,
           1
       ];
+      // Coefficients for intermediate tail region (r <= 5)
       const coeffs_c = [
           7.7454501427834140764e-4,
           0.0227238449892691845833,
@@ -7679,6 +7968,7 @@ var funnel = (function (exports) {
           2.05319162663775882187,
           1
       ];
+      // Coefficients for extreme tail region (r <= 27)
       const coeffs_e = [
           2.01033439929228813265e-7,
           2.71155556874348757815e-5,
@@ -7699,11 +7989,14 @@ var funnel = (function (exports) {
           0.59983220655588793769,
           1
       ];
+      // Region 1: Central region |q| <= 0.425 (covers about 85% of distribution)
+      // Use rational approximation in r = 0.180625 - q²
       if (Math.abs(q) <= 0.425) {
           r = 0.180625 - q * q;
           val = polyEval(r, q, coeffs_a, coeffs_b);
       }
       else {
+          // Tail regions: work with r = sqrt(-log(p)) for numerical stability
           let lp;
           if (log_p && ((lower_tail && q <= 0) || (!lower_tail && q > 0))) {
               lp = p;
@@ -7719,18 +8012,24 @@ var funnel = (function (exports) {
               lp = Math.log(lp);
           }
           r = Math.sqrt(-lp);
+          // Region 2: Intermediate tail (r <= 5)
           if (r <= 5) {
               val = polyEval(r - 1.6, 1, coeffs_c, coeffs_d);
           }
           else if (r <= 27) {
+              // Region 3: Far tail (r <= 27)
               val = polyEval(r - 5, 1, coeffs_e, coeffs_f);
           }
           else {
+              // Region 4: Extreme tail - use asymptotic expansion
+              // Based on inverting the Mills ratio approximation
               if (r >= 6.4e8) {
                   val = r * Math.SQRT2;
               }
               else {
-                  const s2 = -ldexp(lp, 1);
+                  // Iterative refinement using asymptotic formula
+                  // Phi^{-1}(p) ≈ sqrt(-2*log(p) - log(2*pi) - log(-2*log(p) - log(2*pi)))
+                  const s2 = -ldexp(lp, 1); // s2 = -2 * log(p)
                   let x2 = s2 - (Math.log(s2) + LOG_TWO_PI);
                   if (r < 36000) {
                       x2 = s2 - (LOG_TWO_PI + Math.log(x2)) - 2 / (2 + x2);
@@ -7750,10 +8049,12 @@ var funnel = (function (exports) {
                   val = Math.sqrt(x2);
               }
           }
+          // Apply sign based on which tail
           if (q < 0.0) {
               val = -val;
           }
       }
+      // Transform from standard normal to N(mu, sigma)
       return mu + sigma * val;
   }
 
@@ -7786,6 +8087,7 @@ var funnel = (function (exports) {
    * @returns Approximate quantile for the chi-squared distribution
    */
   function chisqQuantileApprox(p, nu, g, lower_tail = true, log_p = false, tol) {
+      // Check for invalid inputs (NaN or out of bounds)
       if (Number.isNaN(p) || Number.isNaN(nu)) {
           return p + nu;
       }
@@ -7794,20 +8096,24 @@ var funnel = (function (exports) {
       }
       const alpha = 0.5 * nu;
       let p1 = logP(p, lower_tail, log_p);
+      // Approximation for small degrees of freedom or extreme tail probabilities
       if (nu < -1.24 * p1) {
           const lgam1pa = (alpha < 0.5) ? lgamma1p(alpha)
               : ((Math.log(nu) - Math.LN2) + g);
           return Math.exp((lgam1pa + p1) / alpha + Math.LN2);
       }
       const c = alpha - 1;
+      // Wilson-Hilferty approximation for larger degrees of freedom
       if (nu > 0.32) {
           const x = normalQuantile(p, 0, 1, lower_tail, log_p);
           p1 = 2 / (9 * nu);
           const ch = nu * Math.pow(x * Math.sqrt(p1) + 1 - p1, 3);
+          // If approximation is large, use a logarithmic correction
           return (ch > 2.2 * nu + 6)
               ? -2 * (logP(p, !lower_tail, log_p) - c * (Math.log(ch) - Math.LN2) + g)
               : ch;
       }
+      // Iterative approximation for intermediate range
       const C7 = 4.67;
       const C8 = 6.66;
       const C9 = 6.73;
@@ -7817,6 +8123,7 @@ var funnel = (function (exports) {
       let q = 0;
       let t = 0;
       const a = logP(p, !lower_tail, log_p) + g + c * Math.LN2;
+      // Refine the approximation iteratively
       while (Math.abs(q - ch) > tol * Math.abs(ch)) {
           q = ch;
           p1 = 1 / (1 + ch * (C7 + ch));
@@ -7827,19 +8134,34 @@ var funnel = (function (exports) {
       return ch;
   }
 
+  /**
+   * Computes the quantile function (inverse CDF) of the gamma distribution.
+   *
+   * Uses a combination of chi-squared approximation and Newton-Raphson refinement.
+   * This implementation is adapted from R's qgamma function.
+   *
+   * @param p Probability value (or log(p) if log_p is true)
+   * @param alpha Shape parameter of the gamma distribution
+   * @param scale Scale parameter of the gamma distribution
+   * @param lower_tail If true, returns quantile for P(X <= x) = p; otherwise P(X > x) = p
+   * @param log_p If true, p is given as log(p)
+   * @returns The quantile x such that P(X <= x) = p (or P(X > x) = p)
+   */
   function gammaQuantile(p, alpha, scale, lower_tail = true, log_p = false) {
+      // Handle NaN inputs
       if (Number.isNaN(p) || Number.isNaN(alpha) || Number.isNaN(scale)) {
           return p + alpha + scale;
       }
+      // Validate probability bounds and handle edge cases
       if (log_p) {
           if (p > 0) {
-              return Number.NaN;
+              return Number.NaN; // log(p) > 0 means p > 1, invalid
           }
           if (p === 0) {
-              return lower_tail ? Number.POSITIVE_INFINITY : 0;
+              return lower_tail ? Number.POSITIVE_INFINITY : 0; // p = 1
           }
           if (p === Number.NEGATIVE_INFINITY) {
-              return lower_tail ? 0 : Number.POSITIVE_INFINITY;
+              return lower_tail ? 0 : Number.POSITIVE_INFINITY; // p = 0
           }
       }
       else {
@@ -7853,55 +8175,73 @@ var funnel = (function (exports) {
               return lower_tail ? Number.POSITIVE_INFINITY : 0;
           }
       }
+      // Validate shape and scale parameters
       if (alpha < 0 || scale <= 0) {
           return Number.NaN;
       }
+      // Degenerate case: alpha = 0 means point mass at 0
       if (alpha === 0) {
           return 0;
       }
+      // For very small alpha, use more Newton iterations for accuracy
       let max_it_Newton = 1;
       if (alpha < 1e-10) {
           max_it_Newton = 7;
       }
+      // Use chi-squared approximation as initial estimate
+      // Gamma(alpha, scale) relates to chi-squared: if X ~ Gamma(alpha, 2), then X ~ chi-squared(2*alpha)
       const g = lgamma(alpha);
       let ch = chisqQuantileApprox(p, 2 * alpha, g, lower_tail, log_p, 1e-2);
+      // If chi-squared approximation failed, return scaled result directly
       if (!Number.isFinite(ch)) {
           return gammaNewtonIter(ch, p, alpha, scale, lower_tail, log_p, 0, 1e-15);
       }
+      // Convert probability to standard form for iteration
       const p_ = log_p ? (lower_tail ? Math.exp(p) : -Math.expm1(p))
           : (lower_tail ? p : (0.5 - p + 0.5));
+      // For extreme probabilities or small ch, use Newton refinement directly
       if (ch < 5e-7 || p_ > (1 - 1e-14) || p_ < 1e-100) {
           return gammaNewtonIter(ch, p, alpha, scale, lower_tail, log_p, 20, 1e-15);
       }
+      // Precomputed constants for the Wilson-Hilferty-based iteration
       const i420 = 1 / 420;
       const i2520 = 1 / 2520;
       const i5040 = 1 / 5040;
       const c = alpha - 1;
       const s6 = (120 + c * (346 + 127 * c)) * i5040;
-      const ch0 = ch;
+      const ch0 = ch; // Save initial estimate for fallback
+      // Main iteration: refine chi-squared estimate using higher-order correction
+      // This is a modified Cornish-Fisher expansion for improved convergence
       for (let i = 1; i <= 1000; i++) {
-          const q = ch;
+          const q = ch; // Previous estimate
           const p1 = 0.5 * ch;
-          const p2 = p_ - gammaCDFImpl(p1, alpha);
+          const p2 = p_ - gammaCDFImpl(p1, alpha); // Residual
+          // If iteration becomes unstable, fall back to Newton method
           if (!Number.isFinite(p2) || ch <= 0) {
               return gammaNewtonIter(ch0, p, alpha, scale, lower_tail, log_p, 27, 1e-15);
           }
+          // Compute correction term t
           const t = p2 * Math.exp(alpha * Math.LN2 + g + p1 - c * Math.log(ch));
           const b = t / ch;
           const a = 0.5 * t - b * c;
+          // Polynomial coefficients for higher-order correction (Cornish-Fisher)
           const s1 = (210 + a * (140 + a * (105 + a * (84 + a * (70 + 60 * a))))) * i420;
           const s2 = (420 + a * (735 + a * (966 + a * (1141 + 1278 * a)))) * i2520;
           const s3 = (210 + a * (462 + a * (707 + 932 * a))) * i2520;
           const s4 = (252 + a * (672 + 1182 * a) + c * (294 + a * (889 + 1740 * a))) * i5040;
           const s5 = (84 + 2264 * a + c * (1175 + 606 * a)) * i2520;
+          // Apply correction with nested polynomial evaluation
           ch += t * (1 + 0.5 * t * s1 - b * c * (s1 - b * (s2 - b * (s3 - b * (s4 - b * (s5 - b * s6))))));
+          // Check convergence
           if (Math.abs(q - ch) < (5e-7) * ch) {
               return gammaNewtonIter(ch, p, alpha, scale, lower_tail, log_p, max_it_Newton, 1e-15);
           }
+          // Dampen large steps to maintain stability
           if (Math.abs(q - ch) > 0.1 * ch) {
               ch = q * (ch < q ? 0.9 : 1.1);
           }
       }
+      // Return result after max iterations with final Newton polish
       return gammaNewtonIter(ch, p, alpha, scale, lower_tail, log_p, max_it_Newton, 1e-15);
   }
 
@@ -7918,6 +8258,9 @@ var funnel = (function (exports) {
    * @returns The quantile corresponding to the given probability
    */
   function chisqQuantile(p, df, lower_tail = true, log_p = false) {
+      // Chi-squared distribution is a special case of the gamma distribution:
+      // If X ~ chi-squared(df), then X ~ Gamma(shape = df/2, scale = 2)
+      // Therefore: Q_chi2(p, df) = Q_gamma(p, df/2, 2)
       return gammaQuantile(p, 0.5 * df, 2.0, lower_tail, log_p);
   }
 
