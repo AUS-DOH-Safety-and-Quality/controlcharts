@@ -185,11 +185,21 @@ funnel <- function(data,
     tooltip_settings = validate_tooltips(tooltip_settings)
   )
 
+  compressed <- FALSE
+  if (getOption("controlcharts.compress_data", FALSE)) {
+    if (!requireNamespace("zlib", quietly = TRUE)) {
+      stop("The 'zlib' package is required for compressing stored data.",
+           call. = FALSE)
+    }
+    compressed <- TRUE
+    widget_data <- zlib::compress(serialize(widget_data, NULL))
+  }
+
   # create widget
   html_plt <- htmlwidgets::createWidget(
     name = "funnel",
     # Store compressed data to reduce size
-    x = zlib::compress(serialize(widget_data, NULL)),
+    x = widget_data,
     sizingPolicy = htmlwidgets::sizingPolicy(
       defaultWidth = "100%"
     ),
@@ -200,7 +210,9 @@ funnel <- function(data,
     dependencies = crosstalk::crosstalkLibs(),
     # preRenderHook to decompress data before rendering
     preRenderHook = function(instance) {
-      instance$x <- unserialize(zlib::decompress(instance$x))
+      if (compressed) {
+        instance$x <- unserialize(zlib::decompress(instance$x))
+      }
       instance
     }
   )

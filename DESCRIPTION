@@ -20,11 +20,11 @@ Imports:
   htmlwidgets,
   crosstalk,
   QuickJSR,
-  zlib,
   stats
 Suggests:
   rsvg,
   DT,
+  zlib,
   knitr,
   rmarkdown
 VignetteBuilder: knitr
