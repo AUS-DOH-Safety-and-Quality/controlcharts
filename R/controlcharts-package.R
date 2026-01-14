@@ -6,4 +6,5 @@
 #' @importFrom utils modifyList
 #' @importFrom zlib compress decompress
 #' @importFrom stats aggregate
+#' @importFrom jsutils js_versions
 "_PACKAGE"

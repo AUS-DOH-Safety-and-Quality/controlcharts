@@ -21,12 +21,12 @@ Imports:
   crosstalk,
   QuickJSR,
   zlib,
-  stats
+  stats,
+  jsutils
 Suggests:
   rsvg,
   DT,
   knitr,
-  rmarkdown,
-  jsutils
+  rmarkdown
 VignetteBuilder: knitr
 URL: https://aus-doh-safety-and-quality.github.io/controlcharts/
