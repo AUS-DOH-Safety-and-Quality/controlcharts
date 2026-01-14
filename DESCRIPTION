@@ -25,6 +25,7 @@ Suggests:
   rsvg,
   DT,
   zlib,
+  tinytest,
   knitr,
   rmarkdown
 VignetteBuilder: knitr
