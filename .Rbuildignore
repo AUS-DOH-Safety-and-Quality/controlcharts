@@ -15,3 +15,4 @@ update-lib.sh
 ^pkgdown$
 ^\.github$
 inst/bundle
+.lintr

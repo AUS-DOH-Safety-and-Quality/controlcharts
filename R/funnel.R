@@ -189,7 +189,7 @@ funnel <- function(data,
   if (getOption("controlcharts.compress_data", FALSE)) {
     if (!requireNamespace("zlib", quietly = TRUE)) {
       stop("The 'zlib' package is required for compressing stored data.",
-            call. = FALSE)
+           call. = FALSE)
     }
     compressed <- TRUE
     widget_data <- zlib::compress(serialize(widget_data, NULL))
