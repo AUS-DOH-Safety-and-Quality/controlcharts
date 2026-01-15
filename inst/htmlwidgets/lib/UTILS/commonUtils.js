@@ -62,6 +62,10 @@ const aggregateColumn = function(column, aggregation) {
   }
 }
 
+function isPlainObject(value) {
+return Object.prototype.toString.call(value) === '[object Object]';
+}
+
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
   if (crosstalkFilters) {
     rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalk_identities));
@@ -103,9 +107,8 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       var settingsClone = JSON.parse(JSON.stringify(inputSettings));
       for (var settingGroup in settingsClone) {
         for (var setting in settingsClone[settingGroup]) {
-          if (Array.isArray(settingsClone[settingGroup][setting])) {
-            var index = unique_categories.indexOf(category);
-            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][index];
+          if (isPlainObject(settingsClone[settingGroup][setting])) {
+            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][category];
           }
         }
       }
