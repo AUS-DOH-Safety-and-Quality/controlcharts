@@ -1,0 +1,544 @@
+---
+title: "Chart Types in controlcharts"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Chart Types in controlcharts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+```{r setup, include=FALSE}
+set.seed(12324)
+library(controlcharts)
+```
+
+## Overview
+
+The `controlcharts` package supports a comprehensive range of Statistical Process Control (SPC) charts and funnel plots. This vignette demonstrates all available chart types with examples of their usage.
+
+## SPC Chart Types
+
+The package supports 14 different SPC chart types, each designed for specific data characteristics and monitoring scenarios.
+
+### Basic Charts
+
+#### Run Chart
+
+A run chart displays data over time without statistical control limits. It's useful for visualizing trends and patterns in data.
+
+```{r run_chart}
+# Simulate 24 months of data
+dat_run <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  y = rnorm(24, mean = 100, sd = 10)
+)
+
+chart_run <- spc(data = dat_run,
+                 keys = month,
+                 numerators = y,
+                 spc_settings = list(chart_type = "run"))
+
+chart_run$static_plot
+```
+
+```{r run_limits}
+knitr::kable(head(chart_run$limits), digits = 2)
+```
+
+#### Individuals Chart (i-chart)
+
+The individuals chart (also called an XmR chart) is the default chart type. It monitors individual measurements with control limits based on the moving range.
+
+```{r i_chart}
+dat_i <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  y = rnorm(24, mean = 50, sd = 5)
+)
+
+chart_i <- spc(data = dat_i,
+               keys = month,
+               numerators = y,
+               spc_settings = list(chart_type = "i"))
+
+chart_i$static_plot
+```
+
+```{r i_limits}
+knitr::kable(head(chart_i$limits), digits = 2)
+```
+
+#### Individuals Chart with Ratios
+
+i-charts can also monitor ratios by providing both numerators and denominators. The chart will automatically calculate and plot the ratio with appropriate control limits.
+
+```{r i_ratio}
+# Example: monitoring average processing time per case
+dat_ratio <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  total_time = rpois(24, lambda = 120),
+  num_cases = rpois(24, lambda = 25)
+)
+
+chart_ratio <- spc(data = dat_ratio,
+                   keys = month,
+                   numerators = total_time,
+                   denominators = num_cases,
+                   spc_settings = list(chart_type = "i"))
+
+chart_ratio$static_plot
+```
+
+```{r i_ratio_limits}
+knitr::kable(head(chart_ratio$limits), digits = 2)
+```
+
+#### Individuals Chart with Median Centerline (i_m)
+
+Uses the median instead of the mean for the centerline, making it more robust to outliers.
+
+```{r im_chart}
+dat_im <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  y = c(rnorm(20, mean = 50, sd = 5), 75, 78, 72, 71)  # Some outliers
+)
+
+chart_im <- spc(data = dat_im,
+                keys = month,
+                numerators = y,
+                spc_settings = list(chart_type = "i_m"))
+
+chart_im$static_plot
+```
+
+#### Individuals Chart with Median Limits (i_mm)
+
+Uses both median centerline and median-based moving range limits for maximum robustness.
+
+```{r imm_chart}
+chart_imm <- spc(data = dat_im,
+                 keys = month,
+                 numerators = y,
+                 spc_settings = list(chart_type = "i_mm"))
+
+chart_imm$static_plot
+```
+
+#### Moving Range Chart (mr)
+
+Plots the moving range between consecutive measurements.
+
+```{r mr_chart}
+dat_mr <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  y = rnorm(24, mean = 10, sd = 2)
+)
+
+chart_mr <- spc(data = dat_mr,
+                keys = month,
+                numerators = y,
+                spc_settings = list(chart_type = "mr"))
+
+chart_mr$static_plot
+```
+
+### Proportion Charts
+
+#### p-chart (Proportions)
+
+Monitors proportions when the numerator cannot exceed the denominator (e.g., defect rates, complication rates).
+
+```{r p_chart}
+dat_p <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  denominator = sample(80:120, 24, replace = TRUE)
+)
+dat_p$numerator <- rbinom(24, size = dat_p$denominator, prob = 0.15)
+
+chart_p <- spc(data = dat_p,
+               keys = month,
+               numerators = numerator,
+               denominators = denominator,
+               spc_settings = list(chart_type = "p"))
+
+chart_p$static_plot
+```
+
+```{r p_limits}
+knitr::kable(head(chart_p$limits), digits = 3)
+```
+
+#### p-prime Chart (pp)
+
+Proportion chart with large-sample correction for better accuracy with varying sample sizes.
+
+```{r pp_chart}
+chart_pp <- spc(data = dat_p,
+                keys = month,
+                numerators = numerator,
+                denominators = denominator,
+                spc_settings = list(chart_type = "pp"))
+
+chart_pp$static_plot
+```
+
+### Rate Charts
+
+#### u-chart (Rates)
+
+Monitors rates (events per unit exposure), such as infections per 1000 patient-days.
+
+```{r u_chart}
+dat_u <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  infections = rpois(24, lambda = 8),
+  patient_days = sample(200:400, 24, replace = TRUE)
+)
+
+chart_u <- spc(data = dat_u,
+               keys = month,
+               numerators = infections,
+               denominators = patient_days,
+               spc_settings = list(chart_type = "u", multiplier = 1000))
+
+chart_u$static_plot
+```
+
+```{r u_limits}
+knitr::kable(head(chart_u$limits), digits = 2)
+```
+
+#### u-prime Chart (up)
+
+Rate chart with large-sample correction.
+
+```{r up_chart}
+chart_up <- spc(data = dat_u,
+                keys = month,
+                numerators = infections,
+                denominators = patient_days,
+                spc_settings = list(chart_type = "up", multiplier = 1000))
+
+chart_up$static_plot
+```
+
+### Count Charts
+
+#### c-chart (Counts)
+
+Monitors count data where each observation represents the number of events in a fixed area of opportunity.
+
+```{r c_chart}
+dat_c <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  defects = rpois(24, lambda = 12)
+)
+
+chart_c <- spc(data = dat_c,
+               keys = month,
+               numerators = defects,
+               spc_settings = list(chart_type = "c"))
+
+chart_c$static_plot
+```
+
+```{r c_limits}
+knitr::kable(head(chart_c$limits), digits = 2)
+```
+
+### Sample-Based Charts
+
+#### xbar Chart (Sample Means)
+
+Monitors the mean of samples when multiple measurements are taken at each time point.
+
+```{r xbar_chart}
+dat_xbar <- data.frame(
+  month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
+  sample_mean = rnorm(24, mean = 100, sd = 3),
+  sample_size = rep(5, 24),
+  sample_sd = rchisq(24, df = 4) / 2
+)
+
+chart_xbar <- spc(data = dat_xbar,
+                  keys = month,
+                  numerators = sample_mean,
+                  denominators = sample_size,
+                  xbar_sds = sample_sd,
+                  spc_settings = list(chart_type = "xbar"))
+
+chart_xbar$static_plot
+```
+
+```{r xbar_limits}
+knitr::kable(head(chart_xbar$limits), digits = 2)
+```
+
+#### s Chart (Sample Standard Deviations)
+
+Monitors the standard deviation of samples.
+
+```{r s_chart}
+chart_s <- spc(data = dat_xbar,
+               keys = month,
+               numerators = sample_sd,
+               denominators = sample_size,
+               spc_settings = list(chart_type = "s"))
+
+chart_s$static_plot
+```
+
+### Event-Based Charts
+
+Event-based charts use sequential event numbers on the x-axis rather than dates.
+
+#### g Chart (Geometric)
+
+Monitors the number of non-events between events (e.g., days between accidents).
+
+```{r g_chart}
+dat_g <- data.frame(
+  event = 1:20,
+  opportunities_between = rpois(20, lambda = 15)
+)
+
+chart_g <- spc(data = dat_g,
+               keys = event,
+               numerators = opportunities_between,
+               spc_settings = list(chart_type = "g"))
+
+chart_g$static_plot
+```
+
+```{r g_limits}
+knitr::kable(head(chart_g$limits), digits = 2)
+```
+
+#### t Chart (Time Between Events)
+
+Monitors the time intervals between events.
+
+```{r t_chart}
+dat_t <- data.frame(
+  event = 1:20,
+  days_between = rexp(20, rate = 1/30)
+)
+
+chart_t <- spc(data = dat_t,
+               keys = event,
+               numerators = days_between,
+               spc_settings = list(chart_type = "t"))
+
+chart_t$static_plot
+```
+
+```{r t_limits}
+knitr::kable(head(chart_t$limits), digits = 2)
+```
+
+## Funnel Plot Types
+
+Funnel plots are used to compare performance across multiple organizations or groups, accounting for natural variation due to different sample sizes.
+
+### PR - Proportion Funnel
+
+The default funnel plot type for proportion data. Uses arc-sine transformation.
+
+```{r pr_funnel}
+# Simulate complication rates across 10 hospitals
+denoms_pr <- sample(100:300, 10)
+dat_pr <- data.frame(
+  hospital = paste0("Hospital ", LETTERS[1:10]),
+  complications = rbinom(10, size = denoms_pr, prob = 0.12),
+  procedures = denoms_pr
+)
+
+funnel_pr <- funnel(data = dat_pr,
+                    keys = hospital,
+                    numerators = complications,
+                    denominators = procedures,
+                    funnel_settings = list(chart_type = "PR"))
+
+funnel_pr$static_plot
+```
+
+```{r pr_limits}
+knitr::kable(funnel_pr$limits, digits = 3)
+```
+
+#### PR Funnel with Overdispersion Adjustment
+
+When data shows more variation than expected, overdispersion adjustment widens the control limits.
+
+```{r pr_od_funnel}
+funnel_pr_od <- funnel(data = dat_pr,
+                       keys = hospital,
+                       numerators = complications,
+                       denominators = procedures,
+                       funnel_settings = list(chart_type = "PR", od_adjust = "yes"))
+
+funnel_pr_od$static_plot
+```
+
+```{r pr_od_limits}
+knitr::kable(funnel_pr_od$limits, digits = 3)
+```
+
+### SR - Standardised Ratio Funnel
+
+Used for indirectly standardized ratios (e.g., HSMR - Hospital Standardised Mortality Ratio).
+
+```{r sr_funnel}
+# Simulate observed and expected deaths
+dat_sr <- data.frame(
+  hospital = paste0("Hospital ", LETTERS[1:10]),
+  observed_deaths = rpois(10, lambda = sample(30:80, 10)),
+  expected_deaths = sample(30:80, 10)
+)
+
+funnel_sr <- funnel(data = dat_sr,
+                    keys = hospital,
+                    numerators = observed_deaths,
+                    denominators = expected_deaths,
+                    funnel_settings = list(chart_type = "SR"))
+
+funnel_sr$static_plot
+```
+
+```{r sr_limits}
+knitr::kable(funnel_sr$limits, digits = 3)
+```
+
+#### SR Funnel with Overdispersion Adjustment
+
+```{r sr_od_funnel}
+funnel_sr_od <- funnel(data = dat_sr,
+                       keys = hospital,
+                       numerators = observed_deaths,
+                       denominators = expected_deaths,
+                       funnel_settings = list(chart_type = "SR", od_adjust = "yes"))
+
+funnel_sr_od$static_plot
+```
+
+```{r sr_od_limits}
+knitr::kable(funnel_sr_od$limits, digits = 3)
+```
+
+### RC - Rate Funnel
+
+Used for rate data with log transformation.
+
+```{r rc_funnel}
+# Simulate infection rates across hospitals
+dat_rc <- data.frame(
+  hospital = paste0("Hospital ", LETTERS[1:10]),
+  infections = rpois(10, lambda = sample(5:20, 10)),
+  patient_days = sample(500:2000, 10)
+)
+
+funnel_rc <- funnel(data = dat_rc,
+                    keys = hospital,
+                    numerators = infections,
+                    denominators = patient_days,
+                    funnel_settings = list(chart_type = "RC", multiplier = 1000))
+
+funnel_rc$static_plot
+```
+
+```{r rc_limits}
+knitr::kable(funnel_rc$limits, digits = 3)
+```
+
+#### RC Funnel with Overdispersion Adjustment
+
+```{r rc_od_funnel}
+funnel_rc_od <- funnel(data = dat_rc,
+                       keys = hospital,
+                       numerators = infections,
+                       denominators = patient_days,
+                       funnel_settings = list(chart_type = "RC", od_adjust = "yes", multiplier = 1000))
+
+funnel_rc_od$static_plot
+```
+
+```{r rc_od_limits}
+knitr::kable(funnel_rc_od$limits, digits = 3)
+```
+
+## Chart Selection Guide
+
+### SPC Chart Selection
+
+| Data Type | Chart Type | When to Use |
+|-----------|------------|-------------|
+| Individual measurements | `i`, `i_m`, `i_mm` | Single measurement per time point |
+| Ratios/efficiency metrics | `i` with denominators | Monitoring rates calculated from num/denom |
+| Moving ranges | `mr` | Monitoring variation between consecutive points |
+| Proportions | `p`, `pp` | Numerator ≤ denominator (e.g., defect rates) |
+| Rates | `u`, `up` | Events per unit exposure (any ratio) |
+| Counts | `c` | Fixed area of opportunity |
+| Sample means | `xbar` | Multiple measurements per time point |
+| Sample SDs | `s` | Monitoring within-sample variation |
+| Opportunities between events | `g` | Count of non-events between events |
+| Time between events | `t` | Continuous time intervals |
+| Trend visualization only | `run` | No statistical limits needed |
+
+### Funnel Plot Selection
+
+| Data Type | Chart Type | When to Use |
+|-----------|------------|-------------|
+| Proportions | `PR` | Numerator ≤ denominator (complication rates, readmissions) |
+| Standardised ratios | `SR` | Observed/expected (mortality, morbidity ratios) |
+| Rates | `RC` | Events per exposure (infections per patient-days) |
+
+### Overdispersion Adjustment
+
+Use `od_adjust = "yes"` when:
+- Data shows more variation than expected from binomial/Poisson models
+- There is clustering or hierarchical structure in the data
+- Groups have different underlying risks not captured by standardization
+- Control limits appear too narrow for the observed variation
+
+## Data Requirements Summary
+
+### SPC Charts
+
+| Chart Type | Numerator | Denominator | Standard Deviation |
+|-----------|:---------:|:-----------:|:------------------:|
+| run, i, i_m, i_mm, mr | ✓ | Optional* | - |
+| p, pp | ✓ | ✓ | - |
+| u, up | ✓ | ✓ | - |
+| c | ✓ | - | - |
+| xbar | ✓ | ✓ | ✓ |
+| s | ✓** | ✓ | - |
+| g, t | ✓ | - | - |
+
+*Optional denominator creates a ratio chart
+**For s-chart, numerator contains standard deviation values
+
+### Funnel Plots
+
+All funnel plot types require:
+- Keys (organization/group identifier)
+- Numerators (event counts or observed values)
+- Denominators (sample sizes or expected values)
+
+Additional constraints:
+- **PR**: Numerator must be ≤ denominator
+- **SR**: Typically observed/expected counts or deaths
+- **RC**: Any rate data (events/exposure)
+
+## Additional Resources
+
+For more information, see:
+- `vignette("getting_started")` - Basic package usage
+- `vignette("interactive_charts")` - Interactive features with crosstalk

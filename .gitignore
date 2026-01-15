@@ -7,3 +7,5 @@ testing.R
 inst/doc
 docs
 node_modules
+/doc/
+/Meta/
