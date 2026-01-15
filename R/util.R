@@ -135,7 +135,8 @@ escape_labels <- function(input_settings, type) {
     if (!is.null(input_settings[[group]])) {
       for (setting in names(input_settings[[group]])) {
         if (grepl("_label$", setting)) {
-          input_settings[[group]][[setting]] <- htmltools::htmlEscape(input_settings[[group]][[setting]])
+          input_settings[[group]][[setting]] <-
+            htmltools::htmlEscape(input_settings[[group]][[setting]])
         }
       }
     }

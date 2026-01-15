@@ -224,6 +224,11 @@ funnel <- function(data,
     title_settings$text <- htmltools::htmlEscape(title_settings$text)
   }
 
+  data_df <- lapply(data_df, function(valrow) {
+    valrow$labels <- htmltools::htmlEscape(valrow$labels)
+    valrow
+  })
+
   data_views <- update_static_padding(
     "funnel",
     ctx$call("makeUpdateValues", data_df, input_settings,
