@@ -129,6 +129,21 @@ validate_settings <- function(type, input_settings, categories) {
   )
 }
 
+# Escape special characters in labels (e.g., '>' -> '&lt;')
+escape_labels <- function(input_settings, type) {
+  for (group in names(input_settings)) {
+    if (!is.null(input_settings[[group]])) {
+      for (setting in names(input_settings[[group]])) {
+        if (grepl("_label$", setting)) {
+          input_settings[[group]][[setting]] <-
+            htmltools::htmlEscape(input_settings[[group]][[setting]])
+        }
+      }
+    }
+  }
+  input_settings
+}
+
 validate_aggregations <- function(aggregations) {
   if (is.null(aggregations)) {
     return(NULL)
