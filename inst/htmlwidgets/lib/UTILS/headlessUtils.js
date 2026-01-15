@@ -36,9 +36,17 @@ function updateHeadlessVisual(chartType, dataViews, title_settings, width, heigh
   if (visual.svg.select('.errormessage').size() > 0) {
     return { error: visual.svg.select('.errormessage').text() };
   }
-  return {
+  var rtn = {
     plotPoints: chartType === "funnel" ? visual.viewModel.plotPoints : visual.viewModel.plotPoints[0],
     svg: visual.svg.node().innerHTML,
     calculatedLimits: chartType === "funnel" ? visual.viewModel.calculatedLimits : undefined
   }
+  visual.update({
+    dataViews: [],
+    viewport: { width: width, height: height },
+    type: 2,
+    headless: true,
+    frontend: true
+  });
+  return rtn;
 }
