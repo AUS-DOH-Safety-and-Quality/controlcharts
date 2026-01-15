@@ -6434,8 +6434,8 @@ var spc = (function (exports) {
               const alt_targets = (_g = controlLimits.alt_targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
               const targets = (_h = controlLimits.targets) === null || _h === void 0 ? void 0 : _h.filter(d => isValidNumber(d));
               const maxValue = max(values);
-              const maxValueOrLimit = max(values.concat(ul99).concat(speclimits_upper).concat(alt_targets));
-              const minValueOrLimit = min(values.concat(ll99).concat(speclimits_lower).concat(alt_targets));
+              const maxValueOrLimit = max((values.concat(ul99).concat(speclimits_upper).concat(alt_targets)).filter(d => isValidNumber(d)));
+              const minValueOrLimit = min((values.concat(ll99).concat(speclimits_lower).concat(alt_targets)).filter(d => isValidNumber(d)));
               const maxTarget = (_j = max(targets)) !== null && _j !== void 0 ? _j : 0;
               const minTarget = (_k = min(targets)) !== null && _k !== void 0 ? _k : 0;
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
