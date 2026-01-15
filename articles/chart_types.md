@@ -425,7 +425,7 @@ Monitors the time intervals between events.
 ``` r
 dat_t <- data.frame(
   event = 1:20,
-  days_between = rexp(20, rate = 1/30)
+  days_between = rexp(20, rate = 1 / 30)
 )
 
 chart_t <- spc(data = dat_t,
@@ -509,7 +509,8 @@ funnel_pr_od <- funnel(data = dat_pr,
                        keys = hospital,
                        numerators = complications,
                        denominators = procedures,
-                       funnel_settings = list(chart_type = "PR", od_adjust = "yes"))
+                       funnel_settings = list(chart_type = "PR",
+                                              od_adjust = "yes"))
 
 funnel_pr_od$static_plot
 ```
@@ -581,7 +582,8 @@ funnel_sr_od <- funnel(data = dat_sr,
                        keys = hospital,
                        numerators = observed_deaths,
                        denominators = expected_deaths,
-                       funnel_settings = list(chart_type = "SR", od_adjust = "yes"))
+                       funnel_settings = list(chart_type = "SR",
+                                              od_adjust = "yes"))
 
 funnel_sr_od$static_plot
 ```
@@ -621,7 +623,8 @@ funnel_rc <- funnel(data = dat_rc,
                     keys = hospital,
                     numerators = infections,
                     denominators = patient_days,
-                    funnel_settings = list(chart_type = "RC", multiplier = 1000))
+                    funnel_settings = list(chart_type = "RC",
+                                           multiplier = 1000))
 
 funnel_rc$static_plot
 ```
@@ -652,7 +655,9 @@ funnel_rc_od <- funnel(data = dat_rc,
                        keys = hospital,
                        numerators = infections,
                        denominators = patient_days,
-                       funnel_settings = list(chart_type = "RC", od_adjust = "yes", multiplier = 1000))
+                       funnel_settings = list(chart_type = "RC",
+                                              od_adjust = "yes",
+                                              multiplier = 1000))
 
 funnel_rc_od$static_plot
 ```

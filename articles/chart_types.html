@@ -1182,7 +1182,7 @@ accidents).</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  event <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">20</span>,</span>
-<span>  days_between <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp</a></span><span class="op">(</span><span class="fl">20</span>, rate <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">30</span><span class="op">)</span></span>
+<span>  days_between <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp</a></span><span class="op">(</span><span class="fl">20</span>, rate <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chart_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spc.html">spc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat_t</span>,</span>
@@ -1485,7 +1485,8 @@ adjustment widens the control limits.</p>
 <span>                       keys <span class="op">=</span> <span class="va">hospital</span>,</span>
 <span>                       numerators <span class="op">=</span> <span class="va">complications</span>,</span>
 <span>                       denominators <span class="op">=</span> <span class="va">procedures</span>,</span>
-<span>                       funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"PR"</span>, od_adjust <span class="op">=</span> <span class="st">"yes"</span><span class="op">)</span><span class="op">)</span></span>
+<span>                       funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"PR"</span>,</span>
+<span>                                              od_adjust <span class="op">=</span> <span class="st">"yes"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">funnel_pr_od</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
 <p><img src="chart_types_files/figure-html/pr_od_funnel-1.svg"><!-- --></p>
@@ -1844,7 +1845,8 @@ Standardised Mortality Ratio).</p>
 <span>                       keys <span class="op">=</span> <span class="va">hospital</span>,</span>
 <span>                       numerators <span class="op">=</span> <span class="va">observed_deaths</span>,</span>
 <span>                       denominators <span class="op">=</span> <span class="va">expected_deaths</span>,</span>
-<span>                       funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"SR"</span>, od_adjust <span class="op">=</span> <span class="st">"yes"</span><span class="op">)</span><span class="op">)</span></span>
+<span>                       funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"SR"</span>,</span>
+<span>                                              od_adjust <span class="op">=</span> <span class="st">"yes"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">funnel_sr_od</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
 <p><img src="chart_types_files/figure-html/sr_od_funnel-1.svg"><!-- --></p>
@@ -2028,7 +2030,8 @@ Standardised Mortality Ratio).</p>
 <span>                    keys <span class="op">=</span> <span class="va">hospital</span>,</span>
 <span>                    numerators <span class="op">=</span> <span class="va">infections</span>,</span>
 <span>                    denominators <span class="op">=</span> <span class="va">patient_days</span>,</span>
-<span>                    funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"RC"</span>, multiplier <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span>                    funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"RC"</span>,</span>
+<span>                                           multiplier <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">funnel_rc</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
 <p><img src="chart_types_files/figure-html/rc_funnel-1.svg"><!-- --></p>
@@ -2202,7 +2205,9 @@ Standardised Mortality Ratio).</p>
 <span>                       keys <span class="op">=</span> <span class="va">hospital</span>,</span>
 <span>                       numerators <span class="op">=</span> <span class="va">infections</span>,</span>
 <span>                       denominators <span class="op">=</span> <span class="va">patient_days</span>,</span>
-<span>                       funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"RC"</span>, od_adjust <span class="op">=</span> <span class="st">"yes"</span>, multiplier <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span>                       funnel_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>chart_type <span class="op">=</span> <span class="st">"RC"</span>,</span>
+<span>                                              od_adjust <span class="op">=</span> <span class="st">"yes"</span>,</span>
+<span>                                              multiplier <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">funnel_rc_od</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
 <p><img src="chart_types_files/figure-html/rc_od_funnel-1.svg"><!-- --></p>
