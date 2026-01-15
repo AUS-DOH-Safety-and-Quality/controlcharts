@@ -217,6 +217,13 @@ funnel <- function(data,
     }
   )
 
+  # Special characters to be escaped for headless use only,
+  # as is automatically done by htmlwidgets
+  input_settings <- escape_labels(input_settings)
+  if (!is.null(title_settings$text)) {
+    title_settings$text <- htmltools::htmlEscape(title_settings$text)
+  }
+
   data_views <- update_static_padding(
     "funnel",
     ctx$call("makeUpdateValues", data_df, input_settings,
