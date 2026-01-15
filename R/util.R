@@ -114,11 +114,11 @@ validate_settings <- function(type, input_settings, categories) {
             by = list(categories),
             FUN = function(x) x[1]
           )
-          # Make aggregated settings respect input order
-          agg_settings$Group.1 <- factor(agg_settings$Group.1,
-                                         levels = categories)
+          # Re-format to list of lists, so is passed to JS as an object
+          # which can be indexed by the group name
           input_settings[[group]][[setting_name]] <-
-            agg_settings[order(agg_settings$Group.1), 2]
+            setNames(lapply(agg_settings$x, function(x) x),
+                     agg_settings$Group.1)
         }
       }
     }
