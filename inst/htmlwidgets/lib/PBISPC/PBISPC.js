@@ -6876,6 +6876,7 @@ var spc = (function (exports) {
       let rtn = {
           keys: args.keys,
           values: new Array(n),
+          numerators: args.numerators,
           denominators: args.denominators,
           targets: new Array(n),
           ll99: new Array(n),
