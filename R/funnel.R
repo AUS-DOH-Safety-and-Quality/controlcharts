@@ -161,7 +161,8 @@ funnel <- function(data,
     data_raw <- append(data_raw, list(tooltips = tooltips))
   }
 
-  if (!missing(labels)) {
+  has_labels <- !missing(labels)
+  if (has_labels) {
     labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
     data_raw <- append(data_raw, list(labels = labels))
   }
@@ -224,10 +225,12 @@ funnel <- function(data,
     title_settings$text <- htmltools::htmlEscape(title_settings$text)
   }
 
-  data_df <- lapply(data_df, function(valrow) {
-    valrow$labels <- htmltools::htmlEscape(valrow$labels)
-    valrow
-  })
+  if (has_labels) {
+    data_df <- lapply(data_df, function(valrow) {
+      valrow$labels <- htmltools::htmlEscape(valrow$labels)
+      valrow
+    })
+  }
 
   data_views <- update_static_padding(
     "funnel",
