@@ -142,7 +142,8 @@ spc <- function(data,
 
   data_raw <- list(
     crosstalk_identities = crosstalk_identities,
-    categories = eval(substitute(keys), input_data, parent.frame()),
+    categories =
+      as.character(eval(substitute(keys), input_data, parent.frame())),
     numerators = eval(substitute(numerators), input_data, parent.frame())
   )
 
