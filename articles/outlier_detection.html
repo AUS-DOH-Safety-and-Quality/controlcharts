@@ -33,7 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/aesthetic_options.html">Aesthetic Customization</a></li>
+<li><a class="dropdown-item" href="../articles/aesthetic_options.html">Aesthetic Options</a></li>
     <li><a class="dropdown-item" href="../articles/chart_types.html">Chart Types in controlcharts</a></li>
     <li><a class="dropdown-item" href="../articles/getting_started.html">Getting Started with the `controlcharts` package</a></li>
     <li><a class="dropdown-item" href="../articles/interactive_charts.html">Portable Interactive Control Charts</a></li>
@@ -268,9 +268,9 @@ which limit is used for flagging by changing the
 <h3 id="shift-detection">Shift Detection<a class="anchor" aria-label="anchor" href="#shift-detection"></a>
 </h3>
 <p>A shift occurs when multiple consecutive points fall on the same side
-of the centerline, suggesting a sustained change in the process mean.
-The default threshold is 7 consecutive points. This example shows a
-6-point shift, which will not be flagged with the default setting:</p>
+of the centerline, suggesting a sustained change in the process. The
+default threshold is 7 consecutive points. This example shows a 6-point
+shift, which will not be flagged with the default setting:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create data with a 6-point shift at the end</span></span>
 <span><span class="va">dat_shift</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -484,7 +484,7 @@ shift:</p>
 </h3>
 <p>Trends detect monotonic increases or decreases over consecutive
 points, indicating a sustained directional change. The default is 5
-consecutive points showing consistent direction. This example shows a
+consecutive points in a consistent direction. This example shows a
 4-point trend, which will not be flagged with the default setting:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create data with a 4-point upward trend at the end</span></span>
@@ -934,8 +934,7 @@ can highlight all points in the pattern by setting
 <h3 id="improvement-direction">Improvement Direction<a class="anchor" aria-label="anchor" href="#improvement-direction"></a>
 </h3>
 <p>The <code>improvement_direction</code> setting specifies what
-constitutes an improvement in your process. This is crucial for
-correctly classifying outliers.</p>
+constitutes an improvement in your process.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># For metrics where lower is better (e.g., infection rates)</span></span>
 <span><span class="va">dat_infections</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -1024,17 +1023,13 @@ only flag the increase (deterioration), ignoring the improvement:</p>
 <span></span>
 <span><span class="va">chart_det_only</span><span class="op">$</span><span class="va">static_plot</span></span></code></pre></div>
 <p><img src="outlier_detection_files/figure-html/flag_deterioration_only-1.svg"><!-- --></p>
-<p>This setting is particularly useful for safety metrics where you want
-to be immediately alerted to increases (deteriorations) but don’t need
-visual flags for improvements.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="nhs-icons">NHS Icons<a class="anchor" aria-label="anchor" href="#nhs-icons"></a>
 </h2>
 <p>NHS icons provide standardized visual indicators of process variation
-and assurance status, following NHS England’s guidance for SPC in
-healthcare.</p>
+and assurance status.</p>
 <div class="section level3">
 <h3 id="variation-icons">Variation Icons<a class="anchor" aria-label="anchor" href="#variation-icons"></a>
 </h3>
@@ -1599,8 +1594,7 @@ performance is variable:</p>
 <div class="section level3">
 <h3 id="combined-variation-and-assurance-icons">Combined Variation and Assurance Icons<a class="anchor" aria-label="anchor" href="#combined-variation-and-assurance-icons"></a>
 </h3>
-<p>You can display both icon types simultaneously by placing them in
-different corners:</p>
+<p>You can display both icon types simultaneously:</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chart_both_icons</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spc.html">spc</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">dat_assurance_pass</span>,</span>
 <span>                        keys <span class="op">=</span> <span class="va">month</span>,</span>
@@ -1614,9 +1608,7 @@ different corners:</p>
 <span>                        <span class="op">)</span>,</span>
 <span>                        nhs_icon_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>                          show_variation_icons <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                          variation_icons_locations <span class="op">=</span> <span class="st">"Top Left"</span>,</span>
-<span>                          show_assurance_icons <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                          assurance_icons_locations <span class="op">=</span> <span class="st">"Top Right"</span></span>
+<span>                          show_assurance_icons <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>                        <span class="op">)</span>,</span>
 <span>                        line_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>                          show_alt_target <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -1803,93 +1795,6 @@ different corners:</p>
 <p><strong>Note</strong>: Assurance icons require
 <code>alt_target</code> to be specified in
 <code>line_settings</code>.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="practical-tips">Practical Tips<a class="anchor" aria-label="anchor" href="#practical-tips"></a>
-</h2>
-<div class="section level3">
-<h3 id="when-to-use-each-detection-method">When to Use Each Detection Method<a class="anchor" aria-label="anchor" href="#when-to-use-each-detection-method"></a>
-</h3>
-<ul>
-<li>
-<strong>Astronomical points</strong>: Essential for all SPC charts.
-Detects immediate, significant changes.</li>
-<li>
-<strong>Shifts</strong>: Useful for detecting sustained changes in
-process mean. Common in improvement projects.</li>
-<li>
-<strong>Trends</strong>: Important for detecting gradual drift.
-Useful in monitoring deterioration or improvement initiatives.</li>
-<li>
-<strong>2-in-3</strong>: Early warning system. More sensitive than
-astronomical points alone.</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="recommended-combinations">Recommended Combinations<a class="anchor" aria-label="anchor" href="#recommended-combinations"></a>
-</h3>
-<p><strong>Basic monitoring</strong> (balanced sensitivity):</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">outlier_settings</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  astronomical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  shift <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><strong>Sensitive monitoring</strong> (catch changes early):</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">outlier_settings</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  astronomical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  shift <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  trend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  two_in_three <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p><strong>Safety/harm metrics</strong> (flag deteriorations only):</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">outlier_settings</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  astronomical <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  shift <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  improvement_direction <span class="op">=</span> <span class="st">"decrease"</span>,</span>
-<span>  process_flag_type <span class="op">=</span> <span class="st">"deterioration"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="balancing-sensitivity-and-specificity">Balancing Sensitivity and Specificity<a class="anchor" aria-label="anchor" href="#balancing-sensitivity-and-specificity"></a>
-</h3>
-<ul>
-<li>
-<strong>More sensitive settings</strong> (lower shift_n, lower
-trend_n) will detect changes earlier but may produce more false
-alarms</li>
-<li>
-<strong>Less sensitive settings</strong> (higher shift_n, higher
-trend_n) reduce false alarms but may miss real changes</li>
-<li>Consider your <strong>clinical context</strong>: high-stakes safety
-metrics may warrant more sensitive detection</li>
-<li>Use <strong>domain expertise</strong>: what magnitude and duration
-of change is clinically meaningful?</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="important-considerations">Important Considerations<a class="anchor" aria-label="anchor" href="#important-considerations"></a>
-</h3>
-<ol style="list-style-type: decimal">
-<li>
-<strong>Assurance icons require alt_target</strong>: Always specify
-a target value in <code>line_settings</code> when using assurance
-icons</li>
-<li>
-<strong>Set improvement direction</strong>: Ensures outliers are
-correctly classified as improvements or deteriorations</li>
-<li>
-<strong>Start simple</strong>: Begin with astronomical points and
-shifts, then add complexity as needed</li>
-<li>
-<strong>Context matters</strong>: The same data may require
-different settings in different contexts</li>
-<li>
-<strong>Document your choices</strong>: Be clear about why you
-selected particular sensitivity levels</li>
-</ol>
 </div>
 </div>
 <div class="section level2">

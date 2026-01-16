@@ -3,7 +3,7 @@
 ### All vignettes
 
 - [Aesthetic
-  Customization](https://aus-doh-safety-and-quality.github.io/controlcharts/articles/aesthetic_options.md):
+  Options](https://aus-doh-safety-and-quality.github.io/controlcharts/articles/aesthetic_options.md):
 - [Chart Types in
   controlcharts](https://aus-doh-safety-and-quality.github.io/controlcharts/articles/chart_types.md):
 - [Getting Started with the \`controlcharts\`

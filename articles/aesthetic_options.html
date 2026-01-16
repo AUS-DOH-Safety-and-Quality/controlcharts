@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Aesthetic Customization • controlcharts</title>
+<title>Aesthetic Options • controlcharts</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Aesthetic Customization">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Aesthetic Options">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -33,7 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/aesthetic_options.html">Aesthetic Customization</a></li>
+<li><a class="dropdown-item" href="../articles/aesthetic_options.html">Aesthetic Options</a></li>
     <li><a class="dropdown-item" href="../articles/chart_types.html">Chart Types in controlcharts</a></li>
     <li><a class="dropdown-item" href="../articles/getting_started.html">Getting Started with the `controlcharts` package</a></li>
     <li><a class="dropdown-item" href="../articles/interactive_charts.html">Portable Interactive Control Charts</a></li>
@@ -58,7 +58,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Aesthetic Customization</h1>
+      <h1>Aesthetic Options</h1>
             
       
 
@@ -77,8 +77,9 @@ dedicated settings arguments. Each group of settings (e.g., canvas,
 axes, lines) has its own argument (e.g., <code>canvas_settings</code>,
 <code>x_axis_settings</code>).</p>
 <p>To see the full list of available options for a group, you can use
-the helper functions <code>spc_default_settings('group_name')</code> or
-<code>funnel_default_settings('group_name')</code>.</p>
+the helper functions <code>spc_default_settings('{group_name}')</code>
+or <code>funnel_default_settings('{group_name}')</code> (e.g.,
+<code>spc_default_settings('x_axis')</code>).</p>
 </div>
 <div class="section level2">
 <h2 id="setup-data">Setup Data<a class="anchor" aria-label="anchor" href="#setup-data"></a>

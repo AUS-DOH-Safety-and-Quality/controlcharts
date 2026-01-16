@@ -94,7 +94,7 @@ chart_astro_2s$static_plot
 ### Shift Detection
 
 A shift occurs when multiple consecutive points fall on the same side of
-the centerline, suggesting a sustained change in the process mean. The
+the centerline, suggesting a sustained change in the process. The
 default threshold is 7 consecutive points. This example shows a 6-point
 shift, which will not be flagged with the default setting:
 
@@ -160,7 +160,7 @@ chart_shift_6$static_plot
 
 Trends detect monotonic increases or decreases over consecutive points,
 indicating a sustained directional change. The default is 5 consecutive
-points showing consistent direction. This example shows a 4-point trend,
+points in a consistent direction. This example shows a 4-point trend,
 which will not be flagged with the default setting:
 
 ``` r
@@ -297,8 +297,7 @@ chart_2in3_all$static_plot
 ### Improvement Direction
 
 The `improvement_direction` setting specifies what constitutes an
-improvement in your process. This is crucial for correctly classifying
-outliers.
+improvement in your process.
 
 ``` r
 # For metrics where lower is better (e.g., infection rates)
@@ -404,15 +403,10 @@ chart_det_only$static_plot
 
 ![](outlier_detection_files/figure-html/flag_deterioration_only-1.svg)
 
-This setting is particularly useful for safety metrics where you want to
-be immediately alerted to increases (deteriorations) but don’t need
-visual flags for improvements.
-
 ## NHS Icons
 
 NHS icons provide standardized visual indicators of process variation
-and assurance status, following NHS England’s guidance for SPC in
-healthcare.
+and assurance status.
 
 ### Variation Icons
 
@@ -677,8 +671,7 @@ knitr::kable(tail(chart_assurance_variable$limits, 6), digits = 2)
 
 ### Combined Variation and Assurance Icons
 
-You can display both icon types simultaneously by placing them in
-different corners:
+You can display both icon types simultaneously:
 
 ``` r
 chart_both_icons <- spc(data = dat_assurance_pass,
@@ -693,9 +686,7 @@ chart_both_icons <- spc(data = dat_assurance_pass,
                         ),
                         nhs_icon_settings = list(
                           show_variation_icons = TRUE,
-                          variation_icons_locations = "Top Left",
-                          show_assurance_icons = TRUE,
-                          assurance_icons_locations = "Top Right"
+                          show_assurance_icons = TRUE
                         ),
                         line_settings = list(
                           show_alt_target = TRUE,
@@ -740,76 +731,6 @@ chart_both_icons$static_plot
 
 **Note**: Assurance icons require `alt_target` to be specified in
 `line_settings`.
-
-## Practical Tips
-
-### When to Use Each Detection Method
-
-- **Astronomical points**: Essential for all SPC charts. Detects
-  immediate, significant changes.
-- **Shifts**: Useful for detecting sustained changes in process mean.
-  Common in improvement projects.
-- **Trends**: Important for detecting gradual drift. Useful in
-  monitoring deterioration or improvement initiatives.
-- **2-in-3**: Early warning system. More sensitive than astronomical
-  points alone.
-
-### Recommended Combinations
-
-**Basic monitoring** (balanced sensitivity):
-
-``` r
-outlier_settings = list(
-  astronomical = TRUE,
-  shift = TRUE
-)
-```
-
-**Sensitive monitoring** (catch changes early):
-
-``` r
-outlier_settings = list(
-  astronomical = TRUE,
-  shift = TRUE,
-  trend = TRUE,
-  two_in_three = TRUE
-)
-```
-
-**Safety/harm metrics** (flag deteriorations only):
-
-``` r
-outlier_settings = list(
-  astronomical = TRUE,
-  shift = TRUE,
-  improvement_direction = "decrease",
-  process_flag_type = "deterioration"
-)
-```
-
-### Balancing Sensitivity and Specificity
-
-- **More sensitive settings** (lower shift_n, lower trend_n) will detect
-  changes earlier but may produce more false alarms
-- **Less sensitive settings** (higher shift_n, higher trend_n) reduce
-  false alarms but may miss real changes
-- Consider your **clinical context**: high-stakes safety metrics may
-  warrant more sensitive detection
-- Use **domain expertise**: what magnitude and duration of change is
-  clinically meaningful?
-
-### Important Considerations
-
-1.  **Assurance icons require alt_target**: Always specify a target
-    value in `line_settings` when using assurance icons
-2.  **Set improvement direction**: Ensures outliers are correctly
-    classified as improvements or deteriorations
-3.  **Start simple**: Begin with astronomical points and shifts, then
-    add complexity as needed
-4.  **Context matters**: The same data may require different settings in
-    different contexts
-5.  **Document your choices**: Be clear about why you selected
-    particular sensitivity levels
 
 ## Additional Resources
 

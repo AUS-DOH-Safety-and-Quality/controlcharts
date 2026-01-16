@@ -144,8 +144,7 @@ chart_im$static_plot
 
 #### Individuals Chart with Median Limits (i_mm)
 
-Uses both median centerline and median-based moving range limits for
-maximum robustness.
+You can use both median centerline and median-based moving range limits.
 
 ``` r
 chart_imm <- spc(data = dat_im,

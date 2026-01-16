@@ -1,4 +1,4 @@
-# Aesthetic Customization
+# Aesthetic Options
 
 ``` r
 library(controlcharts)
@@ -11,8 +11,9 @@ settings arguments. Each group of settings (e.g., canvas, axes, lines)
 has its own argument (e.g., `canvas_settings`, `x_axis_settings`).
 
 To see the full list of available options for a group, you can use the
-helper functions `spc_default_settings('group_name')` or
-`funnel_default_settings('group_name')`.
+helper functions `spc_default_settings('{group_name}')` or
+`funnel_default_settings('{group_name}')` (e.g.,
+`spc_default_settings('x_axis')`).
 
 ## Setup Data
 
