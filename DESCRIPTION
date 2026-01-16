@@ -9,7 +9,7 @@ Authors@R: c(
           family = "", role = c("aut"),
           email = "safetyandquality@health.wa.gov.au"))
 Description: Generate fully interactive and dynamic funnel plots and statistical
-  process control (SPC) charts. All data manaipulation, calculation, and plotting
+  process control (SPC) charts. All data manipulation, calculation, and plotting
   is done in JavaScript, allowing for completely dynamic charts without the need
   for a Shiny server.
 License: MIT + file LICENSE
