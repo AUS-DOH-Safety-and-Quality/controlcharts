@@ -361,7 +361,9 @@ create_save_function <- function(type, html_plt, static_plt, data_views) {
     }
     # No change to size, save existing SVG as-is
     if (file_ext == "svg" && (is.null(width) && is.null(height))) {
-      writeLines(svg_string(static_plt$svg, static_plt$width, static_plt$height), con = file)
+      writeLines(svg_string(static_plt$svg, static_plt$width,
+                            static_plt$height),
+                 con = file)
       return(invisible(NULL))
     }
     if (!(file_ext %in% c("html", "svg"))) {
