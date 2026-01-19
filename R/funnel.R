@@ -254,8 +254,8 @@ funnel <- function(data,
       static_plot = static$static_plot,
       limits = static$limits,
       raw = static$raw,
-      save_plot = create_save_function("funnel", html_plt, data_views,
-                                       width, height)
+      save_plot = create_save_function("funnel", html_plt, static$static_plot,
+                                       data_views)
     ),
     class = "controlchart"
   )

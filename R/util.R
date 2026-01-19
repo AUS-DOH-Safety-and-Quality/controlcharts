@@ -347,8 +347,7 @@ create_static <- function(type, data_views, title_settings,
   )
 }
 
-create_save_function <- function(type, html_plt, data_views,
-                                 orig_width = NULL, orig_height = NULL) {
+create_save_function <- function(type, html_plt, static_plt, data_views) {
   function(file, width = NULL, height = NULL) {
     file_ext <- tools::file_ext(file)
     valid_exts <- c("webp", "png", "pdf", "svg", "ps", "eps", "html")
@@ -360,6 +359,13 @@ create_save_function <- function(type, html_plt, data_views,
       htmlwidgets::saveWidget(html_plt, file, selfcontained = TRUE)
       return(invisible(NULL))
     }
+    # No change to size, save existing SVG as-is
+    if (file_ext == "svg" && (is.null(width) && is.null(height))) {
+      writeLines(svg_string(static_plt$svg, static_plt$width,
+                            static_plt$height),
+                 con = file)
+      return(invisible(NULL))
+    }
     if (!(file_ext %in% c("html", "svg"))) {
       if (!requireNamespace("rsvg", quietly = TRUE)) {
         stop("The 'rsvg' package is required for saving plots in ",
@@ -368,10 +374,9 @@ create_save_function <- function(type, html_plt, data_views,
       }
     }
 
-    width <- ifelse(is.null(width),
-                    ifelse(is.null(orig_width), 640, orig_width), width)
-    height <- ifelse(is.null(height),
-                     ifelse(is.null(orig_height), 480, orig_height), height)
+    # If either width or height not provided by user, use existing
+    width <- ifelse(is.null(width), static_plt$width, width)
+    height <- ifelse(is.null(height), static_plt$height, height)
 
     svg <- ctx$call("updateHeadlessVisual", type, data_views, width, height)$svg
     svg_resized <- svg_string(svg, width, height)
