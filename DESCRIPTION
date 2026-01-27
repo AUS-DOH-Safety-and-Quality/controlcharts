@@ -1,6 +1,6 @@
 Package: controlcharts
 Title: Interactive Plotting for Funnel and Statistical Process Control Charts
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
   person(c("Andrew", "R."), "Johnson", , "andrew.johnson@arjohnsonau.com",
           role = c("aut", "cre"),
@@ -23,6 +23,7 @@ Imports:
   QuickJSR,
   stats
 Suggests:
+  jsutils,
   rsvg,
   DT,
   zlib,
