@@ -18,8 +18,13 @@ minify_deps <- function(script) {
 
 # If the `jsutils` package is installed, minify the JS dependencies during installation
 minify_deps(system.file("js", "minidom.js", package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "PBIFUN", "PBIFUN.js", package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "PBISPC", "PBISPC.js", package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "UTILS", "commonUtils.js", package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "UTILS", "headlessUtils.js", package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "UTILS", "interactiveUtils.js", package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "PBIFUN", "PBIFUN.js",
+                        package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "PBISPC", "PBISPC.js",
+                        package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "UTILS", "commonUtils.js",
+                        package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "UTILS", "headlessUtils.js",
+                        package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "UTILS", "interactiveUtils.js",
+                        package = "controlcharts"))
