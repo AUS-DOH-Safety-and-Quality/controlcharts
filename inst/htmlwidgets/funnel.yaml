@@ -4,10 +4,10 @@ dependencies:
     version: 1.7.0.13
     src: htmlwidgets/lib/PBIFUN
     script:
-      - PBIFUN.js
+      - PBIFUN.min.js
   - name: UTILS
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
     script:
-      - commonUtils.js
-      - interactiveUtils.js
+      - commonUtils.min.js
+      - interactiveUtils.min.js

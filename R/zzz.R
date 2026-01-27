@@ -13,11 +13,11 @@ ctx <- NULL
   # The visuals rely on DOM-manipulation (via d3) to
   # construct the SVGs, so we use a dummy-DOM implementation
   # for headless rendering
-  .load_js_file(ctx, "js/minidom.js")
-  .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.js")
-  .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.js")
-  .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.js")
-  .load_js_file(ctx, "htmlwidgets/lib/UTILS/headlessUtils.js")
+  .load_js_file(ctx, "js/minidom.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/headlessUtils.min.js")
   ctx$call("initialiseHeadless")
 
   # Extract default settings from each chart type and store in R

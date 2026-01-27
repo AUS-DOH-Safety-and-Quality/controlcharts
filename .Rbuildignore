@@ -18,3 +18,9 @@ inst/bundle
 .lintr
 ^doc$
 ^Meta$
+^inst/js/minidom.min.js
+^inst/htmlwidgets/lib/PBIFUN/PBIFUN.min.js
+^inst/htmlwidgets/lib/PBISPC/PBISPC.min.js
+^inst/htmlwidgets/lib/UTILS/commonUtils.min.js
+^inst/htmlwidgets/lib/UTILS/headlessUtils.min.js
+^inst/htmlwidgets/lib/UTILS/interactiveUtils.min.js
