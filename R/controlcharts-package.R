@@ -6,4 +6,5 @@
 #' @importFrom QuickJSR JSContext
 #' @importFrom utils modifyList
 #' @importFrom stats aggregate setNames
+#' @importFrom jsutils js_versions
 "_PACKAGE"

@@ -6,7 +6,7 @@
 \alias{controlcharts-package}
 \title{controlcharts: Interactive Plotting for Funnel and Statistical Process Control Charts}
 \description{
-Generate fully interactive and dynamic funnel plots and statistical process control (SPC) charts. All data manaipulation, calculation, and plotting is done in JavaScript, allowing for completely dynamic charts without the need for a Shiny server.
+Generate fully interactive and dynamic funnel plots and statistical process control (SPC) charts. All data manipulation, calculation, and plotting is done in JavaScript, allowing for completely dynamic charts without the need for a Shiny server.
 }
 \seealso{
 Useful links:

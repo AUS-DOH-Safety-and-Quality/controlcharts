@@ -21,9 +21,9 @@ Imports:
   htmltools,
   crosstalk,
   QuickJSR,
+  jsutils,
   stats
 Suggests:
-  jsutils,
   rsvg,
   DT,
   zlib,

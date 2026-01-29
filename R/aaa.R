@@ -3,7 +3,7 @@ minify_deps <- function(script) {
   src_file <- basename(script)
   new_file <- gsub(".js", ".min.js", src_file, fixed = TRUE)
   output_file <- file.path(src_folder, new_file)
-  if (!getOption("controlcharts.debug", FALSE) && requireNamespace("jsutils", quietly = TRUE)) {
+  if (!getOption("controlcharts.debug", FALSE)) {
     terser_options <- list(
       compress = list(dead_code = TRUE, drop_console = FALSE, passes = 2),
       mangle = TRUE,
@@ -16,7 +16,7 @@ minify_deps <- function(script) {
   }
 }
 
-# If the `jsutils` package is installed, minify the JS dependencies during installation
+# Minify the JS dependencies during installation
 minify_deps(system.file("js", "minidom.js", package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "PBIFUN", "PBIFUN.js",
                         package = "controlcharts"))
