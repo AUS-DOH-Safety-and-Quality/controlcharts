@@ -45,7 +45,9 @@ function makeFactory(chartType) {
         updateChartTitle(visual.svg, x.title_settings);
 
         // Aggregate the raw data into the format expected by the visual
-        var updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories);
+        var updateValues = x.is_crosstalk
+                  ? makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories)
+                  : x.update_values;
         visualUpdateArgs.dataViews = updateValues.dataViews;
 
         // Initialise the dataset linkage for crosstalk highlighting and filtering
