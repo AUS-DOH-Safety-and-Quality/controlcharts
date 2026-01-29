@@ -1,7 +1,7 @@
 # controlcharts: Interactive Plotting for Funnel and Statistical Process Control Charts
 
 Generate fully interactive and dynamic funnel plots and statistical
-process control (SPC) charts. All data manaipulation, calculation, and
+process control (SPC) charts. All data manipulation, calculation, and
 plotting is done in JavaScript, allowing for completely dynamic charts
 without the need for a Shiny server.
 
