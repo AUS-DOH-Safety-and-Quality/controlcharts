@@ -117,7 +117,8 @@ spc <- function(data,
     stop("data is required", call. = FALSE)
   }
 
-  if (crosstalk::is.SharedData(data)) {
+  is_crosstalk <- crosstalk::is.SharedData(data)
+  if (is_crosstalk) {
     crosstalk_identities <- data$key()
     crosstalk_group <- data$groupName()
     input_data <- data$origData()
@@ -206,15 +207,26 @@ spc <- function(data,
   unique_categories <- unique(data_raw$categories)
 
   widget_data <- list(
-    data_raw = data_df,
     title_settings = title_settings,
-    input_settings = input_settings,
     crosstalk_group = crosstalk_group,
-    aggregations = aggregations,
-    has_conditional_formatting = has_conditional_formatting,
-    unique_categories = unique_categories,
-    tooltip_settings = validate_tooltips(tooltip_settings)
+    tooltip_settings = validate_tooltips(tooltip_settings),
+    is_crosstalk = is_crosstalk
   )
+
+  # Only store the raw data and aggregation settings for crosstalk inputs
+  #  where aggregations will need to be dynamically recomputed. For all
+  #  other inputs we just aggregate once and re-use
+  if (is_crosstalk) {
+    widget_data$data_raw <- data_df
+    widget_data$input_settings <- input_settings
+    widget_data$aggregations <- aggregations
+    widget_data$has_conditional_formatting <- has_conditional_formatting
+    widget_data$unique_categories <- unique_categories
+  } else {
+    widget_data$update_values <-
+      ctx$call("makeUpdateValues", data_df, input_settings, aggregations,
+               has_conditional_formatting, unique_categories)
+  }
 
   compressed <- FALSE
   if (getOption("controlcharts.compress_data", FALSE)) {
