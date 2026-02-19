@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -332,7 +332,7 @@ chart:</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_chart</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="15%">
+<col width="14%">
 <col width="7%">
 <col width="12%">
 <col width="7%">
@@ -342,13 +342,15 @@ chart:</p>
 <col width="7%">
 <col width="7%">
 <col width="7%">
-<col width="9%">
+<col width="7%">
+<col width="8%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -363,6 +365,7 @@ chart:</p>
 <td align="left">f</td>
 <td align="right">22</td>
 <td align="right">20.95</td>
+<td align="right">0.36</td>
 <td align="right">9.15</td>
 <td align="right">12.57</td>
 <td align="right">15.85</td>
@@ -376,6 +379,7 @@ chart:</p>
 <td align="left">h</td>
 <td align="right">27</td>
 <td align="right">22.31</td>
+<td align="right">0.75</td>
 <td align="right">9.75</td>
 <td align="right">13.01</td>
 <td align="right">16.10</td>
@@ -389,6 +393,7 @@ chart:</p>
 <td align="left">b</td>
 <td align="right">23</td>
 <td align="right">18.85</td>
+<td align="right">-0.20</td>
 <td align="right">9.78</td>
 <td align="right">13.03</td>
 <td align="right">16.11</td>
@@ -402,6 +407,7 @@ chart:</p>
 <td align="left">i</td>
 <td align="right">27</td>
 <td align="right">19.71</td>
+<td align="right">0.05</td>
 <td align="right">10.26</td>
 <td align="right">13.37</td>
 <td align="right">16.30</td>
@@ -415,6 +421,7 @@ chart:</p>
 <td align="left">e</td>
 <td align="right">38</td>
 <td align="right">23.60</td>
+<td align="right">1.25</td>
 <td align="right">10.89</td>
 <td align="right">13.81</td>
 <td align="right">16.54</td>
@@ -428,6 +435,7 @@ chart:</p>
 <td align="left">a</td>
 <td align="right">27</td>
 <td align="right">15.88</td>
+<td align="right">-1.25</td>
 <td align="right">11.09</td>
 <td align="right">13.96</td>
 <td align="right">16.62</td>
@@ -441,6 +449,7 @@ chart:</p>
 <td align="left">c</td>
 <td align="right">35</td>
 <td align="right">19.66</td>
+<td align="right">0.04</td>
 <td align="right">11.26</td>
 <td align="right">14.08</td>
 <td align="right">16.68</td>
@@ -454,6 +463,7 @@ chart:</p>
 <td align="left">d</td>
 <td align="right">26</td>
 <td align="right">14.13</td>
+<td align="right">-1.97</td>
 <td align="right">11.38</td>
 <td align="right">14.16</td>
 <td align="right">16.73</td>
@@ -467,6 +477,7 @@ chart:</p>
 <td align="left">g</td>
 <td align="right">46</td>
 <td align="right">24.21</td>
+<td align="right">1.55</td>
 <td align="right">11.50</td>
 <td align="right">14.24</td>
 <td align="right">16.77</td>
@@ -480,6 +491,7 @@ chart:</p>
 <td align="left">j</td>
 <td align="right">35</td>
 <td align="right">17.77</td>
+<td align="right">-0.64</td>
 <td align="right">11.63</td>
 <td align="right">14.33</td>
 <td align="right">16.82</td>

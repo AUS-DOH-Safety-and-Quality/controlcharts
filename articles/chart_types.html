@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -1317,23 +1317,25 @@ transformation.</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_pr</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="13%">
 <col width="12%">
 <col width="11%">
-<col width="8%">
+<col width="10%">
+<col width="7%">
+<col width="7%">
 <col width="6%">
 <col width="6%">
 <col width="6%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -1348,6 +1350,7 @@ transformation.</p>
 <td align="left">Hospital G</td>
 <td align="right">19</td>
 <td align="right">13.669</td>
+<td align="right">0.867</td>
 <td align="right">4.381</td>
 <td align="right">6.549</td>
 <td align="right">8.719</td>
@@ -1361,6 +1364,7 @@ transformation.</p>
 <td align="left">Hospital A</td>
 <td align="right">24</td>
 <td align="right">16.216</td>
+<td align="right">1.765</td>
 <td align="right">4.548</td>
 <td align="right">6.677</td>
 <td align="right">8.792</td>
@@ -1374,6 +1378,7 @@ transformation.</p>
 <td align="left">Hospital I</td>
 <td align="right">18</td>
 <td align="right">10.843</td>
+<td align="right">-0.164</td>
 <td align="right">4.848</td>
 <td align="right">6.903</td>
 <td align="right">8.922</td>
@@ -1387,6 +1392,7 @@ transformation.</p>
 <td align="left">Hospital D</td>
 <td align="right">13</td>
 <td align="right">7.263</td>
+<td align="right">-1.848</td>
 <td align="right">5.040</td>
 <td align="right">7.046</td>
 <td align="right">9.004</td>
@@ -1400,6 +1406,7 @@ transformation.</p>
 <td align="left">Hospital F</td>
 <td align="right">19</td>
 <td align="right">9.948</td>
+<td align="right">-0.582</td>
 <td align="right">5.203</td>
 <td align="right">7.167</td>
 <td align="right">9.072</td>
@@ -1413,6 +1420,7 @@ transformation.</p>
 <td align="left">Hospital B</td>
 <td align="right">31</td>
 <td align="right">14.419</td>
+<td align="right">1.395</td>
 <td align="right">5.492</td>
 <td align="right">7.378</td>
 <td align="right">9.191</td>
@@ -1426,6 +1434,7 @@ transformation.</p>
 <td align="left">Hospital C</td>
 <td align="right">23</td>
 <td align="right">9.504</td>
+<td align="right">-0.888</td>
 <td align="right">5.771</td>
 <td align="right">7.580</td>
 <td align="right">9.304</td>
@@ -1439,6 +1448,7 @@ transformation.</p>
 <td align="left">Hospital E</td>
 <td align="right">30</td>
 <td align="right">11.538</td>
+<td align="right">0.150</td>
 <td align="right">5.935</td>
 <td align="right">7.698</td>
 <td align="right">9.369</td>
@@ -1452,6 +1462,7 @@ transformation.</p>
 <td align="left">Hospital J</td>
 <td align="right">34</td>
 <td align="right">11.972</td>
+<td align="right">0.384</td>
 <td align="right">6.132</td>
 <td align="right">7.839</td>
 <td align="right">9.447</td>
@@ -1465,6 +1476,7 @@ transformation.</p>
 <td align="left">Hospital H</td>
 <td align="right">27</td>
 <td align="right">9.215</td>
+<td align="right">-1.147</td>
 <td align="right">6.200</td>
 <td align="right">7.887</td>
 <td align="right">9.474</td>
@@ -1494,23 +1506,25 @@ adjustment widens the control limits.</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_pr_od</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="13%">
 <col width="12%">
 <col width="11%">
-<col width="8%">
+<col width="10%">
+<col width="7%">
+<col width="7%">
 <col width="6%">
 <col width="6%">
 <col width="6%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -1525,6 +1539,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital G</td>
 <td align="right">19</td>
 <td align="right">13.669</td>
+<td align="right">0.867</td>
 <td align="right">4.381</td>
 <td align="right">6.549</td>
 <td align="right">8.719</td>
@@ -1538,6 +1553,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital A</td>
 <td align="right">24</td>
 <td align="right">16.216</td>
+<td align="right">1.765</td>
 <td align="right">4.548</td>
 <td align="right">6.677</td>
 <td align="right">8.792</td>
@@ -1551,6 +1567,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital I</td>
 <td align="right">18</td>
 <td align="right">10.843</td>
+<td align="right">-0.164</td>
 <td align="right">4.848</td>
 <td align="right">6.903</td>
 <td align="right">8.922</td>
@@ -1564,6 +1581,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital D</td>
 <td align="right">13</td>
 <td align="right">7.263</td>
+<td align="right">-1.848</td>
 <td align="right">5.040</td>
 <td align="right">7.046</td>
 <td align="right">9.004</td>
@@ -1577,6 +1595,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital F</td>
 <td align="right">19</td>
 <td align="right">9.948</td>
+<td align="right">-0.582</td>
 <td align="right">5.203</td>
 <td align="right">7.167</td>
 <td align="right">9.072</td>
@@ -1590,6 +1609,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital B</td>
 <td align="right">31</td>
 <td align="right">14.419</td>
+<td align="right">1.395</td>
 <td align="right">5.492</td>
 <td align="right">7.378</td>
 <td align="right">9.191</td>
@@ -1603,6 +1623,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital C</td>
 <td align="right">23</td>
 <td align="right">9.504</td>
+<td align="right">-0.888</td>
 <td align="right">5.771</td>
 <td align="right">7.580</td>
 <td align="right">9.304</td>
@@ -1616,6 +1637,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital E</td>
 <td align="right">30</td>
 <td align="right">11.538</td>
+<td align="right">0.150</td>
 <td align="right">5.935</td>
 <td align="right">7.698</td>
 <td align="right">9.369</td>
@@ -1629,6 +1651,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital J</td>
 <td align="right">34</td>
 <td align="right">11.972</td>
+<td align="right">0.384</td>
 <td align="right">6.132</td>
 <td align="right">7.839</td>
 <td align="right">9.447</td>
@@ -1642,6 +1665,7 @@ adjustment widens the control limits.</p>
 <td align="left">Hospital H</td>
 <td align="right">27</td>
 <td align="right">9.215</td>
+<td align="right">-1.147</td>
 <td align="right">6.200</td>
 <td align="right">7.887</td>
 <td align="right">9.474</td>
@@ -1679,23 +1703,25 @@ Standardised Mortality Ratio).</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_sr</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="14%">
 <col width="13%">
 <col width="12%">
+<col width="11%">
+<col width="6%">
 <col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
 <col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="8%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -1710,6 +1736,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital I</td>
 <td align="right">43</td>
 <td align="right">1.229</td>
+<td align="right">1.153</td>
 <td align="right">0.558</td>
 <td align="right">0.697</td>
 <td align="right">0.833</td>
@@ -1723,6 +1750,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital J</td>
 <td align="right">68</td>
 <td align="right">1.789</td>
+<td align="right">3.876</td>
 <td align="right">0.572</td>
 <td align="right">0.708</td>
 <td align="right">0.839</td>
@@ -1736,6 +1764,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital F</td>
 <td align="right">55</td>
 <td align="right">1.310</td>
+<td align="right">1.733</td>
 <td align="right">0.590</td>
 <td align="right">0.721</td>
 <td align="right">0.847</td>
@@ -1749,6 +1778,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital B</td>
 <td align="right">63</td>
 <td align="right">1.167</td>
+<td align="right">1.075</td>
 <td align="right">0.632</td>
 <td align="right">0.751</td>
 <td align="right">0.865</td>
@@ -1762,6 +1792,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital A</td>
 <td align="right">35</td>
 <td align="right">0.625</td>
+<td align="right">-3.216</td>
 <td align="right">0.637</td>
 <td align="right">0.755</td>
 <td align="right">0.867</td>
@@ -1775,6 +1806,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital D</td>
 <td align="right">65</td>
 <td align="right">1.140</td>
+<td align="right">0.928</td>
 <td align="right">0.640</td>
 <td align="right">0.757</td>
 <td align="right">0.869</td>
@@ -1788,6 +1820,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital G</td>
 <td align="right">60</td>
 <td align="right">1.017</td>
+<td align="right">0.043</td>
 <td align="right">0.645</td>
 <td align="right">0.761</td>
 <td align="right">0.871</td>
@@ -1801,6 +1834,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital H</td>
 <td align="right">82</td>
 <td align="right">1.323</td>
+<td align="right">2.229</td>
 <td align="right">0.653</td>
 <td align="right">0.767</td>
 <td align="right">0.874</td>
@@ -1814,6 +1848,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital C</td>
 <td align="right">70</td>
 <td align="right">1.111</td>
+<td align="right">0.769</td>
 <td align="right">0.655</td>
 <td align="right">0.768</td>
 <td align="right">0.875</td>
@@ -1827,6 +1862,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital E</td>
 <td align="right">49</td>
 <td align="right">0.690</td>
+<td align="right">-2.902</td>
 <td align="right">0.673</td>
 <td align="right">0.781</td>
 <td align="right">0.882</td>
@@ -1854,23 +1890,25 @@ Standardised Mortality Ratio).</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_sr_od</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="14%">
 <col width="13%">
 <col width="12%">
+<col width="11%">
+<col width="6%">
 <col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
 <col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="8%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -1885,6 +1923,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital I</td>
 <td align="right">43</td>
 <td align="right">1.229</td>
+<td align="right">0.738</td>
 <td align="right">0.298</td>
 <td align="right">0.507</td>
 <td align="right">0.729</td>
@@ -1898,6 +1937,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital J</td>
 <td align="right">68</td>
 <td align="right">1.789</td>
+<td align="right">2.328</td>
 <td align="right">0.304</td>
 <td align="right">0.512</td>
 <td align="right">0.732</td>
@@ -1911,6 +1951,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital F</td>
 <td align="right">55</td>
 <td align="right">1.310</td>
+<td align="right">1.010</td>
 <td align="right">0.312</td>
 <td align="right">0.518</td>
 <td align="right">0.736</td>
@@ -1924,6 +1965,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital B</td>
 <td align="right">63</td>
 <td align="right">1.167</td>
+<td align="right">0.580</td>
 <td align="right">0.328</td>
 <td align="right">0.532</td>
 <td align="right">0.744</td>
@@ -1937,6 +1979,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital A</td>
 <td align="right">35</td>
 <td align="right">0.625</td>
+<td align="right">-1.522</td>
 <td align="right">0.331</td>
 <td align="right">0.533</td>
 <td align="right">0.745</td>
@@ -1950,6 +1993,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital D</td>
 <td align="right">65</td>
 <td align="right">1.140</td>
+<td align="right">0.494</td>
 <td align="right">0.332</td>
 <td align="right">0.534</td>
 <td align="right">0.746</td>
@@ -1963,6 +2007,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital G</td>
 <td align="right">60</td>
 <td align="right">1.017</td>
+<td align="right">0.062</td>
 <td align="right">0.333</td>
 <td align="right">0.536</td>
 <td align="right">0.747</td>
@@ -1976,6 +2021,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital H</td>
 <td align="right">82</td>
 <td align="right">1.323</td>
+<td align="right">1.103</td>
 <td align="right">0.336</td>
 <td align="right">0.538</td>
 <td align="right">0.748</td>
@@ -1989,6 +2035,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital C</td>
 <td align="right">70</td>
 <td align="right">1.111</td>
+<td align="right">0.398</td>
 <td align="right">0.337</td>
 <td align="right">0.539</td>
 <td align="right">0.748</td>
@@ -2002,6 +2049,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital E</td>
 <td align="right">49</td>
 <td align="right">0.690</td>
+<td align="right">-1.262</td>
 <td align="right">0.343</td>
 <td align="right">0.543</td>
 <td align="right">0.751</td>
@@ -2037,25 +2085,27 @@ Standardised Mortality Ratio).</p>
 <p><img src="chart_types_files/figure-html/rc_funnel-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_rc</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="13%">
 <col width="12%">
 <col width="11%">
-<col width="8%">
+<col width="10%">
+<col width="7%">
+<col width="7%">
 <col width="6%">
 <col width="6%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -2070,6 +2120,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital C</td>
 <td align="right">10</td>
 <td align="right">12.547</td>
+<td align="right">0.775</td>
 <td align="right">8.918</td>
 <td align="right">9.437</td>
 <td align="right">9.904</td>
@@ -2083,6 +2134,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital H</td>
 <td align="right">17</td>
 <td align="right">21.250</td>
+<td align="right">3.114</td>
 <td align="right">8.920</td>
 <td align="right">9.438</td>
 <td align="right">9.905</td>
@@ -2096,6 +2148,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital I</td>
 <td align="right">5</td>
 <td align="right">6.075</td>
+<td align="right">-1.088</td>
 <td align="right">8.940</td>
 <td align="right">9.451</td>
 <td align="right">9.912</td>
@@ -2109,6 +2162,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital E</td>
 <td align="right">4</td>
 <td align="right">4.343</td>
+<td align="right">-1.698</td>
 <td align="right">9.014</td>
 <td align="right">9.501</td>
 <td align="right">9.938</td>
@@ -2122,6 +2176,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital G</td>
 <td align="right">23</td>
 <td align="right">24.084</td>
+<td align="right">4.161</td>
 <td align="right">9.038</td>
 <td align="right">9.517</td>
 <td align="right">9.947</td>
@@ -2135,6 +2190,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital A</td>
 <td align="right">15</td>
 <td align="right">13.357</td>
+<td align="right">1.119</td>
 <td align="right">9.137</td>
 <td align="right">9.584</td>
 <td align="right">9.982</td>
@@ -2148,6 +2204,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital D</td>
 <td align="right">11</td>
 <td align="right">7.829</td>
+<td align="right">-0.831</td>
 <td align="right">9.264</td>
 <td align="right">9.668</td>
 <td align="right">10.026</td>
@@ -2161,6 +2218,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital F</td>
 <td align="right">15</td>
 <td align="right">9.804</td>
+<td align="right">-0.109</td>
 <td align="right">9.310</td>
 <td align="right">9.698</td>
 <td align="right">10.042</td>
@@ -2174,6 +2232,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital B</td>
 <td align="right">16</td>
 <td align="right">9.656</td>
+<td align="right">-0.183</td>
 <td align="right">9.350</td>
 <td align="right">9.725</td>
 <td align="right">10.056</td>
@@ -2187,6 +2246,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital J</td>
 <td align="right">7</td>
 <td align="right">3.878</td>
+<td align="right">-2.598</td>
 <td align="right">9.392</td>
 <td align="right">9.752</td>
 <td align="right">10.071</td>
@@ -2215,23 +2275,25 @@ Standardised Mortality Ratio).</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_rc_od</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="13%">
 <col width="12%">
 <col width="11%">
-<col width="8%">
+<col width="10%">
+<col width="7%">
+<col width="7%">
 <col width="6%">
 <col width="6%">
 <col width="6%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
-<col width="8%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
 <th align="left">group</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
+<th align="right">z</th>
 <th align="right">ll99</th>
 <th align="right">ll95</th>
 <th align="right">ll68</th>
@@ -2246,6 +2308,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital C</td>
 <td align="right">10</td>
 <td align="right">12.547</td>
+<td align="right">0.450</td>
 <td align="right">2.776</td>
 <td align="right">4.501</td>
 <td align="right">6.803</td>
@@ -2259,6 +2322,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital H</td>
 <td align="right">17</td>
 <td align="right">21.250</td>
+<td align="right">1.523</td>
 <td align="right">2.776</td>
 <td align="right">4.501</td>
 <td align="right">6.803</td>
@@ -2272,6 +2336,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital I</td>
 <td align="right">5</td>
 <td align="right">6.075</td>
+<td align="right">-0.753</td>
 <td align="right">2.777</td>
 <td align="right">4.502</td>
 <td align="right">6.804</td>
@@ -2285,6 +2350,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital E</td>
 <td align="right">4</td>
 <td align="right">4.343</td>
+<td align="right">-1.229</td>
 <td align="right">2.779</td>
 <td align="right">4.505</td>
 <td align="right">6.806</td>
@@ -2298,6 +2364,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital G</td>
 <td align="right">23</td>
 <td align="right">24.084</td>
+<td align="right">1.820</td>
 <td align="right">2.780</td>
 <td align="right">4.506</td>
 <td align="right">6.806</td>
@@ -2311,6 +2378,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital A</td>
 <td align="right">15</td>
 <td align="right">13.357</td>
+<td align="right">0.570</td>
 <td align="right">2.783</td>
 <td align="right">4.509</td>
 <td align="right">6.809</td>
@@ -2324,6 +2392,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital D</td>
 <td align="right">11</td>
 <td align="right">7.829</td>
+<td align="right">-0.468</td>
 <td align="right">2.787</td>
 <td align="right">4.513</td>
 <td align="right">6.812</td>
@@ -2337,6 +2406,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital F</td>
 <td align="right">15</td>
 <td align="right">9.804</td>
+<td align="right">-0.056</td>
 <td align="right">2.788</td>
 <td align="right">4.514</td>
 <td align="right">6.812</td>
@@ -2350,6 +2420,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital B</td>
 <td align="right">16</td>
 <td align="right">9.656</td>
+<td align="right">-0.091</td>
 <td align="right">2.789</td>
 <td align="right">4.515</td>
 <td align="right">6.813</td>
@@ -2363,6 +2434,7 @@ Standardised Mortality Ratio).</p>
 <td align="left">Hospital J</td>
 <td align="right">7</td>
 <td align="right">3.878</td>
+<td align="right">-1.662</td>
 <td align="right">2.790</td>
 <td align="right">4.516</td>
 <td align="right">6.814</td>
