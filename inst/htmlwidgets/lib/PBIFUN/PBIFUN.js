@@ -5856,7 +5856,7 @@ var funnel = (function (exports) {
    * @returns
    */
   function winsoriseZScores(z) {
-      const z_sorted = z.sort(function (a, b) { return a - b; });
+      const z_sorted = [...z].sort(function (a, b) { return a - b; });
       const lower_z = quantile(z_sorted, 0.1);
       const upper_z = quantile(z_sorted, 0.9);
       return winsorise(z, { lower: lower_z, upper: upper_z });
@@ -5930,14 +5930,17 @@ var funnel = (function (exports) {
       getY() {
           return this.yFunction(this.inputData);
       }
+      getZ() {
+          return this.zFunction(this.inputData, this.zScores, this.seOD, this.odAdjust, this.tau2);
+      }
       getTau2() {
           const targetOD = this.getTarget({ transformed: true });
-          const seOD = this.getSE({ odAdjust: true });
+          this.seOD = this.getSE({ odAdjust: true });
           const yTransformed = this.getY();
-          const zScores = getZScores(yTransformed, seOD, targetOD);
-          const zScoresWinsorized = winsoriseZScores(zScores);
+          this.zScores = getZScores(yTransformed, this.seOD, targetOD);
+          const zScoresWinsorized = winsoriseZScores(this.zScores);
           const phi = getPhi(zScoresWinsorized);
-          return getTau2(phi, seOD);
+          return getTau2(phi, this.seOD);
       }
       getTau2Bool() {
           const tauReturn = {
@@ -5973,15 +5976,15 @@ var funnel = (function (exports) {
       }
       getLimits() {
           const calculateTau2 = this.getTau2Bool();
-          let odAdjust;
-          let tau2;
+          this.tau2 = this.getTau2();
+          let curr_tau2;
           if (calculateTau2) {
-              tau2 = this.getTau2();
-              odAdjust = tau2 > 0;
+              curr_tau2 = this.tau2;
+              this.odAdjust = this.tau2 > 0;
           }
           else {
-              tau2 = 0;
-              odAdjust = false;
+              curr_tau2 = 0;
+              this.odAdjust = false;
           }
           const target = this.getTarget({ transformed: false });
           const alt_target = this.inputSettings.settings.lines.alt_target;
@@ -5989,7 +5992,7 @@ var funnel = (function (exports) {
           const intervals = this.getIntervals();
           const plottingDenominators = this.getPlottingDenominators();
           const plottingSE = this.getSE({
-              odAdjust: odAdjust,
+              odAdjust: this.odAdjust,
               plottingDenominators: plottingDenominators
           });
           const calcLimits = plottingDenominators.map((denom, idx) => {
@@ -6002,11 +6005,11 @@ var funnel = (function (exports) {
                       target: target,
                       target_transformed: target_transformed,
                       SE: plottingSE[idx],
-                      tau2: tau2,
+                      tau2: curr_tau2,
                       denominators: denom
                   };
                   const limit = this.getSingleLimit({
-                      odAdjust: odAdjust,
+                      odAdjust: this.odAdjust,
                       inputArgs: functionArgs
                   });
                   calcLimitEntries.push([interval.label, limit]);
@@ -6042,6 +6045,7 @@ var funnel = (function (exports) {
           this.targetFunction = args.targetFunction;
           this.targetFunctionTransformed = args.targetFunctionTransformed;
           this.yFunction = args.yFunction;
+          this.zFunction = args.zFunction;
           this.limitFunction = args.limitFunction;
           this.limitFunctionOD = args.limitFunctionOD;
           this.inputData = args.inputData;
@@ -6260,93 +6264,6 @@ var funnel = (function (exports) {
       return x * Math.pow(2, exp);
   }
 
-  /**
-   * Computes the continued fraction for the calculation of sum_{k=0}^Inf x^k/(i+k*d)
-   *
-   * This implementation is a TypeScript adaptation of the logcf function
-   * from the R programming language.
-   *
-   *
-   * @param x The value of x in the continued fraction
-   * @param i The initial index i
-   * @param d The increment d
-   * @param eps The desired precision epsilon
-   * @returns The value of the continued fraction
-   */
-  function logcf(x, i, d, eps) {
-      let c1 = 2 * d;
-      let c2 = i + d;
-      let c4 = c2 + d;
-      let a1 = c2;
-      let b1 = i * (c2 - i * x);
-      let b2 = d * d * x;
-      let a2 = c4 * c2 - b2;
-      const scalefactor = 1.157921e+77;
-      b2 = c4 * b1 - i * b2;
-      // Evaluate continued fraction using modified Lentz's method
-      while (Math.abs(a2 * b1 - a1 * b2) > Math.abs(eps * b1 * b2)) {
-          let c3 = c2 * c2 * x;
-          c2 += d;
-          c4 += d;
-          a1 = c4 * a2 - c3 * a1;
-          b1 = c4 * b2 - c3 * b1;
-          c3 = c1 * c1 * x;
-          c1 += d;
-          c4 += d;
-          a2 = c4 * a1 - c3 * a2;
-          b2 = c4 * b1 - c3 * b2;
-          // Rescale to prevent overflow/underflow
-          if (Math.abs(b2) > scalefactor) {
-              a1 /= scalefactor;
-              b1 /= scalefactor;
-              a2 /= scalefactor;
-              b2 /= scalefactor;
-          }
-          else if (Math.abs(b2) < 1 / scalefactor) {
-              a1 *= scalefactor;
-              b1 *= scalefactor;
-              a2 *= scalefactor;
-              b2 *= scalefactor;
-          }
-      }
-      return a2 / b2;
-  }
-
-  /**
-   * Computes log(1 + x) - x with improved accuracy for small values of x.
-   *
-   * This implementation is a TypeScript adaptation of the log1pmx function
-   * from the R programming language.
-   *
-   * @param x The input value
-   * @returns The value of log(1 + x) - x
-   */
-  function log1pmx(x) {
-      if (x > 1 || x < -0.79149064) {
-          // For values far from 0, standard calculation is sufficient
-          return Math.log1p(x) - x;
-      }
-      else {
-          // For values close to 0, use more precise approximations
-          const r = x / (2 + x);
-          const y = r * r;
-          if (Math.abs(x) < 1e-2) {
-              // For very small x, use Taylor series expansion:
-              // 2 * r * (1/1 + 1/3*y + 1/5*y^2 + ...) - x
-              const coefs = [2 / 3, 2 / 5, 2 / 7, 2 / 9];
-              let result = 0;
-              for (let i = 0; i < coefs.length; i++) {
-                  result = (result + coefs[i]) * y;
-              }
-              return r * (result - x);
-          }
-          else {
-              // For moderately small x, use continued fraction for log(1+x)
-              return r * (2 * y * logcf(y, 3, 2, 1e-14) - x);
-          }
-      }
-  }
-
   const LOG_TWO_PI = 1.837877066409345483560659472811;
   const LOG_SQRT_TWO_PI = 0.918938533204672741780329736406;
   const LOG_SQRT_PI_DIV_2 = 0.225791352644727432363097614947;
@@ -6355,77 +6272,6 @@ var funnel = (function (exports) {
   const TWO_PI = 6.283185307179586476925286766559;
   const SQRT_THIRTY_TWO = 5.656854249492380195206754896838;
   const ONE_DIV_SQRT_TWO_PI = 0.398942280401432677939946059934;
-
-  /**
-   * Computes the natural logarithm of the gamma function at (1 + a): ln(Γ(1 + a)),
-   * providing improved accuracy for small values of a.
-   *
-   * This implementation is based on a series expansion and continued fraction
-   * approximation for better numerical stability when a is close to zero.
-   *
-   * The below implementation is a TypeScript adaptation of the lgamma1p function
-   * from the R programming language.
-   *
-   * @param a The input value for which to compute lgamma1p
-   * @returns The natural logarithm of the gamma function at (1 + a): ln(Γ(1 + a))
-   */
-  function lgamma1p(a) {
-      if (Math.abs(a) >= 0.5) {
-          return lgamma(a + 1);
-      }
-      // Coefficients for the polynomial approximation of ln(gamma(1+x))
-      const coeffs = [
-          0.3224670334241132182362075833230126e-0,
-          0.6735230105319809513324605383715000e-1,
-          0.2058080842778454787900092413529198e-1,
-          0.7385551028673985266273097291406834e-2,
-          0.2890510330741523285752988298486755e-2,
-          0.1192753911703260977113935692828109e-2,
-          0.5096695247430424223356548135815582e-3,
-          0.2231547584535793797614188036013401e-3,
-          0.9945751278180853371459589003190170e-4,
-          0.4492623673813314170020750240635786e-4,
-          0.2050721277567069155316650397830591e-4,
-          0.9439488275268395903987425104415055e-5,
-          0.4374866789907487804181793223952411e-5,
-          0.2039215753801366236781900709670839e-5,
-          0.9551412130407419832857179772951265e-6,
-          0.4492469198764566043294290331193655e-6,
-          0.2120718480555466586923135901077628e-6,
-          0.1004322482396809960872083050053344e-6,
-          0.4769810169363980565760193417246730e-7,
-          0.2271109460894316491031998116062124e-7,
-          0.1083865921489695409107491757968159e-7,
-          0.5183475041970046655121248647057669e-8,
-          0.2483674543802478317185008663991718e-8,
-          0.1192140140586091207442548202774640e-8,
-          0.5731367241678862013330194857961011e-9,
-          0.2759522885124233145178149692816341e-9,
-          0.1330476437424448948149715720858008e-9,
-          0.6422964563838100022082448087644648e-10,
-          0.3104424774732227276239215783404066e-10,
-          0.1502138408075414217093301048780668e-10,
-          0.7275974480239079662504549924814047e-11,
-          0.3527742476575915083615072228655483e-11,
-          0.1711991790559617908601084114443031e-11,
-          0.8315385841420284819798357793954418e-12,
-          0.4042200525289440065536008957032895e-12,
-          0.1966475631096616490411045679010286e-12,
-          0.9573630387838555763782200936508615e-13,
-          0.4664076026428374224576492565974577e-13,
-          0.2273736960065972320633279596737272e-13,
-          0.1109139947083452201658320007192334e-13
-      ];
-      const N = coeffs.length;
-      const c = 0.2273736845824652515226821577978691e-12;
-      // Use continued fraction approximation for the tail of the expansion
-      let lgam = c * logcf(-a / 2, N + 2, 1, 1e-14);
-      // Evaluate the polynomial using Horner's method
-      for (let i = N - 1; i >= 0; i--) {
-          lgam = coeffs[i] - a * lgam;
-      }
-      return (a * lgam - EULER) * a - log1pmx(a);
-  }
 
   /**
    * Computes the (log) Stirling's error term for a given n.
@@ -6737,6 +6583,164 @@ var funnel = (function (exports) {
       // Used to compute lgamma for negative x using positive y = |x|.
       return LOG_SQRT_PI_DIV_2 + (x - 0.5) * Math.log(y)
           - x - Math.log(Math.abs(sinpi(y))) - lgammaCorrection(y);
+  }
+
+  /**
+   * Computes the continued fraction for the calculation of sum_{k=0}^Inf x^k/(i+k*d)
+   *
+   * This implementation is a TypeScript adaptation of the logcf function
+   * from the R programming language.
+   *
+   *
+   * @param x The value of x in the continued fraction
+   * @param i The initial index i
+   * @param d The increment d
+   * @param eps The desired precision epsilon
+   * @returns The value of the continued fraction
+   */
+  function logcf(x, i, d, eps) {
+      let c1 = 2 * d;
+      let c2 = i + d;
+      let c4 = c2 + d;
+      let a1 = c2;
+      let b1 = i * (c2 - i * x);
+      let b2 = d * d * x;
+      let a2 = c4 * c2 - b2;
+      const scalefactor = 1.157921e+77;
+      b2 = c4 * b1 - i * b2;
+      // Evaluate continued fraction using modified Lentz's method
+      while (Math.abs(a2 * b1 - a1 * b2) > Math.abs(eps * b1 * b2)) {
+          let c3 = c2 * c2 * x;
+          c2 += d;
+          c4 += d;
+          a1 = c4 * a2 - c3 * a1;
+          b1 = c4 * b2 - c3 * b1;
+          c3 = c1 * c1 * x;
+          c1 += d;
+          c4 += d;
+          a2 = c4 * a1 - c3 * a2;
+          b2 = c4 * b1 - c3 * b2;
+          // Rescale to prevent overflow/underflow
+          if (Math.abs(b2) > scalefactor) {
+              a1 /= scalefactor;
+              b1 /= scalefactor;
+              a2 /= scalefactor;
+              b2 /= scalefactor;
+          }
+          else if (Math.abs(b2) < 1 / scalefactor) {
+              a1 *= scalefactor;
+              b1 *= scalefactor;
+              a2 *= scalefactor;
+              b2 *= scalefactor;
+          }
+      }
+      return a2 / b2;
+  }
+
+  /**
+   * Computes log(1 + x) - x with improved accuracy for small values of x.
+   *
+   * This implementation is a TypeScript adaptation of the log1pmx function
+   * from the R programming language.
+   *
+   * @param x The input value
+   * @returns The value of log(1 + x) - x
+   */
+  function log1pmx(x) {
+      if (x > 1 || x < -0.79149064) {
+          // For values far from 0, standard calculation is sufficient
+          return Math.log1p(x) - x;
+      }
+      else {
+          // For values close to 0, use more precise approximations
+          const r = x / (2 + x);
+          const y = r * r;
+          if (Math.abs(x) < 1e-2) {
+              // For very small x, use Taylor series expansion:
+              // 2 * r * (1/1 + 1/3*y + 1/5*y^2 + ...) - x
+              const coefs = [2 / 3, 2 / 5, 2 / 7, 2 / 9];
+              let result = 0;
+              for (let i = 0; i < coefs.length; i++) {
+                  result = (result + coefs[i]) * y;
+              }
+              return r * (result - x);
+          }
+          else {
+              // For moderately small x, use continued fraction for log(1+x)
+              return r * (2 * y * logcf(y, 3, 2, 1e-14) - x);
+          }
+      }
+  }
+
+  /**
+   * Computes the natural logarithm of the gamma function at (1 + a): ln(Γ(1 + a)),
+   * providing improved accuracy for small values of a.
+   *
+   * This implementation is based on a series expansion and continued fraction
+   * approximation for better numerical stability when a is close to zero.
+   *
+   * The below implementation is a TypeScript adaptation of the lgamma1p function
+   * from the R programming language.
+   *
+   * @param a The input value for which to compute lgamma1p
+   * @returns The natural logarithm of the gamma function at (1 + a): ln(Γ(1 + a))
+   */
+  function lgamma1p(a) {
+      if (Math.abs(a) >= 0.5) {
+          return lgamma(a + 1);
+      }
+      // Coefficients for the polynomial approximation of ln(gamma(1+x))
+      const coeffs = [
+          0.3224670334241132182362075833230126e-0,
+          0.6735230105319809513324605383715000e-1,
+          0.2058080842778454787900092413529198e-1,
+          0.7385551028673985266273097291406834e-2,
+          0.2890510330741523285752988298486755e-2,
+          0.1192753911703260977113935692828109e-2,
+          0.5096695247430424223356548135815582e-3,
+          0.2231547584535793797614188036013401e-3,
+          0.9945751278180853371459589003190170e-4,
+          0.4492623673813314170020750240635786e-4,
+          0.2050721277567069155316650397830591e-4,
+          0.9439488275268395903987425104415055e-5,
+          0.4374866789907487804181793223952411e-5,
+          0.2039215753801366236781900709670839e-5,
+          0.9551412130407419832857179772951265e-6,
+          0.4492469198764566043294290331193655e-6,
+          0.2120718480555466586923135901077628e-6,
+          0.1004322482396809960872083050053344e-6,
+          0.4769810169363980565760193417246730e-7,
+          0.2271109460894316491031998116062124e-7,
+          0.1083865921489695409107491757968159e-7,
+          0.5183475041970046655121248647057669e-8,
+          0.2483674543802478317185008663991718e-8,
+          0.1192140140586091207442548202774640e-8,
+          0.5731367241678862013330194857961011e-9,
+          0.2759522885124233145178149692816341e-9,
+          0.1330476437424448948149715720858008e-9,
+          0.6422964563838100022082448087644648e-10,
+          0.3104424774732227276239215783404066e-10,
+          0.1502138408075414217093301048780668e-10,
+          0.7275974480239079662504549924814047e-11,
+          0.3527742476575915083615072228655483e-11,
+          0.1711991790559617908601084114443031e-11,
+          0.8315385841420284819798357793954418e-12,
+          0.4042200525289440065536008957032895e-12,
+          0.1966475631096616490411045679010286e-12,
+          0.9573630387838555763782200936508615e-13,
+          0.4664076026428374224576492565974577e-13,
+          0.2273736960065972320633279596737272e-13,
+          0.1109139947083452201658320007192334e-13
+      ];
+      const N = coeffs.length;
+      const c = 0.2273736845824652515226821577978691e-12;
+      // Use continued fraction approximation for the tail of the expansion
+      let lgam = c * logcf(-a / 2, N + 2, 1, 1e-14);
+      // Evaluate the polynomial using Horner's method
+      for (let i = N - 1; i >= 0; i--) {
+          lgam = coeffs[i] - a * lgam;
+      }
+      return (a * lgam - EULER) * a - log1pmx(a);
   }
 
   /**
@@ -7720,6 +7724,24 @@ var funnel = (function (exports) {
   }
 
   /**
+   * Calculates the cumulative distribution function (CDF) for the chi-squared distribution.
+   *
+   * This function uses the relationship between the chi-squared distribution
+   * and the gamma distribution to compute the CDF.
+   *
+   * @param x The quantile at which to evaluate the CDF.
+   * @param df Degrees of freedom (nu) parameter
+   * @param lower_tail If true, probabilities are P[X ≤ x], otherwise, P[X > x]
+   * @param log_p If true, probabilities p are given as log(p)
+   * @returns The quantile corresponding to the given probability
+   */
+  function chisqCDF(x, df, lower_tail = true, log_p = false) {
+      // Chi-squared distribution is a special case of the gamma distribution:
+      // If X ~ chi-squared(df), then X ~ Gamma(shape = df/2, scale = 2)
+      return gammaCDF(x, 0.5 * df, 2.0, lower_tail, log_p);
+  }
+
+  /**
    * Calculates the gamma density function.
    *
    * The below code was adapted from the dgamma function in R's source code.
@@ -8279,6 +8301,34 @@ var funnel = (function (exports) {
       const denominators = inputData.denominators;
       return sqrt(divide(numerators, denominators));
   };
+  const smrZ = function (inputData, zScores, seOD, odAdjust, tau2) {
+      if (odAdjust) {
+          const n = zScores.length;
+          let rtn = new Array(n);
+          for (let i = 0; i < n; i++) {
+              // Scale z-score to od-adjusted scale, by first un-standardising using the SE
+              // and then re-standardising using the OD-adjusted variance
+              rtn[i] = (zScores[i] * seOD[i]) / Math.sqrt(Math.pow(seOD[i], 2) + tau2);
+          }
+          return rtn;
+      }
+      else {
+          const numerators = inputData.numerators;
+          const denominators = inputData.denominators;
+          const n = numerators.length;
+          let rtn = new Array(n);
+          // Un-adjusted limits are exact limits, using the relationship between the Poisson and
+          // Chi-Square distributions. To map the values to z-scores, we simply use the Chi-Square CDF
+          // and Standard-normal quantile functions
+          for (let i = 0; i < n; i++) {
+              const ratio = numerators[i] / denominators[i];
+              const offset = ratio > 1 ? 1 : 0;
+              const log_p = chisqCDF(ratio * 2 * denominators[i], 2 * (denominators[i] + offset), true, true);
+              rtn[i] = normalQuantile(log_p, 0, 1, true, true);
+          }
+          return rtn;
+      }
+  };
   const smrLimitOD = function (args) {
       const target = args.target_transformed;
       const q = args.q;
@@ -8305,6 +8355,7 @@ var funnel = (function (exports) {
               targetFunction: smrTarget,
               targetFunctionTransformed: smrTarget,
               yFunction: smrY,
+              zFunction: smrZ,
               limitFunction: smrLimit,
               limitFunctionOD: smrLimitOD,
               inputData: inputData,
@@ -8330,6 +8381,23 @@ var funnel = (function (exports) {
       const denominators = inputData.denominators;
       return asin(sqrt(divide(numerators, denominators)));
   };
+  const prZ = function (inputData, zScores, seOD, odAdjust, tau2) {
+      if (odAdjust) {
+          const n = zScores.length;
+          let rtn = new Array(n);
+          for (let i = 0; i < n; i++) {
+              // Scale z-score to od-adjusted scale, by first un-standardising using the SE
+              // and then re-standardising using the OD-adjusted variance
+              rtn[i] = (zScores[i] * seOD[i]) / Math.sqrt(Math.pow(seOD[i], 2) + tau2);
+          }
+          return rtn;
+      }
+      else {
+          // Non-adjusted limits are equivalent to adjusted limits with tau2 = 0, so
+          // return as-as
+          return zScores;
+      }
+  };
   const prLimit = function (args) {
       const target = args.target_transformed;
       const q = args.q;
@@ -8347,6 +8415,7 @@ var funnel = (function (exports) {
               targetFunction: prTarget,
               targetFunctionTransformed: prTargetTransformed,
               yFunction: prY,
+              zFunction: prZ,
               limitFunction: prLimit,
               limitFunctionOD: prLimit,
               inputData: inputData,
@@ -8375,6 +8444,23 @@ var funnel = (function (exports) {
       const denominators = inputData.denominators;
       return log(divide(add(numerators, 0.5), add(denominators, 0.5)));
   };
+  const rcZ = function (inputData, zScores, seOD, odAdjust, tau2) {
+      if (odAdjust) {
+          const n = zScores.length;
+          let rtn = new Array(n);
+          for (let i = 0; i < n; i++) {
+              // Scale z-score to od-adjusted scale, by first un-standardising using the SE
+              // and then re-standardising using the OD-adjusted variance
+              rtn[i] = (zScores[i] * seOD[i]) / Math.sqrt(Math.pow(seOD[i], 2) + tau2);
+          }
+          return rtn;
+      }
+      else {
+          // Non-adjusted limits are equivalent to adjusted limits with tau2 = 0, so
+          // return as-as
+          return zScores;
+      }
+  };
   const rcLimit = function (args) {
       const target = args.target_transformed;
       const q = args.q;
@@ -8392,6 +8478,7 @@ var funnel = (function (exports) {
               targetFunction: rcTarget,
               targetFunctionTransformed: rcTargetTransformed,
               yFunction: rcY,
+              zFunction: rcZ,
               limitFunction: rcLimit,
               limitFunctionOD: rcLimit,
               inputData: inputData,
@@ -8504,6 +8591,7 @@ var funnel = (function (exports) {
           const multiplier = this.inputSettings.derivedSettings.multiplier;
           const flag_two_sigma = this.inputSettings.settings.outliers.two_sigma;
           const flag_three_sigma = this.inputSettings.settings.outliers.three_sigma;
+          const zScores = this.chartBase.getZ();
           for (let i = 0; i < this.inputData.id.length; i++) {
               const original_index = this.inputData.id[i];
               const numerator = this.inputData.numerators[i];
@@ -8537,6 +8625,7 @@ var funnel = (function (exports) {
                   x: denominator,
                   numerator: numerator,
                   value: value,
+                  z: zScores[i],
                   group_text: category,
                   aesthetics: aesthetics,
                   identity: host.createSelectionIdBuilder()
