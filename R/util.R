@@ -308,6 +308,7 @@ create_static <- function(type, data_views, title_settings,
         numerator = obs$numerator,
         denominator = obs$x,
         value = obs$value,
+        z = obs$z,
         two_sigma = obs$two_sigma,
         three_sigma = obs$three_sigma
       )
