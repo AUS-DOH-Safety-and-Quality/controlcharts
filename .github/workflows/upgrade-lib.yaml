@@ -47,7 +47,7 @@ jobs:
           import commonjs from '@rollup/plugin-commonjs';\n\
           import json from '@rollup/plugin-json';\n\
           export default {\n\
-            input: 'src/frontend.ts'\n\
+            input: 'src/frontend.ts',\n\
             output: {\n\
               format: 'iife',\n\
               name: '${{ env.YAML_NAME }}',\n\
