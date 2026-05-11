@@ -6523,16 +6523,39 @@ var spc = (function (exports) {
           ul95: new Array(n),
           ul99: new Array(n)
       };
+      const twoSigma = 2 * sigma;
+      const threeSigma = 3 * sigma;
+      const ll99 = Math.max(0, cl - threeSigma);
+      const ll95 = Math.max(0, cl - twoSigma);
+      const ll68 = Math.max(0, cl - sigma);
+      const ul68 = cl + sigma;
+      const ul95 = cl + twoSigma;
+      const ul99 = cl + threeSigma;
       for (let i = 0; i < n; i++) {
           rtn.targets[i] = cl;
-          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
-          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
-          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ll99[i] = ll99;
+          rtn.ll95[i] = ll95;
+          rtn.ll68[i] = ll68;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
       return rtn;
+  }
+
+  function median(values) {
+      const n = values.length;
+      if (n === 0) {
+          return Number.NaN;
+      }
+      const sortedValues = [...values].sort((a, b) => a - b);
+      const mid = Math.floor(n / 2);
+      if (n % 2 === 0) {
+          return (sortedValues[mid - 1] + sortedValues[mid]) / 2;
+      }
+      else {
+          return sortedValues[mid];
+      }
   }
 
   function gLimits(args) {
@@ -6542,18 +6565,12 @@ var spc = (function (exports) {
       let numerator_subset = new Array(n_sub);
       let cl = 0;
       for (let i = 0; i < n_sub; i++) {
-          numerator_subset[i] = numerators[subset_points[i]];
-          cl += numerators[subset_points[i]];
+          const curr_numerator = numerators[subset_points[i]];
+          numerator_subset[i] = curr_numerator;
+          cl += curr_numerator;
       }
       cl /= n_sub;
-      let sorted_subset = numerator_subset.slice().sort((a, b) => a - b);
-      let median_val;
-      if (n_sub % 2 === 0) {
-          median_val = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
-      }
-      else {
-          median_val = sorted_subset[Math.floor(n_sub / 2)];
-      }
+      const median_val = median(numerator_subset);
       const sigma = Math.sqrt(cl * (cl + 1));
       const n = args.keys.length;
       let rtn = {
@@ -6567,20 +6584,23 @@ var spc = (function (exports) {
           ul95: new Array(n),
           ul99: new Array(n)
       };
+      const ul68 = cl + sigma;
+      const ul95 = cl + 2 * sigma;
+      const ul99 = cl + 3 * sigma;
       for (let i = 0; i < n; i++) {
           rtn.targets[i] = median_val;
           rtn.ll68[i] = 0;
           rtn.ll95[i] = 0;
           rtn.ll99[i] = 0;
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
       return rtn;
   }
 
   function iLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
+      const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
       const n_sub = args.subset_points.length;
       const numerators = args.numerators;
       const denominators = args.denominators;
@@ -6627,6 +6647,14 @@ var spc = (function (exports) {
           ul95: new Array(n),
           ul99: new Array(n)
       };
+      const twoSigma = 2 * sigma;
+      const threeSigma = 3 * sigma;
+      const ll99 = cl - threeSigma;
+      const ll95 = cl - twoSigma;
+      const ll68 = cl - sigma;
+      const ul68 = cl + sigma;
+      const ul95 = cl + twoSigma;
+      const ul99 = cl + threeSigma;
       for (let i = 0; i < n; i++) {
           if (useRatio) {
               rtn.values[i] = numerators[i] / denominators[i];
@@ -6637,35 +6665,28 @@ var spc = (function (exports) {
               rtn.values[i] = numerators[i];
           }
           rtn.targets[i] = cl;
-          rtn.ll99[i] = cl - 3 * sigma;
-          rtn.ll95[i] = cl - 2 * sigma;
-          rtn.ll68[i] = cl - 1 * sigma;
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ll99[i] = ll99;
+          rtn.ll95[i] = ll95;
+          rtn.ll68[i] = ll68;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
       return rtn;
   }
 
   function imLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
+      const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
       const n_sub = args.subset_points.length;
       const numerators = args.numerators;
-      const denominators = args.denominators;
+      const denominators = args === null || args === void 0 ? void 0 : args.denominators;
       const subset_points = args.subset_points;
       let ratio_subset = new Array(n_sub);
       for (let i = 0; i < n_sub; i++) {
           ratio_subset[i] = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
               : numerators[subset_points[i]];
       }
-      let sorted_subset = ratio_subset.slice().sort((a, b) => a - b);
-      let cl;
-      if (n_sub % 2 === 0) {
-          cl = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
-      }
-      else {
-          cl = sorted_subset[Math.floor(n_sub / 2)];
-      }
+      const cl = median(ratio_subset);
       let consec_diff = new Array(n_sub - 1);
       let amr = 0;
       for (let i = 1; i < n_sub; i++) {
@@ -6700,6 +6721,14 @@ var spc = (function (exports) {
           ul95: new Array(n),
           ul99: new Array(n)
       };
+      const twoSigma = 2 * sigma;
+      const threeSigma = 3 * sigma;
+      const ll99 = cl - threeSigma;
+      const ll95 = cl - twoSigma;
+      const ll68 = cl - sigma;
+      const ul68 = cl + sigma;
+      const ul95 = cl + twoSigma;
+      const ul99 = cl + threeSigma;
       for (let i = 0; i < n; i++) {
           if (useRatio) {
               rtn.values[i] = numerators[i] / denominators[i];
@@ -6710,48 +6739,33 @@ var spc = (function (exports) {
               rtn.values[i] = numerators[i];
           }
           rtn.targets[i] = cl;
-          rtn.ll99[i] = cl - 3 * sigma;
-          rtn.ll95[i] = cl - 2 * sigma;
-          rtn.ll68[i] = cl - 1 * sigma;
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ll99[i] = ll99;
+          rtn.ll95[i] = ll95;
+          rtn.ll68[i] = ll68;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
       return rtn;
   }
 
   function immLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
+      const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
       const n_sub = args.subset_points.length;
       const numerators = args.numerators;
-      const denominators = args.denominators;
+      const denominators = args === null || args === void 0 ? void 0 : args.denominators;
       const subset_points = args.subset_points;
       let ratio_subset = new Array(n_sub);
       for (let i = 0; i < n_sub; i++) {
           ratio_subset[i] = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
               : numerators[subset_points[i]];
       }
-      let sorted_subset = ratio_subset.slice().sort((a, b) => a - b);
-      let cl;
-      if (n_sub % 2 === 0) {
-          cl = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
-      }
-      else {
-          cl = sorted_subset[Math.floor(n_sub / 2)];
-      }
+      const cl = median(ratio_subset);
       let consec_diff = new Array(n_sub - 1);
       for (let i = 1; i < n_sub; i++) {
           consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
       }
-      let sorted_consec_diff = consec_diff.slice().sort((a, b) => a - b);
-      let mmr;
-      const n_diff = consec_diff.length;
-      if (n_diff % 2 === 0) {
-          mmr = (sorted_consec_diff[n_diff / 2 - 1] + sorted_consec_diff[n_diff / 2]) / 2;
-      }
-      else {
-          mmr = sorted_consec_diff[Math.floor(n_diff / 2)];
-      }
+      let mmr = median(consec_diff);
       if (!args.outliers_in_limits) {
           const consec_diff_ulim = mmr * 3.267;
           let valid_diffs = [];
@@ -6761,14 +6775,7 @@ var spc = (function (exports) {
               }
           }
           if (valid_diffs.length > 0) {
-              let sorted_valid = valid_diffs.sort((a, b) => a - b);
-              const n_valid = valid_diffs.length;
-              if (n_valid % 2 === 0) {
-                  mmr = (sorted_valid[n_valid / 2 - 1] + sorted_valid[n_valid / 2]) / 2;
-              }
-              else {
-                  mmr = sorted_valid[Math.floor(n_valid / 2)];
-              }
+              mmr = median(valid_diffs);
           }
       }
       const sigma = mmr / 1.128;
@@ -6786,6 +6793,14 @@ var spc = (function (exports) {
           ul95: new Array(n),
           ul99: new Array(n)
       };
+      const twoSigma = 2 * sigma;
+      const threeSigma = 3 * sigma;
+      const ll99 = cl - threeSigma;
+      const ll95 = cl - twoSigma;
+      const ll68 = cl - sigma;
+      const ul68 = cl + sigma;
+      const ul95 = cl + twoSigma;
+      const ul99 = cl + threeSigma;
       for (let i = 0; i < n; i++) {
           if (useRatio) {
               rtn.values[i] = numerators[i] / denominators[i];
@@ -6796,38 +6811,35 @@ var spc = (function (exports) {
               rtn.values[i] = numerators[i];
           }
           rtn.targets[i] = cl;
-          rtn.ll99[i] = cl - 3 * sigma;
-          rtn.ll95[i] = cl - 2 * sigma;
-          rtn.ll68[i] = cl - 1 * sigma;
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ll99[i] = ll99;
+          rtn.ll95[i] = ll95;
+          rtn.ll68[i] = ll68;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
       return rtn;
   }
 
   function mrLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
+      const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
+      const n_sub = args.subset_points.length;
       const n = args.keys.length;
       const numerators = args.numerators;
       const denominators = args.denominators;
       const subset_points = args.subset_points;
-      let consec_diff = new Array(n - 1);
-      for (let i = 1; i < n; i++) {
-          let prevVal = useRatio ? numerators[i - 1] / denominators[i - 1] : numerators[i - 1];
-          let currVal = useRatio ? numerators[i] / denominators[i] : numerators[i];
+      let prevVal = useRatio ? numerators[subset_points[0]] / denominators[subset_points[0]]
+          : numerators[subset_points[0]];
+      let cl = 0;
+      let consec_diff = new Array(n_sub - 1);
+      for (let i = 1; i < n_sub; i++) {
+          let currVal = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
+              : numerators[subset_points[i]];
           consec_diff[i - 1] = Math.abs(currVal - prevVal);
+          cl += consec_diff[i - 1];
+          prevVal = currVal;
       }
-      let sum_mr = 0;
-      let count = 0;
-      for (let i = 0; i < subset_points.length; i++) {
-          let idx = subset_points[i];
-          if (idx > 0 && idx - 1 < consec_diff.length) {
-              sum_mr += consec_diff[idx - 1];
-              count++;
-          }
-      }
-      const cl = sum_mr / count;
+      cl /= (n_sub - 1);
       const n_mr = n - 1;
       let rtn = {
           keys: args.keys.slice(1),
@@ -6842,6 +6854,12 @@ var spc = (function (exports) {
           ul95: new Array(n_mr),
           ul99: new Array(n_mr)
       };
+      const sigma = 3.267 / 3;
+      const twoSigma = 2 * sigma;
+      const threeSigma = 3 * sigma;
+      const ul68 = cl * sigma;
+      const ul95 = cl * twoSigma;
+      const ul99 = cl * threeSigma;
       for (let i = 0; i < n_mr; i++) {
           rtn.values[i] = consec_diff[i];
           if (useRatio) {
@@ -6852,9 +6870,9 @@ var spc = (function (exports) {
           rtn.ll99[i] = 0;
           rtn.ll95[i] = 0;
           rtn.ll68[i] = 0;
-          rtn.ul68[i] = (3.267 / 3) * 1 * cl;
-          rtn.ul95[i] = (3.267 / 3) * 2 * cl;
-          rtn.ul99[i] = 3.267 * cl;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
       return rtn;
   }
@@ -6908,10 +6926,6 @@ var spc = (function (exports) {
       const denominators = args.denominators;
       const subset_points = args.subset_points;
       const n_sub = subset_points.length;
-      let val = new Array(n);
-      for (let i = 0; i < n; i++) {
-          val[i] = numerators[i] / denominators[i];
-      }
       let sum_numerators = 0;
       let sum_denominators = 0;
       for (let i = 0; i < n_sub; i++) {
@@ -6920,20 +6934,21 @@ var spc = (function (exports) {
           sum_denominators += denominators[idx];
       }
       const cl = sum_numerators / sum_denominators;
+      const cl_mult = cl * (1 - cl);
+      let val = new Array(n);
       let sd = new Array(n);
       for (let i = 0; i < n; i++) {
-          sd[i] = Math.sqrt((cl * (1 - cl)) / denominators[i]);
-      }
-      let zscore = new Array(n_sub);
-      for (let i = 0; i < n_sub; i++) {
-          let idx = subset_points[i];
-          zscore[i] = (val[idx] - cl) / sd[idx];
+          val[i] = numerators[i] / denominators[i];
+          sd[i] = Math.sqrt(cl_mult / denominators[i]);
       }
       let consec_diff = new Array(n_sub - 1);
       let amr = 0;
+      let prevZ = (val[subset_points[0]] - cl) / sd[subset_points[0]];
       for (let i = 1; i < n_sub; i++) {
-          consec_diff[i - 1] = Math.abs(zscore[i] - zscore[i - 1]);
+          let currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
+          consec_diff[i - 1] = Math.abs(currZ - prevZ);
           amr += consec_diff[i - 1];
+          prevZ = currZ;
       }
       amr /= (n_sub - 1);
       if (!args.outliers_in_limits) {
@@ -6964,19 +6979,21 @@ var spc = (function (exports) {
       };
       for (let i = 0; i < n; i++) {
           const sigma = sd[i] * sigma_multiplier;
+          const twoSigma = 2 * sigma;
+          const threeSigma = 3 * sigma;
           rtn.targets[i] = cl;
-          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
-          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
-          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
-          rtn.ul68[i] = Math.min(1, cl + 1 * sigma);
-          rtn.ul95[i] = Math.min(1, cl + 2 * sigma);
-          rtn.ul99[i] = Math.min(1, cl + 3 * sigma);
+          rtn.ll99[i] = Math.max(0, cl - threeSigma);
+          rtn.ll95[i] = Math.max(0, cl - twoSigma);
+          rtn.ll68[i] = Math.max(0, cl - sigma);
+          rtn.ul68[i] = Math.min(1, cl + sigma);
+          rtn.ul95[i] = Math.min(1, cl + twoSigma);
+          rtn.ul99[i] = Math.min(1, cl + threeSigma);
       }
       return rtn;
   }
 
   function runLimits(args) {
-      const useRatio = (args.denominators && args.denominators.length > 0);
+      const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
       const n_sub = args.subset_points.length;
       const numerators = args.numerators;
       const denominators = args.denominators;
@@ -6986,14 +7003,7 @@ var spc = (function (exports) {
           ratio_subset[i] = useRatio ? numerators[subset_points[i]] / denominators[subset_points[i]]
               : numerators[subset_points[i]];
       }
-      let sorted_subset = ratio_subset.slice().sort((a, b) => a - b);
-      let cl;
-      if (n_sub % 2 === 0) {
-          cl = (sorted_subset[n_sub / 2 - 1] + sorted_subset[n_sub / 2]) / 2;
-      }
-      else {
-          cl = sorted_subset[Math.floor(n_sub / 2)];
-      }
+      const cl = median(ratio_subset);
       const n = args.keys.length;
       let rtn = {
           keys: args.keys,
@@ -7507,7 +7517,7 @@ var spc = (function (exports) {
       const n = args.keys.length;
       let rtn = {
           keys: args.keys,
-          values: group_sd,
+          values: args.numerators,
           targets: new Array(n),
           ll99: new Array(n),
           ll95: new Array(n),
@@ -7536,23 +7546,39 @@ var spc = (function (exports) {
       }
       const inputArgsCopy = {
           numerators: val,
-          denominators: null,
           keys: args.keys,
           subset_points: args.subset_points,
           outliers_in_limits: args.outliers_in_limits
       };
       const limits = iLimits(inputArgsCopy);
+      const cl = Math.pow(limits.targets[0], 3.6);
+      const ll99 = limits.ll99[0] < 0 ? 0 : Math.pow(limits.ll99[0], 3.6);
+      const ll95 = limits.ll95[0] < 0 ? 0 : Math.pow(limits.ll95[0], 3.6);
+      const ll68 = limits.ll68[0] < 0 ? 0 : Math.pow(limits.ll68[0], 3.6);
+      const ul68 = Math.pow(limits.ul68[0], 3.6);
+      const ul95 = Math.pow(limits.ul95[0], 3.6);
+      const ul99 = Math.pow(limits.ul99[0], 3.6);
+      let rtn = {
+          keys: args.keys,
+          values: args.numerators,
+          targets: new Array(n),
+          ll99: new Array(n),
+          ll95: new Array(n),
+          ll68: new Array(n),
+          ul68: new Array(n),
+          ul95: new Array(n),
+          ul99: new Array(n)
+      };
       for (let i = 0; i < n; i++) {
-          limits.targets[i] = Math.pow(limits.targets[i], 3.6);
-          limits.values[i] = Math.pow(limits.values[i], 3.6);
-          limits.ll99[i] = Math.max(0, Math.pow(limits.ll99[i], 3.6));
-          limits.ll95[i] = Math.max(0, Math.pow(limits.ll95[i], 3.6));
-          limits.ll68[i] = Math.max(0, Math.pow(limits.ll68[i], 3.6));
-          limits.ul68[i] = Math.pow(limits.ul68[i], 3.6);
-          limits.ul95[i] = Math.pow(limits.ul95[i], 3.6);
-          limits.ul99[i] = Math.pow(limits.ul99[i], 3.6);
+          rtn.targets[i] = cl;
+          rtn.ll99[i] = ll99;
+          rtn.ll95[i] = ll95;
+          rtn.ll68[i] = ll68;
+          rtn.ul68[i] = ul68;
+          rtn.ul95[i] = ul95;
+          rtn.ul99[i] = ul99;
       }
-      return limits;
+      return rtn;
   }
 
   function uLimits(args) {
@@ -7584,13 +7610,15 @@ var spc = (function (exports) {
       for (let i = 0; i < n; i++) {
           rtn.values[i] = numerators[i] / denominators[i];
           const sigma = Math.sqrt(cl / denominators[i]);
+          const twoSigma = 2 * sigma;
+          const threeSigma = 3 * sigma;
           rtn.targets[i] = cl;
-          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
-          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
-          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ll99[i] = Math.max(0, cl - threeSigma);
+          rtn.ll95[i] = Math.max(0, cl - twoSigma);
+          rtn.ll68[i] = Math.max(0, cl - sigma);
+          rtn.ul68[i] = cl + sigma;
+          rtn.ul95[i] = cl + twoSigma;
+          rtn.ul99[i] = cl + threeSigma;
       }
       return rtn;
   }
@@ -7601,10 +7629,6 @@ var spc = (function (exports) {
       const denominators = args.denominators;
       const subset_points = args.subset_points;
       const n_sub = subset_points.length;
-      let val = new Array(n);
-      for (let i = 0; i < n; i++) {
-          val[i] = numerators[i] / denominators[i];
-      }
       let sum_numerators = 0;
       let sum_denominators = 0;
       for (let i = 0; i < n_sub; i++) {
@@ -7614,19 +7638,19 @@ var spc = (function (exports) {
       }
       const cl = sum_numerators / sum_denominators;
       let sd = new Array(n);
+      let val = new Array(n);
       for (let i = 0; i < n; i++) {
+          val[i] = numerators[i] / denominators[i];
           sd[i] = Math.sqrt(cl / denominators[i]);
-      }
-      let zscore = new Array(n_sub);
-      for (let i = 0; i < n_sub; i++) {
-          let idx = subset_points[i];
-          zscore[i] = (val[idx] - cl) / sd[idx];
       }
       let consec_diff = new Array(n_sub - 1);
       let amr = 0;
+      let prevZ = (val[subset_points[0]] - cl) / sd[subset_points[0]];
       for (let i = 1; i < n_sub; i++) {
-          consec_diff[i - 1] = Math.abs(zscore[i] - zscore[i - 1]);
+          let currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
+          consec_diff[i - 1] = Math.abs(currZ - prevZ);
           amr += consec_diff[i - 1];
+          prevZ = currZ;
       }
       amr /= (n_sub - 1);
       if (!args.outliers_in_limits) {
@@ -7657,13 +7681,15 @@ var spc = (function (exports) {
       };
       for (let i = 0; i < n; i++) {
           const sigma = sd[i] * sigma_multiplier;
+          const twoSigma = 2 * sigma;
+          const threeSigma = 3 * sigma;
           rtn.targets[i] = cl;
-          rtn.ll99[i] = Math.max(0, cl - 3 * sigma);
-          rtn.ll95[i] = Math.max(0, cl - 2 * sigma);
-          rtn.ll68[i] = Math.max(0, cl - 1 * sigma);
-          rtn.ul68[i] = cl + 1 * sigma;
-          rtn.ul95[i] = cl + 2 * sigma;
-          rtn.ul99[i] = cl + 3 * sigma;
+          rtn.ll99[i] = Math.max(0, cl - threeSigma);
+          rtn.ll95[i] = Math.max(0, cl - twoSigma);
+          rtn.ll68[i] = Math.max(0, cl - sigma);
+          rtn.ul68[i] = cl + sigma;
+          rtn.ul95[i] = cl + twoSigma;
+          rtn.ul99[i] = cl + threeSigma;
       }
       return rtn;
   }
@@ -7693,7 +7719,7 @@ var spc = (function (exports) {
       const n = args.keys.length;
       let rtn = {
           keys: args.keys,
-          values: group_means,
+          values: args.numerators,
           targets: new Array(n),
           ll99: new Array(n),
           ll95: new Array(n),
@@ -7701,18 +7727,19 @@ var spc = (function (exports) {
           ul68: new Array(n),
           ul95: new Array(n),
           ul99: new Array(n),
-          count: count_per_group
+          count: args.denominators
       };
       for (let i = 0; i < n; i++) {
-          const A3_sd = a3(count_per_group[i]) * sd;
-          const A3_sd_div_3 = (A3_sd / 3);
+          const sigma = (a3(count_per_group[i]) * sd) / 3;
+          const twoSigma = sigma * 2;
+          const threeSigma = sigma * 3;
           rtn.targets[i] = cl;
-          rtn.ll99[i] = cl - A3_sd;
-          rtn.ll95[i] = cl - A3_sd_div_3 * 2;
-          rtn.ll68[i] = cl - A3_sd_div_3;
-          rtn.ul68[i] = cl + A3_sd_div_3;
-          rtn.ul95[i] = cl + A3_sd_div_3 * 2;
-          rtn.ul99[i] = cl + A3_sd;
+          rtn.ll99[i] = cl - threeSigma;
+          rtn.ll95[i] = cl - twoSigma;
+          rtn.ll68[i] = cl - sigma;
+          rtn.ul68[i] = cl + sigma;
+          rtn.ul95[i] = cl + twoSigma;
+          rtn.ul99[i] = cl + threeSigma;
       }
       return rtn;
   }
@@ -7839,13 +7866,14 @@ var spc = (function (exports) {
               needs_denominator: ["p", "pp", "u", "up", "xbar", "s"].includes(chartType),
               denominator_optional: ["i", "i_m", "i_mm", "run", "mr"].includes(chartType),
               numerator_non_negative: ["p", "pp", "u", "up", "s", "c", "g", "t"].includes(chartType),
-              numerator_leq_denominator: ["p", "pp", "u", "up"].includes(chartType),
+              numerator_leq_denominator: ["p", "pp"].includes(chartType),
               has_control_limits: !(["run"].includes(chartType)),
               needs_sd: ["xbar"].includes(chartType),
               integer_num_den: ["c", "p", "pp"].includes(chartType),
               value_name: valueNames[chartType],
               x_axis_use_date: !(["g", "t"].includes(chartType)),
-              date_name: !(["g", "t"].includes(chartType)) ? "Date" : "Event"
+              date_name: !(["g", "t"].includes(chartType)) ? "Date" : "Event",
+              denominator_gt_one: ["xbar", "s"].includes(chartType)
           };
           this.multiplier = multiplier;
           this.percentLabels = percentLabels;
@@ -8469,6 +8497,10 @@ var spc = (function (exports) {
               rtn.message = "Denominator < numerator";
               rtn.type = 7;
           }
+          else if (chart_type_props.denominator_gt_one && denominator <= 1) {
+              rtn.message = "Denominator <= 1";
+              rtn.type = 13;
+          }
       }
       if (chart_type_props.needs_sd) {
           if (isNullOrUndefined(xbar_sd)) {
@@ -8561,6 +8593,10 @@ var spc = (function (exports) {
               }
               case 9: {
                   validationRtn.error = "All SDs are negative!";
+                  break;
+              }
+              case 13: {
+                  validationRtn.error = "All denominators are less than or equal to one!";
                   break;
               }
           }
