@@ -32,6 +32,7 @@ variation) are individual data points that fall outside the statistical
 control limits. By default, these are points beyond the 3-sigma limits.
 
 ``` r
+
 # Create data with some extreme outliers
 dat_astro <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -44,6 +45,7 @@ dat_astro <- data.frame(
 ```
 
 ``` r
+
 chart_astro <- spc(data = dat_astro,
                    keys = month,
                    numerators = infections,
@@ -59,17 +61,18 @@ chart_astro$static_plot
 ![](outlier_detection_files/figure-html/astronomical_chart-1.svg)
 
 ``` r
+
 knitr::kable(chart_astro$limits[9:14, ], digits = 2)
 ```
 
-|     | date       | value | target | ll99 | ll95 |  ll68 |  ul68 |  ul95 |  ul99 | trend_line | astpoint    |
-|:----|:-----------|------:|-------:|-----:|-----:|------:|------:|------:|------:|-----------:|:------------|
-| 9   | 01/09/2024 |  8.83 |  14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 |      14.50 | none        |
-| 10  | 01/10/2024 |  8.83 |  14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 |      14.45 | none        |
-| 11  | 01/11/2024 | 28.00 |  14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 |      14.39 | improvement |
-| 12  | 01/12/2024 | 14.84 |  14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 |      14.34 | none        |
-| 13  | 01/01/2025 | 12.73 |  14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 |      14.29 | none        |
-| 14  | 01/02/2025 | 14.97 |  14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 |      14.24 | none        |
+|  | date | value | target | ll99 | ll95 | ll68 | ul68 | ul95 | ul99 | trend_line | astpoint |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|
+| 9 | 01/09/2024 | 8.83 | 14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 | 14.50 | none |
+| 10 | 01/10/2024 | 8.83 | 14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 | 14.45 | none |
+| 11 | 01/11/2024 | 28.00 | 14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 | 14.39 | improvement |
+| 12 | 01/12/2024 | 14.84 | 14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 | 14.34 | none |
+| 13 | 01/01/2025 | 12.73 | 14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 | 14.29 | none |
+| 14 | 01/02/2025 | 14.97 | 14.32 | 4.01 | 7.44 | 10.88 | 17.76 | 21.19 | 24.63 | 14.24 | none |
 
 Astronomical points indicate special cause variation - something unusual
 has occurred that requires investigation. You can adjust the which limit
@@ -77,6 +80,7 @@ is used for flagging by changing the `astronomical_limit` parameter to
 “2 Sigma” or “1 Sigma”:
 
 ``` r
+
 chart_astro_2s <- spc(data = dat_astro,
                       keys = month,
                       numerators = infections,
@@ -99,6 +103,7 @@ default threshold is 7 consecutive points. This example shows a 6-point
 shift, which will not be flagged with the default setting:
 
 ``` r
+
 # Create data with a 6-point shift at the end
 dat_shift <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -108,6 +113,7 @@ dat_shift <- data.frame(
 ```
 
 ``` r
+
 chart_shift <- spc(data = dat_shift,
                    keys = month,
                    numerators = satisfaction,
@@ -122,6 +128,7 @@ chart_shift$static_plot
 ![](outlier_detection_files/figure-html/shift_default-1.svg)
 
 ``` r
+
 knitr::kable(tail(chart_shift$limits, 10), digits = 2)
 ```
 
@@ -142,6 +149,7 @@ You can customize the shift detection by changing `shift_n`. Setting it
 to 5 or 6 will now detect the 6-point shift:
 
 ``` r
+
 chart_shift_6 <- spc(data = dat_shift,
                      keys = month,
                      numerators = satisfaction,
@@ -164,6 +172,7 @@ points in a consistent direction. This example shows a 4-point trend,
 which will not be flagged with the default setting:
 
 ``` r
+
 # Create data with a 4-point upward trend at the end
 dat_trend <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -173,6 +182,7 @@ dat_trend <- data.frame(
 ```
 
 ``` r
+
 chart_trend <- spc(data = dat_trend,
                    keys = month,
                    numerators = wait_time,
@@ -187,6 +197,7 @@ chart_trend$static_plot
 ![](outlier_detection_files/figure-html/trend_default-1.svg)
 
 ``` r
+
 knitr::kable(tail(chart_trend$limits, 10), digits = 2)
 ```
 
@@ -206,6 +217,7 @@ knitr::kable(tail(chart_trend$limits, 10), digits = 2)
 Setting `trend_n` to 4 or fewer will now detect the 4-point trend:
 
 ``` r
+
 chart_trend_4 <- spc(data = dat_trend,
                      keys = month,
                      numerators = wait_time,
@@ -227,6 +239,7 @@ outside the 2-sigma (95%) warning limits. This pattern suggests early
 signs of process change.
 
 ``` r
+
 # Create data with 2-in-3 pattern
 # With mean=120 and sd=5, 2-sigma limits are approximately 120 ± 10
 # So values above 130 or below 110 should exceed 2-sigma
@@ -239,6 +252,7 @@ dat_2in3 <- data.frame(
 ```
 
 ``` r
+
 chart_2in3 <- spc(data = dat_2in3,
                   keys = month,
                   numerators = pressure,
@@ -254,29 +268,31 @@ chart_2in3$static_plot
 ![](outlier_detection_files/figure-html/two_in_three_basic-1.svg)
 
 ``` r
+
 knitr::kable(head(chart_2in3$limits, 12), digits = 2)
 ```
 
-| date       |  value | target |   ll99 |   ll95 |  ll68 |   ul68 |   ul95 |   ul99 | trend_line | two_in_three |
-|:-----------|-------:|-------:|-------:|-------:|------:|-------:|-------:|-------:|-----------:|:-------------|
-| 01/01/2024 | 122.73 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     125.42 | none         |
-| 01/02/2024 | 133.96 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     125.09 | none         |
-| 01/03/2024 | 112.85 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     124.76 | none         |
-| 01/04/2024 | 122.67 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     124.43 | none         |
-| 01/05/2024 | 128.49 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     124.09 | none         |
-| 01/06/2024 | 121.09 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     123.76 | none         |
-| 01/07/2024 | 120.01 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     123.43 | none         |
-| 01/08/2024 | 120.50 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     123.10 | none         |
-| 01/09/2024 | 131.00 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     122.77 | improvement  |
-| 01/10/2024 | 133.00 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     122.44 | improvement  |
-| 01/11/2024 | 121.00 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     122.11 | none         |
-| 01/12/2024 | 118.99 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 |     121.78 | none         |
+| date | value | target | ll99 | ll95 | ll68 | ul68 | ul95 | ul99 | trend_line | two_in_three |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|
+| 01/01/2024 | 122.73 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 125.42 | none |
+| 01/02/2024 | 133.96 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 125.09 | none |
+| 01/03/2024 | 112.85 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 124.76 | none |
+| 01/04/2024 | 122.67 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 124.43 | none |
+| 01/05/2024 | 128.49 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 124.09 | none |
+| 01/06/2024 | 121.09 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 123.76 | none |
+| 01/07/2024 | 120.01 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 123.43 | none |
+| 01/08/2024 | 120.50 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 123.10 | none |
+| 01/09/2024 | 131.00 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 122.77 | improvement |
+| 01/10/2024 | 133.00 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 122.44 | improvement |
+| 01/11/2024 | 121.00 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 122.11 | none |
+| 01/12/2024 | 118.99 | 121.62 | 108.66 | 112.98 | 117.3 | 125.94 | 130.26 | 134.58 | 121.78 | none |
 
 By default, only the points outside the limits are highlighted. You can
 highlight all points in the pattern by setting
 `two_in_three_highlight_series = TRUE`:
 
 ``` r
+
 chart_2in3_all <- spc(data = dat_2in3,
                       keys = month,
                       numerators = pressure,
@@ -300,6 +316,7 @@ The `improvement_direction` setting specifies what constitutes an
 improvement in your process.
 
 ``` r
+
 # For metrics where lower is better (e.g., infection rates)
 dat_infections <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -322,6 +339,7 @@ chart_inf$static_plot
 ![](outlier_detection_files/figure-html/improvement_decrease-1.svg)
 
 ``` r
+
 # For metrics where higher is better (e.g., hand hygiene compliance)
 dat_compliance <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -356,6 +374,7 @@ First, let’s create data with both an improvement (decrease) and a
 deterioration (increase) in infection rates:
 
 ``` r
+
 # Data with both improvement and deterioration
 dat_flag_type <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -369,6 +388,7 @@ With the default setting (`process_flag_type = "both"`), both the
 improvement and deterioration shifts are flagged:
 
 ``` r
+
 chart_both <- spc(data = dat_flag_type,
                   keys = month,
                   numerators = infections,
@@ -388,6 +408,7 @@ Now, setting `process_flag_type = "deterioration"` will only flag the
 increase (deterioration), ignoring the improvement:
 
 ``` r
+
 chart_det_only <- spc(data = dat_flag_type,
                       keys = month,
                       numerators = infections,
@@ -415,6 +436,7 @@ default, icons are only shown if a pattern is detected at the last
 point:
 
 ``` r
+
 # Data with shift ending at the last point
 dat_var_last <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -446,6 +468,7 @@ If the pattern occurs earlier in the data but not at the last point, the
 icon will not be shown with default settings:
 
 ``` r
+
 # Data with shift in the middle, not at the end
 dat_var_middle <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -478,6 +501,7 @@ Setting `flag_last_point = FALSE` will show icons for all relevant
 points, not just the last observation:
 
 ``` r
+
 chart_var_all <- spc(data = dat_var_middle,
                      keys = month,
                      numerators = readmissions,
@@ -501,6 +525,7 @@ chart_var_all$static_plot
 You can also customize the icon placement and scaling:
 
 ``` r
+
 chart_var_bl <- spc(data = dat_var_last,
                     keys = month,
                     numerators = readmissions,
@@ -543,6 +568,7 @@ When the `alt_target` is below the lower 99% control limit, the process
 consistently exceeds the target:
 
 ``` r
+
 # Process centered around 95%, target at 90% will be below lower 99% limit
 dat_assurance_pass <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -569,17 +595,18 @@ chart_assurance_pass$static_plot
 ![](outlier_detection_files/figure-html/assurance_pass-1.svg)
 
 ``` r
+
 knitr::kable(tail(chart_assurance_pass$limits, 6), digits = 2)
 ```
 
-|     | date       | value | target | alt_target |  ll99 |  ll95 |  ll68 |  ul68 |  ul95 |  ul99 | trend_line |
-|:----|:-----------|------:|-------:|-----------:|------:|------:|------:|------:|------:|------:|-----------:|
-| 19  | 01/07/2025 | 93.76 |  94.64 |         90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 |      94.55 |
-| 20  | 01/08/2025 | 94.54 |  94.64 |         90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 |      94.53 |
-| 21  | 01/09/2025 | 95.01 |  94.64 |         90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 |      94.52 |
-| 22  | 01/10/2025 | 95.00 |  94.64 |         90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 |      94.50 |
-| 23  | 01/11/2025 | 94.81 |  94.64 |         90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 |      94.49 |
-| 24  | 01/12/2025 | 95.85 |  94.64 |         90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 |      94.48 |
+|  | date | value | target | alt_target | ll99 | ll95 | ll68 | ul68 | ul95 | ul99 | trend_line |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 19 | 01/07/2025 | 93.76 | 94.64 | 90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 | 94.55 |
+| 20 | 01/08/2025 | 94.54 | 94.64 | 90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 | 94.53 |
+| 21 | 01/09/2025 | 95.01 | 94.64 | 90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 | 94.52 |
+| 22 | 01/10/2025 | 95.00 | 94.64 | 90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 | 94.50 |
+| 23 | 01/11/2025 | 94.81 | 94.64 | 90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 | 94.49 |
+| 24 | 01/12/2025 | 95.85 | 94.64 | 90 | 92.45 | 93.18 | 93.91 | 95.38 | 96.11 | 96.84 | 94.48 |
 
 #### Example: Consistent Fail
 
@@ -587,6 +614,7 @@ When the `alt_target` is above the upper 99% control limit, the process
 consistently fails to meet the target:
 
 ``` r
+
 # Process centered around 82%, target at 90% will be above upper 99% limit
 dat_assurance_fail <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -613,17 +641,18 @@ chart_assurance_fail$static_plot
 ![](outlier_detection_files/figure-html/assurance_fail-1.svg)
 
 ``` r
+
 knitr::kable(tail(chart_assurance_fail$limits, 6), digits = 2)
 ```
 
-|     | date       | value | target | alt_target |  ll99 |  ll95 |  ll68 |  ul68 |  ul95 |  ul99 | trend_line |
-|:----|:-----------|------:|-------:|-----------:|------:|------:|------:|------:|------:|------:|-----------:|
-| 19  | 01/07/2025 | 82.68 |  82.24 |         90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 |      82.12 |
-| 20  | 01/08/2025 | 81.12 |  82.24 |         90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 |      82.10 |
-| 21  | 01/09/2025 | 81.70 |  82.24 |         90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 |      82.08 |
-| 22  | 01/10/2025 | 84.68 |  82.24 |         90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 |      82.06 |
-| 23  | 01/11/2025 | 80.31 |  82.24 |         90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 |      82.04 |
-| 24  | 01/12/2025 | 81.30 |  82.24 |         90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 |      82.02 |
+|  | date | value | target | alt_target | ll99 | ll95 | ll68 | ul68 | ul95 | ul99 | trend_line |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 19 | 01/07/2025 | 82.68 | 82.24 | 90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 | 82.12 |
+| 20 | 01/08/2025 | 81.12 | 82.24 | 90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 | 82.10 |
+| 21 | 01/09/2025 | 81.70 | 82.24 | 90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 | 82.08 |
+| 22 | 01/10/2025 | 84.68 | 82.24 | 90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 | 82.06 |
+| 23 | 01/11/2025 | 80.31 | 82.24 | 90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 | 82.04 |
+| 24 | 01/12/2025 | 81.30 | 82.24 | 90 | 77.71 | 79.22 | 80.73 | 83.75 | 85.26 | 86.77 | 82.02 |
 
 #### Example: Variable Performance
 
@@ -631,6 +660,7 @@ When the `alt_target` falls within the 99% control limits, performance
 is variable:
 
 ``` r
+
 # Process centered around 90%, target at 90% will be within limits
 dat_assurance_variable <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -657,23 +687,25 @@ chart_assurance_variable$static_plot
 ![](outlier_detection_files/figure-html/assurance_variable-1.svg)
 
 ``` r
+
 knitr::kable(tail(chart_assurance_variable$limits, 6), digits = 2)
 ```
 
-|     | date       | value | target | alt_target |  ll99 |  ll95 |  ll68 |  ul68 |  ul95 |  ul99 | trend_line |
-|:----|:-----------|------:|-------:|-----------:|------:|------:|------:|------:|------:|------:|-----------:|
-| 19  | 01/07/2025 | 88.97 |  90.13 |         90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 |      90.26 |
-| 20  | 01/08/2025 | 87.33 |  90.13 |         90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 |      90.28 |
-| 21  | 01/09/2025 | 91.77 |  90.13 |         90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 |      90.30 |
-| 22  | 01/10/2025 | 91.78 |  90.13 |         90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 |      90.32 |
-| 23  | 01/11/2025 | 89.15 |  90.13 |         90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 |      90.34 |
-| 24  | 01/12/2025 | 88.32 |  90.13 |         90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 |      90.36 |
+|  | date | value | target | alt_target | ll99 | ll95 | ll68 | ul68 | ul95 | ul99 | trend_line |
+|:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 19 | 01/07/2025 | 88.97 | 90.13 | 90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 | 90.26 |
+| 20 | 01/08/2025 | 87.33 | 90.13 | 90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 | 90.28 |
+| 21 | 01/09/2025 | 91.77 | 90.13 | 90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 | 90.30 |
+| 22 | 01/10/2025 | 91.78 | 90.13 | 90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 | 90.32 |
+| 23 | 01/11/2025 | 89.15 | 90.13 | 90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 | 90.34 |
+| 24 | 01/12/2025 | 88.32 | 90.13 | 90 | 83.83 | 85.93 | 88.03 | 92.23 | 94.33 | 96.43 | 90.36 |
 
 ### Combined Variation and Assurance Icons
 
 You can display both icon types simultaneously:
 
 ``` r
+
 chart_both_icons <- spc(data = dat_assurance_pass,
                         keys = month,
                         numerators = vaccination_rate,
@@ -703,31 +735,31 @@ chart_both_icons$static_plot
 
 ### Outlier Detection Settings
 
-| Setting                         | Type      | Default    | Options/Range                                    | Purpose                        |
-|---------------------------------|-----------|------------|--------------------------------------------------|--------------------------------|
-| `astronomical`                  | boolean   | FALSE      | TRUE/FALSE                                       | Detect points outside limits   |
-| `astronomical_limit`            | character | “3 Sigma”  | “1 Sigma”, “2 Sigma”, “3 Sigma”, “Specification” | Which limit to use             |
-| `shift`                         | boolean   | FALSE      | TRUE/FALSE                                       | Detect runs on one side        |
-| `shift_n`                       | numeric   | 7          | Min: 1                                           | Points needed for shift        |
-| `trend`                         | boolean   | FALSE      | TRUE/FALSE                                       | Detect trends                  |
-| `trend_n`                       | numeric   | 5          | Min: 1                                           | Points needed for trend        |
-| `two_in_three`                  | boolean   | FALSE      | TRUE/FALSE                                       | Detect 2-in-3 pattern          |
-| `two_in_three_limit`            | character | “2 Sigma”  | “1 Sigma”, “2 Sigma”, “3 Sigma”, “Specification” | Warning limit                  |
-| `two_in_three_highlight_series` | boolean   | FALSE      | TRUE/FALSE                                       | Highlight all vs outliers only |
-| `improvement_direction`         | character | “increase” | “increase”, “decrease”, “neutral”                | What constitutes improvement   |
-| `process_flag_type`             | character | “both”     | “both”, “improvement”, “deterioration”           | Which outliers to flag         |
+| Setting | Type | Default | Options/Range | Purpose |
+|----|----|----|----|----|
+| `astronomical` | boolean | FALSE | TRUE/FALSE | Detect points outside limits |
+| `astronomical_limit` | character | “3 Sigma” | “1 Sigma”, “2 Sigma”, “3 Sigma”, “Specification” | Which limit to use |
+| `shift` | boolean | FALSE | TRUE/FALSE | Detect runs on one side |
+| `shift_n` | numeric | 7 | Min: 1 | Points needed for shift |
+| `trend` | boolean | FALSE | TRUE/FALSE | Detect trends |
+| `trend_n` | numeric | 5 | Min: 1 | Points needed for trend |
+| `two_in_three` | boolean | FALSE | TRUE/FALSE | Detect 2-in-3 pattern |
+| `two_in_three_limit` | character | “2 Sigma” | “1 Sigma”, “2 Sigma”, “3 Sigma”, “Specification” | Warning limit |
+| `two_in_three_highlight_series` | boolean | FALSE | TRUE/FALSE | Highlight all vs outliers only |
+| `improvement_direction` | character | “increase” | “increase”, “decrease”, “neutral” | What constitutes improvement |
+| `process_flag_type` | character | “both” | “both”, “improvement”, “deterioration” | Which outliers to flag |
 
 ### NHS Icon Settings
 
-| Setting                     | Type      | Default     | Options/Range                                          | Purpose                 |
-|-----------------------------|-----------|-------------|--------------------------------------------------------|-------------------------|
-| `show_variation_icons`      | boolean   | FALSE       | TRUE/FALSE                                             | Display variation icons |
-| `flag_last_point`           | boolean   | TRUE        | TRUE/FALSE                                             | Icon on last point only |
-| `variation_icons_locations` | character | “Top Right” | “Top Right”, “Bottom Right”, “Top Left”, “Bottom Left” | Icon placement          |
-| `variation_icons_scaling`   | numeric   | 1           | Min: 0                                                 | Icon size multiplier    |
-| `show_assurance_icons`      | boolean   | FALSE       | TRUE/FALSE                                             | Display assurance icons |
-| `assurance_icons_locations` | character | “Top Right” | “Top Right”, “Bottom Right”, “Top Left”, “Bottom Left” | Icon placement          |
-| `assurance_icons_scaling`   | numeric   | 1           | Min: 0                                                 | Icon size multiplier    |
+| Setting | Type | Default | Options/Range | Purpose |
+|----|----|----|----|----|
+| `show_variation_icons` | boolean | FALSE | TRUE/FALSE | Display variation icons |
+| `flag_last_point` | boolean | TRUE | TRUE/FALSE | Icon on last point only |
+| `variation_icons_locations` | character | “Top Right” | “Top Right”, “Bottom Right”, “Top Left”, “Bottom Left” | Icon placement |
+| `variation_icons_scaling` | numeric | 1 | Min: 0 | Icon size multiplier |
+| `show_assurance_icons` | boolean | FALSE | TRUE/FALSE | Display assurance icons |
+| `assurance_icons_locations` | character | “Top Right” | “Top Right”, “Bottom Right”, “Top Left”, “Bottom Left” | Icon placement |
+| `assurance_icons_scaling` | numeric | 1 | Min: 0 | Icon size multiplier |
 
 **Note**: Assurance icons require `alt_target` to be specified in
 `line_settings`.

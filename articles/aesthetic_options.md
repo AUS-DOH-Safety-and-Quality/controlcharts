@@ -1,6 +1,7 @@
 # Aesthetic Options
 
 ``` r
+
 library(controlcharts)
 ```
 
@@ -20,6 +21,7 @@ helper functions `spc_default_settings('{group_name}')` or
 We will use the following synthetic datasets for the examples below:
 
 ``` r
+
 set.seed(42)
 
 # SPC Data (Time Series)
@@ -44,6 +46,7 @@ The `title` argument allows you to add a plot title and customize its
 font and position. Note that `title` takes a named list of parameters.
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -67,6 +70,7 @@ padding. This is useful if labels or titles are being clipped.
 ### SPC Example
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -83,6 +87,7 @@ spc(
 ### Funnel Example
 
 ``` r
+
 funnel(
   funnel_data,
   keys = id,
@@ -108,6 +113,7 @@ ticks, and forcing limits.
 #### SPC: Rotating Ticks
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -124,6 +130,7 @@ spc(
 #### Funnel: Axis Label
 
 ``` r
+
 funnel(
   funnel_data,
   keys = id,
@@ -140,6 +147,7 @@ funnel(
 ### Y Axis
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -159,6 +167,7 @@ For SPC charts with date keys, `date_settings` controls how dates are
 formatted on the axis and tooltips.
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -182,6 +191,7 @@ lines, including targets and limits lines.
 ### SPC: Main Line
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -202,6 +212,7 @@ Funnel plots rely heavily on control limits. You can customize the 95%
 and 99% limits independently.
 
 ``` r
+
 funnel(
   funnel_data,
   keys = id,
@@ -226,6 +237,7 @@ Control the appearance of data points using `scatter_settings`.
 ### Basic Point Styling
 
 ``` r
+
 funnel(
   funnel_data,
   keys = id,
@@ -249,6 +261,7 @@ points (instead of floating tooltips). You can customize this text using
 `scatter_text_*` options.
 
 ``` r
+
 funnel(
   funnel_data,
   keys = id,
@@ -273,6 +286,7 @@ column to the `labels` argument to display custom text.
 ### SPC Example
 
 ``` r
+
 spc(
   spc_data,
   keys = date,
@@ -293,6 +307,7 @@ spc(
 ### Funnel Example
 
 ``` r
+
 funnel(
   funnel_data,
   keys = id,
@@ -327,6 +342,7 @@ In this SPC example, we color data points red if they exceed a value of
 15.
 
 ``` r
+
 # Create a color vector matching the data logic
 point_colors <- ifelse(spc_data$value > 15, "red", "#E69F00")
 
@@ -347,6 +363,7 @@ In this Funnel example, we highlight points with a high denominator
 (large population).
 
 ``` r
+
 # Logic: Highlight large denominators
 funnel_cols <- ifelse(funnel_data$denom > 80, "green", "gray")
 
@@ -371,6 +388,7 @@ You can also color different segments of the main line. This is useful
 for highlighting specific time periods or phases.
 
 ``` r
+
 # Define colors for line segments
 # Note: The vector length corresponds to the points; segments connect points.
 line_colors <- rep("gray", nrow(spc_data))

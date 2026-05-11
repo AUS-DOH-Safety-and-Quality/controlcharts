@@ -25,6 +25,7 @@ Consider a dataset containing monthly numerators and denominators for 10
 different organisations over a 2-year period:
 
 ``` r
+
 library(controlcharts)
 
 set.seed(12324)
@@ -51,6 +52,7 @@ SPC charts and funnel plots can be constructed from this data directly,
 with the resulting HTML plots supporting mouseover tooltips:
 
 ``` r
+
 spc_plt <- controlcharts::spc(data = dat,
                               keys = month_start,
                               numerators = numerators,
@@ -72,6 +74,7 @@ spc_plt$html_plot
 ```
 
 ``` r
+
 fun_plt$html_plot
 ```
 
@@ -86,6 +89,7 @@ charts remain fully portable and interactive without the need for a
 Shiny server.
 
 ``` r
+
 # Convert data to crosstalk SharedData object
 crosstalk_dat <- crosstalk::SharedData$new(dat)
 
@@ -113,6 +117,7 @@ aggregations and statistical calculations are updated in real-time
 within the charts:
 
 ``` r
+
 country_filter <- crosstalk::filter_select("countryFilter", "Country",
                                            crosstalk_dat, ~country)
 org_filter <- crosstalk::filter_select("orgFilter", "Organisation",

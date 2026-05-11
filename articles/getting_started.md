@@ -7,6 +7,7 @@
 Consider a basic time-series, comprised of two-years of monthly data:
 
 ``` r
+
 # Simulate 2 years of monthly data
 dat <- data.frame(
   month = seq(as.Date("2024-01-01"), length.out = 24, by = "month"),
@@ -31,6 +32,7 @@ function will construct an `i`-chart (individuals chart; also referred
 to as an XmR-chart):
 
 ``` r
+
 spc_chart <- controlcharts::spc(data = dat,
                                 numerators = y,
                                 keys = month)
@@ -46,17 +48,20 @@ function is a list containing three elements:
 - `limits`: a data frame containing the calculated control limits
 
 ``` r
+
 spc_chart$static_plot
 ```
 
 ![](getting_started_files/figure-html/spc_plot_static-1.svg)
 
 ``` r
+
 # If you are using an interactive environment, you can display the HTML widget:
 # spc_chart$html_plot
 ```
 
 ``` r
+
 # Display the control limits
 knitr::kable(head(spc_chart$limits), digits = 2)
 ```
@@ -76,6 +81,7 @@ The same interface is provided for funnel charts. For this example,
 consider proportion data recorded by 10 organisations:
 
 ``` r
+
 # Simulate proportion data for 10 organisations
 denoms <- sample(100:200, 10)
 funnel_data <- data.frame(
@@ -103,6 +109,7 @@ knitr::kable(funnel_data)
 For funnel plots, the default is a proportions (`PR`) chart:
 
 ``` r
+
 funnel_chart <- controlcharts::funnel(data = funnel_data,
                                       numerators = numerators,
                                       denominators = denominators,
@@ -110,12 +117,14 @@ funnel_chart <- controlcharts::funnel(data = funnel_data,
 ```
 
 ``` r
+
 funnel_chart$static_plot
 ```
 
 ![](getting_started_files/figure-html/funnel_plot_static-1.svg)
 
 ``` r
+
 knitr::kable(funnel_chart$limits, digits = 2)
 ```
 
