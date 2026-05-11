@@ -61,11 +61,13 @@ jobs:
               commonjs()\n\
             ]\n\
           };\n\
-        " > rollup.config.mjs
+        " > rollup.config.js
+      working-directory: ${{ env.REPO_NAME }}
 
     - name: Install rollup
       run: |
         npm install rollup @rollup/plugin-commonjs @rollup/plugin-json @rollup/plugin-node-resolve @rollup/plugin-typescript
+      working-directory: ${{ env.REPO_NAME }}
 
     - name: Install ${{ env.LIB_NAME }} and Replace Bundle
       run: |
