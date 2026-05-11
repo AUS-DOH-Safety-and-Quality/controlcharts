@@ -39,10 +39,38 @@ jobs:
         repository: "AUS-DOH-Safety-and-Quality/${{ env.REPO_NAME }}"
         path: ${{ env.REPO_NAME }}
 
+    - name: Initialise Rollup Config
+      run: |
+        echo -e "\
+          import typescript from '@rollup/plugin-typescript';   \n\
+          import nodeResolve from '@rollup/plugin-node-resolve';\n\
+          import commonjs from '@rollup/plugin-commonjs';\n\
+          import json from '@rollup/plugin-json';\n\
+          export default {\n\
+            input: 'src/frontend.ts'\n\
+            output: {\n\
+              format: 'iife',\n\
+              name: '${{ env.YAML_NAME }}',\n\
+              file: './.tmp/build/${{ env.LIB_NAME }}.js',\n\
+              sourcemap: false\n\
+            },\n\
+            plugins: [\n\
+              typescript({ tsconfig: 'tsconfig.json' }),\n\
+              json(),\n\
+              nodeResolve({ browser: true }),\n\
+              commonjs()\n\
+            ]\n\
+          };\n\
+        " > rollup.config.mjs
+
+    - name: Install rollup
+      run: |
+        npm install rollup @rollup/plugin-commonjs @rollup/plugin-json @rollup/plugin-node-resolve @rollup/plugin-typescript
+
     - name: Install ${{ env.LIB_NAME }} and Replace Bundle
       run: |
         npm install
-        npm run bundle
+        npx rollup --config rollup.config.js --configPlugin typescript
         mv .tmp/build/${{ env.LIB_NAME }}.js ../inst/htmlwidgets/lib/${{ env.LIB_NAME }}
       working-directory: ${{ env.REPO_NAME }}
 
