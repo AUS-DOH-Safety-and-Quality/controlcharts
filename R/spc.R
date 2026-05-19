@@ -149,7 +149,7 @@ spc <- function(data,
   )
 
   input_settings_processed <- validate_settings("spc", input_settings,
-                                                data_raw$categories)
+                                                data_raw$crosstalk_identities)
   input_settings <- input_settings_processed$input_settings
   has_conditional_formatting <-
     input_settings_processed$has_conditional_formatting

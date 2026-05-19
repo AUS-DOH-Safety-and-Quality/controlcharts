@@ -137,7 +137,7 @@ funnel <- function(data,
   )
 
   input_settings_processed <- validate_settings("funnel", input_settings,
-                                                data_raw$categories)
+                                                data_raw$crosstalk_identities)
   input_settings <- input_settings_processed$input_settings
   has_conditional_formatting <-
     input_settings_processed$has_conditional_formatting

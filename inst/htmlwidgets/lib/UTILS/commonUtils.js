@@ -63,7 +63,7 @@ const aggregateColumn = function(column, aggregation) {
 }
 
 function isPlainObject(value) {
-return Object.prototype.toString.call(value) === '[object Object]';
+  return Object.prototype.toString.call(value) === '[object Object]';
 }
 
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
@@ -102,13 +102,15 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
   for (var category in dataGrouped) {
     args.categories[0].values.push(category);
     if (has_conditional_formatting) {
+      // If there are multiple observations for the current category, only take settings from the first
+      var firstIdentity = args.crosstalk_identities[category][0];
       // If multiple values are passed for a given setting, extract the one for the current category
       // Deep-clone the input settings to avoid modifying the original object
       var settingsClone = JSON.parse(JSON.stringify(inputSettings));
       for (var settingGroup in settingsClone) {
         for (var setting in settingsClone[settingGroup]) {
           if (isPlainObject(settingsClone[settingGroup][setting])) {
-            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][category];
+            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][firstIdentity];
           }
         }
       }

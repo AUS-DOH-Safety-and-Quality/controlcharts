@@ -74,7 +74,7 @@ funnel_default_settings <- function(group = NULL) {
   .default_settings_impl("funnel", group)
 }
 
-validate_settings <- function(type, input_settings, categories) {
+validate_settings <- function(type, input_settings, crosstalk_identities) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
@@ -99,26 +99,21 @@ validate_settings <- function(type, input_settings, categories) {
       for (setting_name in names(input_settings[[group]])) {
         setting_value <- input_settings[[group]][[setting_name]]
         if (length(setting_value) > 1) {
-          if (length(setting_value) != length(categories)) {
+          if (length(setting_value) != length(crosstalk_identities)) {
             stop(
               "Setting '", setting_name, "' in group '", group,
               "' has length ", length(setting_value),
-              " but there are ", length(categories), " observations. ",
+              " but there are ", length(crosstalk_identities), " observations. ",
               "Either provide a single value or a vector of ",
               "length equal to the number of observations."
             )
           }
           has_conditional_formatting <- TRUE
-          # Only use the first value per unique category
-          agg_settings <- aggregate(setting_value,
-            by = list(categories),
-            FUN = function(x) x[1]
-          )
           # Re-format to list of lists, so is passed to JS as an object
           # which can be indexed by the group name
           input_settings[[group]][[setting_name]] <-
-            setNames(lapply(agg_settings$x, function(x) x),
-                     agg_settings$Group.1)
+            setNames(lapply(input_settings[[group]][[setting_name]], function(x) x),
+                     crosstalk_identities)
         }
       }
     }
