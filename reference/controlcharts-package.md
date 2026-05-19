@@ -18,5 +18,8 @@ Useful links:
 
 Authors:
 
+- Andrew R. Johnson <andrew.johnson@arjohnsonau.com>
+  ([ORCID](https://orcid.org/0000-0001-7000-8065))
+
 - Healthcare Quality Intelligence Unit (Western Australia Health)
   <safetyandquality@health.wa.gov.au>
