@@ -129,16 +129,16 @@ spc <- function(data,
   }
 
   input_settings <- list(
-    canvas = canvas_settings,
-    spc = spc_settings,
-    outliers = outlier_settings,
-    nhs_icons = nhs_icon_settings,
-    scatter = scatter_settings,
-    lines = line_settings,
-    x_axis = x_axis_settings,
-    y_axis = y_axis_settings,
-    dates = date_settings,
-    labels = label_settings
+    canvas = eval(substitute(canvas_settings), input_data, parent.frame()),
+    spc = eval(substitute(spc_settings), input_data, parent.frame()),
+    outliers = eval(substitute(outlier_settings), input_data, parent.frame()),
+    nhs_icons = eval(substitute(nhs_icon_settings), input_data, parent.frame()),
+    scatter = eval(substitute(scatter_settings), input_data, parent.frame()),
+    lines = eval(substitute(line_settings), input_data, parent.frame()),
+    x_axis = eval(substitute(x_axis_settings), input_data, parent.frame()),
+    y_axis = eval(substitute(y_axis_settings), input_data, parent.frame()),
+    dates = eval(substitute(date_settings), input_data, parent.frame()),
+    labels = eval(substitute(label_settings), input_data, parent.frame())
   )
 
   data_raw <- list(

@@ -47,7 +47,7 @@ dat <- do.call(
     )
   })
 )
-DT::datatable(dat)
+knitr::kable(dat)
 ```
 
 ## Basic Interactivity

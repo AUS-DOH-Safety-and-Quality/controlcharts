@@ -20,6 +20,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Andrew R. Johnson \email{andrew.johnson@arjohnsonau.com} (\href{https://orcid.org/0000-0001-7000-8065}{ORCID})
   \item Healthcare Quality Intelligence Unit (Western Australia Health) \email{safetyandquality@health.wa.gov.au}
 }
 
