@@ -11,6 +11,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+if (!("DT" %in% installed.packages()[,"Package"])) {
+  install.packages("DT", repos = "https://cloud.r-project.org")
+}
+
 # Workaround for crosstalk bug which needs 'filter_slider' to be
 # first HTML element when working with dates
 # Simply create a hidden/'dummy' filter to initialise correct includes
@@ -47,7 +51,7 @@ dat <- do.call(
     )
   })
 )
-knitr::kable(dat)
+DT::datatable(dat)
 ```
 
 ## Basic Interactivity
