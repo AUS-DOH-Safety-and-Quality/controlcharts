@@ -66,11 +66,29 @@ function isPlainObject(value) {
   return Object.prototype.toString.call(value) === '[object Object]';
 }
 
+/**
+ * Groups an array of objects by a specified key. This is a backwards-compatible
+ * implementation of the ES2026 Object.groupBy method.
+ */
+function groupBy(data, key) {
+  var _a;
+  const groupedData = new Map();
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    const keyValue = item[key];
+    if (!groupedData.has(keyValue)) {
+      groupedData.set(keyValue, []);
+    }
+    (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
+  }
+  return Object.fromEntries(Array.from(groupedData));
+}
+
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
   if (crosstalkFilters) {
     rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalk_identities));
   }
-  var dataGrouped = Object.groupBy(rawData, d => d.categories);
+  var dataGrouped = groupBy(rawData, "categories");
   Object.freeze(dataGrouped);
   var identitiesGrouped = [];
   for (group in dataGrouped) {
