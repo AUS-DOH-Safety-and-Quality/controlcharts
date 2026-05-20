@@ -26,8 +26,6 @@ different organisations over a 2-year period:
 
 ``` r
 
-library(controlcharts)
-
 set.seed(12324)
 
 dat <- do.call(
@@ -53,29 +51,23 @@ with the resulting HTML plots supporting mouseover tooltips:
 
 ``` r
 
-spc_plt <- controlcharts::spc(data = dat,
-                              keys = month_start,
-                              numerators = numerators,
-                              denominators = denominators,
-                              spc_setting = list(chart_type = "p"),
-                              outlier_settings = list(astronomical = TRUE,
-                                                      shift = TRUE,
-                                                      two_in_three = TRUE),
-                              nhs_icon_settings =
-                                list(show_variation_icons = TRUE))
-
-fun_plt <- controlcharts::funnel(data = dat,
-                                 keys = organisation,
-                                 numerators = numerators,
-                                 denominators = denominators)
-
-
-spc_plt$html_plot
+controlcharts::spc(data = dat,
+                  keys = month_start,
+                  numerators = numerators,
+                  denominators = denominators,
+                  spc_setting = list(chart_type = "p"),
+                  outlier_settings = list(astronomical = TRUE,
+                                          shift = TRUE,
+                                          two_in_three = TRUE),
+                  nhs_icon_settings = list(show_variation_icons = TRUE))
 ```
 
 ``` r
 
-fun_plt$html_plot
+controlcharts::funnel(data = dat,
+                      keys = organisation,
+                      numerators = numerators,
+                      denominators = denominators)
 ```
 
 ### Cross-plot Reactivity and Dynamic Calculations: Crosstalk
