@@ -3204,250 +3204,167 @@ var spc = (function (exports) {
     symbolWye: wye
   });
 
-  const FONT_LIST = [
-      "'Arial', sans-serif",
-      "Arial",
-      "'Arial Black'",
-      "'Arial Unicode MS'",
-      "Calibri",
-      "Cambria",
-      "'Cambria Math'",
-      "Candara",
-      "'Comic Sans MS'",
-      "Consolas",
-      "Constantia",
-      "Corbel",
-      "'Courier New'",
-      "wf_standard-font, helvetica, arial, sans-serif",
-      "wf_standard-font_light, helvetica, arial, sans-serif",
-      "Georgia",
-      "'Lucida Sans Unicode'",
-      "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
-      "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
-      "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
-      "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
-      "Symbol",
-      "Tahoma",
-      "'Times New Roman'",
-      "'Trebuchet MS'",
-      "Verdana",
-      "Wingdings"
-  ];
-  const LINE_TYPE_ITEMS = [
-      { displayName: "Solid", value: "10 0" },
-      { displayName: "Dashed", value: "10 10" },
-      { displayName: "Dotted", value: "2 5" }
-  ];
-  const LINE_TYPE_VALID = ["10 0", "10 10", "2 5"];
-  const POSITION_ITEMS_BASIC = [
-      { displayName: "Above", value: "above" },
-      { displayName: "Below", value: "below" },
-      { displayName: "Beside", value: "beside" }
-  ];
-  const POSITION_ITEMS_EXTENDED = [
-      { displayName: "Outside", value: "outside" },
-      { displayName: "Inside", value: "inside" },
-      ...POSITION_ITEMS_BASIC
-  ];
-  const BORDER_STYLE_ITEMS = [
-      { displayName: "Solid", value: "solid" },
-      { displayName: "Dashed", value: "dashed" },
-      { displayName: "Dotted", value: "dotted" },
-      { displayName: "Double", value: "double" },
-      { displayName: "Groove", value: "groove" },
-      { displayName: "Ridge", value: "ridge" },
-      { displayName: "Inset", value: "inset" },
-      { displayName: "Outset", value: "outset" }
-  ];
-  const BORDER_STYLE_VALID = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"];
-  const lineWidth = (displayName, defaultValue) => ({
-      displayName,
-      type: "NumUpDown",
-      default: defaultValue,
-      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-  });
-  const lineType = (displayName, defaultValue) => ({
-      displayName,
-      type: "Dropdown",
-      default: defaultValue,
-      valid: LINE_TYPE_VALID,
-      items: LINE_TYPE_ITEMS
-  });
-  const opacity = (displayName, defaultValue) => ({
-      displayName,
-      type: "NumUpDown",
-      default: defaultValue,
-      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-  });
-  const fontPicker = (displayName, defaultValue) => ({
-      displayName,
-      type: "FontPicker",
-      default: defaultValue,
-      valid: FONT_LIST
-  });
-  const fontSize = (displayName, defaultValue) => ({
-      displayName,
-      type: "NumUpDown",
-      default: defaultValue,
-      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-  });
-  const createPlotLabelSettings = (prefix, useExtendedPositions = false) => {
-      const positionItems = useExtendedPositions ? POSITION_ITEMS_EXTENDED : POSITION_ITEMS_BASIC;
-      const positionValid = positionItems.map(i => i.value);
-      return {
-          [`plot_label_show_${prefix}`]: {
-              displayName: "Show Value on Plot",
-              type: "ToggleSwitch",
-              default: false
-          },
-          [`plot_label_show_all_${prefix}`]: {
-              displayName: "Show Value at all Re-Baselines",
-              type: "ToggleSwitch",
-              default: false
-          },
-          [`plot_label_show_n_${prefix}`]: {
-              displayName: "Show Value at Last N Re-Baselines",
-              type: "NumUpDown",
-              default: 1,
-              options: { minValue: { value: 1 } }
-          },
-          [`plot_label_position_${prefix}`]: {
-              displayName: "Position of Value on Line(s)",
-              type: "Dropdown",
-              default: "beside",
-              valid: positionValid,
-              items: positionItems
-          },
-          [`plot_label_vpad_${prefix}`]: {
-              displayName: "Value Vertical Padding",
-              type: "NumUpDown",
-              default: 0
-          },
-          [`plot_label_hpad_${prefix}`]: {
-              displayName: "Value Horizontal Padding",
-              type: "NumUpDown",
-              default: 10
-          },
-          [`plot_label_font_${prefix}`]: fontPicker("Value Font", "'Arial', sans-serif"),
-          [`plot_label_size_${prefix}`]: fontSize("Value Font Size", 10),
-          [`plot_label_colour_${prefix}`]: {
-              displayName: "Value Colour",
-              type: "ColorPicker",
-              default: "#000000"
-          },
-          [`plot_label_prefix_${prefix}`]: {
-              displayName: "Value Prefix",
-              type: "TextInput",
-              default: ""
+  const canvasSettings = {
+      description: "Canvas Settings",
+      displayName: "Canvas Settings",
+      settingsGroups: {
+          "all": {
+              show_errors: {
+                  displayName: "Show Errors on Canvas",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              lower_padding: {
+                  displayName: "Padding Below Plot (pixels):",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              upper_padding: {
+                  displayName: "Padding Above Plot (pixels):",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              left_padding: {
+                  displayName: "Padding Left of Plot (pixels):",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              right_padding: {
+                  displayName: "Padding Right of Plot (pixels):",
+                  type: "NumUpDown",
+                  default: 10
+              }
           }
-      };
-  };
-  const createOutlierColours = (prefix, defaultColours) => {
-      const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-      return {
-          [`${prefix}_colour_improvement`]: {
-              displayName: `Imp. ${capitalize(prefix)} Colour`,
-              type: "ColorPicker",
-              default: defaultColours.improvement
-          },
-          [`${prefix}_colour_deterioration`]: {
-              displayName: `Det. ${capitalize(prefix)} Colour`,
-              type: "ColorPicker",
-              default: defaultColours.deterioration
-          },
-          [`${prefix}_colour_neutral_low`]: {
-              displayName: `Neutral (Low) ${capitalize(prefix)} Colour`,
-              type: "ColorPicker",
-              default: defaultColours.neutral_low
-          },
-          [`${prefix}_colour_neutral_high`]: {
-              displayName: `Neutral (High) ${capitalize(prefix)} Colour`,
-              type: "ColorPicker",
-              default: defaultColours.neutral_high
-          }
-      };
-  };
-  const createLimitLineSettings = (name, displayName, defaults, hasUpperLower = true) => {
-      const settings = {
-          [`show_${name}`]: {
-              displayName: `Show ${displayName} Lines`,
-              type: "ToggleSwitch",
-              default: defaults.show
-          },
-          [`width_${name}`]: lineWidth("Line Width", defaults.width),
-          [`type_${name}`]: lineType("Line Type", defaults.type),
-          [`colour_${name}`]: {
-              displayName: "Line Colour",
-              type: "ColorPicker",
-              default: defaults.colour
-          },
-          [`opacity_${name}`]: opacity("Default Opacity", defaults.opacity),
-          [`opacity_unselected_${name}`]: opacity("Opacity if Any Selected", defaults.opacity_unselected),
-          [`join_rebaselines_${name}`]: {
-              displayName: "Connect Rebaselined Limits",
-              type: "ToggleSwitch",
-              default: false
-          },
-          [`ttip_show_${name}`]: {
-              displayName: "Show value in tooltip",
-              type: "ToggleSwitch",
-              default: true
-          },
-          [`ttip_label_${name}`]: {
-              displayName: "Tooltip Label",
-              type: "TextInput",
-              default: `${displayName} Limit`
-          }
-      };
-      if (hasUpperLower) {
-          settings[`ttip_label_${name}_prefix_lower`] = {
-              displayName: "Tooltip Label - Lower Prefix",
-              type: "TextInput",
-              default: "Lower "
-          };
-          settings[`ttip_label_${name}_prefix_upper`] = {
-              displayName: "Tooltip Label - Upper Prefix",
-              type: "TextInput",
-              default: "Upper "
-          };
       }
-      return Object.assign(Object.assign({}, settings), createPlotLabelSettings(name, hasUpperLower));
   };
-  const createSingleLineSettings = (name, displayName, defaults, includeTooltip = false) => {
-      const settings = {
-          [`show_${name}`]: {
-              displayName: `Show ${displayName}`,
-              type: "ToggleSwitch",
-              default: defaults.show
-          },
-          [`width_${name}`]: lineWidth(`${displayName === "Main Line" ? "Main Line Width" : "Line Width"}`, defaults.width),
-          [`type_${name}`]: lineType(`${displayName === "Main Line" ? "Main Line Type" : "Line Type"}`, defaults.type),
-          [`colour_${name}`]: {
-              displayName: `${displayName === "Main Line" ? "Main Line Colour" : "Line Colour"}`,
-              type: "ColorPicker",
-              default: defaults.colour
-          },
-          [`opacity_${name}`]: opacity("Default Opacity", defaults.opacity),
-          [`opacity_unselected_${name}`]: opacity(`Opacity if Any Selected`, defaults.opacity_unselected),
-          [`join_rebaselines_${name}`]: {
-              displayName: "Connect Rebaselined Limits",
-              type: "ToggleSwitch",
-              default: false
+
+  const spcSettings = {
+      description: "SPC Settings",
+      displayName: "Data Settings",
+      settingsGroups: {
+          "all": {
+              chart_type: {
+                  displayName: "Chart Type",
+                  type: "Dropdown",
+                  default: "i",
+                  valid: ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"],
+                  items: [
+                      { displayName: "run - Run Chart", value: "run" },
+                      { displayName: "i - Individual Measurements", value: "i" },
+                      { displayName: "i_m - Individual Measurements: Median centerline", value: "i_m" },
+                      { displayName: "i_mm - Individual Measurements: Median centerline, Median MR Limits", value: "i_mm" },
+                      { displayName: "mr - Moving Range of Individual Measurements", value: "mr" },
+                      { displayName: "p - Proportions", value: "p" },
+                      { displayName: "p prime - Proportions: Large-Sample Corrected", value: "pp" },
+                      { displayName: "u - Rates", value: "u" },
+                      { displayName: "u prime - Rates: Large-Sample Correction", value: "up" },
+                      { displayName: "c - Counts", value: "c" },
+                      { displayName: "xbar - Sample Means", value: "xbar" },
+                      { displayName: "s - Sample SDs", value: "s" },
+                      { displayName: "g - Number of Non-Events Between Events", value: "g" },
+                      { displayName: "t - Time Between Events", value: "t" }
+                  ]
+              },
+              outliers_in_limits: {
+                  displayName: "Keep Outliers in Limit Calcs.",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              multiplier: {
+                  displayName: "Multiplier",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 } }
+              },
+              sig_figs: {
+                  displayName: "Decimals to Report:",
+                  type: "NumUpDown",
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 20 } }
+              },
+              perc_labels: {
+                  displayName: "Report as percentage",
+                  type: "Dropdown",
+                  default: "Automatic",
+                  valid: ["Automatic", "Yes", "No"],
+                  items: [
+                      { displayName: "Automatic", value: "Automatic" },
+                      { displayName: "Yes", value: "Yes" },
+                      { displayName: "No", value: "No" }
+                  ]
+              },
+              split_on_click: {
+                  displayName: "Split Limits on Click",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              num_points_subset: {
+                  displayName: "Subset Number of Points for Limit Calculations",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              subset_points_from: {
+                  displayName: "Subset Points From",
+                  type: "Dropdown",
+                  default: "Start",
+                  valid: ["Start", "End"],
+                  items: [
+                      { displayName: "Start", value: "Start" },
+                      { displayName: "End", value: "End" }
+                  ]
+              },
+              ttip_show_date: {
+                  displayName: "Show Date in Tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_date: {
+                  displayName: "Date Tooltip Label",
+                  type: "TextInput",
+                  default: "Automatic"
+              },
+              ttip_show_numerator: {
+                  displayName: "Show Numerator in Tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_numerator: {
+                  displayName: "Numerator Tooltip Label",
+                  type: "TextInput",
+                  default: "Numerator"
+              },
+              ttip_show_denominator: {
+                  displayName: "Show Denominator in Tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_denominator: {
+                  displayName: "Denominator Tooltip Label",
+                  type: "TextInput",
+                  default: "Denominator"
+              },
+              ttip_show_value: {
+                  displayName: "Show Value in Tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_value: {
+                  displayName: "Value Tooltip Label",
+                  type: "TextInput",
+                  default: "Automatic"
+              },
+              ll_truncate: {
+                  displayName: "Truncate Lower Limits at:",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              ul_truncate: {
+                  displayName: "Truncate Upper Limits at:",
+                  type: "NumUpDown",
+                  default: undefined
+              }
           }
-      };
-      if (includeTooltip) {
-          settings[`ttip_show_${name}`] = {
-              displayName: "Show value in tooltip",
-              type: "ToggleSwitch",
-              default: true
-          };
-          settings[`ttip_label_${name}`] = {
-              displayName: "Tooltip Label",
-              type: "TextInput",
-              default: defaults.tooltip_label || displayName
-          };
       }
-      return Object.assign(Object.assign({}, settings), createPlotLabelSettings(name, false));
   };
 
   const defaultColours = {
@@ -3461,9 +3378,41 @@ var spc = (function (exports) {
   };
   const textOptions = {
       font: {
-          default: "'Arial', sans-serif"},
+          default: "'Arial', sans-serif",
+          valid: [
+              "'Arial', sans-serif",
+              "Arial",
+              "'Arial Black'",
+              "'Arial Unicode MS'",
+              "Calibri",
+              "Cambria",
+              "'Cambria Math'",
+              "Candara",
+              "'Comic Sans MS'",
+              "Consolas",
+              "Constantia",
+              "Corbel",
+              "'Courier New'",
+              "wf_standard-font, helvetica, arial, sans-serif",
+              "wf_standard-font_light, helvetica, arial, sans-serif",
+              "Georgia",
+              "'Lucida Sans Unicode'",
+              "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+              "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
+              "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
+              "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
+              "Symbol",
+              "Tahoma",
+              "'Times New Roman'",
+              "'Trebuchet MS'",
+              "Verdana",
+              "Wingdings"
+          ]
+      },
       size: {
-          default: 10},
+          default: 10,
+          options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+      },
       weight: {
           default: "normal",
           valid: ["normal", "bold", "bolder", "lighter"]
@@ -3488,1054 +3437,2034 @@ var spc = (function (exports) {
       },
       style: {
           default: "solid",
-          valid: BORDER_STYLE_VALID
+          valid: ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"],
+          items: [
+              { displayName: "Solid", value: "solid" },
+              { displayName: "Dashed", value: "dashed" },
+              { displayName: "Dotted", value: "dotted" },
+              { displayName: "Double", value: "double" },
+              { displayName: "Groove", value: "groove" },
+              { displayName: "Ridge", value: "ridge" },
+              { displayName: "Inset", value: "inset" },
+              { displayName: "Outset", value: "outset" }
+          ]
       },
       colour: {
           default: "#000000"
       }
   };
-  const settingsModel = {
-      canvas: {
-          description: "Canvas Settings",
-          displayName: "Canvas Settings",
-          settingsGroups: {
-              "all": {
-                  show_errors: {
-                      displayName: "Show Errors on Canvas",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  lower_padding: {
-                      displayName: "Padding Below Plot (pixels):",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  upper_padding: {
-                      displayName: "Padding Above Plot (pixels):",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  left_padding: {
-                      displayName: "Padding Left of Plot (pixels):",
-                      type: "NumUpDown",
-                      default: 10
-                  },
-                  right_padding: {
-                      displayName: "Padding Right of Plot (pixels):",
-                      type: "NumUpDown",
-                      default: 10
-                  }
-              }
-          }
-      },
-      spc: {
-          description: "SPC Settings",
-          displayName: "Data Settings",
-          settingsGroups: {
-              "all": {
-                  chart_type: {
-                      displayName: "Chart Type",
-                      type: "Dropdown",
-                      default: "i",
-                      valid: ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"],
-                      items: [
-                          { displayName: "run - Run Chart", value: "run" },
-                          { displayName: "i - Individual Measurements", value: "i" },
-                          { displayName: "i_m - Individual Measurements: Median centerline", value: "i_m" },
-                          { displayName: "i_mm - Individual Measurements: Median centerline, Median MR Limits", value: "i_mm" },
-                          { displayName: "mr - Moving Range of Individual Measurements", value: "mr" },
-                          { displayName: "p - Proportions", value: "p" },
-                          { displayName: "p prime - Proportions: Large-Sample Corrected", value: "pp" },
-                          { displayName: "u - Rates", value: "u" },
-                          { displayName: "u prime - Rates: Large-Sample Correction", value: "up" },
-                          { displayName: "c - Counts", value: "c" },
-                          { displayName: "xbar - Sample Means", value: "xbar" },
-                          { displayName: "s - Sample SDs", value: "s" },
-                          { displayName: "g - Number of Non-Events Between Events", value: "g" },
-                          { displayName: "t - Time Between Events", value: "t" }
-                      ]
-                  },
-                  outliers_in_limits: {
-                      displayName: "Keep Outliers in Limit Calcs.",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  multiplier: {
-                      displayName: "Multiplier",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 } }
-                  },
-                  sig_figs: {
-                      displayName: "Decimals to Report:",
-                      type: "NumUpDown",
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 20 } }
-                  },
-                  perc_labels: {
-                      displayName: "Report as percentage",
-                      type: "Dropdown",
-                      default: "Automatic",
-                      valid: ["Automatic", "Yes", "No"],
-                      items: [
-                          { displayName: "Automatic", value: "Automatic" },
-                          { displayName: "Yes", value: "Yes" },
-                          { displayName: "No", value: "No" }
-                      ]
-                  },
-                  split_on_click: {
-                      displayName: "Split Limits on Click",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  num_points_subset: {
-                      displayName: "Subset Number of Points for Limit Calculations",
-                      type: "NumUpDown",
-                      default: null
-                  },
-                  subset_points_from: {
-                      displayName: "Subset Points From",
-                      type: "Dropdown",
-                      default: "Start",
-                      valid: ["Start", "End"],
-                      items: [
-                          { displayName: "Start", value: "Start" },
-                          { displayName: "End", value: "End" }
-                      ]
-                  },
-                  ttip_show_date: {
-                      displayName: "Show Date in Tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_date: {
-                      displayName: "Date Tooltip Label",
-                      type: "TextInput",
-                      default: "Automatic"
-                  },
-                  ttip_show_numerator: {
-                      displayName: "Show Numerator in Tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_numerator: {
-                      displayName: "Numerator Tooltip Label",
-                      type: "TextInput",
-                      default: "Numerator"
-                  },
-                  ttip_show_denominator: {
-                      displayName: "Show Denominator in Tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_denominator: {
-                      displayName: "Denominator Tooltip Label",
-                      type: "TextInput",
-                      default: "Denominator"
-                  },
-                  ttip_show_value: {
-                      displayName: "Show Value in Tooltip",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ttip_label_value: {
-                      displayName: "Value Tooltip Label",
-                      type: "TextInput",
-                      default: "Automatic"
-                  },
-                  ll_truncate: {
-                      displayName: "Truncate Lower Limits at:",
-                      type: "NumUpDown",
-                      default: null
-                  },
-                  ul_truncate: {
-                      displayName: "Truncate Upper Limits at:",
-                      type: "NumUpDown",
-                      default: null
-                  }
-              }
-          }
-      },
-      outliers: {
-          description: "Outlier Settings",
-          displayName: "Outlier Settings",
-          settingsGroups: {
-              "General": {
-                  process_flag_type: {
-                      displayName: "Type of Change to Flag",
-                      type: "Dropdown",
-                      default: "both",
-                      valid: ["both", "improvement", "deterioration"],
-                      items: [
-                          { displayName: "Both", value: "both" },
-                          { displayName: "Improvement (Imp.)", value: "improvement" },
-                          { displayName: "Deterioration (Det.)", value: "deterioration" }
-                      ]
-                  },
-                  improvement_direction: {
-                      displayName: "Improvement Direction",
-                      type: "Dropdown",
-                      default: "increase",
-                      valid: ["increase", "neutral", "decrease"],
-                      items: [
-                          { displayName: "Increase", value: "increase" },
-                          { displayName: "Neutral", value: "neutral" },
-                          { displayName: "Decrease", value: "decrease" }
-                      ]
-                  }
+  const lineOptions = {
+      type: {
+          valid: ["10 0", "10 10", "2 5"],
+          items: [
+              { displayName: "Solid", value: "10 0" },
+              { displayName: "Dashed", value: "10 10" },
+              { displayName: "Dotted", value: "2 5" }
+          ]
+      }
+  };
+
+  const outliersSettings = {
+      description: "Outlier Settings",
+      displayName: "Outlier Settings",
+      settingsGroups: {
+          "General": {
+              process_flag_type: {
+                  displayName: "Type of Change to Flag",
+                  type: "Dropdown",
+                  default: "both",
+                  valid: ["both", "improvement", "deterioration"],
+                  items: [
+                      { displayName: "Both", value: "both" },
+                      { displayName: "Improvement (Imp.)", value: "improvement" },
+                      { displayName: "Deterioration (Det.)", value: "deterioration" }
+                  ]
               },
-              "Astronomical Points": Object.assign({ astronomical: {
-                      displayName: "Highlight Astronomical Points",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, astronomical_limit: {
-                      displayName: "Limit for Astronomical Points",
-                      type: "Dropdown",
-                      default: "3 Sigma",
-                      valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"],
-                      items: [
-                          { displayName: "1 Sigma", value: "1 Sigma" },
-                          { displayName: "2 Sigma", value: "2 Sigma" },
-                          { displayName: "3 Sigma", value: "3 Sigma" },
-                          { displayName: "Specification", value: "Specification" }
-                      ]
-                  } }, createOutlierColours("ast", defaultColours)),
-              "Shifts": Object.assign({ shift: {
-                      displayName: "Highlight Shifts",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, shift_n: {
-                      displayName: "Shift Points",
-                      type: "NumUpDown",
-                      default: 7,
-                      options: { minValue: { value: 1 } }
-                  } }, createOutlierColours("shift", defaultColours)),
-              "Trends": Object.assign({ trend: {
-                      displayName: "Highlight Trends",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, trend_n: {
-                      displayName: "Trend Points",
-                      type: "NumUpDown",
-                      default: 5,
-                      options: { minValue: { value: 1 } }
-                  } }, createOutlierColours("trend", defaultColours)),
-              "Two-In-Three": Object.assign({ two_in_three: {
-                      displayName: "Highlight Two-in-Three",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, two_in_three_highlight_series: {
-                      displayName: "Highlight all in Pattern",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, two_in_three_limit: {
-                      displayName: "Warning Limit for Two-in-Three",
-                      type: "Dropdown",
-                      default: "2 Sigma",
-                      valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"],
-                      items: [
-                          { displayName: "1 Sigma", value: "1 Sigma" },
-                          { displayName: "2 Sigma", value: "2 Sigma" },
-                          { displayName: "3 Sigma", value: "3 Sigma" },
-                          { displayName: "Specification", value: "Specification" }
-                      ]
-                  } }, createOutlierColours("twointhree", defaultColours))
-          }
-      },
-      nhs_icons: {
-          description: "NHS Icons Settings",
-          displayName: "NHS Icons Settings",
-          settingsGroups: {
-              "all": {
-                  show_variation_icons: {
-                      displayName: "Show Variation Icons",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  flag_last_point: {
-                      displayName: "Flag Only Last Point",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  variation_icons_locations: {
-                      displayName: "Variation Icon Locations",
-                      type: "Dropdown",
-                      default: "Top Right",
-                      valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"],
-                      items: [
-                          { displayName: "Top Right", value: "Top Right" },
-                          { displayName: "Bottom Right", value: "Bottom Right" },
-                          { displayName: "Top Left", value: "Top Left" },
-                          { displayName: "Bottom Left", value: "Bottom Left" }
-                      ]
-                  },
-                  variation_icons_scaling: {
-                      displayName: "Scale Variation Icon Size",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 } }
-                  },
-                  show_assurance_icons: {
-                      displayName: "Show Assurance Icons",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  assurance_icons_locations: {
-                      displayName: "Assurance Icon Locations",
-                      type: "Dropdown",
-                      default: "Top Right",
-                      valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"],
-                      items: [
-                          { displayName: "Top Right", value: "Top Right" },
-                          { displayName: "Bottom Right", value: "Bottom Right" },
-                          { displayName: "Top Left", value: "Top Left" },
-                          { displayName: "Bottom Left", value: "Bottom Left" }
-                      ]
-                  },
-                  assurance_icons_scaling: {
-                      displayName: "Scale Assurance Icon Size",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 } }
-                  }
+              improvement_direction: {
+                  displayName: "Improvement Direction",
+                  type: "Dropdown",
+                  default: "increase",
+                  valid: ["increase", "neutral", "decrease"],
+                  items: [
+                      { displayName: "Increase", value: "increase" },
+                      { displayName: "Neutral", value: "neutral" },
+                      { displayName: "Decrease", value: "decrease" }
+                  ]
               }
-          }
-      },
-      scatter: {
-          description: "Scatter Settings",
-          displayName: "Scatter Settings",
-          settingsGroups: {
-              "all": {
-                  show_dots: {
-                      displayName: "Show Scatter",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  shape: {
-                      displayName: "Shape",
-                      type: "Dropdown",
-                      default: "Circle",
-                      valid: ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"],
-                      items: [
-                          { displayName: "Circle", value: "Circle" },
-                          { displayName: "Cross", value: "Cross" },
-                          { displayName: "Diamond", value: "Diamond" },
-                          { displayName: "Square", value: "Square" },
-                          { displayName: "Star", value: "Star" },
-                          { displayName: "Triangle", value: "Triangle" },
-                          { displayName: "Wye", value: "Wye" }
-                      ]
-                  },
-                  size: {
-                      displayName: "Size",
-                      type: "NumUpDown",
-                      default: 2.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  colour: {
-                      displayName: "Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.common_cause
-                  },
-                  colour_outline: {
-                      displayName: "Outline Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.common_cause
-                  },
-                  width_outline: {
-                      displayName: "Outline Width",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  opacity: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_selected: {
-                      displayName: "Opacity if Selected",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected: {
-                      displayName: "Opacity if Unselected",
-                      type: "NumUpDown",
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  }
-              }
-          }
-      },
-      lines: {
-          description: "Line Settings",
-          displayName: "Line Settings",
-          settingsGroups: {
-              "Main": createSingleLineSettings("main", "Main Line", {
-                  show: true,
-                  width: 1,
-                  type: "10 0",
-                  colour: defaultColours.common_cause,
-                  opacity: 1,
-                  opacity_unselected: 0.2
-              }, false),
-              "Target": createSingleLineSettings("target", "Target", {
-                  show: true,
-                  width: 1.5,
-                  type: "10 0",
-                  colour: defaultColours.standard,
-                  opacity: 1,
-                  opacity_unselected: 0.2,
-                  tooltip_label: "Centerline"
-              }, true),
-              "Alt. Target": Object.assign({ show_alt_target: {
-                      displayName: "Show Alt. Target Line",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, alt_target: {
-                      displayName: "Additional Target Value:",
-                      type: "NumUpDown",
-                      default: null
-                  }, multiplier_alt_target: {
-                      displayName: "Apply Multiplier to Alt. Target",
-                      type: "ToggleSwitch",
-                      default: false
-                  } }, createSingleLineSettings("alt_target", "Alt. Target", {
-                  show: false,
-                  width: 1.5,
-                  type: "10 0",
-                  colour: defaultColours.standard,
-                  opacity: 1,
-                  opacity_unselected: 0.2,
-                  tooltip_label: "Alt. Target"
-              }, true)),
-              "68% Limits": createLimitLineSettings("68", "68%", {
-                  show: false,
-                  width: 2,
-                  type: "2 5",
-                  colour: defaultColours.limits,
-                  opacity: 1,
-                  opacity_unselected: 0.2
-              }, true),
-              "95% Limits": createLimitLineSettings("95", "95%", {
-                  show: true,
-                  width: 2,
-                  type: "2 5",
-                  colour: defaultColours.limits,
-                  opacity: 1,
-                  opacity_unselected: 0.2
-              }, true),
-              "99% Limits": createLimitLineSettings("99", "99%", {
-                  show: true,
-                  width: 2,
-                  type: "10 10",
-                  colour: defaultColours.limits,
-                  opacity: 1,
-                  opacity_unselected: 0.2
-              }, true),
-              "Specification Limits": Object.assign({ show_specification: {
-                      displayName: "Show Specification Lines",
-                      type: "ToggleSwitch",
-                      default: false
-                  }, specification_upper: {
-                      displayName: "Upper Specification Limit:",
-                      type: "NumUpDown",
-                      default: null
-                  }, specification_lower: {
-                      displayName: "Lower Specification Limit:",
-                      type: "NumUpDown",
-                      default: null
-                  }, multiplier_specification: {
-                      displayName: "Apply Multiplier to Specification Limits",
-                      type: "ToggleSwitch",
-                      default: false
-                  } }, createLimitLineSettings("specification", "specification", {
-                  show: false,
-                  width: 2,
-                  type: "10 10",
-                  colour: defaultColours.limits,
-                  opacity: 1,
-                  opacity_unselected: 0.2
-              }, true)),
-              "Trend": createSingleLineSettings("trend", "Trend", {
-                  show: false,
-                  width: 1.5,
-                  type: "10 0",
-                  colour: defaultColours.common_cause,
-                  opacity: 1,
-                  opacity_unselected: 0.2,
-                  tooltip_label: "Centerline"
-              }, true)
-          }
-      },
-      x_axis: {
-          description: "X Axis Settings",
-          displayName: "X Axis Settings",
-          settingsGroups: {
-              "Axis": {
-                  xlimit_show: {
-                      displayName: "Show X Axis",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  xlimit_colour: {
-                      displayName: "Axis Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  xlimit_l: {
-                      displayName: "Lower Limit",
-                      type: "NumUpDown",
-                      default: null
-                  },
-                  xlimit_u: {
-                      displayName: "Upper Limit",
-                      type: "NumUpDown",
-                      default: null
-                  }
+          },
+          "Astronomical Points": {
+              astronomical: {
+                  displayName: "Highlight Astronomical Points",
+                  type: "ToggleSwitch",
+                  default: false
               },
-              "Ticks": {
-                  xlimit_ticks: {
-                      displayName: "Draw Ticks",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  xlimit_tick_count: {
-                      displayName: "Maximum Ticks",
-                      type: "NumUpDown",
-                      default: 10,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  xlimit_tick_font: fontPicker("Tick Font", textOptions.font.default),
-                  xlimit_tick_size: fontSize("Tick Font Size", textOptions.size.default),
-                  xlimit_tick_colour: {
-                      displayName: "Tick Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  xlimit_tick_rotation: {
-                      displayName: "Tick Rotation (Degrees)",
-                      type: "NumUpDown",
-                      default: -35,
-                      options: { minValue: { value: -360 }, maxValue: { value: 360 } }
-                  }
+              astronomical_limit: {
+                  displayName: "Limit for Astronomical Points",
+                  type: "Dropdown",
+                  default: "3 Sigma",
+                  valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"],
+                  items: [
+                      { displayName: "1 Sigma", value: "1 Sigma" },
+                      { displayName: "2 Sigma", value: "2 Sigma" },
+                      { displayName: "3 Sigma", value: "3 Sigma" },
+                      { displayName: "Specification", value: "Specification" }
+                  ]
               },
-              "Label": {
-                  xlimit_label: {
-                      displayName: "Label",
-                      type: "TextInput",
-                      default: null
-                  },
-                  xlimit_label_font: fontPicker("Label Font", textOptions.font.default),
-                  xlimit_label_size: fontSize("Label Font Size", textOptions.size.default),
-                  xlimit_label_colour: {
-                      displayName: "Label Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  }
-              }
-          }
-      },
-      y_axis: {
-          description: "Y Axis Settings",
-          displayName: "Y Axis Settings",
-          settingsGroups: {
-              "Axis": {
-                  ylimit_show: {
-                      displayName: "Show Y Axis",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ylimit_colour: {
-                      displayName: "Axis Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  limit_multiplier: {
-                      displayName: "Axis Scaling Factor",
-                      type: "NumUpDown",
-                      default: 1.5,
-                      options: { minValue: { value: 0 } }
-                  },
-                  ylimit_sig_figs: {
-                      displayName: "Tick Decimal Places",
-                      type: "NumUpDown",
-                      default: null,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  ylimit_l: {
-                      displayName: "Lower Limit",
-                      type: "NumUpDown",
-                      default: null
-                  },
-                  ylimit_u: {
-                      displayName: "Upper Limit",
-                      type: "NumUpDown",
-                      default: null
-                  }
+              ast_colour_improvement: {
+                  displayName: "Imp. Ast. Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.improvement
               },
-              "Ticks": {
-                  ylimit_ticks: {
-                      displayName: "Draw Ticks",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  ylimit_tick_count: {
-                      displayName: "Maximum Ticks",
-                      type: "NumUpDown",
-                      default: 10,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  ylimit_tick_font: fontPicker("Tick Font", textOptions.font.default),
-                  ylimit_tick_size: fontSize("Tick Font Size", textOptions.size.default),
-                  ylimit_tick_colour: {
-                      displayName: "Tick Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  ylimit_tick_rotation: {
-                      displayName: "Tick Rotation (Degrees)",
-                      type: "NumUpDown",
-                      default: 0,
-                      options: { minValue: { value: -360 }, maxValue: { value: 360 } }
-                  }
+              ast_colour_deterioration: {
+                  displayName: "Det. Ast. Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.deterioration
               },
-              "Label": {
-                  ylimit_label: {
-                      displayName: "Label",
-                      type: "TextInput",
-                      default: null
-                  },
-                  ylimit_label_font: fontPicker("Label Font", textOptions.font.default),
-                  ylimit_label_size: fontSize("Label Font Size", textOptions.size.default),
-                  ylimit_label_colour: {
-                      displayName: "Label Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  }
-              }
-          }
-      },
-      dates: {
-          description: "Date Settings",
-          displayName: "Date Settings",
-          settingsGroups: {
-              "all": {
-                  date_format_day: {
-                      displayName: "Day Format",
-                      type: "Dropdown",
-                      default: "DD",
-                      valid: ["DD", "Thurs DD", "Thursday DD", "(blank)"],
-                      items: [
-                          { displayName: "DD", value: "DD" },
-                          { displayName: "Thurs DD", value: "Thurs DD" },
-                          { displayName: "Thursday DD", value: "Thursday DD" },
-                          { displayName: "(blank)", value: "(blank)" }
-                      ]
-                  },
-                  date_format_month: {
-                      displayName: "Month Format",
-                      type: "Dropdown",
-                      default: "MM",
-                      valid: ["MM", "Mon", "Month", "(blank)"],
-                      items: [
-                          { displayName: "MM", value: "MM" },
-                          { displayName: "Mon", value: "Mon" },
-                          { displayName: "Month", value: "Month" },
-                          { displayName: "(blank)", value: "(blank)" }
-                      ]
-                  },
-                  date_format_year: {
-                      displayName: "Year Format",
-                      type: "Dropdown",
-                      default: "YYYY",
-                      valid: ["YYYY", "YY", "(blank)"],
-                      items: [
-                          { displayName: "YYYY", value: "YYYY" },
-                          { displayName: "YY", value: "YY" },
-                          { displayName: "(blank)", value: "(blank)" }
-                      ]
-                  },
-                  date_format_delim: {
-                      displayName: "Delimiter",
-                      type: "Dropdown",
-                      default: "/",
-                      valid: ["/", "-", " "],
-                      items: [
-                          { displayName: "/", value: "/" },
-                          { displayName: "-", value: "-" },
-                          { displayName: " ", value: " " }
-                      ]
-                  },
-                  date_format_locale: {
-                      displayName: "Locale",
-                      type: "Dropdown",
-                      default: "en-GB",
-                      valid: ["en-GB", "en-US"],
-                      items: [
-                          { displayName: "en-GB", value: "en-GB" },
-                          { displayName: "en-US", value: "en-US" }
-                      ]
-                  }
-              }
-          }
-      },
-      summary_table: {
-          description: "Summary Table Settings",
-          displayName: "Summary Table Settings",
-          settingsGroups: {
-              "General": {
-                  show_table: {
-                      displayName: "Show Summary Table",
-                      type: "ToggleSwitch",
-                      default: false
-                  },
-                  table_variation_filter: {
-                      displayName: "Filter by Variation Type",
-                      type: "Dropdown",
-                      default: "all",
-                      valid: ["all", "common", "special", "improvement", "deterioration", "neutral"],
-                      items: [
-                          { displayName: "All", value: "all" },
-                          { displayName: "Common Cause", value: "common" },
-                          { displayName: "Special Cause - Any", value: "special" },
-                          { displayName: "Special Cause - Improvement", value: "improvement" },
-                          { displayName: "Special Cause - Deterioration", value: "deterioration" },
-                          { displayName: "Special Cause - Neutral", value: "neutral" }
-                      ]
-                  },
-                  table_assurance_filter: {
-                      displayName: "Filter by Assurance Type",
-                      type: "Dropdown",
-                      default: "all",
-                      valid: ["all", "any", "pass", "fail", "inconsistent"],
-                      items: [
-                          { displayName: "All", value: "all" },
-                          { displayName: "Consistent - Any", value: "any" },
-                          { displayName: "Consistent Pass", value: "pass" },
-                          { displayName: "Consistent Fail", value: "fail" },
-                          { displayName: "Inconsistent", value: "inconsistent" }
-                      ]
-                  },
-                  table_text_overflow: {
-                      displayName: "Text Overflow Handling",
-                      type: "Dropdown",
-                      default: textOptions.text_overflow.default,
-                      valid: textOptions.text_overflow.valid,
-                      items: [
-                          { displayName: "Ellipsis", value: "ellipsis" },
-                          { displayName: "Truncate", value: "clip" },
-                          { displayName: "None", value: "none" }
-                      ]
-                  },
-                  table_opacity: opacity("Default Opacity", 1),
-                  table_opacity_selected: opacity("Opacity if Selected", 1),
-                  table_opacity_unselected: opacity("Opacity if Unselected", 0.2),
-                  table_outer_border_style: {
-                      displayName: "Outer Border Style",
-                      type: "Dropdown",
-                      default: borderOptions.style.default,
-                      valid: borderOptions.style.valid,
-                      items: BORDER_STYLE_ITEMS
-                  },
-                  table_outer_border_width: {
-                      displayName: "Outer Border Width",
-                      type: "NumUpDown",
-                      default: borderOptions.width.default,
-                      options: borderOptions.width.options
-                  },
-                  table_outer_border_colour: {
-                      displayName: "Outer Border Colour",
-                      type: "ColorPicker",
-                      default: borderOptions.colour.default,
-                  },
-                  table_outer_border_top: {
-                      displayName: "Outer Border Top",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  table_outer_border_bottom: {
-                      displayName: "Outer Border Bottom",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  table_outer_border_left: {
-                      displayName: "Outer Border Left",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  table_outer_border_right: {
-                      displayName: "Outer Border Right",
-                      type: "ToggleSwitch",
-                      default: true
-                  }
+              ast_colour_neutral_low: {
+                  displayName: "Neutral (Low) Ast. Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_low
               },
-              "Header": {
-                  table_header_font: fontPicker("Header Font", textOptions.font.default),
-                  table_header_size: fontSize("Header Font Size", textOptions.size.default),
-                  table_header_text_align: {
-                      displayName: "Text Alignment",
-                      type: "AlignmentGroup",
-                      default: textOptions.text_align.default,
-                      valid: textOptions.text_align.valid
-                  },
-                  table_header_font_weight: {
-                      displayName: "Header Font Weight",
-                      type: "Dropdown",
-                      default: textOptions.weight.default,
-                      valid: textOptions.weight.valid,
-                      items: [
-                          { displayName: "Normal", value: "normal" },
-                          { displayName: "Bold", value: "bold" }
-                      ]
-                  },
-                  table_header_text_transform: {
-                      displayName: "Header Text Transform",
-                      type: "Dropdown",
-                      default: textOptions.text_transform.default,
-                      valid: textOptions.text_transform.valid,
-                      items: [
-                          { displayName: "Uppercase", value: "uppercase" },
-                          { displayName: "Lowercase", value: "lowercase" },
-                          { displayName: "Capitalise", value: "capitalize" },
-                          { displayName: "None", value: "none" }
-                      ]
-                  },
-                  table_header_text_padding: {
-                      displayName: "Padding Around Text",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  table_header_colour: {
-                      displayName: "Header Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  table_header_bg_colour: {
-                      displayName: "Header Background Colour",
-                      type: "ColorPicker",
-                      default: "#D3D3D3"
-                  },
-                  table_header_border_style: {
-                      displayName: "Header Border Style",
-                      type: "Dropdown",
-                      default: borderOptions.style.default,
-                      valid: borderOptions.style.valid,
-                      items: BORDER_STYLE_ITEMS
-                  },
-                  table_header_border_width: {
-                      displayName: "Header Border Width",
-                      type: "NumUpDown",
-                      default: borderOptions.width.default,
-                      options: borderOptions.width.options
-                  },
-                  table_header_border_colour: {
-                      displayName: "Header Border Colour",
-                      type: "ColorPicker",
-                      default: borderOptions.colour.default,
-                  },
-                  table_header_border_bottom: {
-                      displayName: "Bottom Border",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  table_header_border_inner: {
-                      displayName: "Inner Borders",
-                      type: "ToggleSwitch",
-                      default: true
-                  }
+              ast_colour_neutral_high: {
+                  displayName: "Neutral (High) Ast. Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_high
+              }
+          },
+          "Shifts": {
+              shift: {
+                  displayName: "Highlight Shifts",
+                  type: "ToggleSwitch",
+                  default: false
               },
-              "Body": {
-                  table_body_font: fontPicker("Body Font", textOptions.font.default),
-                  table_body_size: fontSize("Body Font Size", textOptions.size.default),
-                  table_body_text_align: {
-                      displayName: "Text Alignment",
-                      type: "AlignmentGroup",
-                      default: textOptions.text_align.default,
-                      valid: textOptions.text_align.valid
-                  },
-                  table_body_font_weight: {
-                      displayName: "Font Weight",
-                      type: "Dropdown",
-                      default: textOptions.weight.default,
-                      valid: textOptions.weight.valid,
-                      items: [
-                          { displayName: "Normal", value: "normal" },
-                          { displayName: "Bold", value: "bold" }
-                      ]
-                  },
-                  table_body_text_transform: {
-                      displayName: "Text Transform",
-                      type: "Dropdown",
-                      default: textOptions.text_transform.default,
-                      valid: textOptions.text_transform.valid,
-                      items: [
-                          { displayName: "Uppercase", value: "uppercase" },
-                          { displayName: "Lowercase", value: "lowercase" },
-                          { displayName: "Capitalise", value: "capitalize" },
-                          { displayName: "None", value: "none" }
-                      ]
-                  },
-                  table_body_text_padding: {
-                      displayName: "Padding Around Text",
-                      type: "NumUpDown",
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  table_body_colour: {
-                      displayName: "Body Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  table_body_bg_colour: {
-                      displayName: "Body Background Colour",
-                      type: "ColorPicker",
-                      default: "#FFFFFF"
-                  },
-                  table_body_border_style: {
-                      displayName: "Body Border Style",
-                      type: "Dropdown",
-                      default: borderOptions.style.default,
-                      valid: borderOptions.style.valid,
-                      items: BORDER_STYLE_ITEMS
-                  },
-                  table_body_border_width: {
-                      displayName: "Body Border Width",
-                      type: "NumUpDown",
-                      default: borderOptions.width.default,
-                      options: borderOptions.width.options
-                  },
-                  table_body_border_colour: {
-                      displayName: "Body Border Colour",
-                      type: "ColorPicker",
-                      default: borderOptions.colour.default,
-                  },
-                  table_body_border_top_bottom: {
-                      displayName: "Top/Bottom Borders",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  table_body_border_left_right: {
-                      displayName: "Left/Right Borders",
-                      type: "ToggleSwitch",
-                      default: true
-                  }
+              shift_n: {
+                  displayName: "Shift Points",
+                  type: "NumUpDown",
+                  default: 7,
+                  options: { minValue: { value: 1 } }
+              },
+              shift_colour_improvement: {
+                  displayName: "Imp. Shift Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.improvement
+              },
+              shift_colour_deterioration: {
+                  displayName: "Det. Shift Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.deterioration
+              },
+              shift_colour_neutral_low: {
+                  displayName: "Neutral (Low) Shift Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_low
+              },
+              shift_colour_neutral_high: {
+                  displayName: "Neutral (High) Shift Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_high
               }
-          }
-      },
-      download_options: {
-          description: "Download Options",
-          displayName: "Download Options",
-          settingsGroups: {
-              "all": {
-                  show_button: {
-                      displayName: "Show Download Button",
-                      type: "ToggleSwitch",
-                      default: false
-                  }
+          },
+          "Trends": {
+              trend: {
+                  displayName: "Highlight Trends",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              trend_n: {
+                  displayName: "Trend Points",
+                  type: "NumUpDown",
+                  default: 5,
+                  options: { minValue: { value: 1 } }
+              },
+              trend_colour_improvement: {
+                  displayName: "Imp. Trend Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.improvement
+              },
+              trend_colour_deterioration: {
+                  displayName: "Det. Trend Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.deterioration
+              },
+              trend_colour_neutral_low: {
+                  displayName: "Neutral (Low) Trend Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_low
+              },
+              trend_colour_neutral_high: {
+                  displayName: "Neutral (High) Trend Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_high
               }
-          }
-      },
-      labels: {
-          description: "Labels Settings",
-          displayName: "Labels Settings",
-          settingsGroups: {
-              "all": {
-                  show_labels: {
-                      displayName: "Show Value Labels",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  label_position: {
-                      displayName: "Label Position",
-                      type: "Dropdown",
-                      default: "top",
-                      valid: ["top", "bottom"],
-                      items: [
-                          { displayName: "Top", value: "top" },
-                          { displayName: "Bottom", value: "bottom" }
-                      ]
-                  },
-                  label_y_offset: {
-                      displayName: "Label Offset from Top/Bottom (px)",
-                      type: "NumUpDown",
-                      default: 20
-                  },
-                  label_line_offset: {
-                      displayName: "Label Offset from Connecting Line (px)",
-                      type: "NumUpDown",
-                      default: 5
-                  },
-                  label_angle_offset: {
-                      displayName: "Label Angle Offset (degrees)",
-                      type: "NumUpDown",
-                      default: 0,
-                      options: { minValue: { value: -90 }, maxValue: { value: 90 } }
-                  },
-                  label_font: fontPicker("Label Font", textOptions.font.default),
-                  label_size: fontSize("Label Font Size", textOptions.size.default),
-                  label_colour: {
-                      displayName: "Label Font Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  label_line_colour: {
-                      displayName: "Connecting Line Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  label_line_width: lineWidth("Connecting Line Width", 1),
-                  label_line_type: lineType("Connecting Line Type", "10 0"),
-                  label_line_max_length: {
-                      displayName: "Max Connecting Line Length (px)",
-                      type: "NumUpDown",
-                      default: 1000,
-                      options: { minValue: { value: 0 }, maxValue: { value: 10000 } }
-                  },
-                  label_marker_show: {
-                      displayName: "Show Line Markers",
-                      type: "ToggleSwitch",
-                      default: true
-                  },
-                  label_marker_offset: {
-                      displayName: "Marker Offset from Value (px)",
-                      type: "NumUpDown",
-                      default: 5
-                  },
-                  label_marker_size: {
-                      displayName: "Marker Size",
-                      type: "NumUpDown",
-                      default: 3,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  label_marker_colour: {
-                      displayName: "Marker Fill Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  },
-                  label_marker_outline_colour: {
-                      displayName: "Marker Outline Colour",
-                      type: "ColorPicker",
-                      default: defaultColours.standard
-                  }
+          },
+          "Two-In-Three": {
+              two_in_three: {
+                  displayName: "Highlight Two-in-Three",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              two_in_three_highlight_series: {
+                  displayName: "Highlight all in Pattern",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              two_in_three_limit: {
+                  displayName: "Warning Limit for Two-in-Three",
+                  type: "Dropdown",
+                  default: "2 Sigma",
+                  valid: ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"],
+                  items: [
+                      { displayName: "1 Sigma", value: "1 Sigma" },
+                      { displayName: "2 Sigma", value: "2 Sigma" },
+                      { displayName: "3 Sigma", value: "3 Sigma" },
+                      { displayName: "Specification", value: "Specification" }
+                  ]
+              },
+              twointhree_colour_improvement: {
+                  displayName: "Imp. Two-in-Three Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.improvement
+              },
+              twointhree_colour_deterioration: {
+                  displayName: "Det. Two-in-Three Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.deterioration
+              },
+              twointhree_colour_neutral_low: {
+                  displayName: "Neutral (Low) Two-in-Three Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_low
+              },
+              twointhree_colour_neutral_high: {
+                  displayName: "Neutral (High) Two-in-Three Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.neutral_high
               }
           }
       }
   };
-  const defaultSettingsArray = [];
-  for (const key in settingsModel) {
-      const curr_card = [];
-      for (const group in settingsModel[key].settingsGroups) {
-          for (const setting in settingsModel[key].settingsGroups[group]) {
-              curr_card.push([setting, settingsModel[key].settingsGroups[group][setting]]);
+
+  const nhsIconsSettings = {
+      description: "NHS Icons Settings",
+      displayName: "NHS Icons Settings",
+      settingsGroups: {
+          "all": {
+              show_variation_icons: {
+                  displayName: "Show Variation Icons",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              flag_last_point: {
+                  displayName: "Flag Only Last Point",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              variation_icons_locations: {
+                  displayName: "Variation Icon Locations",
+                  type: "Dropdown",
+                  default: "Top Right",
+                  valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"],
+                  items: [
+                      { displayName: "Top Right", value: "Top Right" },
+                      { displayName: "Bottom Right", value: "Bottom Right" },
+                      { displayName: "Top Left", value: "Top Left" },
+                      { displayName: "Bottom Left", value: "Bottom Left" }
+                  ]
+              },
+              variation_icons_scaling: {
+                  displayName: "Scale Variation Icon Size",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 } }
+              },
+              show_assurance_icons: {
+                  displayName: "Show Assurance Icons",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              assurance_icons_locations: {
+                  displayName: "Assurance Icon Locations",
+                  type: "Dropdown",
+                  default: "Top Right",
+                  valid: ["Top Right", "Bottom Right", "Top Left", "Bottom Left"],
+                  items: [
+                      { displayName: "Top Right", value: "Top Right" },
+                      { displayName: "Bottom Right", value: "Bottom Right" },
+                      { displayName: "Top Left", value: "Top Left" },
+                      { displayName: "Bottom Left", value: "Bottom Left" }
+                  ]
+              },
+              assurance_icons_scaling: {
+                  displayName: "Scale Assurance Icon Size",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 } }
+              }
           }
       }
-      defaultSettingsArray.push([key, Object.fromEntries(curr_card)]);
+  };
+
+  const scatterSettings = {
+      description: "Scatter Settings",
+      displayName: "Scatter Settings",
+      settingsGroups: {
+          "all": {
+              show_dots: {
+                  displayName: "Show Scatter",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              shape: {
+                  displayName: "Shape",
+                  type: "Dropdown",
+                  default: "Circle",
+                  valid: ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"],
+                  items: [
+                      { displayName: "Circle", value: "Circle" },
+                      { displayName: "Cross", value: "Cross" },
+                      { displayName: "Diamond", value: "Diamond" },
+                      { displayName: "Square", value: "Square" },
+                      { displayName: "Star", value: "Star" },
+                      { displayName: "Triangle", value: "Triangle" },
+                      { displayName: "Wye", value: "Wye" }
+                  ]
+              },
+              size: {
+                  displayName: "Size",
+                  type: "NumUpDown",
+                  default: 2.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              colour: {
+                  displayName: "Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.common_cause
+              },
+              colour_outline: {
+                  displayName: "Outline Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.common_cause
+              },
+              width_outline: {
+                  displayName: "Outline Width",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              opacity: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_selected: {
+                  displayName: "Opacity if Selected",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected: {
+                  displayName: "Opacity if Unselected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              }
+          }
+      }
+  };
+
+  const linesSettings = {
+      description: "Line Settings",
+      displayName: "Line Settings",
+      settingsGroups: {
+          "Main": {
+              show_main: {
+                  displayName: "Show Main Line",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              width_main: {
+                  displayName: "Main Line Width",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_main: {
+                  displayName: "Main Line Type",
+                  type: "Dropdown",
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_main: {
+                  displayName: "Main Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.common_cause
+              },
+              opacity_main: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_main: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_main: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_main: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_main: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_main: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_main: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["above", "below", "beside"],
+                  items: [
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_main: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_main: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_main: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_main: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_main: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_main: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "Target": {
+              show_target: {
+                  displayName: "Show Target",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              width_target: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 1.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_target: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_target: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              opacity_target: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_target: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_target: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_target: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_target: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "Centerline"
+              },
+              plot_label_show_target: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_target: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_target: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_target: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["above", "below", "beside"],
+                  items: [
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_target: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_target: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_target: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_target: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_target: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_target: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "Alt. Target": {
+              show_alt_target: {
+                  displayName: "Show Alt. Target Line",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              alt_target: {
+                  displayName: "Additional Target Value:",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              multiplier_alt_target: {
+                  displayName: "Apply Multiplier to Alt. Target",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              width_alt_target: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 1.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_alt_target: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_alt_target: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              opacity_alt_target: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_alt_target: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_alt_target: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_alt_target: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_alt_target: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "Alt. Target"
+              },
+              plot_label_show_alt_target: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_alt_target: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_alt_target: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_alt_target: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["above", "below", "beside"],
+                  items: [
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_alt_target: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_alt_target: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_alt_target: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_alt_target: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_alt_target: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_alt_target: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "68% Limits": {
+              show_68: {
+                  displayName: "Show 68% Lines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              width_68: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_68: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "2 5",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_68: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.limits
+              },
+              opacity_68: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_68: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_68: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_68: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_68: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "68% Limit"
+              },
+              ttip_label_68_prefix_lower: {
+                  displayName: "Tooltip Label - Lower Prefix",
+                  type: "TextInput",
+                  default: "Lower "
+              },
+              ttip_label_68_prefix_upper: {
+                  displayName: "Tooltip Label - Upper Prefix",
+                  type: "TextInput",
+                  default: "Upper "
+              },
+              plot_label_show_68: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_68: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_68: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_68: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_68: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_68: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_68: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_68: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_68: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_68: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "95% Limits": {
+              show_95: {
+                  displayName: "Show 95% Lines",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              width_95: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_95: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "2 5",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_95: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.limits
+              },
+              opacity_95: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_95: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_95: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_95: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_95: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "95% Limit"
+              },
+              ttip_label_95_prefix_lower: {
+                  displayName: "Tooltip Label - Lower Prefix",
+                  type: "TextInput",
+                  default: "Lower "
+              },
+              ttip_label_95_prefix_upper: {
+                  displayName: "Tooltip Label - Upper Prefix",
+                  type: "TextInput",
+                  default: "Upper "
+              },
+              plot_label_show_95: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_95: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_95: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_95: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_95: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_95: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_95: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_95: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_95: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_95: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "99% Limits": {
+              show_99: {
+                  displayName: "Show 99% Lines",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              width_99: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_99: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "10 10",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_99: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.limits
+              },
+              opacity_99: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_99: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_99: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_99: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_99: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "99% Limit"
+              },
+              ttip_label_99_prefix_lower: {
+                  displayName: "Tooltip Label - Lower Prefix",
+                  type: "TextInput",
+                  default: "Lower "
+              },
+              ttip_label_99_prefix_upper: {
+                  displayName: "Tooltip Label - Upper Prefix",
+                  type: "TextInput",
+                  default: "Upper "
+              },
+              plot_label_show_99: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_99: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_99: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_99: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_99: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_99: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_99: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_99: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_99: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_99: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "Specification Limits": {
+              show_specification: {
+                  displayName: "Show Specification Lines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              specification_upper: {
+                  displayName: "Upper Specification Limit:",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              specification_lower: {
+                  displayName: "Lower Specification Limit:",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              multiplier_specification: {
+                  displayName: "Apply Multiplier to Specification Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              width_specification: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_specification: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "10 10",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_specification: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.limits
+              },
+              opacity_specification: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_specification: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_specification: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_specification: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_specification: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "specification Limit"
+              },
+              ttip_label_specification_prefix_lower: {
+                  displayName: "Tooltip Label - Lower Prefix",
+                  type: "TextInput",
+                  default: "Lower "
+              },
+              ttip_label_specification_prefix_upper: {
+                  displayName: "Tooltip Label - Upper Prefix",
+                  type: "TextInput",
+                  default: "Upper "
+              },
+              plot_label_show_specification: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_specification: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_specification: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_specification: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_specification: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_specification: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_specification: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_specification: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_specification: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_specification: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          },
+          "Trend": {
+              show_trend: {
+                  displayName: "Show Trend",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              width_trend: {
+                  displayName: "Line Width",
+                  type: "NumUpDown",
+                  default: 1.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_trend: {
+                  displayName: "Line Type",
+                  type: "Dropdown",
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_trend: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.common_cause
+              },
+              opacity_trend: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_trend: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_trend: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              ttip_show_trend: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ttip_label_trend: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput",
+                  default: "Centerline"
+              },
+              plot_label_show_trend: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_all_trend: {
+                  displayName: "Show Value at all Re-Baselines",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              plot_label_show_n_trend: {
+                  displayName: "Show Value at Last N Re-Baselines",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 1 } }
+              },
+              plot_label_position_trend: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown",
+                  default: "beside",
+                  valid: ["above", "below", "beside"],
+                  items: [
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_trend: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown",
+                  default: 0
+              },
+              plot_label_hpad_trend: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown",
+                  default: 10
+              },
+              plot_label_font_trend: {
+                  displayName: "Value Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_trend: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_trend: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_trend: {
+                  displayName: "Value Prefix",
+                  type: "TextInput",
+                  default: ""
+              }
+          }
+      }
+  };
+
+  const xAxisSettings = {
+      description: "X Axis Settings",
+      displayName: "X Axis Settings",
+      settingsGroups: {
+          "Axis": {
+              xlimit_show: {
+                  displayName: "Show X Axis",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              xlimit_colour: {
+                  displayName: "Axis Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              xlimit_l: {
+                  displayName: "Lower Limit",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              xlimit_u: {
+                  displayName: "Upper Limit",
+                  type: "NumUpDown",
+                  default: undefined
+              }
+          },
+          "Ticks": {
+              xlimit_ticks: {
+                  displayName: "Draw Ticks",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              xlimit_tick_count: {
+                  displayName: "Maximum Ticks",
+                  type: "NumUpDown",
+                  default: 10,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              xlimit_tick_font: {
+                  displayName: "Tick Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              xlimit_tick_size: {
+                  displayName: "Tick Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              xlimit_tick_colour: {
+                  displayName: "Tick Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              xlimit_tick_rotation: {
+                  displayName: "Tick Rotation (Degrees)",
+                  type: "NumUpDown",
+                  default: -35,
+                  options: { minValue: { value: -360 }, maxValue: { value: 360 } }
+              }
+          },
+          "Label": {
+              xlimit_label: {
+                  displayName: "Label",
+                  type: "TextInput",
+                  default: undefined
+              },
+              xlimit_label_font: {
+                  displayName: "Label Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              xlimit_label_size: {
+                  displayName: "Label Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              xlimit_label_colour: {
+                  displayName: "Label Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              }
+          }
+      }
+  };
+
+  const yAxisSettings = {
+      description: "Y Axis Settings",
+      displayName: "Y Axis Settings",
+      settingsGroups: {
+          "Axis": {
+              ylimit_show: {
+                  displayName: "Show Y Axis",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ylimit_colour: {
+                  displayName: "Axis Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              limit_multiplier: {
+                  displayName: "Axis Scaling Factor",
+                  type: "NumUpDown",
+                  default: 1.5,
+                  options: { minValue: { value: 0 } }
+              },
+              ylimit_sig_figs: {
+                  displayName: "Tick Decimal Places",
+                  type: "NumUpDown",
+                  default: undefined,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              ylimit_l: {
+                  displayName: "Lower Limit",
+                  type: "NumUpDown",
+                  default: undefined
+              },
+              ylimit_u: {
+                  displayName: "Upper Limit",
+                  type: "NumUpDown",
+                  default: undefined
+              }
+          },
+          "Ticks": {
+              ylimit_ticks: {
+                  displayName: "Draw Ticks",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              ylimit_tick_count: {
+                  displayName: "Maximum Ticks",
+                  type: "NumUpDown",
+                  default: 10,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              ylimit_tick_font: {
+                  displayName: "Tick Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              ylimit_tick_size: {
+                  displayName: "Tick Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              ylimit_tick_colour: {
+                  displayName: "Tick Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              ylimit_tick_rotation: {
+                  displayName: "Tick Rotation (Degrees)",
+                  type: "NumUpDown",
+                  default: 0,
+                  options: { minValue: { value: -360 }, maxValue: { value: 360 } }
+              }
+          },
+          "Label": {
+              ylimit_label: {
+                  displayName: "Label",
+                  type: "TextInput",
+                  default: undefined
+              },
+              ylimit_label_font: {
+                  displayName: "Label Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              ylimit_label_size: {
+                  displayName: "Label Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              ylimit_label_colour: {
+                  displayName: "Label Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              }
+          }
+      }
+  };
+
+  const datesSettings = {
+      description: "Date Settings",
+      displayName: "Date Settings",
+      settingsGroups: {
+          "all": {
+              date_format_day: {
+                  displayName: "Day Format",
+                  type: "Dropdown",
+                  default: "DD",
+                  valid: ["DD", "Thurs DD", "Thursday DD", "(blank)"],
+                  items: [
+                      { displayName: "DD", value: "DD" },
+                      { displayName: "Thurs DD", value: "Thurs DD" },
+                      { displayName: "Thursday DD", value: "Thursday DD" },
+                      { displayName: "(blank)", value: "(blank)" }
+                  ]
+              },
+              date_format_month: {
+                  displayName: "Month Format",
+                  type: "Dropdown",
+                  default: "MM",
+                  valid: ["MM", "Mon", "Month", "(blank)"],
+                  items: [
+                      { displayName: "MM", value: "MM" },
+                      { displayName: "Mon", value: "Mon" },
+                      { displayName: "Month", value: "Month" },
+                      { displayName: "(blank)", value: "(blank)" }
+                  ]
+              },
+              date_format_year: {
+                  displayName: "Year Format",
+                  type: "Dropdown",
+                  default: "YYYY",
+                  valid: ["YYYY", "YY", "(blank)"],
+                  items: [
+                      { displayName: "YYYY", value: "YYYY" },
+                      { displayName: "YY", value: "YY" },
+                      { displayName: "(blank)", value: "(blank)" }
+                  ]
+              },
+              date_format_delim: {
+                  displayName: "Delimiter",
+                  type: "Dropdown",
+                  default: "/",
+                  valid: ["/", "-", " "],
+                  items: [
+                      { displayName: "/", value: "/" },
+                      { displayName: "-", value: "-" },
+                      { displayName: " ", value: " " }
+                  ]
+              },
+              date_format_locale: {
+                  displayName: "Locale",
+                  type: "Dropdown",
+                  default: "en-GB",
+                  valid: ["en-GB", "en-US"],
+                  items: [
+                      { displayName: "en-GB", value: "en-GB" },
+                      { displayName: "en-US", value: "en-US" }
+                  ]
+              }
+          }
+      }
+  };
+
+  const summaryTableSettings = {
+      description: "Summary Table Settings",
+      displayName: "Summary Table Settings",
+      settingsGroups: {
+          "General": {
+              show_table: {
+                  displayName: "Show Summary Table",
+                  type: "ToggleSwitch",
+                  default: false
+              },
+              table_variation_filter: {
+                  displayName: "Filter by Variation Type",
+                  type: "Dropdown",
+                  default: "all",
+                  valid: ["all", "common", "special", "improvement", "deterioration", "neutral"],
+                  items: [
+                      { displayName: "All", value: "all" },
+                      { displayName: "Common Cause", value: "common" },
+                      { displayName: "Special Cause - Any", value: "special" },
+                      { displayName: "Special Cause - Improvement", value: "improvement" },
+                      { displayName: "Special Cause - Deterioration", value: "deterioration" },
+                      { displayName: "Special Cause - Neutral", value: "neutral" }
+                  ]
+              },
+              table_assurance_filter: {
+                  displayName: "Filter by Assurance Type",
+                  type: "Dropdown",
+                  default: "all",
+                  valid: ["all", "any", "pass", "fail", "inconsistent"],
+                  items: [
+                      { displayName: "All", value: "all" },
+                      { displayName: "Consistent - Any", value: "any" },
+                      { displayName: "Consistent Pass", value: "pass" },
+                      { displayName: "Consistent Fail", value: "fail" },
+                      { displayName: "Inconsistent", value: "inconsistent" }
+                  ]
+              },
+              table_text_overflow: {
+                  displayName: "Text Overflow Handling",
+                  type: "Dropdown",
+                  default: textOptions.text_overflow.default,
+                  valid: textOptions.text_overflow.valid,
+                  items: [
+                      { displayName: "Ellipsis", value: "ellipsis" },
+                      { displayName: "Truncate", value: "clip" },
+                      { displayName: "None", value: "none" }
+                  ]
+              },
+              table_opacity: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              table_opacity_selected: {
+                  displayName: "Opacity if Selected",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              table_opacity_unselected: {
+                  displayName: "Opacity if Unselected",
+                  type: "NumUpDown",
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              table_outer_border_style: {
+                  displayName: "Outer Border Style",
+                  type: "Dropdown",
+                  default: borderOptions.style.default,
+                  valid: borderOptions.style.valid,
+                  items: borderOptions.style.items
+              },
+              table_outer_border_width: {
+                  displayName: "Outer Border Width",
+                  type: "NumUpDown",
+                  default: borderOptions.width.default,
+                  options: borderOptions.width.options
+              },
+              table_outer_border_colour: {
+                  displayName: "Outer Border Colour",
+                  type: "ColorPicker",
+                  default: borderOptions.colour.default,
+              },
+              table_outer_border_top: {
+                  displayName: "Outer Border Top",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              table_outer_border_bottom: {
+                  displayName: "Outer Border Bottom",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              table_outer_border_left: {
+                  displayName: "Outer Border Left",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              table_outer_border_right: {
+                  displayName: "Outer Border Right",
+                  type: "ToggleSwitch",
+                  default: true
+              }
+          },
+          "Header": {
+              table_header_font: {
+                  displayName: "Header Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              table_header_size: {
+                  displayName: "Header Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              table_header_text_align: {
+                  displayName: "Text Alignment",
+                  type: "AlignmentGroup",
+                  default: textOptions.text_align.default,
+                  valid: textOptions.text_align.valid
+              },
+              table_header_font_weight: {
+                  displayName: "Header Font Weight",
+                  type: "Dropdown",
+                  default: textOptions.weight.default,
+                  valid: textOptions.weight.valid,
+                  items: [
+                      { displayName: "Normal", value: "normal" },
+                      { displayName: "Bold", value: "bold" }
+                  ]
+              },
+              table_header_text_transform: {
+                  displayName: "Header Text Transform",
+                  type: "Dropdown",
+                  default: textOptions.text_transform.default,
+                  valid: textOptions.text_transform.valid,
+                  items: [
+                      { displayName: "Uppercase", value: "uppercase" },
+                      { displayName: "Lowercase", value: "lowercase" },
+                      { displayName: "Capitalise", value: "capitalize" },
+                      { displayName: "None", value: "none" }
+                  ]
+              },
+              table_header_text_padding: {
+                  displayName: "Padding Around Text",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              table_header_colour: {
+                  displayName: "Header Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              table_header_bg_colour: {
+                  displayName: "Header Background Colour",
+                  type: "ColorPicker",
+                  default: "#D3D3D3"
+              },
+              table_header_border_style: {
+                  displayName: "Header Border Style",
+                  type: "Dropdown",
+                  default: borderOptions.style.default,
+                  valid: borderOptions.style.valid,
+                  items: borderOptions.style.items
+              },
+              table_header_border_width: {
+                  displayName: "Header Border Width",
+                  type: "NumUpDown",
+                  default: borderOptions.width.default,
+                  options: borderOptions.width.options
+              },
+              table_header_border_colour: {
+                  displayName: "Header Border Colour",
+                  type: "ColorPicker",
+                  default: borderOptions.colour.default,
+              },
+              table_header_border_bottom: {
+                  displayName: "Bottom Border",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              table_header_border_inner: {
+                  displayName: "Inner Borders",
+                  type: "ToggleSwitch",
+                  default: true
+              }
+          },
+          "Body": {
+              table_body_font: {
+                  displayName: "Body Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              table_body_size: {
+                  displayName: "Body Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              table_body_text_align: {
+                  displayName: "Text Alignment",
+                  type: "AlignmentGroup",
+                  default: textOptions.text_align.default,
+                  valid: textOptions.text_align.valid
+              },
+              table_body_font_weight: {
+                  displayName: "Font Weight",
+                  type: "Dropdown",
+                  default: textOptions.weight.default,
+                  valid: textOptions.weight.valid,
+                  items: [
+                      { displayName: "Normal", value: "normal" },
+                      { displayName: "Bold", value: "bold" }
+                  ]
+              },
+              table_body_text_transform: {
+                  displayName: "Text Transform",
+                  type: "Dropdown",
+                  default: textOptions.text_transform.default,
+                  valid: textOptions.text_transform.valid,
+                  items: [
+                      { displayName: "Uppercase", value: "uppercase" },
+                      { displayName: "Lowercase", value: "lowercase" },
+                      { displayName: "Capitalise", value: "capitalize" },
+                      { displayName: "None", value: "none" }
+                  ]
+              },
+              table_body_text_padding: {
+                  displayName: "Padding Around Text",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              table_body_colour: {
+                  displayName: "Body Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              table_body_bg_colour: {
+                  displayName: "Body Background Colour",
+                  type: "ColorPicker",
+                  default: "#FFFFFF"
+              },
+              table_body_border_style: {
+                  displayName: "Body Border Style",
+                  type: "Dropdown",
+                  default: borderOptions.style.default,
+                  valid: borderOptions.style.valid,
+                  items: borderOptions.style.items
+              },
+              table_body_border_width: {
+                  displayName: "Body Border Width",
+                  type: "NumUpDown",
+                  default: borderOptions.width.default,
+                  options: borderOptions.width.options
+              },
+              table_body_border_colour: {
+                  displayName: "Body Border Colour",
+                  type: "ColorPicker",
+                  default: borderOptions.colour.default,
+              },
+              table_body_border_top_bottom: {
+                  displayName: "Top/Bottom Borders",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              table_body_border_left_right: {
+                  displayName: "Left/Right Borders",
+                  type: "ToggleSwitch",
+                  default: true
+              }
+          }
+      }
+  };
+
+  const downloadSettings = {
+      description: "Download Options",
+      displayName: "Download Options",
+      settingsGroups: {
+          "all": {
+              show_button: {
+                  displayName: "Show Download Button",
+                  type: "ToggleSwitch",
+                  default: false
+              }
+          }
+      }
+  };
+
+  const labelsSettings = {
+      description: "Labels Settings",
+      displayName: "Labels Settings",
+      settingsGroups: {
+          "all": {
+              show_labels: {
+                  displayName: "Show Value Labels",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              label_position: {
+                  displayName: "Label Position",
+                  type: "Dropdown",
+                  default: "top",
+                  valid: ["top", "bottom"],
+                  items: [
+                      { displayName: "Top", value: "top" },
+                      { displayName: "Bottom", value: "bottom" }
+                  ]
+              },
+              label_y_offset: {
+                  displayName: "Label Offset from Top/Bottom (px)",
+                  type: "NumUpDown",
+                  default: 20
+              },
+              label_line_offset: {
+                  displayName: "Label Offset from Connecting Line (px)",
+                  type: "NumUpDown",
+                  default: 5
+              },
+              label_angle_offset: {
+                  displayName: "Label Angle Offset (degrees)",
+                  type: "NumUpDown",
+                  default: 0,
+                  options: { minValue: { value: -90 }, maxValue: { value: 90 } }
+              },
+              label_font: {
+                  displayName: "Label Font",
+                  type: "FontPicker",
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              label_size: {
+                  displayName: "Label Font Size",
+                  type: "NumUpDown",
+                  default: textOptions.size.default,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              label_colour: {
+                  displayName: "Label Font Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              label_line_colour: {
+                  displayName: "Connecting Line Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              label_line_width: {
+                  displayName: "Connecting Line Width",
+                  type: "NumUpDown",
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              label_line_type: {
+                  displayName: "Connecting Line Type",
+                  type: "Dropdown",
+                  default: "10 0",
+                  valid: lineOptions.type.valid,
+                  items: lineOptions.type.items
+              },
+              label_line_max_length: {
+                  displayName: "Max Connecting Line Length (px)",
+                  type: "NumUpDown",
+                  default: 1000,
+                  options: { minValue: { value: 0 }, maxValue: { value: 10000 } }
+              },
+              label_marker_show: {
+                  displayName: "Show Line Markers",
+                  type: "ToggleSwitch",
+                  default: true
+              },
+              label_marker_offset: {
+                  displayName: "Marker Offset from Value (px)",
+                  type: "NumUpDown",
+                  default: 5
+              },
+              label_marker_size: {
+                  displayName: "Marker Size",
+                  type: "NumUpDown",
+                  default: 3,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              label_marker_colour: {
+                  displayName: "Marker Fill Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              },
+              label_marker_outline_colour: {
+                  displayName: "Marker Outline Colour",
+                  type: "ColorPicker",
+                  default: defaultColours.standard
+              }
+          }
+      }
+  };
+
+  const settingsModel = {
+      canvas: canvasSettings,
+      spc: spcSettings,
+      outliers: outliersSettings,
+      nhs_icons: nhsIconsSettings,
+      scatter: scatterSettings,
+      lines: linesSettings,
+      x_axis: xAxisSettings,
+      y_axis: yAxisSettings,
+      dates: datesSettings,
+      summary_table: summaryTableSettings,
+      download_options: downloadSettings,
+      labels: labelsSettings
+  };
+  for (const key in settingsModel) {
+      let settingNames = [];
+      for (const group in settingsModel[key].settingsGroups) {
+          for (const setting in settingsModel[key].settingsGroups[group]) {
+              settingNames.push(setting);
+              Object.defineProperty(settingsModel[key], setting, {
+                  get: function () {
+                      return this.settingsGroups[group][setting];
+                  }
+              });
+          }
+      }
+      Object.defineProperty(settingsModel[key], "settingNames", {
+          get: function () {
+              return settingNames;
+          }
+      });
   }
-  const defaultSettings = Object.fromEntries(defaultSettingsArray);
+  const settingsKeys = Object.keys(settingsModel);
+  const defaultValuesArray = new Array(settingsKeys.length);
+  for (let i = 0; i < settingsKeys.length; i++) {
+      const key = settingsKeys[i];
+      const settingNames = settingsModel[key].settingNames;
+      const curr_card = new Array(settingNames.length);
+      for (let j = 0; j < settingNames.length; j++) {
+          const setting = settingNames[j];
+          curr_card[j] = [setting, settingsModel[key][setting]["default"]];
+      }
+      defaultValuesArray[i] = [key, Object.fromEntries(curr_card)];
+  }
+  const defaultSettings = Object.fromEntries(defaultValuesArray);
+  const defaultSettingsString = JSON.stringify(defaultSettings);
 
   function drawXAxis(selection, visualObj) {
       const xAxisGroup = selection.select(".xaxisgroup");
@@ -5717,16 +6646,15 @@ var spc = (function (exports) {
   }
 
   function assuranceIconToDraw(controlLimits, inputSettings, derivedSettings) {
-      var _a;
       if (!(derivedSettings.chart_type_props.has_control_limits)) {
           return "none";
       }
       const imp_direction = inputSettings.outliers.improvement_direction;
       const N = controlLimits.ll99.length - 1;
-      const alt_target = (_a = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.alt_targets) === null || _a === void 0 ? void 0 : _a[N];
-      if (isNullOrUndefined(alt_target) || imp_direction === "neutral") {
+      if (isNullOrUndefined(controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.alt_targets) || imp_direction === "neutral") {
           return "none";
       }
+      const alt_target = controlLimits.alt_targets[N];
       const impDirectionIncrease = imp_direction === "increase";
       if (alt_target > controlLimits.ul99[N]) {
           return impDirectionIncrease ? "consistentFail" : "consistentPass";
@@ -5753,25 +6681,32 @@ var spc = (function (exports) {
       };
       const suffix = suffix_map[imp_direction];
       const flag_last = inputSettings.nhs_icons.flag_last_point;
-      let allFlags;
-      if (flag_last) {
-          const N = outliers.astpoint.length - 1;
-          allFlags = [outliers.astpoint[N], outliers.shift[N], outliers.trend[N], outliers.two_in_three[N]];
+      const startIndex = flag_last ? outliers.astpoint.length - 1 : 0;
+      let improvementPresent = false;
+      let deteriorationPresent = false;
+      let neutralLowPresent = false;
+      let neutralHighPresent = false;
+      for (let i = startIndex; i < outliers.astpoint.length; i++) {
+          const flagsToCheck = [outliers.astpoint[i], outliers.shift[i], outliers.trend[i], outliers.two_in_three[i]];
+          improvementPresent = improvementPresent || flagsToCheck.includes("improvement");
+          deteriorationPresent = deteriorationPresent || flagsToCheck.includes("deterioration");
+          neutralLowPresent = neutralLowPresent || flagsToCheck.includes("neutral_low");
+          neutralHighPresent = neutralHighPresent || flagsToCheck.includes("neutral_high");
+          if (improvementPresent && deteriorationPresent && neutralLowPresent && neutralHighPresent) {
+              break;
+          }
       }
-      else {
-          allFlags = outliers.astpoint.concat(outliers.shift, outliers.trend, outliers.two_in_three);
-      }
-      const iconsPresent = new Array();
-      if (allFlags.includes("improvement")) {
+      let iconsPresent = new Array();
+      if (improvementPresent) {
           iconsPresent.push("improvement" + suffix);
       }
-      if (allFlags.includes("deterioration")) {
+      if (deteriorationPresent) {
           iconsPresent.push("concern" + invert_suffix_map[suffix]);
       }
-      if (allFlags.includes("neutral_low")) {
+      if (neutralLowPresent) {
           iconsPresent.push("neutralLow");
       }
-      if (allFlags.includes("neutral_high")) {
+      if (neutralHighPresent) {
           iconsPresent.push("neutralHigh");
       }
       if (iconsPresent.length === 0) {
@@ -7797,12 +8732,13 @@ var spc = (function (exports) {
           const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
           rtn[i] = Object.fromEntries(settingNames.map(settingName => {
               var _a, _b, _c, _d, _e, _f, _g;
-              const defaultSetting = defaultSettings[settingGroupName][settingName]["default"];
+              const defaultSetting = defaultSettings[settingGroupName][settingName];
               let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
               extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
-              const valid = (_b = (_a = defaultSettings[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = defaultSettings[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
+              const valid = (_b = (_a = settingsModel[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = settingsModel[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
               const isNumericRange = !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue);
-              if (valid) {
+              const defaultIsUndefined = isNullOrUndefined(defaultSetting);
+              if (valid && !defaultIsUndefined) {
                   let message = "";
                   if (valid instanceof Array && !valid.includes(extractedSetting)) {
                       message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
@@ -7811,7 +8747,7 @@ var spc = (function (exports) {
                       message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_f = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _f === void 0 ? void 0 : _f.value} and ${(_g = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _g === void 0 ? void 0 : _g.value}`;
                   }
                   if (message !== "") {
-                      extractedSetting = defaultSettings[settingGroupName][settingName]["default"];
+                      extractedSetting = defaultSettings[settingGroupName][settingName];
                       validationRtn.messages[i].push(message);
                   }
               }
@@ -7887,11 +8823,7 @@ var spc = (function (exports) {
           this.settings = new Array();
           this.derivedSettings = new Array();
           groupIdxs.forEach(() => {
-              this.settings.push(Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
-                  return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
-                          return [settingName, defaultSettings[settingGroupName][settingName]];
-                      }))];
-              })));
+              this.settings.push(JSON.parse(defaultSettingsString));
               this.derivedSettings.push(new derivedSettingsClass());
           });
           const all_idxs = groupIdxs.flat();
@@ -7918,7 +8850,7 @@ var spc = (function (exports) {
                       this.settings[idx_idx][settingGroup][settingName]
                           = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
                               ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[idx[0]][settingName]
-                              : defaultSettings[settingGroup][settingName]["default"];
+                              : defaultSettings[settingGroup][settingName];
                   });
               });
           });
@@ -7999,11 +8931,7 @@ var spc = (function (exports) {
           return this.settings[0][settingCardName][settingName];
       }
       constructor() {
-          this.settings = [Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
-                  return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
-                          return [settingName, defaultSettings[settingGroupName][settingName]];
-                      }))];
-              }))];
+          this.settings = [JSON.parse(defaultSettingsString)];
           this.derivedSettings = [new derivedSettingsClass()];
       }
   }
@@ -8831,14 +9759,17 @@ var spc = (function (exports) {
   }
 
   function astronomical(val, ll99, ul99) {
-      return val.map((d, i) => {
-          if (!between(d, ll99[i], ul99[i])) {
-              return d > ul99[i] ? "upper" : "lower";
+      const n = val.length;
+      let rtn = new Array(n);
+      for (let i = 0; i < n; i++) {
+          if (!between(val[i], ll99[i], ul99[i])) {
+              rtn[i] = val[i] > ul99[i] ? "upper" : "lower";
           }
           else {
-              return "none";
+              rtn[i] = "none";
           }
-      });
+      }
+      return rtn;
   }
 
   function sum(values) {
@@ -8850,21 +9781,18 @@ var spc = (function (exports) {
   }
 
   function trend(val, n) {
-      const lagged_sign = val.map((d, i) => {
-          return (i == 0) ? i : Math.sign(d - val[i - 1]);
-      });
-      const lagged_sign_sum = lagged_sign.map((_, i) => {
-          return sum(lagged_sign.slice(Math.max(0, i - (n - 2)), i + 1));
-      });
-      const trend_detected = lagged_sign_sum.map(d => {
-          if (Math.abs(d) >= (n - 1)) {
-              return d >= (n - 1) ? "upper" : "lower";
+      const length = val.length;
+      let lagged_sign = new Array(length);
+      let trend_detected = new Array(length);
+      for (let i = 0; i < length; i++) {
+          lagged_sign[i] = (i === 0) ? 0 : Math.sign(val[i] - val[i - 1]);
+          const lagged_sign_sum = sum(lagged_sign.slice(Math.max(0, i - (n - 2)), i + 1));
+          if (Math.abs(lagged_sign_sum) >= (n - 1)) {
+              trend_detected[i] = lagged_sign_sum >= (n - 1) ? "upper" : "lower";
           }
           else {
-              return "none";
+              trend_detected[i] = "none";
           }
-      });
-      for (let i = 0; i < trend_detected.length; i++) {
           if (trend_detected[i] !== "none") {
               for (let j = (i - 1); j >= (i - (n - 1)); j--) {
                   trend_detected[j] = trend_detected[i];
@@ -8875,21 +9803,18 @@ var spc = (function (exports) {
   }
 
   function twoInThree(val, ll95, ul95, highlight_series) {
-      const outside95 = val.map((d, i) => {
-          return d > ul95[i] ? 1 : (d < ll95[i] ? -1 : 0);
-      });
-      const lagged_sign_sum = outside95.map((_, i) => {
-          return sum(outside95.slice(Math.max(0, i - 2), i + 1));
-      });
-      const two_in_three_detected = lagged_sign_sum.map(d => {
-          if (Math.abs(d) >= 2) {
-              return d >= 2 ? "upper" : "lower";
+      const length = val.length;
+      let outside95 = new Array(length);
+      let two_in_three_detected = new Array(length);
+      for (let i = 0; i < length; i++) {
+          outside95[i] = val[i] > ul95[i] ? 1 : (val[i] < ll95[i] ? -1 : 0);
+          const lagged_sign_sum = sum(outside95.slice(Math.max(0, i - 2), i + 1));
+          if (Math.abs(lagged_sign_sum) >= 2) {
+              two_in_three_detected[i] = lagged_sign_sum >= 2 ? "upper" : "lower";
           }
           else {
-              return "none";
+              two_in_three_detected[i] = "none";
           }
-      });
-      for (let i = 0; i < two_in_three_detected.length; i++) {
           if (two_in_three_detected[i] !== "none") {
               for (let j = (i - 1); j >= (i - 2); j--) {
                   if (outside95[j] !== 0 || highlight_series) {
@@ -8905,21 +9830,18 @@ var spc = (function (exports) {
   }
 
   function shift(val, targets, n) {
-      const lagged_sign = val.map((d, i) => {
-          return Math.sign(d - targets[i]);
-      });
-      const lagged_sign_sum = lagged_sign.map((_, i) => {
-          return sum(lagged_sign.slice(Math.max(0, i - (n - 1)), i + 1));
-      });
-      const shift_detected = lagged_sign_sum.map(d => {
-          if (Math.abs(d) >= n) {
-              return d >= n ? "upper" : "lower";
+      const length = val.length;
+      let lagged_sign = new Array(length);
+      let shift_detected = new Array(length);
+      for (let i = 0; i < length; i++) {
+          lagged_sign[i] = Math.sign(val[i] - targets[i]);
+          const lagged_sign_sum = sum(lagged_sign.slice(Math.max(0, i - (n - 1)), i + 1));
+          if (Math.abs(lagged_sign_sum) >= n) {
+              shift_detected[i] = lagged_sign_sum >= n ? "upper" : "lower";
           }
           else {
-              return "none";
+              shift_detected[i] = "none";
           }
-      });
-      for (let i = 0; i < shift_detected.length; i++) {
           if (shift_detected[i] !== "none") {
               for (let j = (i - 1); j >= (i - (n - 1)); j--) {
                   shift_detected[j] = shift_detected[i];
