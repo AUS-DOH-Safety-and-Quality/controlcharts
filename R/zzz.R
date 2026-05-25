@@ -25,7 +25,13 @@ ctx <- NULL
     assign(paste0(".", type, "_default_settings_internal"),
       lapply(ctx$get(paste0(type, ".defaultSettings")),
              function(settings_group) {
-               lapply(settings_group, function(setting) setting$default)
+               lapply(settings_group, function(setting) {
+                if ("default" %in% names(setting)) {
+                  setting$default
+                } else {
+                  setting
+                }
+              })
              }),
       envir = topenv()
     )
