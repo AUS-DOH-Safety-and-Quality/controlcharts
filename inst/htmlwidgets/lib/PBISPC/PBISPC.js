@@ -5451,20 +5451,17 @@ var spc = (function (exports) {
           }
       });
   }
-  const settingsKeys = Object.keys(settingsModel);
-  const defaultValuesArray = new Array(settingsKeys.length);
-  for (let i = 0; i < settingsKeys.length; i++) {
-      const key = settingsKeys[i];
-      const settingNames = settingsModel[key].settingNames;
-      const curr_card = new Array(settingNames.length);
-      for (let j = 0; j < settingNames.length; j++) {
-          const setting = settingNames[j];
-          curr_card[j] = [setting, settingsModel[key][setting]["default"]];
+  Object.defineProperty(settingsModel, "defaultValues", {
+      get: function () {
+          let ret = {};
+          for (const key in this) {
+              const currSettings = this[key].settingNames;
+              ret[key] = Object.fromEntries(currSettings.map(d => [d, this[key][d]["default"]]));
+          }
+          return ret;
       }
-      defaultValuesArray[i] = [key, Object.fromEntries(curr_card)];
-  }
-  const defaultSettings = Object.fromEntries(defaultValuesArray);
-  const defaultSettingsString = JSON.stringify(defaultSettings);
+  });
+  const defaultSettings = settingsModel.defaultValues;
 
   function drawXAxis(selection, visualObj) {
       const xAxisGroup = selection.select(".xaxisgroup");
@@ -8823,7 +8820,7 @@ var spc = (function (exports) {
           this.settings = new Array();
           this.derivedSettings = new Array();
           groupIdxs.forEach(() => {
-              this.settings.push(JSON.parse(defaultSettingsString));
+              this.settings.push(settingsModel.defaultValues);
               this.derivedSettings.push(new derivedSettingsClass());
           });
           const all_idxs = groupIdxs.flat();
@@ -8931,7 +8928,7 @@ var spc = (function (exports) {
           return this.settings[0][settingCardName][settingName];
       }
       constructor() {
-          this.settings = [JSON.parse(defaultSettingsString)];
+          this.settings = [settingsModel.defaultValues];
           this.derivedSettings = [new derivedSettingsClass()];
       }
   }
@@ -9564,7 +9561,7 @@ var spc = (function (exports) {
       };
   }
   function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
-      var _a, _b, _c, _d, _e, _f, _g;
+      var _a, _b, _c, _d, _e, _f;
       const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
       const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
       const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
@@ -9576,10 +9573,10 @@ var spc = (function (exports) {
       let scatter_cond = (_a = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _a === void 0 ? void 0 : _a.values;
       let lines_cond = (_b = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _b === void 0 ? void 0 : _b.values;
       let labels_cond = (_c = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
-      let alt_targets = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values.map(d => inputSettings.lines.show_alt_target ? d.alt_target : null);
-      let speclimits_lower = (_e = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values.map(d => d.show_specification ? d.specification_lower : null);
-      let speclimits_upper = (_f = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values.map(d => d.show_specification ? d.specification_upper : null);
-      let spcSettings = (_g = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _g === void 0 ? void 0 : _g.values;
+      let alt_targets = lines_cond.map(d => inputSettings.lines.show_alt_target ? d.alt_target : null);
+      let speclimits_lower = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values.map(d => d.show_specification ? d.specification_lower : null);
+      let speclimits_upper = (_e = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values.map(d => d.show_specification ? d.specification_upper : null);
+      let spcSettings = (_f = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values;
       const inputValidStatus = validateInputData(keys, numerators, denominators, xbar_sds, derivedSettings.chart_type_props, idxs);
       if (inputValidStatus.status !== 0) {
           return invalidInputData(inputValidStatus);
