@@ -1,33 +1,29 @@
-name: "Update SPC & Funnel Chart Libraries"
+name: "Update Visual Chart Library"
 on:
-  workflow_dispatch:
-permissions:
-  contents: write
+  workflow_call:
+    inputs:
+      type:
+        required: true
+        type: string
 
 jobs:
   update-lib:
-    name: "Update ${{ matrix.library }} Library"
+    name: "Update ${{ inputs.type }} Library"
     runs-on: "ubuntu-latest"
     env:
       REPO_NAME: ""
       LIB_NAME: ""
       YAML_NAME: ""
       PBIVER: ""
-    strategy:
-      matrix:
-        library: [SPC, Funnel]
-      max-parallel: 1
 
     steps:
-    - uses: actions/checkout@v6
-
     - name: Set name variables
       run: |
-        if [ "${{ matrix.library }}" == "SPC" ]; then
+        if [ "${{ inputs.type }}" == "SPC" ]; then
           echo "REPO_NAME=PowerBI-SPC" >> $GITHUB_ENV
           echo "LIB_NAME=PBISPC" >> $GITHUB_ENV
           echo "YAML_NAME=spc" >> $GITHUB_ENV
-        elif [ "${{ matrix.library }}" == "Funnel" ]; then
+        elif [ "${{ inputs.type }}" == "Funnel" ]; then
           echo "REPO_NAME=PowerBI-Funnels" >> $GITHUB_ENV
           echo "LIB_NAME=PBIFUN" >> $GITHUB_ENV
           echo "YAML_NAME=funnel" >> $GITHUB_ENV
@@ -82,16 +78,3 @@ jobs:
         echo "PBIVER=$PBIVER" >> $GITHUB_ENV
         sed -i "/- name: ${{ env.LIB_NAME }}/{n;s/version: .*/version: $PBIVER/;}" inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
         rm -rf ${{ env.REPO_NAME }}
-
-    - name: Commit and Push Changes
-      run: |
-        git pull
-        if [[ -n "$(git status -s)" ]]; then
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git add inst/htmlwidgets/lib/${{ env.LIB_NAME }} inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
-          git commit -m "Update ${{ env.LIB_NAME }} library to version ${{ env.PBIVER }}"
-          git push
-        else
-          echo "No changes to commit."
-        fi

@@ -1,0 +1,55 @@
+name: "Update Visual Chart Library"
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+
+jobs:
+  update-libs:
+    name: "Update Bundled PBI Visuals"
+    runs-on: "ubuntu-latest"
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Configure Git
+      run: |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        BRANCH=update-libs-$(echo $RANDOM | md5sum | head -c 10; echo)
+        echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+        git checkout -b $BRANCH
+
+    - name: Update SPC lib
+      uses: ./github/workflows/upgrade-pbi-lib.yaml
+      with:
+        type: "SPC"
+
+    - name: Commit any SPC Changes
+      run: |
+        if [[ -n "$(git status -s)" ]]; then
+          echo "UPDATED=true" >> $GITHUB_ENV
+          git add inst/htmlwidgets/lib/PBISPC inst/htmlwidgets/spc.yaml
+          PBIVER=$(jq '.visual.version' PowerBI-SPC/pbiviz.json | sed 's/"//g')
+          git commit -m "Update PBISPC library to version $PBIVER"
+        fi
+
+    - name: Update Funnel lib
+      uses: ./github/workflows/upgrade-pbi-lib.yaml
+      with:
+        type: "Funnel"
+
+    - name: Commit any Funnel Changes
+      run: |
+        if [[ -n "$(git status -s)" ]]; then
+          echo "UPDATED=true" >> $GITHUB_ENV
+          git add inst/htmlwidgets/lib/PBIFUN inst/htmlwidgets/funnel.yaml
+          PBIVER=$(jq '.visual.version' PowerBI-Funnels/pbiviz.json | sed 's/"//g')
+          git commit -m "Update PBIFUN library to version $PBIVER"
+        fi
+
+    - name: Generate PR
+      run: |
+        if [[ -n "${{ env.UPDATED }}" ]]; then
+          git push --set-upstream origin ${{ env.BRANCH }}
+        fi
