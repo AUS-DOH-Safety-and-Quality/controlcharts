@@ -82,7 +82,6 @@ runs:
   - name: Commit Changes
     id: commit-changes
     run: |
-      git pull
       if [[ -n "$(git status -s)" ]]; then
         git add inst/htmlwidgets/lib/${{ env.LIB_NAME }} inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
         git commit -m "Update ${{ env.LIB_NAME }} library to version ${{ env.PBIVER }}"
