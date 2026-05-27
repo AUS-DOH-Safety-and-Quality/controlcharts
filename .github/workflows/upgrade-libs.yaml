@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   update-libs:
@@ -33,6 +34,20 @@ jobs:
         type: "Funnel"
 
     - name: Generate PR
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: steps.spc-update.outputs.visual-updated == 'true' || steps.funnel-update.outputs.visual-updated == 'true'
       run: |
+        TITLE="Update Bundled Lib(s): "
+        if [ "${{ steps.spc-update.outputs.visual-updated }}" == "true" ]; then
+          TITLE+="PBISPC to ${{ steps.spc-update.outputs.visual-version }}, "
+        fi
+        if [ "${{ steps.funnel-update.outputs.visual-updated }}" == "true" ]; then
+          TITLE+="PBIFUN to ${{ steps.funnel-update.outputs.visual-version }}"
+        fi
         git push --set-upstream origin ${{ env.BRANCH }}
+        gh pr create \
+          --title "$TITLE" \
+          --body "This PR was automatically created by GitHub Actions." \
+          --base main \
+          --head ${{ env.BRANCH }}

@@ -5,6 +5,9 @@ inputs:
     required: true
     type: string
 outputs:
+  visual-version:
+    description: "Version of bundled visual"
+    value: ${{ steps.update-config.outputs.visual-version }}
   visual-updated:
     description: "Bundled visual was updated"
     value: ${{ steps.commit-changes.outputs.visual-updated }}
@@ -72,9 +75,11 @@ runs:
     shell: bash
 
   - name: Update htmlwidgets YAML config for ${{ env.LIB_NAME }}
+    id: update-config
     run: |
       PBIVER=$(jq '.visual.version' ${{ env.REPO_NAME }}/pbiviz.json | sed 's/"//g')
       echo "PBIVER=$PBIVER" >> $GITHUB_ENV
+      echo "visual-version=$PBIVER" >> $GITHUB_OUTPUT
       sed -i "/- name: ${{ env.LIB_NAME }}/{n;s/version: .*/version: $PBIVER/;}" inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
       rm -rf ${{ env.REPO_NAME }}
     shell: bash
