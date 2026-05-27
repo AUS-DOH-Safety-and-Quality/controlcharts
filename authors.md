@@ -12,13 +12,13 @@
 
 Johnson AR, Healthcare Quality Intelligence Unit (Western Australia
 Health) (2026). *controlcharts: Interactive Plotting for Funnel and
-Statistical Process Control Charts*. R package version 0.0.8,
+Statistical Process Control Charts*. R package version 0.0.9,
 <https://aus-doh-safety-and-quality.github.io/controlcharts/>.
 
     @Manual{,
       title = {controlcharts: Interactive Plotting for Funnel and Statistical Process Control Charts},
       author = {Andrew R. Johnson and {Healthcare Quality Intelligence Unit (Western Australia Health)}},
       year = {2026},
-      note = {R package version 0.0.8},
+      note = {R package version 0.0.9},
       url = {https://aus-doh-safety-and-quality.github.io/controlcharts/},
     }
