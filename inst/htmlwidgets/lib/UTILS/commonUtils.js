@@ -29,7 +29,8 @@ const makeConstructorArgs = function(element) {
       },
       hostCapabilities: {
         allowInteractions: true
-      }
+      },
+      displayWarningIcon: console.log
     }
   }
 }
@@ -66,29 +67,20 @@ function isPlainObject(value) {
   return Object.prototype.toString.call(value) === '[object Object]';
 }
 
-/**
- * Groups an array of objects by a specified key. This is a backwards-compatible
- * implementation of the ES2026 Object.groupBy method.
- */
-function groupBy(data, key) {
-  var _a;
-  const groupedData = new Map();
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
-    const keyValue = item[key];
-    if (!groupedData.has(keyValue)) {
-      groupedData.set(keyValue, []);
-    }
-    (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
-  }
-  return Object.fromEntries(Array.from(groupedData));
-}
-
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
-  if (crosstalkFilters) {
-    rawData = rawData.filter(d => crosstalkFilters.includes(d.crosstalk_identities));
-  }
-  var dataGrouped = groupBy(rawData, "categories");
+  var cols = Object.keys(rawData);
+  var dataGrouped = {};
+  rawData.categories.forEach((cat, idx) => {
+    if (crosstalkFilters && !(crosstalkFilters.includes(rawData.crosstalk_identities[idx]))) {
+      return;
+    }
+    var curr_vals = Object.fromEntries(cols.map(col => [col, rawData[col][idx]]));
+    if (dataGrouped[cat] === undefined) {
+      dataGrouped[cat] = [curr_vals]
+    } else {
+      dataGrouped[cat].push(curr_vals)
+    }
+  });
   Object.freeze(dataGrouped);
   var identitiesGrouped = [];
   for (group in dataGrouped) {
@@ -106,7 +98,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
     crosstalk_identities: Object.fromEntries(identitiesGrouped)
   };
 
-  var valueNames = Object.keys(rawData[0]).filter(k => !["categories", "crosstalk_identities"].includes(k));
+  var valueNames = cols.filter(k => !["categories", "crosstalk_identities"].includes(k));
 
   args.values = valueNames.map(name => ({
     source: { roles: {[name]: true} },

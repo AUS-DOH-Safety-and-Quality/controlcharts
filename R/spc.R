@@ -141,18 +141,19 @@ spc <- function(data,
     labels = eval(substitute(label_settings), input_data, parent.frame())
   )
 
+  categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
+  cat_order <- order(categories)
   data_raw <- list(
-    crosstalk_identities = crosstalk_identities,
-    categories =
-      as.character(eval(substitute(keys), input_data, parent.frame())),
-    numerators = eval(substitute(numerators), input_data, parent.frame())
+    crosstalk_identities = crosstalk_identities[cat_order],
+    categories = categories[cat_order],
+    numerators = eval(substitute(numerators), input_data, parent.frame())[cat_order]
   )
 
   input_settings_processed <- validate_settings("spc", input_settings,
-                                                data_raw$crosstalk_identities)
+                                                data_raw$crosstalk_identities,
+                                                cat_order)
   input_settings <- input_settings_processed$input_settings
-  has_conditional_formatting <-
-    input_settings_processed$has_conditional_formatting
+  has_conditional_formatting <- input_settings_processed$has_conditional_formatting
   aggregations <- validate_aggregations(aggregations)
   title_settings <- validate_chart_title(title)
 
@@ -168,41 +169,30 @@ spc <- function(data,
   }
 
   if (!missing(denominators)) {
-    denominators <-
-      as.numeric(eval(substitute(denominators), input_data, parent.frame()))
-    data_raw <- append(data_raw, list(denominators = denominators))
+    denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(denominators = denominators[cat_order]))
   }
 
   if (!missing(groupings)) {
-    groupings <-
-      as.character(eval(substitute(groupings), input_data, parent.frame()))
-    data_raw <- append(data_raw, list(groupings = groupings))
+    groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(groupings = groupings[cat_order]))
   }
 
   if (!missing(xbar_sds)) {
-    xbar_sds <-
-      as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
-    data_raw <- append(data_raw, list(xbar_sds = xbar_sds))
+    xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(xbar_sds = xbar_sds[cat_order]))
   }
 
   if (!missing(tooltips)) {
-    tooltips <-
-      as.character(eval(substitute(tooltips), input_data, parent.frame()))
-    data_raw <- append(data_raw, list(tooltips = tooltips))
+    tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(tooltips = tooltips[cat_order]))
   }
 
   has_labels <- !missing(labels)
   if (has_labels) {
-    labels <-
-      as.character(eval(substitute(labels), input_data, parent.frame()))
-    data_raw <- append(data_raw, list(labels = labels))
+    labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
+    data_raw <- append(data_raw, list(labels = labels[cat_order]))
   }
-
-  data_raw <- as.data.frame(data_raw)[order(data_raw$categories), ]
-  data_raw <- data_raw[!is.na(data_raw$categories), ]
-  data_df <- lapply(seq_len(nrow(data_raw)), function(idx) {
-    lapply(data_raw, function(elem) elem[idx])
-  })
 
   unique_categories <- unique(data_raw$categories)
 
@@ -217,14 +207,14 @@ spc <- function(data,
   #  where aggregations will need to be dynamically recomputed. For all
   #  other inputs we just aggregate once and re-use
   if (is_crosstalk) {
-    widget_data$data_raw <- data_df
+    widget_data$data_raw <- data_raw
     widget_data$input_settings <- input_settings
     widget_data$aggregations <- aggregations
     widget_data$has_conditional_formatting <- has_conditional_formatting
     widget_data$unique_categories <- unique_categories
   } else {
     widget_data$update_values <-
-      ctx$call("makeUpdateValues", data_df, input_settings, aggregations,
+      ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
                has_conditional_formatting, unique_categories)
   }
 
@@ -268,15 +258,12 @@ spc <- function(data,
   }
 
   if (has_labels) {
-    data_df <- lapply(data_df, function(valrow) {
-      valrow$labels <- htmltools::htmlEscape(valrow$labels)
-      valrow
-    })
+    data_raw$labels <- sapply(data_raw$labels, htmltools::htmlEscape)
   }
 
   data_views <- update_static_padding(
     "spc",
-    ctx$call("makeUpdateValues", data_df, input_settings, aggregations,
+    ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
              has_conditional_formatting, unique_categories)$dataViews
   )
 

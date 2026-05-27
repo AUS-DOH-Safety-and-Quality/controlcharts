@@ -74,7 +74,7 @@ funnel_default_settings <- function(group = NULL) {
   .default_settings_impl("funnel", group)
 }
 
-validate_settings <- function(type, input_settings, crosstalk_identities) {
+validate_settings <- function(type, input_settings, crosstalk_identities, cat_order) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
@@ -111,8 +111,8 @@ validate_settings <- function(type, input_settings, crosstalk_identities) {
           has_conditional_formatting <- TRUE
           # Re-format to list of lists, so is passed to JS as an object
           # which can be indexed by the group name
-          input_settings[[group]][[setting_name]] <- lapply(input_settings[[group]][[setting_name]], function(x) x)
-          names(input_settings[[group]][[setting_name]]) <- crosstalk_identities
+          input_settings[[group]][[setting_name]] <- lapply(input_settings[[group]][[setting_name]][cat_order], function(x) x)
+          names(input_settings[[group]][[setting_name]]) <- crosstalk_identities[cat_order]
         }
       }
     }
