@@ -21,35 +21,18 @@ jobs:
         git checkout -b $BRANCH
 
     - name: Update SPC lib
-      uses: ./.github/workflows/upgrade-pbi-lib.yaml
+      id: spc-update
+      uses: ./.github/actions/upgrade-pbi-lib
       with:
         type: "SPC"
 
-    - name: Commit any SPC Changes
-      run: |
-        if [[ -n "$(git status -s)" ]]; then
-          echo "UPDATED=true" >> $GITHUB_ENV
-          git add inst/htmlwidgets/lib/PBISPC inst/htmlwidgets/spc.yaml
-          PBIVER=$(jq '.visual.version' PowerBI-SPC/pbiviz.json | sed 's/"//g')
-          git commit -m "Update PBISPC library to version $PBIVER"
-        fi
-
     - name: Update Funnel lib
-      uses: ./.github/workflows/upgrade-pbi-lib.yaml
+      id: funnel-update
+      uses: ./.github/actions/upgrade-pbi-lib
       with:
         type: "Funnel"
 
-    - name: Commit any Funnel Changes
-      run: |
-        if [[ -n "$(git status -s)" ]]; then
-          echo "UPDATED=true" >> $GITHUB_ENV
-          git add inst/htmlwidgets/lib/PBIFUN inst/htmlwidgets/funnel.yaml
-          PBIVER=$(jq '.visual.version' PowerBI-Funnels/pbiviz.json | sed 's/"//g')
-          git commit -m "Update PBIFUN library to version $PBIVER"
-        fi
-
     - name: Generate PR
+      if: steps.spc-update.outputs.visual-updated == 'true' || steps.funnel-update.outputs.visual-updated == 'true'
       run: |
-        if [[ -n "${{ env.UPDATED }}" ]]; then
-          git push --set-upstream origin ${{ env.BRANCH }}
-        fi
+        git push --set-upstream origin ${{ env.BRANCH }}

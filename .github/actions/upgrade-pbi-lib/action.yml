@@ -1,0 +1,93 @@
+name: "Update Library - Reusable Workflow"
+description: 'Update a single PBI visual bundle'
+inputs:
+  type:
+    required: true
+    type: string
+outputs:
+  visual-updated:
+    description: "Bundled visual was updated"
+    value: ${{ steps.commit-changes.outputs.visual-updated }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: Set name variables
+    run: |
+      if [ "${{ inputs.type }}" == "SPC" ]; then
+        echo "REPO_NAME=PowerBI-SPC" >> $GITHUB_ENV
+        echo "LIB_NAME=PBISPC" >> $GITHUB_ENV
+        echo "YAML_NAME=spc" >> $GITHUB_ENV
+      elif [ "${{ inputs.type }}" == "Funnel" ]; then
+        echo "REPO_NAME=PowerBI-Funnels" >> $GITHUB_ENV
+        echo "LIB_NAME=PBIFUN" >> $GITHUB_ENV
+        echo "YAML_NAME=funnel" >> $GITHUB_ENV
+      fi
+    shell: bash
+
+  - name: Clone ${{ env.REPO_NAME }} Repo
+    uses: actions/checkout@v6
+    with:
+      repository: "AUS-DOH-Safety-and-Quality/${{ env.REPO_NAME }}"
+      path: ${{ env.REPO_NAME }}
+
+  - name: Initialise Rollup Config
+    run: |
+      echo -e "\
+        import typescript from '@rollup/plugin-typescript';   \n\
+        import nodeResolve from '@rollup/plugin-node-resolve';\n\
+        import commonjs from '@rollup/plugin-commonjs';\n\
+        import json from '@rollup/plugin-json';\n\
+        export default {\n\
+          input: 'src/frontend.ts',\n\
+          output: {\n\
+            format: 'iife',\n\
+            name: '${{ env.YAML_NAME }}',\n\
+            file: './.tmp/build/${{ env.LIB_NAME }}.js',\n\
+            sourcemap: false\n\
+          },\n\
+          plugins: [\n\
+            typescript({ tsconfig: 'tsconfig.json' }),\n\
+            json(),\n\
+            nodeResolve({ browser: true }),\n\
+            commonjs()\n\
+          ]\n\
+        };\n\
+      " > rollup.config.js
+    working-directory: ${{ env.REPO_NAME }}
+    shell: bash
+
+  - name: Install rollup
+    run: |
+      npm install rollup @rollup/plugin-commonjs @rollup/plugin-json @rollup/plugin-node-resolve @rollup/plugin-typescript
+    working-directory: ${{ env.REPO_NAME }}
+    shell: bash
+
+  - name: Install ${{ env.LIB_NAME }} and Replace Bundle
+    run: |
+      npm install
+      npx rollup --config rollup.config.js --configPlugin typescript
+      mv .tmp/build/${{ env.LIB_NAME }}.js ../inst/htmlwidgets/lib/${{ env.LIB_NAME }}
+    working-directory: ${{ env.REPO_NAME }}
+    shell: bash
+
+  - name: Update htmlwidgets YAML config for ${{ env.LIB_NAME }}
+    run: |
+      PBIVER=$(jq '.visual.version' ${{ env.REPO_NAME }}/pbiviz.json | sed 's/"//g')
+      echo "PBIVER=$PBIVER" >> $GITHUB_ENV
+      sed -i "/- name: ${{ env.LIB_NAME }}/{n;s/version: .*/version: $PBIVER/;}" inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
+      rm -rf ${{ env.REPO_NAME }}
+    shell: bash
+
+  - name: Commit Changes
+    id: commit-changes
+    run: |
+      git pull
+      if [[ -n "$(git status -s)" ]]; then
+        git add inst/htmlwidgets/lib/${{ env.LIB_NAME }} inst/htmlwidgets/${{ env.YAML_NAME }}.yaml
+        git commit -m "Update ${{ env.LIB_NAME }} library to version ${{ env.PBIVER }}"
+        echo "visual-updated=true" >> $GITHUB_OUTPUT
+      else
+        echo "visual-updated=false" >> $GITHUB_OUTPUT
+      fi
+    shell: bash
