@@ -1,4 +1,4 @@
-name: "Update Visual Chart Library"
+name: "Update Bundled PBI Visuals"
 on:
   workflow_dispatch:
 permissions:
@@ -21,7 +21,7 @@ jobs:
         git checkout -b $BRANCH
 
     - name: Update SPC lib
-      uses: ./github/workflows/upgrade-pbi-lib.yaml
+      uses: ./.github/workflows/upgrade-pbi-lib.yaml
       with:
         type: "SPC"
 
@@ -35,7 +35,7 @@ jobs:
         fi
 
     - name: Update Funnel lib
-      uses: ./github/workflows/upgrade-pbi-lib.yaml
+      uses: ./.github/workflows/upgrade-pbi-lib.yaml
       with:
         type: "Funnel"
 
