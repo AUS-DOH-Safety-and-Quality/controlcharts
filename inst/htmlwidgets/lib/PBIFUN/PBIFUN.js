@@ -2418,7 +2418,7 @@ var funnel = (function (exports) {
     };
   }
 
-  function constants$1(x) {
+  function constants(x) {
     return function() {
       return x;
     };
@@ -2437,7 +2437,7 @@ var funnel = (function (exports) {
   function normalize(a, b) {
     return (b -= (a = +a))
         ? function(x) { return (x - a) / b; }
-        : constants$1(isNaN(b) ? NaN : 0.5);
+        : constants(isNaN(b) ? NaN : 0.5);
   }
 
   function clamper(a, b) {
@@ -2602,10 +2602,10 @@ var funnel = (function (exports) {
   }
 
   // [[fill]align][sign][symbol][0][width][,][.precision][~][type]
-  var re$1 = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
+  var re = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
 
   function formatSpecifier(specifier) {
-    if (!(match = re$1.exec(specifier))) throw new Error("invalid format: " + specifier);
+    if (!(match = re.exec(specifier))) throw new Error("invalid format: " + specifier);
     var match;
     return new FormatSpecifier({
       fill: match[1],
@@ -3331,6 +3331,156 @@ var funnel = (function (exports) {
     symbolWye: wye
   });
 
+  const canvasSettings = {
+      description: "Canvas Settings",
+      displayName: "Canvas Settings",
+      settingsGroups: {
+          "all": {
+              show_errors: {
+                  displayName: "Show Errors on Canvas",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              lower_padding: {
+                  displayName: "Padding Below Plot (pixels):",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              upper_padding: {
+                  displayName: "Padding Above Plot (pixels):",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              left_padding: {
+                  displayName: "Padding Left of Plot (pixels):",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              right_padding: {
+                  displayName: "Padding Right of Plot (pixels):",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              }
+          }
+      }
+  };
+
+  const funnelSettings = {
+      description: "Funnel Settings",
+      displayName: "Data Settings",
+      settingsGroups: {
+          "all": {
+              chart_type: {
+                  displayName: "Chart Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "PR",
+                  valid: ["SR", "PR", "RC"],
+                  items: [
+                      { displayName: "Indirectly Standardised (HSMR)", value: "SR" },
+                      { displayName: "Proportion", value: "PR" },
+                      { displayName: "Rate", value: "RC" }
+                  ]
+              },
+              od_adjust: {
+                  displayName: "OD Adjustment",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "no",
+                  valid: ["auto", "yes", "no"],
+                  items: [
+                      { displayName: "Automatic", value: "auto" },
+                      { displayName: "Yes", value: "yes" },
+                      { displayName: "No", value: "no" }
+                  ]
+              },
+              multiplier: {
+                  displayName: "Multiplier",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 } }
+              },
+              sig_figs: {
+                  displayName: "Decimals to Report:",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 20 } }
+              },
+              perc_labels: {
+                  displayName: "Report as percentage",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "Automatic",
+                  valid: ["Automatic", "Yes", "No"],
+                  items: [
+                      { displayName: "Automatic", value: "Automatic" },
+                      { displayName: "Yes", value: "Yes" },
+                      { displayName: "No", value: "No" }
+                  ]
+              },
+              transformation: {
+                  displayName: "Transformation",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "none",
+                  valid: ["none", "ln", "log10", "sqrt"],
+                  items: [
+                      { displayName: "None", value: "none" },
+                      { displayName: "Natural Log (y+1)", value: "ln" },
+                      { displayName: "Log10 (y+1)", value: "log10" },
+                      { displayName: "Square-Root", value: "sqrt" }
+                  ]
+              },
+              ttip_show_group: {
+                  displayName: "Show Group in Tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_group: {
+                  displayName: "Group Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "Group"
+              },
+              ttip_show_numerator: {
+                  displayName: "Show Numerator in Tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_numerator: {
+                  displayName: "Numerator Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "Numerator"
+              },
+              ttip_show_denominator: {
+                  displayName: "Show Denominator in Tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_denominator: {
+                  displayName: "Denominator Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "Denominator"
+              },
+              ttip_show_value: {
+                  displayName: "Show Value in Tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_value: {
+                  displayName: "Value Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "Automatic"
+              },
+              ll_truncate: {
+                  displayName: "Truncate Lower Limits at:",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              },
+              ul_truncate: {
+                  displayName: "Truncate Upper Limits at:",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              }
+          }
+      }
+  };
+
   const defaultColours = {
       improvement: "#00B0F0",
       deterioration: "#E46C0A",
@@ -3377,1155 +3527,1046 @@ var funnel = (function (exports) {
           default: 10,
           options: { minValue: { value: 0 }, maxValue: { value: 100 } }
       }};
-  const settingsModel = {
-      canvas: {
-          description: "Canvas Settings",
-          displayName: "Canvas Settings",
-          settingsGroups: {
-              "all": {
-                  show_errors: {
-                      displayName: "Show Errors on Canvas",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  lower_padding: {
-                      displayName: "Padding Below Plot (pixels):",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  upper_padding: {
-                      displayName: "Padding Above Plot (pixels):",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  left_padding: {
-                      displayName: "Padding Left of Plot (pixels):",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  right_padding: {
-                      displayName: "Padding Right of Plot (pixels):",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  }
+
+  const outliersSettings = {
+      description: "Outlier Settings",
+      displayName: "Outlier Settings",
+      settingsGroups: {
+          "General": {
+              process_flag_type: {
+                  displayName: "Type of Change to Flag",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "both",
+                  valid: ["both", "improvement", "deterioration"],
+                  items: [
+                      { displayName: "Both", value: "both" },
+                      { displayName: "Improvement (Imp.)", value: "improvement" },
+                      { displayName: "Deterioration (Det.)", value: "deterioration" }
+                  ]
+              },
+              improvement_direction: {
+                  displayName: "Improvement Direction",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "increase",
+                  valid: ["increase", "neutral", "decrease"],
+                  items: [
+                      { displayName: "Increase", value: "increase" },
+                      { displayName: "Neutral", value: "neutral" },
+                      { displayName: "Decrease", value: "decrease" }
+                  ]
               }
-          }
-      },
-      funnel: {
-          description: "Funnel Settings",
-          displayName: "Data Settings",
-          settingsGroups: {
-              "all": {
-                  chart_type: {
-                      displayName: "Chart Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "PR",
-                      valid: ["SR", "PR", "RC"],
-                      items: [
-                          { displayName: "Indirectly Standardised (HSMR)", value: "SR" },
-                          { displayName: "Proportion", value: "PR" },
-                          { displayName: "Rate", value: "RC" }
-                      ]
-                  },
-                  od_adjust: {
-                      displayName: "OD Adjustment",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "no",
-                      valid: ["auto", "yes", "no"],
-                      items: [
-                          { displayName: "Automatic", value: "auto" },
-                          { displayName: "Yes", value: "yes" },
-                          { displayName: "No", value: "no" }
-                      ]
-                  },
-                  multiplier: {
-                      displayName: "Multiplier",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 } }
-                  },
-                  sig_figs: {
-                      displayName: "Decimals to Report:",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 20 } }
-                  },
-                  perc_labels: {
-                      displayName: "Report as percentage",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "Automatic",
-                      valid: ["Automatic", "Yes", "No"],
-                      items: [
-                          { displayName: "Automatic", value: "Automatic" },
-                          { displayName: "Yes", value: "Yes" },
-                          { displayName: "No", value: "No" }
-                      ]
-                  },
-                  transformation: {
-                      displayName: "Transformation",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "none",
-                      valid: ["none", "ln", "log10", "sqrt"],
-                      items: [
-                          { displayName: "None", value: "none" },
-                          { displayName: "Natural Log (y+1)", value: "ln" },
-                          { displayName: "Log10 (y+1)", value: "log10" },
-                          { displayName: "Square-Root", value: "sqrt" }
-                      ]
-                  },
-                  ttip_show_group: {
-                      displayName: "Show Group in Tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_group: {
-                      displayName: "Group Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "Group"
-                  },
-                  ttip_show_numerator: {
-                      displayName: "Show Numerator in Tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_numerator: {
-                      displayName: "Numerator Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "Numerator"
-                  },
-                  ttip_show_denominator: {
-                      displayName: "Show Denominator in Tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_denominator: {
-                      displayName: "Denominator Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "Denominator"
-                  },
-                  ttip_show_value: {
-                      displayName: "Show Value in Tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_value: {
-                      displayName: "Value Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "Automatic"
-                  },
-                  ll_truncate: {
-                      displayName: "Truncate Lower Limits at:",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  },
-                  ul_truncate: {
-                      displayName: "Truncate Upper Limits at:",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  }
+          },
+          "Three Sigma Outliers": {
+              three_sigma: {
+                  displayName: "Three Sigma Outliers",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              three_sigma_colour_improvement: {
+                  displayName: "Imp. Three Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.improvement
+              },
+              three_sigma_colour_deterioration: {
+                  displayName: "Det. Three Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.deterioration
+              },
+              three_sigma_colour_neutral_low: {
+                  displayName: "Neutral (Low) Three Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.neutral_low
+              },
+              three_sigma_colour_neutral_high: {
+                  displayName: "Neutral (High) Three Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.neutral_high
               }
-          }
-      },
-      outliers: {
-          description: "Outlier Settings",
-          displayName: "Outlier Settings",
-          settingsGroups: {
-              "General": {
-                  process_flag_type: {
-                      displayName: "Type of Change to Flag",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "both",
-                      valid: ["both", "improvement", "deterioration"],
-                      items: [
-                          { displayName: "Both", value: "both" },
-                          { displayName: "Improvement (Imp.)", value: "improvement" },
-                          { displayName: "Deterioration (Det.)", value: "deterioration" }
-                      ]
-                  },
-                  improvement_direction: {
-                      displayName: "Improvement Direction",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "increase",
-                      valid: ["increase", "neutral", "decrease"],
-                      items: [
-                          { displayName: "Increase", value: "increase" },
-                          { displayName: "Neutral", value: "neutral" },
-                          { displayName: "Decrease", value: "decrease" }
-                      ]
-                  }
+          },
+          "Two Sigma Outliers": {
+              two_sigma: {
+                  displayName: "Two Sigma Outliers",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
               },
-              "Three Sigma Outliers": {
-                  three_sigma: {
-                      displayName: "Three Sigma Outliers",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  three_sigma_colour_improvement: {
-                      displayName: "Imp. Three Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.improvement
-                  },
-                  three_sigma_colour_deterioration: {
-                      displayName: "Det. Three Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.deterioration
-                  },
-                  three_sigma_colour_neutral_low: {
-                      displayName: "Neutral (Low) Three Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.neutral_low
-                  },
-                  three_sigma_colour_neutral_high: {
-                      displayName: "Neutral (High) Three Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.neutral_high
-                  }
+              two_sigma_colour_improvement: {
+                  displayName: "Imp. Two Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.improvement
               },
-              "Two Sigma Outliers": {
-                  two_sigma: {
-                      displayName: "Two Sigma Outliers",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  two_sigma_colour_improvement: {
-                      displayName: "Imp. Two Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.improvement
-                  },
-                  two_sigma_colour_deterioration: {
-                      displayName: "Det. Two Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.deterioration
-                  },
-                  two_sigma_colour_neutral_low: {
-                      displayName: "Neutral (Low) Two Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.neutral_low
-                  },
-                  two_sigma_colour_neutral_high: {
-                      displayName: "Neutral (High) Two Sigma Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.neutral_high
-                  }
-              }
-          }
-      },
-      scatter: {
-          description: "Scatter Settings",
-          displayName: "Scatter Settings",
-          settingsGroups: {
-              "Dots": {
-                  shape: {
-                      displayName: "Shape",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "Circle",
-                      valid: ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"],
-                      items: [
-                          { displayName: "Circle", value: "Circle" },
-                          { displayName: "Cross", value: "Cross" },
-                          { displayName: "Diamond", value: "Diamond" },
-                          { displayName: "Square", value: "Square" },
-                          { displayName: "Star", value: "Star" },
-                          { displayName: "Triangle", value: "Triangle" },
-                          { displayName: "Wye", value: "Wye" }
-                      ]
-                  },
-                  size: {
-                      displayName: "Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 2.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  colour: {
-                      displayName: "Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.common_cause
-                  },
-                  colour_outline: {
-                      displayName: "Outline Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.common_cause
-                  },
-                  width_outline: {
-                      displayName: "Outline Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  opacity: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_selected: {
-                      displayName: "Opacity if Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected: {
-                      displayName: "Opacity if Unselected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  }
+              two_sigma_colour_deterioration: {
+                  displayName: "Det. Two Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.deterioration
               },
-              "Group Text": {
-                  use_group_text: {
-                      displayName: "Show Group Text",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  scatter_text_font: {
-                      displayName: "Group Text Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  scatter_text_size: {
-                      displayName: "Group Text Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  scatter_text_colour: {
-                      displayName: "Group Text Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  scatter_text_opacity: {
-                      displayName: "Group Text Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  scatter_text_opacity_selected: {
-                      displayName: "Group Text Opacity if Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  scatter_text_opacity_unselected: {
-                      displayName: "Group Text Opacity if Unselected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  }
-              }
-          }
-      },
-      lines: {
-          description: "Line Settings",
-          displayName: "Line Settings",
-          settingsGroups: {
-              "Target": {
-                  show_target: {
-                      displayName: "Show Target",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  width_target: {
-                      displayName: "Line Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_target: {
-                      displayName: "Line Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_target: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  opacity_target: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_target: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  ttip_show_target: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_target: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "Centerline"
-                  },
-                  plot_label_show_target: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  plot_label_position_target: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "beside",
-                      valid: ["above", "below", "beside"],
-                      items: [
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_target: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0
-                  },
-                  plot_label_hpad_target: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  plot_label_font_target: {
-                      displayName: "Value Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_target: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_target: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_target: {
-                      displayName: "Value Prefix",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: ""
-                  }
+              two_sigma_colour_neutral_low: {
+                  displayName: "Neutral (Low) Two Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.neutral_low
               },
-              "Alt. Target": {
-                  show_alt_target: {
-                      displayName: "Show Alt. Target Line",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  alt_target: {
-                      displayName: "Additional Target Value:",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  },
-                  width_alt_target: {
-                      displayName: "Line Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1.5,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_alt_target: {
-                      displayName: "Line Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_alt_target: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  opacity_alt_target: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_alt_target: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  join_rebaselines_alt_target: {
-                      displayName: "Connect Rebaselined Limits",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  ttip_show_alt_target: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_alt_target: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "Alt. Target"
-                  },
-                  plot_label_show_alt_target: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  plot_label_position_alt_target: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "beside",
-                      valid: ["above", "below", "beside"],
-                      items: [
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_alt_target: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0
-                  },
-                  plot_label_hpad_alt_target: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  plot_label_font_alt_target: {
-                      displayName: "Value Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_alt_target: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_alt_target: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_alt_target: {
-                      displayName: "Value Prefix",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: ""
-                  }
-              },
-              "68% Limits": {
-                  show_68: {
-                      displayName: "Show 68% Lines",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  width_68: {
-                      displayName: "Line Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_68: {
-                      displayName: "Line Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "2 5",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_68: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.limits
-                  },
-                  opacity_68: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_68: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  ttip_show_68: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_68: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "68% Limit"
-                  },
-                  plot_label_show_68: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  plot_label_position_68: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_68: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0
-                  },
-                  plot_label_hpad_68: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  plot_label_font_68: {
-                      displayName: "Value Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_68: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_68: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_68: {
-                      displayName: "Value Prefix",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: ""
-                  }
-              },
-              "95% Limits": {
-                  show_95: {
-                      displayName: "Show 95% Lines",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  width_95: {
-                      displayName: "Line Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_95: {
-                      displayName: "Line Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "2 5",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_95: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.limits
-                  },
-                  opacity_95: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_95: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  ttip_show_95: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_95: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "95% Limit"
-                  },
-                  plot_label_show_95: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  plot_label_position_95: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_95: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0
-                  },
-                  plot_label_hpad_95: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  plot_label_font_95: {
-                      displayName: "Value Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_95: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_95: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_95: {
-                      displayName: "Value Prefix",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: ""
-                  }
-              },
-              "99% Limits": {
-                  show_99: {
-                      displayName: "Show 99% Lines",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  width_99: {
-                      displayName: "Line Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  type_99: {
-                      displayName: "Line Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "10 10",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  colour_99: {
-                      displayName: "Line Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.limits
-                  },
-                  opacity_99: {
-                      displayName: "Default Opacity",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  opacity_unselected_99: {
-                      displayName: "Opacity if Any Selected",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0.2,
-                      options: { minValue: { value: 0 }, maxValue: { value: 1 } }
-                  },
-                  ttip_show_99: {
-                      displayName: "Show value in tooltip",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ttip_label_99: {
-                      displayName: "Tooltip Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: "99% Limit"
-                  },
-                  plot_label_show_99: {
-                      displayName: "Show Value on Plot",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: false
-                  },
-                  plot_label_position_99: {
-                      displayName: "Position of Value on Line(s)",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "beside",
-                      valid: ["outside", "inside", "above", "below", "beside"],
-                      items: [
-                          { displayName: "Outside", value: "outside" },
-                          { displayName: "Inside", value: "inside" },
-                          { displayName: "Above", value: "above" },
-                          { displayName: "Below", value: "below" },
-                          { displayName: "Beside", value: "beside" }
-                      ]
-                  },
-                  plot_label_vpad_99: {
-                      displayName: "Value Vertical Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0
-                  },
-                  plot_label_hpad_99: {
-                      displayName: "Value Horizontal Padding",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10
-                  },
-                  plot_label_font_99: {
-                      displayName: "Value Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  plot_label_size_99: {
-                      displayName: "Value Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  plot_label_colour_99: {
-                      displayName: "Value Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  plot_label_prefix_99: {
-                      displayName: "Value Prefix",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: ""
-                  }
-              }
-          }
-      },
-      x_axis: {
-          description: "X Axis Settings",
-          displayName: "X Axis Settings",
-          settingsGroups: {
-              "Axis": {
-                  xlimit_colour: {
-                      displayName: "Axis Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  xlimit_l: {
-                      displayName: "Lower Limit",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  },
-                  xlimit_u: {
-                      displayName: "Upper Limit",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  }
-              },
-              "Ticks": {
-                  xlimit_ticks: {
-                      displayName: "Draw Ticks",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  xlimit_tick_count: {
-                      displayName: "Maximum Ticks",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  xlimit_tick_font: {
-                      displayName: "Tick Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  xlimit_tick_size: {
-                      displayName: "Tick Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  xlimit_tick_colour: {
-                      displayName: "Tick Font Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  xlimit_tick_rotation: {
-                      displayName: "Tick Rotation (Degrees)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0,
-                      options: { minValue: { value: -360 }, maxValue: { value: 360 } }
-                  }
-              },
-              "Label": {
-                  xlimit_label: {
-                      displayName: "Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: null
-                  },
-                  xlimit_label_font: {
-                      displayName: "Label Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  xlimit_label_size: {
-                      displayName: "Label Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  xlimit_label_colour: {
-                      displayName: "Label Font Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  }
-              }
-          }
-      },
-      y_axis: {
-          description: "Y Axis Settings",
-          displayName: "Y Axis Settings",
-          settingsGroups: {
-              "Axis": {
-                  ylimit_colour: {
-                      displayName: "Axis Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  ylimit_sig_figs: {
-                      displayName: "Tick Decimal Places",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  ylimit_l: {
-                      displayName: "Lower Limit",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  },
-                  ylimit_u: {
-                      displayName: "Upper Limit",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: null
-                  }
-              },
-              "Ticks": {
-                  ylimit_ticks: {
-                      displayName: "Draw Ticks",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  ylimit_tick_count: {
-                      displayName: "Maximum Ticks",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 10,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  ylimit_tick_font: {
-                      displayName: "Tick Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  ylimit_tick_size: {
-                      displayName: "Tick Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  ylimit_tick_colour: {
-                      displayName: "Tick Font Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  ylimit_tick_rotation: {
-                      displayName: "Tick Rotation (Degrees)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0,
-                      options: { minValue: { value: -360 }, maxValue: { value: 360 } }
-                  }
-              },
-              "Label": {
-                  ylimit_label: {
-                      displayName: "Label",
-                      type: "TextInput" /* FormattingComponent.TextInput */,
-                      default: null
-                  },
-                  ylimit_label_font: {
-                      displayName: "Label Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  ylimit_label_size: {
-                      displayName: "Label Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  ylimit_label_colour: {
-                      displayName: "Label Font Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  }
-              }
-          }
-      },
-      labels: {
-          description: "Labels Settings",
-          displayName: "Labels Settings",
-          settingsGroups: {
-              "all": {
-                  show_labels: {
-                      displayName: "Show Value Labels",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  label_position: {
-                      displayName: "Label Position",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "top",
-                      valid: ["top", "bottom"],
-                      items: [
-                          { displayName: "Top", value: "top" },
-                          { displayName: "Bottom", value: "bottom" }
-                      ]
-                  },
-                  label_y_offset: {
-                      displayName: "Label Offset from Top/Bottom (px)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 20
-                  },
-                  label_line_offset: {
-                      displayName: "Label Offset from Connecting Line (px)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 5
-                  },
-                  label_angle_offset: {
-                      displayName: "Label Angle Offset (degrees)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 0,
-                      options: { minValue: { value: -90 }, maxValue: { value: 90 } }
-                  },
-                  label_font: {
-                      displayName: "Label Font",
-                      type: "FontPicker" /* FormattingComponent.FontPicker */,
-                      default: textOptions.font.default,
-                      valid: textOptions.font.valid
-                  },
-                  label_size: {
-                      displayName: "Label Font Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: textOptions.size.default,
-                      options: textOptions.size.options
-                  },
-                  label_colour: {
-                      displayName: "Label Font Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  label_line_colour: {
-                      displayName: "Connecting Line Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  label_line_width: {
-                      displayName: "Connecting Line Width",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  label_line_type: {
-                      displayName: "Connecting Line Type",
-                      type: "Dropdown" /* FormattingComponent.Dropdown */,
-                      default: "10 0",
-                      valid: ["10 0", "10 10", "2 5"],
-                      items: [
-                          { displayName: "Solid", value: "10 0" },
-                          { displayName: "Dashed", value: "10 10" },
-                          { displayName: "Dotted", value: "2 5" }
-                      ]
-                  },
-                  label_line_max_length: {
-                      displayName: "Max Connecting Line Length (px)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 1000,
-                      options: { minValue: { value: 0 }, maxValue: { value: 10000 } }
-                  },
-                  label_marker_show: {
-                      displayName: "Show Line Markers",
-                      type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
-                      default: true
-                  },
-                  label_marker_offset: {
-                      displayName: "Marker Offset from Value (px)",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 5
-                  },
-                  label_marker_size: {
-                      displayName: "Marker Size",
-                      type: "NumUpDown" /* FormattingComponent.NumUpDown */,
-                      default: 3,
-                      options: { minValue: { value: 0 }, maxValue: { value: 100 } }
-                  },
-                  label_marker_colour: {
-                      displayName: "Marker Fill Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  },
-                  label_marker_outline_colour: {
-                      displayName: "Marker Outline Colour",
-                      type: "ColorPicker" /* FormattingComponent.ColorPicker */,
-                      default: defaultColours.standard
-                  }
+              two_sigma_colour_neutral_high: {
+                  displayName: "Neutral (High) Two Sigma Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.neutral_high
               }
           }
       }
   };
-  const defaultSettingsArray = [];
-  for (const key in settingsModel) {
-      const curr_card = [];
-      for (const group in settingsModel[key].settingsGroups) {
-          for (const setting in settingsModel[key].settingsGroups[group]) {
-              curr_card.push([setting, settingsModel[key].settingsGroups[group][setting]]);
+
+  const scatterSettings = {
+      description: "Scatter Settings",
+      displayName: "Scatter Settings",
+      settingsGroups: {
+          "Dots": {
+              shape: {
+                  displayName: "Shape",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "Circle",
+                  valid: ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"],
+                  items: [
+                      { displayName: "Circle", value: "Circle" },
+                      { displayName: "Cross", value: "Cross" },
+                      { displayName: "Diamond", value: "Diamond" },
+                      { displayName: "Square", value: "Square" },
+                      { displayName: "Star", value: "Star" },
+                      { displayName: "Triangle", value: "Triangle" },
+                      { displayName: "Wye", value: "Wye" }
+                  ]
+              },
+              size: {
+                  displayName: "Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 2.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              colour: {
+                  displayName: "Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.common_cause
+              },
+              colour_outline: {
+                  displayName: "Outline Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.common_cause
+              },
+              width_outline: {
+                  displayName: "Outline Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              opacity: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_selected: {
+                  displayName: "Opacity if Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected: {
+                  displayName: "Opacity if Unselected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              }
+          },
+          "Group Text": {
+              use_group_text: {
+                  displayName: "Show Group Text",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              scatter_text_font: {
+                  displayName: "Group Text Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              scatter_text_size: {
+                  displayName: "Group Text Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              scatter_text_colour: {
+                  displayName: "Group Text Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              scatter_text_opacity: {
+                  displayName: "Group Text Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              scatter_text_opacity_selected: {
+                  displayName: "Group Text Opacity if Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              scatter_text_opacity_unselected: {
+                  displayName: "Group Text Opacity if Unselected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              }
           }
       }
-      defaultSettingsArray.push([key, Object.fromEntries(curr_card)]);
+  };
+
+  const linesSettings = {
+      description: "Line Settings",
+      displayName: "Line Settings",
+      settingsGroups: {
+          "Target": {
+              show_target: {
+                  displayName: "Show Target",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              width_target: {
+                  displayName: "Line Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_target: {
+                  displayName: "Line Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_target: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              opacity_target: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_target: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              ttip_show_target: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_target: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "Centerline"
+              },
+              plot_label_show_target: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              plot_label_position_target: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "beside",
+                  valid: ["above", "below", "beside"],
+                  items: [
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_target: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0
+              },
+              plot_label_hpad_target: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              plot_label_font_target: {
+                  displayName: "Value Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_target: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_target: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_target: {
+                  displayName: "Value Prefix",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: ""
+              }
+          },
+          "Alt. Target": {
+              show_alt_target: {
+                  displayName: "Show Alt. Target Line",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              alt_target: {
+                  displayName: "Additional Target Value:",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              },
+              width_alt_target: {
+                  displayName: "Line Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1.5,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_alt_target: {
+                  displayName: "Line Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_alt_target: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              opacity_alt_target: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_alt_target: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              join_rebaselines_alt_target: {
+                  displayName: "Connect Rebaselined Limits",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              ttip_show_alt_target: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_alt_target: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "Alt. Target"
+              },
+              plot_label_show_alt_target: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              plot_label_position_alt_target: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "beside",
+                  valid: ["above", "below", "beside"],
+                  items: [
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_alt_target: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0
+              },
+              plot_label_hpad_alt_target: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              plot_label_font_alt_target: {
+                  displayName: "Value Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_alt_target: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_alt_target: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_alt_target: {
+                  displayName: "Value Prefix",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: ""
+              }
+          },
+          "68% Limits": {
+              show_68: {
+                  displayName: "Show 68% Lines",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              width_68: {
+                  displayName: "Line Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_68: {
+                  displayName: "Line Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "2 5",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_68: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.limits
+              },
+              opacity_68: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_68: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              ttip_show_68: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_68: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "68% Limit"
+              },
+              plot_label_show_68: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              plot_label_position_68: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_68: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0
+              },
+              plot_label_hpad_68: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              plot_label_font_68: {
+                  displayName: "Value Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_68: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_68: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_68: {
+                  displayName: "Value Prefix",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: ""
+              }
+          },
+          "95% Limits": {
+              show_95: {
+                  displayName: "Show 95% Lines",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              width_95: {
+                  displayName: "Line Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_95: {
+                  displayName: "Line Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "2 5",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_95: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.limits
+              },
+              opacity_95: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_95: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              ttip_show_95: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_95: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "95% Limit"
+              },
+              plot_label_show_95: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              plot_label_position_95: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_95: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0
+              },
+              plot_label_hpad_95: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              plot_label_font_95: {
+                  displayName: "Value Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_95: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_95: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_95: {
+                  displayName: "Value Prefix",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: ""
+              }
+          },
+          "99% Limits": {
+              show_99: {
+                  displayName: "Show 99% Lines",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              width_99: {
+                  displayName: "Line Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              type_99: {
+                  displayName: "Line Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "10 10",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              colour_99: {
+                  displayName: "Line Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.limits
+              },
+              opacity_99: {
+                  displayName: "Default Opacity",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              opacity_unselected_99: {
+                  displayName: "Opacity if Any Selected",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0.2,
+                  options: { minValue: { value: 0 }, maxValue: { value: 1 } }
+              },
+              ttip_show_99: {
+                  displayName: "Show value in tooltip",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ttip_label_99: {
+                  displayName: "Tooltip Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: "99% Limit"
+              },
+              plot_label_show_99: {
+                  displayName: "Show Value on Plot",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: false
+              },
+              plot_label_position_99: {
+                  displayName: "Position of Value on Line(s)",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "beside",
+                  valid: ["outside", "inside", "above", "below", "beside"],
+                  items: [
+                      { displayName: "Outside", value: "outside" },
+                      { displayName: "Inside", value: "inside" },
+                      { displayName: "Above", value: "above" },
+                      { displayName: "Below", value: "below" },
+                      { displayName: "Beside", value: "beside" }
+                  ]
+              },
+              plot_label_vpad_99: {
+                  displayName: "Value Vertical Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0
+              },
+              plot_label_hpad_99: {
+                  displayName: "Value Horizontal Padding",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10
+              },
+              plot_label_font_99: {
+                  displayName: "Value Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              plot_label_size_99: {
+                  displayName: "Value Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              plot_label_colour_99: {
+                  displayName: "Value Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              plot_label_prefix_99: {
+                  displayName: "Value Prefix",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: ""
+              }
+          }
+      }
+  };
+
+  const xAxisSettings = {
+      description: "X Axis Settings",
+      displayName: "X Axis Settings",
+      settingsGroups: {
+          "Axis": {
+              xlimit_colour: {
+                  displayName: "Axis Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              xlimit_l: {
+                  displayName: "Lower Limit",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              },
+              xlimit_u: {
+                  displayName: "Upper Limit",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              }
+          },
+          "Ticks": {
+              xlimit_ticks: {
+                  displayName: "Draw Ticks",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              xlimit_tick_count: {
+                  displayName: "Maximum Ticks",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              xlimit_tick_font: {
+                  displayName: "Tick Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              xlimit_tick_size: {
+                  displayName: "Tick Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              xlimit_tick_colour: {
+                  displayName: "Tick Font Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              xlimit_tick_rotation: {
+                  displayName: "Tick Rotation (Degrees)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0,
+                  options: { minValue: { value: -360 }, maxValue: { value: 360 } }
+              }
+          },
+          "Label": {
+              xlimit_label: {
+                  displayName: "Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: undefined
+              },
+              xlimit_label_font: {
+                  displayName: "Label Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              xlimit_label_size: {
+                  displayName: "Label Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              xlimit_label_colour: {
+                  displayName: "Label Font Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              }
+          }
+      }
+  };
+
+  const yAxisSettings = {
+      description: "Y Axis Settings",
+      displayName: "Y Axis Settings",
+      settingsGroups: {
+          "Axis": {
+              ylimit_colour: {
+                  displayName: "Axis Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              ylimit_sig_figs: {
+                  displayName: "Tick Decimal Places",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              ylimit_l: {
+                  displayName: "Lower Limit",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              },
+              ylimit_u: {
+                  displayName: "Upper Limit",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: undefined
+              }
+          },
+          "Ticks": {
+              ylimit_ticks: {
+                  displayName: "Draw Ticks",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              ylimit_tick_count: {
+                  displayName: "Maximum Ticks",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 10,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              ylimit_tick_font: {
+                  displayName: "Tick Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              ylimit_tick_size: {
+                  displayName: "Tick Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              ylimit_tick_colour: {
+                  displayName: "Tick Font Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              ylimit_tick_rotation: {
+                  displayName: "Tick Rotation (Degrees)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0,
+                  options: { minValue: { value: -360 }, maxValue: { value: 360 } }
+              }
+          },
+          "Label": {
+              ylimit_label: {
+                  displayName: "Label",
+                  type: "TextInput" /* FormattingComponent.TextInput */,
+                  default: undefined
+              },
+              ylimit_label_font: {
+                  displayName: "Label Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              ylimit_label_size: {
+                  displayName: "Label Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              ylimit_label_colour: {
+                  displayName: "Label Font Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              }
+          }
+      }
+  };
+
+  const labelsSettings = {
+      description: "Labels Settings",
+      displayName: "Labels Settings",
+      settingsGroups: {
+          "all": {
+              show_labels: {
+                  displayName: "Show Value Labels",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              label_position: {
+                  displayName: "Label Position",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "top",
+                  valid: ["top", "bottom"],
+                  items: [
+                      { displayName: "Top", value: "top" },
+                      { displayName: "Bottom", value: "bottom" }
+                  ]
+              },
+              label_y_offset: {
+                  displayName: "Label Offset from Top/Bottom (px)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 20
+              },
+              label_line_offset: {
+                  displayName: "Label Offset from Connecting Line (px)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 5
+              },
+              label_angle_offset: {
+                  displayName: "Label Angle Offset (degrees)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 0,
+                  options: { minValue: { value: -90 }, maxValue: { value: 90 } }
+              },
+              label_font: {
+                  displayName: "Label Font",
+                  type: "FontPicker" /* FormattingComponent.FontPicker */,
+                  default: textOptions.font.default,
+                  valid: textOptions.font.valid
+              },
+              label_size: {
+                  displayName: "Label Font Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: textOptions.size.default,
+                  options: textOptions.size.options
+              },
+              label_colour: {
+                  displayName: "Label Font Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              label_line_colour: {
+                  displayName: "Connecting Line Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              label_line_width: {
+                  displayName: "Connecting Line Width",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              label_line_type: {
+                  displayName: "Connecting Line Type",
+                  type: "Dropdown" /* FormattingComponent.Dropdown */,
+                  default: "10 0",
+                  valid: ["10 0", "10 10", "2 5"],
+                  items: [
+                      { displayName: "Solid", value: "10 0" },
+                      { displayName: "Dashed", value: "10 10" },
+                      { displayName: "Dotted", value: "2 5" }
+                  ]
+              },
+              label_line_max_length: {
+                  displayName: "Max Connecting Line Length (px)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 1000,
+                  options: { minValue: { value: 0 }, maxValue: { value: 10000 } }
+              },
+              label_marker_show: {
+                  displayName: "Show Line Markers",
+                  type: "ToggleSwitch" /* FormattingComponent.ToggleSwitch */,
+                  default: true
+              },
+              label_marker_offset: {
+                  displayName: "Marker Offset from Value (px)",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 5
+              },
+              label_marker_size: {
+                  displayName: "Marker Size",
+                  type: "NumUpDown" /* FormattingComponent.NumUpDown */,
+                  default: 3,
+                  options: { minValue: { value: 0 }, maxValue: { value: 100 } }
+              },
+              label_marker_colour: {
+                  displayName: "Marker Fill Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              },
+              label_marker_outline_colour: {
+                  displayName: "Marker Outline Colour",
+                  type: "ColorPicker" /* FormattingComponent.ColorPicker */,
+                  default: defaultColours.standard
+              }
+          }
+      }
+  };
+
+  const settingsModel = {
+      canvas: canvasSettings,
+      funnel: funnelSettings,
+      outliers: outliersSettings,
+      scatter: scatterSettings,
+      lines: linesSettings,
+      x_axis: xAxisSettings,
+      y_axis: yAxisSettings,
+      labels: labelsSettings
+  };
+  // Add custom getters to each settings class so that individual settings can be
+  //   accessed directly - ignoring the intermediate settingsGroups layer:
+  //   - e.g. settings.spc.chart_type rather than settings.spc.settingsGroups.all.chart_type
+  for (const key in settingsModel) {
+      let settingNames = [];
+      for (const group in settingsModel[key].settingsGroups) {
+          for (const setting in settingsModel[key].settingsGroups[group]) {
+              settingNames.push(setting);
+              Object.defineProperty(settingsModel[key], setting, {
+                  get: function () {
+                      return this.settingsGroups[group][setting];
+                  }
+              });
+          }
+      }
+      Object.defineProperty(settingsModel[key], "settingNames", {
+          get: function () {
+              return settingNames;
+          }
+      });
   }
-  const defaultSettings = Object.fromEntries(defaultSettingsArray);
+  const settingsKeys = Object.keys(settingsModel);
+  const defaultValuesArray = new Array(settingsKeys.length);
+  for (let i = 0; i < settingsKeys.length; i++) {
+      const key = settingsKeys[i];
+      const settingNames = settingsModel[key].settingNames;
+      const curr_card = new Array(settingNames.length);
+      for (let j = 0; j < settingNames.length; j++) {
+          const setting = settingNames[j];
+          curr_card[j] = [setting, settingsModel[key][setting]["default"]];
+      }
+      defaultValuesArray[i] = [key, Object.fromEntries(curr_card)];
+  }
+  const defaultSettings = Object.fromEntries(defaultValuesArray);
+  const defaultSettingsString = JSON.stringify(defaultSettings);
 
   function addContextMenu(selection, visualObj) {
       if (!(visualObj.plotProperties.displayPlot)) {
@@ -4752,7 +4793,7 @@ var funnel = (function (exports) {
           const inpObjects = (inputCategories.objects ? inputCategories.objects[idx] : null);
           return Object.fromEntries(settingNames.map(settingName => {
               var _a, _b, _c, _d, _e, _f, _g;
-              const defaultSetting = defaultSettings[settingGroupName][settingName]["default"];
+              const defaultSetting = defaultSettings[settingGroupName][settingName];
               let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
               // PBI passes empty string when clearing conditional formatting
               // for dropdown setting using the eraser button, so just reset to default
@@ -4760,7 +4801,8 @@ var funnel = (function (exports) {
               // New API has numeric min/max under 'options' member
               const valid = (_b = (_a = defaultSettings[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = defaultSettings[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
               const isNumericRange = !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue);
-              if (valid) {
+              const defaultIsUndefined = isNullOrUndefined(defaultSetting);
+              if (valid && !defaultIsUndefined) {
                   let message = "";
                   if (valid instanceof Array && !valid.includes(extractedSetting)) {
                       message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
@@ -4769,7 +4811,7 @@ var funnel = (function (exports) {
                       message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_f = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _f === void 0 ? void 0 : _f.value} and ${(_g = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _g === void 0 ? void 0 : _g.value}`;
                   }
                   if (message !== "") {
-                      extractedSetting = defaultSettings[settingGroupName][settingName]["default"];
+                      extractedSetting = defaultSettings[settingGroupName][settingName];
                       validationRtn.messages[idx].push(message);
                   }
               }
@@ -6133,6 +6175,147 @@ var funnel = (function (exports) {
               label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_label_colour
           };
           this.initialiseScale(options.viewport.width, options.viewport.height);
+      }
+  }
+
+  class derivedSettingsClass {
+      update(inputSettings) {
+          const chartType = inputSettings.funnel.chart_type;
+          const pChartType = ["PR"].includes(chartType);
+          const percentSettingString = inputSettings.funnel.perc_labels;
+          let multiplier = inputSettings.funnel.multiplier;
+          let percentLabels;
+          if (percentSettingString === "Yes") {
+              multiplier = 100;
+          }
+          if (pChartType) {
+              multiplier = multiplier === 1 ? 100 : multiplier;
+          }
+          if (percentSettingString === "Automatic") {
+              percentLabels = pChartType && multiplier === 100;
+          }
+          else {
+              percentLabels = percentSettingString === "Yes";
+          }
+          this.multiplier = multiplier;
+          this.percentLabels = percentLabels;
+      }
+  }
+
+  /**
+   * This is the core class which controls the initialisation and
+   * updating of user-settings. Each member is its own class defining
+   * the types and default values for a given group of settings.
+   *
+   * These are defined in the settingsGroups.ts file
+   */
+  class settingsClass {
+      /**
+       * Function to read the values from the settings pane and update the
+       * values stored in the class.
+       *
+       * @param inputObjects
+       */
+      update(inputView) {
+          this.validationStatus
+              = JSON.parse(JSON.stringify({ status: 0, messages: new Array(), error: "" }));
+          // Get the names of all classes in settingsObject which have values to be updated
+          const allSettingGroups = Object.keys(this.settings);
+          allSettingGroups.forEach((settingGroup) => {
+              const condFormatting = extractConditionalFormatting(inputView === null || inputView === void 0 ? void 0 : inputView.categorical, settingGroup, this.settings);
+              if (condFormatting.validation.status !== 0) {
+                  this.validationStatus.status = condFormatting.validation.status;
+                  this.validationStatus.error = condFormatting.validation.error;
+              }
+              if (this.validationStatus.messages.length === 0) {
+                  this.validationStatus.messages = condFormatting.validation.messages;
+              }
+              else if (!condFormatting.validation.messages.every(d => d.length === 0)) {
+                  condFormatting.validation.messages.forEach((message, idx) => {
+                      if (message.length > 0) {
+                          this.validationStatus.messages[idx] = this.validationStatus.messages[idx].concat(message);
+                      }
+                  });
+              }
+              // Get the names of all settings in a given class and
+              // use those to extract and update the relevant values
+              const settingNames = Object.keys(this.settings[settingGroup]);
+              settingNames.forEach((settingName) => {
+                  this.settings[settingGroup][settingName]
+                      = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
+                          ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[0][settingName]
+                          : defaultSettings[settingGroup][settingName];
+              });
+          });
+          this.derivedSettings.update(this.settings);
+      }
+      getFormattingModel() {
+          var _a, _b;
+          const formattingModel = {
+              cards: []
+          };
+          for (const curr_card_name in settingsModel) {
+              let curr_card = {
+                  description: settingsModel[curr_card_name].description,
+                  displayName: settingsModel[curr_card_name].displayName,
+                  uid: curr_card_name + "_card_uid",
+                  groups: [],
+                  revertToDefaultDescriptors: []
+              };
+              for (const card_group in settingsModel[curr_card_name].settingsGroups) {
+                  let curr_group = {
+                      displayName: card_group === "all" ? settingsModel[curr_card_name].displayName : card_group,
+                      uid: curr_card_name + "_" + card_group + "_uid",
+                      slices: []
+                  };
+                  for (const setting in settingsModel[curr_card_name].settingsGroups[card_group]) {
+                      curr_card.revertToDefaultDescriptors.push({
+                          objectName: curr_card_name,
+                          propertyName: setting
+                      });
+                      let curr_slice = {
+                          uid: curr_card_name + "_" + card_group + "_" + setting + "_slice_uid",
+                          displayName: settingsModel[curr_card_name].settingsGroups[card_group][setting].displayName,
+                          control: {
+                              type: settingsModel[curr_card_name].settingsGroups[card_group][setting].type,
+                              properties: {
+                                  descriptor: {
+                                      objectName: curr_card_name,
+                                      propertyName: setting,
+                                      selector: { data: [{ dataViewWildcard: { matchingOption: 0 } }] },
+                                      instanceKind: (typeof this.settings[curr_card_name][setting]) != "boolean"
+                                          ? 3 /* VisualEnumerationInstanceKinds.ConstantOrRule */
+                                          : null
+                                  },
+                                  value: this.valueLookup(curr_card_name, card_group, setting),
+                                  items: (_a = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _a === void 0 ? void 0 : _a.items,
+                                  options: (_b = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _b === void 0 ? void 0 : _b.options
+                              }
+                          }
+                      };
+                      curr_group.slices.push(curr_slice);
+                  }
+                  curr_card.groups.push(curr_group);
+              }
+              formattingModel.cards.push(curr_card);
+          }
+          return formattingModel;
+      }
+      valueLookup(settingCardName, settingGroupName, settingName) {
+          var _a;
+          if (settingName.includes("colour")) {
+              return { value: this.settings[settingCardName][settingName] };
+          }
+          if (!isNullOrUndefined((_a = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a.items)) {
+              const allItems = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName].items;
+              const currValue = this.settings[settingCardName][settingName];
+              return allItems.find(item => item.value === currValue);
+          }
+          return this.settings[settingCardName][settingName];
+      }
+      constructor() {
+          this.settings = JSON.parse(defaultSettingsString);
+          this.derivedSettings = new derivedSettingsClass();
       }
   }
 
@@ -8688,4598 +8871,6 @@ var funnel = (function (exports) {
                   limit[type] = truncate(transform(multiply(limit[type], multiplier)), limits);
               });
           });
-      }
-  }
-
-  var powerbiVisualsApi = {};
-
-  var re = {exports: {}};
-
-  var constants;
-  var hasRequiredConstants;
-
-  function requireConstants () {
-  	if (hasRequiredConstants) return constants;
-  	hasRequiredConstants = 1;
-
-  	// Note: this is the semver.org version of the spec that it implements
-  	// Not necessarily the package version of this code.
-  	const SEMVER_SPEC_VERSION = '2.0.0';
-
-  	const MAX_LENGTH = 256;
-  	const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER ||
-  	/* istanbul ignore next */ 9007199254740991;
-
-  	// Max safe segment length for coercion.
-  	const MAX_SAFE_COMPONENT_LENGTH = 16;
-
-  	// Max safe length for a build identifier. The max length minus 6 characters for
-  	// the shortest version with a build 0.0.0+BUILD.
-  	const MAX_SAFE_BUILD_LENGTH = MAX_LENGTH - 6;
-
-  	const RELEASE_TYPES = [
-  	  'major',
-  	  'premajor',
-  	  'minor',
-  	  'preminor',
-  	  'patch',
-  	  'prepatch',
-  	  'prerelease',
-  	];
-
-  	constants = {
-  	  MAX_LENGTH,
-  	  MAX_SAFE_COMPONENT_LENGTH,
-  	  MAX_SAFE_BUILD_LENGTH,
-  	  MAX_SAFE_INTEGER,
-  	  RELEASE_TYPES,
-  	  SEMVER_SPEC_VERSION,
-  	  FLAG_INCLUDE_PRERELEASE: 0b001,
-  	  FLAG_LOOSE: 0b010,
-  	};
-  	return constants;
-  }
-
-  var debug_1;
-  var hasRequiredDebug;
-
-  function requireDebug () {
-  	if (hasRequiredDebug) return debug_1;
-  	hasRequiredDebug = 1;
-
-  	const debug = (
-  	  typeof process === 'object' &&
-  	  process.env &&
-  	  process.env.NODE_DEBUG &&
-  	  /\bsemver\b/i.test(process.env.NODE_DEBUG)
-  	) ? (...args) => console.error('SEMVER', ...args)
-  	  : () => {};
-
-  	debug_1 = debug;
-  	return debug_1;
-  }
-
-  var hasRequiredRe;
-
-  function requireRe () {
-  	if (hasRequiredRe) return re.exports;
-  	hasRequiredRe = 1;
-  	(function (module, exports) {
-
-  		const {
-  		  MAX_SAFE_COMPONENT_LENGTH,
-  		  MAX_SAFE_BUILD_LENGTH,
-  		  MAX_LENGTH,
-  		} = requireConstants();
-  		const debug = requireDebug();
-  		exports = module.exports = {};
-
-  		// The actual regexps go on exports.re
-  		const re = exports.re = [];
-  		const safeRe = exports.safeRe = [];
-  		const src = exports.src = [];
-  		const safeSrc = exports.safeSrc = [];
-  		const t = exports.t = {};
-  		let R = 0;
-
-  		const LETTERDASHNUMBER = '[a-zA-Z0-9-]';
-
-  		// Replace some greedy regex tokens to prevent regex dos issues. These regex are
-  		// used internally via the safeRe object since all inputs in this library get
-  		// normalized first to trim and collapse all extra whitespace. The original
-  		// regexes are exported for userland consumption and lower level usage. A
-  		// future breaking change could export the safer regex only with a note that
-  		// all input should have extra whitespace removed.
-  		const safeRegexReplacements = [
-  		  ['\\s', 1],
-  		  ['\\d', MAX_LENGTH],
-  		  [LETTERDASHNUMBER, MAX_SAFE_BUILD_LENGTH],
-  		];
-
-  		const makeSafeRegex = (value) => {
-  		  for (const [token, max] of safeRegexReplacements) {
-  		    value = value
-  		      .split(`${token}*`).join(`${token}{0,${max}}`)
-  		      .split(`${token}+`).join(`${token}{1,${max}}`);
-  		  }
-  		  return value
-  		};
-
-  		const createToken = (name, value, isGlobal) => {
-  		  const safe = makeSafeRegex(value);
-  		  const index = R++;
-  		  debug(name, index, value);
-  		  t[name] = index;
-  		  src[index] = value;
-  		  safeSrc[index] = safe;
-  		  re[index] = new RegExp(value, isGlobal ? 'g' : undefined);
-  		  safeRe[index] = new RegExp(safe, isGlobal ? 'g' : undefined);
-  		};
-
-  		// The following Regular Expressions can be used for tokenizing,
-  		// validating, and parsing SemVer version strings.
-
-  		// ## Numeric Identifier
-  		// A single `0`, or a non-zero digit followed by zero or more digits.
-
-  		createToken('NUMERICIDENTIFIER', '0|[1-9]\\d*');
-  		createToken('NUMERICIDENTIFIERLOOSE', '\\d+');
-
-  		// ## Non-numeric Identifier
-  		// Zero or more digits, followed by a letter or hyphen, and then zero or
-  		// more letters, digits, or hyphens.
-
-  		createToken('NONNUMERICIDENTIFIER', `\\d*[a-zA-Z-]${LETTERDASHNUMBER}*`);
-
-  		// ## Main Version
-  		// Three dot-separated numeric identifiers.
-
-  		createToken('MAINVERSION', `(${src[t.NUMERICIDENTIFIER]})\\.` +
-  		                   `(${src[t.NUMERICIDENTIFIER]})\\.` +
-  		                   `(${src[t.NUMERICIDENTIFIER]})`);
-
-  		createToken('MAINVERSIONLOOSE', `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-  		                        `(${src[t.NUMERICIDENTIFIERLOOSE]})\\.` +
-  		                        `(${src[t.NUMERICIDENTIFIERLOOSE]})`);
-
-  		// ## Pre-release Version Identifier
-  		// A numeric identifier, or a non-numeric identifier.
-  		// Non-numeric identifiers include numeric identifiers but can be longer.
-  		// Therefore non-numeric identifiers must go first.
-
-  		createToken('PRERELEASEIDENTIFIER', `(?:${src[t.NONNUMERICIDENTIFIER]
-		}|${src[t.NUMERICIDENTIFIER]})`);
-
-  		createToken('PRERELEASEIDENTIFIERLOOSE', `(?:${src[t.NONNUMERICIDENTIFIER]
-		}|${src[t.NUMERICIDENTIFIERLOOSE]})`);
-
-  		// ## Pre-release Version
-  		// Hyphen, followed by one or more dot-separated pre-release version
-  		// identifiers.
-
-  		createToken('PRERELEASE', `(?:-(${src[t.PRERELEASEIDENTIFIER]
-		}(?:\\.${src[t.PRERELEASEIDENTIFIER]})*))`);
-
-  		createToken('PRERELEASELOOSE', `(?:-?(${src[t.PRERELEASEIDENTIFIERLOOSE]
-		}(?:\\.${src[t.PRERELEASEIDENTIFIERLOOSE]})*))`);
-
-  		// ## Build Metadata Identifier
-  		// Any combination of digits, letters, or hyphens.
-
-  		createToken('BUILDIDENTIFIER', `${LETTERDASHNUMBER}+`);
-
-  		// ## Build Metadata
-  		// Plus sign, followed by one or more period-separated build metadata
-  		// identifiers.
-
-  		createToken('BUILD', `(?:\\+(${src[t.BUILDIDENTIFIER]
-		}(?:\\.${src[t.BUILDIDENTIFIER]})*))`);
-
-  		// ## Full Version String
-  		// A main version, followed optionally by a pre-release version and
-  		// build metadata.
-
-  		// Note that the only major, minor, patch, and pre-release sections of
-  		// the version string are capturing groups.  The build metadata is not a
-  		// capturing group, because it should not ever be used in version
-  		// comparison.
-
-  		createToken('FULLPLAIN', `v?${src[t.MAINVERSION]
-		}${src[t.PRERELEASE]}?${
-		  src[t.BUILD]}?`);
-
-  		createToken('FULL', `^${src[t.FULLPLAIN]}$`);
-
-  		// like full, but allows v1.2.3 and =1.2.3, which people do sometimes.
-  		// also, 1.0.0alpha1 (prerelease without the hyphen) which is pretty
-  		// common in the npm registry.
-  		createToken('LOOSEPLAIN', `[v=\\s]*${src[t.MAINVERSIONLOOSE]
-		}${src[t.PRERELEASELOOSE]}?${
-		  src[t.BUILD]}?`);
-
-  		createToken('LOOSE', `^${src[t.LOOSEPLAIN]}$`);
-
-  		createToken('GTLT', '((?:<|>)?=?)');
-
-  		// Something like "2.*" or "1.2.x".
-  		// Note that "x.x" is a valid xRange identifer, meaning "any version"
-  		// Only the first item is strictly required.
-  		createToken('XRANGEIDENTIFIERLOOSE', `${src[t.NUMERICIDENTIFIERLOOSE]}|x|X|\\*`);
-  		createToken('XRANGEIDENTIFIER', `${src[t.NUMERICIDENTIFIER]}|x|X|\\*`);
-
-  		createToken('XRANGEPLAIN', `[v=\\s]*(${src[t.XRANGEIDENTIFIER]})` +
-  		                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-  		                   `(?:\\.(${src[t.XRANGEIDENTIFIER]})` +
-  		                   `(?:${src[t.PRERELEASE]})?${
-		                     src[t.BUILD]}?` +
-  		                   `)?)?`);
-
-  		createToken('XRANGEPLAINLOOSE', `[v=\\s]*(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-  		                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-  		                        `(?:\\.(${src[t.XRANGEIDENTIFIERLOOSE]})` +
-  		                        `(?:${src[t.PRERELEASELOOSE]})?${
-		                          src[t.BUILD]}?` +
-  		                        `)?)?`);
-
-  		createToken('XRANGE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAIN]}$`);
-  		createToken('XRANGELOOSE', `^${src[t.GTLT]}\\s*${src[t.XRANGEPLAINLOOSE]}$`);
-
-  		// Coercion.
-  		// Extract anything that could conceivably be a part of a valid semver
-  		createToken('COERCEPLAIN', `${'(^|[^\\d])' +
-		              '(\\d{1,'}${MAX_SAFE_COMPONENT_LENGTH}})` +
-  		              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?` +
-  		              `(?:\\.(\\d{1,${MAX_SAFE_COMPONENT_LENGTH}}))?`);
-  		createToken('COERCE', `${src[t.COERCEPLAIN]}(?:$|[^\\d])`);
-  		createToken('COERCEFULL', src[t.COERCEPLAIN] +
-  		              `(?:${src[t.PRERELEASE]})?` +
-  		              `(?:${src[t.BUILD]})?` +
-  		              `(?:$|[^\\d])`);
-  		createToken('COERCERTL', src[t.COERCE], true);
-  		createToken('COERCERTLFULL', src[t.COERCEFULL], true);
-
-  		// Tilde ranges.
-  		// Meaning is "reasonably at or greater than"
-  		createToken('LONETILDE', '(?:~>?)');
-
-  		createToken('TILDETRIM', `(\\s*)${src[t.LONETILDE]}\\s+`, true);
-  		exports.tildeTrimReplace = '$1~';
-
-  		createToken('TILDE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAIN]}$`);
-  		createToken('TILDELOOSE', `^${src[t.LONETILDE]}${src[t.XRANGEPLAINLOOSE]}$`);
-
-  		// Caret ranges.
-  		// Meaning is "at least and backwards compatible with"
-  		createToken('LONECARET', '(?:\\^)');
-
-  		createToken('CARETTRIM', `(\\s*)${src[t.LONECARET]}\\s+`, true);
-  		exports.caretTrimReplace = '$1^';
-
-  		createToken('CARET', `^${src[t.LONECARET]}${src[t.XRANGEPLAIN]}$`);
-  		createToken('CARETLOOSE', `^${src[t.LONECARET]}${src[t.XRANGEPLAINLOOSE]}$`);
-
-  		// A simple gt/lt/eq thing, or just "" to indicate "any version"
-  		createToken('COMPARATORLOOSE', `^${src[t.GTLT]}\\s*(${src[t.LOOSEPLAIN]})$|^$`);
-  		createToken('COMPARATOR', `^${src[t.GTLT]}\\s*(${src[t.FULLPLAIN]})$|^$`);
-
-  		// An expression to strip any whitespace between the gtlt and the thing
-  		// it modifies, so that `> 1.2.3` ==> `>1.2.3`
-  		createToken('COMPARATORTRIM', `(\\s*)${src[t.GTLT]
-		}\\s*(${src[t.LOOSEPLAIN]}|${src[t.XRANGEPLAIN]})`, true);
-  		exports.comparatorTrimReplace = '$1$2$3';
-
-  		// Something like `1.2.3 - 1.2.4`
-  		// Note that these all use the loose form, because they'll be
-  		// checked against either the strict or loose comparator form
-  		// later.
-  		createToken('HYPHENRANGE', `^\\s*(${src[t.XRANGEPLAIN]})` +
-  		                   `\\s+-\\s+` +
-  		                   `(${src[t.XRANGEPLAIN]})` +
-  		                   `\\s*$`);
-
-  		createToken('HYPHENRANGELOOSE', `^\\s*(${src[t.XRANGEPLAINLOOSE]})` +
-  		                        `\\s+-\\s+` +
-  		                        `(${src[t.XRANGEPLAINLOOSE]})` +
-  		                        `\\s*$`);
-
-  		// Star ranges basically just allow anything at all.
-  		createToken('STAR', '(<|>)?=?\\s*\\*');
-  		// >=0.0.0 is like a star
-  		createToken('GTE0', '^\\s*>=\\s*0\\.0\\.0\\s*$');
-  		createToken('GTE0PRE', '^\\s*>=\\s*0\\.0\\.0-0\\s*$'); 
-  	} (re, re.exports));
-  	return re.exports;
-  }
-
-  var parseOptions_1;
-  var hasRequiredParseOptions;
-
-  function requireParseOptions () {
-  	if (hasRequiredParseOptions) return parseOptions_1;
-  	hasRequiredParseOptions = 1;
-
-  	// parse out just the options we care about
-  	const looseOption = Object.freeze({ loose: true });
-  	const emptyOpts = Object.freeze({ });
-  	const parseOptions = options => {
-  	  if (!options) {
-  	    return emptyOpts
-  	  }
-
-  	  if (typeof options !== 'object') {
-  	    return looseOption
-  	  }
-
-  	  return options
-  	};
-  	parseOptions_1 = parseOptions;
-  	return parseOptions_1;
-  }
-
-  var identifiers;
-  var hasRequiredIdentifiers;
-
-  function requireIdentifiers () {
-  	if (hasRequiredIdentifiers) return identifiers;
-  	hasRequiredIdentifiers = 1;
-
-  	const numeric = /^[0-9]+$/;
-  	const compareIdentifiers = (a, b) => {
-  	  if (typeof a === 'number' && typeof b === 'number') {
-  	    return a === b ? 0 : a < b ? -1 : 1
-  	  }
-
-  	  const anum = numeric.test(a);
-  	  const bnum = numeric.test(b);
-
-  	  if (anum && bnum) {
-  	    a = +a;
-  	    b = +b;
-  	  }
-
-  	  return a === b ? 0
-  	    : (anum && !bnum) ? -1
-  	    : (bnum && !anum) ? 1
-  	    : a < b ? -1
-  	    : 1
-  	};
-
-  	const rcompareIdentifiers = (a, b) => compareIdentifiers(b, a);
-
-  	identifiers = {
-  	  compareIdentifiers,
-  	  rcompareIdentifiers,
-  	};
-  	return identifiers;
-  }
-
-  var semver$1;
-  var hasRequiredSemver$1;
-
-  function requireSemver$1 () {
-  	if (hasRequiredSemver$1) return semver$1;
-  	hasRequiredSemver$1 = 1;
-
-  	const debug = requireDebug();
-  	const { MAX_LENGTH, MAX_SAFE_INTEGER } = requireConstants();
-  	const { safeRe: re, t } = requireRe();
-
-  	const parseOptions = requireParseOptions();
-  	const { compareIdentifiers } = requireIdentifiers();
-  	class SemVer {
-  	  constructor (version, options) {
-  	    options = parseOptions(options);
-
-  	    if (version instanceof SemVer) {
-  	      if (version.loose === !!options.loose &&
-  	        version.includePrerelease === !!options.includePrerelease) {
-  	        return version
-  	      } else {
-  	        version = version.version;
-  	      }
-  	    } else if (typeof version !== 'string') {
-  	      throw new TypeError(`Invalid version. Must be a string. Got type "${typeof version}".`)
-  	    }
-
-  	    if (version.length > MAX_LENGTH) {
-  	      throw new TypeError(
-  	        `version is longer than ${MAX_LENGTH} characters`
-  	      )
-  	    }
-
-  	    debug('SemVer', version, options);
-  	    this.options = options;
-  	    this.loose = !!options.loose;
-  	    // this isn't actually relevant for versions, but keep it so that we
-  	    // don't run into trouble passing this.options around.
-  	    this.includePrerelease = !!options.includePrerelease;
-
-  	    const m = version.trim().match(options.loose ? re[t.LOOSE] : re[t.FULL]);
-
-  	    if (!m) {
-  	      throw new TypeError(`Invalid Version: ${version}`)
-  	    }
-
-  	    this.raw = version;
-
-  	    // these are actually numbers
-  	    this.major = +m[1];
-  	    this.minor = +m[2];
-  	    this.patch = +m[3];
-
-  	    if (this.major > MAX_SAFE_INTEGER || this.major < 0) {
-  	      throw new TypeError('Invalid major version')
-  	    }
-
-  	    if (this.minor > MAX_SAFE_INTEGER || this.minor < 0) {
-  	      throw new TypeError('Invalid minor version')
-  	    }
-
-  	    if (this.patch > MAX_SAFE_INTEGER || this.patch < 0) {
-  	      throw new TypeError('Invalid patch version')
-  	    }
-
-  	    // numberify any prerelease numeric ids
-  	    if (!m[4]) {
-  	      this.prerelease = [];
-  	    } else {
-  	      this.prerelease = m[4].split('.').map((id) => {
-  	        if (/^[0-9]+$/.test(id)) {
-  	          const num = +id;
-  	          if (num >= 0 && num < MAX_SAFE_INTEGER) {
-  	            return num
-  	          }
-  	        }
-  	        return id
-  	      });
-  	    }
-
-  	    this.build = m[5] ? m[5].split('.') : [];
-  	    this.format();
-  	  }
-
-  	  format () {
-  	    this.version = `${this.major}.${this.minor}.${this.patch}`;
-  	    if (this.prerelease.length) {
-  	      this.version += `-${this.prerelease.join('.')}`;
-  	    }
-  	    return this.version
-  	  }
-
-  	  toString () {
-  	    return this.version
-  	  }
-
-  	  compare (other) {
-  	    debug('SemVer.compare', this.version, this.options, other);
-  	    if (!(other instanceof SemVer)) {
-  	      if (typeof other === 'string' && other === this.version) {
-  	        return 0
-  	      }
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    if (other.version === this.version) {
-  	      return 0
-  	    }
-
-  	    return this.compareMain(other) || this.comparePre(other)
-  	  }
-
-  	  compareMain (other) {
-  	    if (!(other instanceof SemVer)) {
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    if (this.major < other.major) {
-  	      return -1
-  	    }
-  	    if (this.major > other.major) {
-  	      return 1
-  	    }
-  	    if (this.minor < other.minor) {
-  	      return -1
-  	    }
-  	    if (this.minor > other.minor) {
-  	      return 1
-  	    }
-  	    if (this.patch < other.patch) {
-  	      return -1
-  	    }
-  	    if (this.patch > other.patch) {
-  	      return 1
-  	    }
-  	    return 0
-  	  }
-
-  	  comparePre (other) {
-  	    if (!(other instanceof SemVer)) {
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    // NOT having a prerelease is > having one
-  	    if (this.prerelease.length && !other.prerelease.length) {
-  	      return -1
-  	    } else if (!this.prerelease.length && other.prerelease.length) {
-  	      return 1
-  	    } else if (!this.prerelease.length && !other.prerelease.length) {
-  	      return 0
-  	    }
-
-  	    let i = 0;
-  	    do {
-  	      const a = this.prerelease[i];
-  	      const b = other.prerelease[i];
-  	      debug('prerelease compare', i, a, b);
-  	      if (a === undefined && b === undefined) {
-  	        return 0
-  	      } else if (b === undefined) {
-  	        return 1
-  	      } else if (a === undefined) {
-  	        return -1
-  	      } else if (a === b) {
-  	        continue
-  	      } else {
-  	        return compareIdentifiers(a, b)
-  	      }
-  	    } while (++i)
-  	  }
-
-  	  compareBuild (other) {
-  	    if (!(other instanceof SemVer)) {
-  	      other = new SemVer(other, this.options);
-  	    }
-
-  	    let i = 0;
-  	    do {
-  	      const a = this.build[i];
-  	      const b = other.build[i];
-  	      debug('build compare', i, a, b);
-  	      if (a === undefined && b === undefined) {
-  	        return 0
-  	      } else if (b === undefined) {
-  	        return 1
-  	      } else if (a === undefined) {
-  	        return -1
-  	      } else if (a === b) {
-  	        continue
-  	      } else {
-  	        return compareIdentifiers(a, b)
-  	      }
-  	    } while (++i)
-  	  }
-
-  	  // preminor will bump the version up to the next minor release, and immediately
-  	  // down to pre-release. premajor and prepatch work the same way.
-  	  inc (release, identifier, identifierBase) {
-  	    if (release.startsWith('pre')) {
-  	      if (!identifier && identifierBase === false) {
-  	        throw new Error('invalid increment argument: identifier is empty')
-  	      }
-  	      // Avoid an invalid semver results
-  	      if (identifier) {
-  	        const match = `-${identifier}`.match(this.options.loose ? re[t.PRERELEASELOOSE] : re[t.PRERELEASE]);
-  	        if (!match || match[1] !== identifier) {
-  	          throw new Error(`invalid identifier: ${identifier}`)
-  	        }
-  	      }
-  	    }
-
-  	    switch (release) {
-  	      case 'premajor':
-  	        this.prerelease.length = 0;
-  	        this.patch = 0;
-  	        this.minor = 0;
-  	        this.major++;
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      case 'preminor':
-  	        this.prerelease.length = 0;
-  	        this.patch = 0;
-  	        this.minor++;
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      case 'prepatch':
-  	        // If this is already a prerelease, it will bump to the next version
-  	        // drop any prereleases that might already exist, since they are not
-  	        // relevant at this point.
-  	        this.prerelease.length = 0;
-  	        this.inc('patch', identifier, identifierBase);
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      // If the input is a non-prerelease version, this acts the same as
-  	      // prepatch.
-  	      case 'prerelease':
-  	        if (this.prerelease.length === 0) {
-  	          this.inc('patch', identifier, identifierBase);
-  	        }
-  	        this.inc('pre', identifier, identifierBase);
-  	        break
-  	      case 'release':
-  	        if (this.prerelease.length === 0) {
-  	          throw new Error(`version ${this.raw} is not a prerelease`)
-  	        }
-  	        this.prerelease.length = 0;
-  	        break
-
-  	      case 'major':
-  	        // If this is a pre-major version, bump up to the same major version.
-  	        // Otherwise increment major.
-  	        // 1.0.0-5 bumps to 1.0.0
-  	        // 1.1.0 bumps to 2.0.0
-  	        if (
-  	          this.minor !== 0 ||
-  	          this.patch !== 0 ||
-  	          this.prerelease.length === 0
-  	        ) {
-  	          this.major++;
-  	        }
-  	        this.minor = 0;
-  	        this.patch = 0;
-  	        this.prerelease = [];
-  	        break
-  	      case 'minor':
-  	        // If this is a pre-minor version, bump up to the same minor version.
-  	        // Otherwise increment minor.
-  	        // 1.2.0-5 bumps to 1.2.0
-  	        // 1.2.1 bumps to 1.3.0
-  	        if (this.patch !== 0 || this.prerelease.length === 0) {
-  	          this.minor++;
-  	        }
-  	        this.patch = 0;
-  	        this.prerelease = [];
-  	        break
-  	      case 'patch':
-  	        // If this is not a pre-release version, it will increment the patch.
-  	        // If it is a pre-release it will bump up to the same patch version.
-  	        // 1.2.0-5 patches to 1.2.0
-  	        // 1.2.0 patches to 1.2.1
-  	        if (this.prerelease.length === 0) {
-  	          this.patch++;
-  	        }
-  	        this.prerelease = [];
-  	        break
-  	      // This probably shouldn't be used publicly.
-  	      // 1.0.0 'pre' would become 1.0.0-0 which is the wrong direction.
-  	      case 'pre': {
-  	        const base = Number(identifierBase) ? 1 : 0;
-
-  	        if (this.prerelease.length === 0) {
-  	          this.prerelease = [base];
-  	        } else {
-  	          let i = this.prerelease.length;
-  	          while (--i >= 0) {
-  	            if (typeof this.prerelease[i] === 'number') {
-  	              this.prerelease[i]++;
-  	              i = -2;
-  	            }
-  	          }
-  	          if (i === -1) {
-  	            // didn't increment anything
-  	            if (identifier === this.prerelease.join('.') && identifierBase === false) {
-  	              throw new Error('invalid increment argument: identifier already exists')
-  	            }
-  	            this.prerelease.push(base);
-  	          }
-  	        }
-  	        if (identifier) {
-  	          // 1.2.0-beta.1 bumps to 1.2.0-beta.2,
-  	          // 1.2.0-beta.fooblz or 1.2.0-beta bumps to 1.2.0-beta.0
-  	          let prerelease = [identifier, base];
-  	          if (identifierBase === false) {
-  	            prerelease = [identifier];
-  	          }
-  	          if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
-  	            if (isNaN(this.prerelease[1])) {
-  	              this.prerelease = prerelease;
-  	            }
-  	          } else {
-  	            this.prerelease = prerelease;
-  	          }
-  	        }
-  	        break
-  	      }
-  	      default:
-  	        throw new Error(`invalid increment argument: ${release}`)
-  	    }
-  	    this.raw = this.format();
-  	    if (this.build.length) {
-  	      this.raw += `+${this.build.join('.')}`;
-  	    }
-  	    return this
-  	  }
-  	}
-
-  	semver$1 = SemVer;
-  	return semver$1;
-  }
-
-  var parse_1;
-  var hasRequiredParse;
-
-  function requireParse () {
-  	if (hasRequiredParse) return parse_1;
-  	hasRequiredParse = 1;
-
-  	const SemVer = requireSemver$1();
-  	const parse = (version, options, throwErrors = false) => {
-  	  if (version instanceof SemVer) {
-  	    return version
-  	  }
-  	  try {
-  	    return new SemVer(version, options)
-  	  } catch (er) {
-  	    if (!throwErrors) {
-  	      return null
-  	    }
-  	    throw er
-  	  }
-  	};
-
-  	parse_1 = parse;
-  	return parse_1;
-  }
-
-  var valid_1;
-  var hasRequiredValid$1;
-
-  function requireValid$1 () {
-  	if (hasRequiredValid$1) return valid_1;
-  	hasRequiredValid$1 = 1;
-
-  	const parse = requireParse();
-  	const valid = (version, options) => {
-  	  const v = parse(version, options);
-  	  return v ? v.version : null
-  	};
-  	valid_1 = valid;
-  	return valid_1;
-  }
-
-  var clean_1;
-  var hasRequiredClean;
-
-  function requireClean () {
-  	if (hasRequiredClean) return clean_1;
-  	hasRequiredClean = 1;
-
-  	const parse = requireParse();
-  	const clean = (version, options) => {
-  	  const s = parse(version.trim().replace(/^[=v]+/, ''), options);
-  	  return s ? s.version : null
-  	};
-  	clean_1 = clean;
-  	return clean_1;
-  }
-
-  var inc_1;
-  var hasRequiredInc;
-
-  function requireInc () {
-  	if (hasRequiredInc) return inc_1;
-  	hasRequiredInc = 1;
-
-  	const SemVer = requireSemver$1();
-
-  	const inc = (version, release, options, identifier, identifierBase) => {
-  	  if (typeof (options) === 'string') {
-  	    identifierBase = identifier;
-  	    identifier = options;
-  	    options = undefined;
-  	  }
-
-  	  try {
-  	    return new SemVer(
-  	      version instanceof SemVer ? version.version : version,
-  	      options
-  	    ).inc(release, identifier, identifierBase).version
-  	  } catch (er) {
-  	    return null
-  	  }
-  	};
-  	inc_1 = inc;
-  	return inc_1;
-  }
-
-  var diff_1;
-  var hasRequiredDiff;
-
-  function requireDiff () {
-  	if (hasRequiredDiff) return diff_1;
-  	hasRequiredDiff = 1;
-
-  	const parse = requireParse();
-
-  	const diff = (version1, version2) => {
-  	  const v1 = parse(version1, null, true);
-  	  const v2 = parse(version2, null, true);
-  	  const comparison = v1.compare(v2);
-
-  	  if (comparison === 0) {
-  	    return null
-  	  }
-
-  	  const v1Higher = comparison > 0;
-  	  const highVersion = v1Higher ? v1 : v2;
-  	  const lowVersion = v1Higher ? v2 : v1;
-  	  const highHasPre = !!highVersion.prerelease.length;
-  	  const lowHasPre = !!lowVersion.prerelease.length;
-
-  	  if (lowHasPre && !highHasPre) {
-  	    // Going from prerelease -> no prerelease requires some special casing
-
-  	    // If the low version has only a major, then it will always be a major
-  	    // Some examples:
-  	    // 1.0.0-1 -> 1.0.0
-  	    // 1.0.0-1 -> 1.1.1
-  	    // 1.0.0-1 -> 2.0.0
-  	    if (!lowVersion.patch && !lowVersion.minor) {
-  	      return 'major'
-  	    }
-
-  	    // If the main part has no difference
-  	    if (lowVersion.compareMain(highVersion) === 0) {
-  	      if (lowVersion.minor && !lowVersion.patch) {
-  	        return 'minor'
-  	      }
-  	      return 'patch'
-  	    }
-  	  }
-
-  	  // add the `pre` prefix if we are going to a prerelease version
-  	  const prefix = highHasPre ? 'pre' : '';
-
-  	  if (v1.major !== v2.major) {
-  	    return prefix + 'major'
-  	  }
-
-  	  if (v1.minor !== v2.minor) {
-  	    return prefix + 'minor'
-  	  }
-
-  	  if (v1.patch !== v2.patch) {
-  	    return prefix + 'patch'
-  	  }
-
-  	  // high and low are prereleases
-  	  return 'prerelease'
-  	};
-
-  	diff_1 = diff;
-  	return diff_1;
-  }
-
-  var major_1;
-  var hasRequiredMajor;
-
-  function requireMajor () {
-  	if (hasRequiredMajor) return major_1;
-  	hasRequiredMajor = 1;
-
-  	const SemVer = requireSemver$1();
-  	const major = (a, loose) => new SemVer(a, loose).major;
-  	major_1 = major;
-  	return major_1;
-  }
-
-  var minor_1;
-  var hasRequiredMinor;
-
-  function requireMinor () {
-  	if (hasRequiredMinor) return minor_1;
-  	hasRequiredMinor = 1;
-
-  	const SemVer = requireSemver$1();
-  	const minor = (a, loose) => new SemVer(a, loose).minor;
-  	minor_1 = minor;
-  	return minor_1;
-  }
-
-  var patch_1;
-  var hasRequiredPatch;
-
-  function requirePatch () {
-  	if (hasRequiredPatch) return patch_1;
-  	hasRequiredPatch = 1;
-
-  	const SemVer = requireSemver$1();
-  	const patch = (a, loose) => new SemVer(a, loose).patch;
-  	patch_1 = patch;
-  	return patch_1;
-  }
-
-  var prerelease_1;
-  var hasRequiredPrerelease;
-
-  function requirePrerelease () {
-  	if (hasRequiredPrerelease) return prerelease_1;
-  	hasRequiredPrerelease = 1;
-
-  	const parse = requireParse();
-  	const prerelease = (version, options) => {
-  	  const parsed = parse(version, options);
-  	  return (parsed && parsed.prerelease.length) ? parsed.prerelease : null
-  	};
-  	prerelease_1 = prerelease;
-  	return prerelease_1;
-  }
-
-  var compare_1;
-  var hasRequiredCompare;
-
-  function requireCompare () {
-  	if (hasRequiredCompare) return compare_1;
-  	hasRequiredCompare = 1;
-
-  	const SemVer = requireSemver$1();
-  	const compare = (a, b, loose) =>
-  	  new SemVer(a, loose).compare(new SemVer(b, loose));
-
-  	compare_1 = compare;
-  	return compare_1;
-  }
-
-  var rcompare_1;
-  var hasRequiredRcompare;
-
-  function requireRcompare () {
-  	if (hasRequiredRcompare) return rcompare_1;
-  	hasRequiredRcompare = 1;
-
-  	const compare = requireCompare();
-  	const rcompare = (a, b, loose) => compare(b, a, loose);
-  	rcompare_1 = rcompare;
-  	return rcompare_1;
-  }
-
-  var compareLoose_1;
-  var hasRequiredCompareLoose;
-
-  function requireCompareLoose () {
-  	if (hasRequiredCompareLoose) return compareLoose_1;
-  	hasRequiredCompareLoose = 1;
-
-  	const compare = requireCompare();
-  	const compareLoose = (a, b) => compare(a, b, true);
-  	compareLoose_1 = compareLoose;
-  	return compareLoose_1;
-  }
-
-  var compareBuild_1;
-  var hasRequiredCompareBuild;
-
-  function requireCompareBuild () {
-  	if (hasRequiredCompareBuild) return compareBuild_1;
-  	hasRequiredCompareBuild = 1;
-
-  	const SemVer = requireSemver$1();
-  	const compareBuild = (a, b, loose) => {
-  	  const versionA = new SemVer(a, loose);
-  	  const versionB = new SemVer(b, loose);
-  	  return versionA.compare(versionB) || versionA.compareBuild(versionB)
-  	};
-  	compareBuild_1 = compareBuild;
-  	return compareBuild_1;
-  }
-
-  var sort_1;
-  var hasRequiredSort;
-
-  function requireSort () {
-  	if (hasRequiredSort) return sort_1;
-  	hasRequiredSort = 1;
-
-  	const compareBuild = requireCompareBuild();
-  	const sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose));
-  	sort_1 = sort;
-  	return sort_1;
-  }
-
-  var rsort_1;
-  var hasRequiredRsort;
-
-  function requireRsort () {
-  	if (hasRequiredRsort) return rsort_1;
-  	hasRequiredRsort = 1;
-
-  	const compareBuild = requireCompareBuild();
-  	const rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose));
-  	rsort_1 = rsort;
-  	return rsort_1;
-  }
-
-  var gt_1;
-  var hasRequiredGt;
-
-  function requireGt () {
-  	if (hasRequiredGt) return gt_1;
-  	hasRequiredGt = 1;
-
-  	const compare = requireCompare();
-  	const gt = (a, b, loose) => compare(a, b, loose) > 0;
-  	gt_1 = gt;
-  	return gt_1;
-  }
-
-  var lt_1;
-  var hasRequiredLt;
-
-  function requireLt () {
-  	if (hasRequiredLt) return lt_1;
-  	hasRequiredLt = 1;
-
-  	const compare = requireCompare();
-  	const lt = (a, b, loose) => compare(a, b, loose) < 0;
-  	lt_1 = lt;
-  	return lt_1;
-  }
-
-  var eq_1;
-  var hasRequiredEq;
-
-  function requireEq () {
-  	if (hasRequiredEq) return eq_1;
-  	hasRequiredEq = 1;
-
-  	const compare = requireCompare();
-  	const eq = (a, b, loose) => compare(a, b, loose) === 0;
-  	eq_1 = eq;
-  	return eq_1;
-  }
-
-  var neq_1;
-  var hasRequiredNeq;
-
-  function requireNeq () {
-  	if (hasRequiredNeq) return neq_1;
-  	hasRequiredNeq = 1;
-
-  	const compare = requireCompare();
-  	const neq = (a, b, loose) => compare(a, b, loose) !== 0;
-  	neq_1 = neq;
-  	return neq_1;
-  }
-
-  var gte_1;
-  var hasRequiredGte;
-
-  function requireGte () {
-  	if (hasRequiredGte) return gte_1;
-  	hasRequiredGte = 1;
-
-  	const compare = requireCompare();
-  	const gte = (a, b, loose) => compare(a, b, loose) >= 0;
-  	gte_1 = gte;
-  	return gte_1;
-  }
-
-  var lte_1;
-  var hasRequiredLte;
-
-  function requireLte () {
-  	if (hasRequiredLte) return lte_1;
-  	hasRequiredLte = 1;
-
-  	const compare = requireCompare();
-  	const lte = (a, b, loose) => compare(a, b, loose) <= 0;
-  	lte_1 = lte;
-  	return lte_1;
-  }
-
-  var cmp_1;
-  var hasRequiredCmp;
-
-  function requireCmp () {
-  	if (hasRequiredCmp) return cmp_1;
-  	hasRequiredCmp = 1;
-
-  	const eq = requireEq();
-  	const neq = requireNeq();
-  	const gt = requireGt();
-  	const gte = requireGte();
-  	const lt = requireLt();
-  	const lte = requireLte();
-
-  	const cmp = (a, op, b, loose) => {
-  	  switch (op) {
-  	    case '===':
-  	      if (typeof a === 'object') {
-  	        a = a.version;
-  	      }
-  	      if (typeof b === 'object') {
-  	        b = b.version;
-  	      }
-  	      return a === b
-
-  	    case '!==':
-  	      if (typeof a === 'object') {
-  	        a = a.version;
-  	      }
-  	      if (typeof b === 'object') {
-  	        b = b.version;
-  	      }
-  	      return a !== b
-
-  	    case '':
-  	    case '=':
-  	    case '==':
-  	      return eq(a, b, loose)
-
-  	    case '!=':
-  	      return neq(a, b, loose)
-
-  	    case '>':
-  	      return gt(a, b, loose)
-
-  	    case '>=':
-  	      return gte(a, b, loose)
-
-  	    case '<':
-  	      return lt(a, b, loose)
-
-  	    case '<=':
-  	      return lte(a, b, loose)
-
-  	    default:
-  	      throw new TypeError(`Invalid operator: ${op}`)
-  	  }
-  	};
-  	cmp_1 = cmp;
-  	return cmp_1;
-  }
-
-  var coerce_1;
-  var hasRequiredCoerce;
-
-  function requireCoerce () {
-  	if (hasRequiredCoerce) return coerce_1;
-  	hasRequiredCoerce = 1;
-
-  	const SemVer = requireSemver$1();
-  	const parse = requireParse();
-  	const { safeRe: re, t } = requireRe();
-
-  	const coerce = (version, options) => {
-  	  if (version instanceof SemVer) {
-  	    return version
-  	  }
-
-  	  if (typeof version === 'number') {
-  	    version = String(version);
-  	  }
-
-  	  if (typeof version !== 'string') {
-  	    return null
-  	  }
-
-  	  options = options || {};
-
-  	  let match = null;
-  	  if (!options.rtl) {
-  	    match = version.match(options.includePrerelease ? re[t.COERCEFULL] : re[t.COERCE]);
-  	  } else {
-  	    // Find the right-most coercible string that does not share
-  	    // a terminus with a more left-ward coercible string.
-  	    // Eg, '1.2.3.4' wants to coerce '2.3.4', not '3.4' or '4'
-  	    // With includePrerelease option set, '1.2.3.4-rc' wants to coerce '2.3.4-rc', not '2.3.4'
-  	    //
-  	    // Walk through the string checking with a /g regexp
-  	    // Manually set the index so as to pick up overlapping matches.
-  	    // Stop when we get a match that ends at the string end, since no
-  	    // coercible string can be more right-ward without the same terminus.
-  	    const coerceRtlRegex = options.includePrerelease ? re[t.COERCERTLFULL] : re[t.COERCERTL];
-  	    let next;
-  	    while ((next = coerceRtlRegex.exec(version)) &&
-  	        (!match || match.index + match[0].length !== version.length)
-  	    ) {
-  	      if (!match ||
-  	            next.index + next[0].length !== match.index + match[0].length) {
-  	        match = next;
-  	      }
-  	      coerceRtlRegex.lastIndex = next.index + next[1].length + next[2].length;
-  	    }
-  	    // leave it in a clean state
-  	    coerceRtlRegex.lastIndex = -1;
-  	  }
-
-  	  if (match === null) {
-  	    return null
-  	  }
-
-  	  const major = match[2];
-  	  const minor = match[3] || '0';
-  	  const patch = match[4] || '0';
-  	  const prerelease = options.includePrerelease && match[5] ? `-${match[5]}` : '';
-  	  const build = options.includePrerelease && match[6] ? `+${match[6]}` : '';
-
-  	  return parse(`${major}.${minor}.${patch}${prerelease}${build}`, options)
-  	};
-  	coerce_1 = coerce;
-  	return coerce_1;
-  }
-
-  var lrucache;
-  var hasRequiredLrucache;
-
-  function requireLrucache () {
-  	if (hasRequiredLrucache) return lrucache;
-  	hasRequiredLrucache = 1;
-
-  	class LRUCache {
-  	  constructor () {
-  	    this.max = 1000;
-  	    this.map = new Map();
-  	  }
-
-  	  get (key) {
-  	    const value = this.map.get(key);
-  	    if (value === undefined) {
-  	      return undefined
-  	    } else {
-  	      // Remove the key from the map and add it to the end
-  	      this.map.delete(key);
-  	      this.map.set(key, value);
-  	      return value
-  	    }
-  	  }
-
-  	  delete (key) {
-  	    return this.map.delete(key)
-  	  }
-
-  	  set (key, value) {
-  	    const deleted = this.delete(key);
-
-  	    if (!deleted && value !== undefined) {
-  	      // If cache is full, delete the least recently used item
-  	      if (this.map.size >= this.max) {
-  	        const firstKey = this.map.keys().next().value;
-  	        this.delete(firstKey);
-  	      }
-
-  	      this.map.set(key, value);
-  	    }
-
-  	    return this
-  	  }
-  	}
-
-  	lrucache = LRUCache;
-  	return lrucache;
-  }
-
-  var range;
-  var hasRequiredRange;
-
-  function requireRange () {
-  	if (hasRequiredRange) return range;
-  	hasRequiredRange = 1;
-
-  	const SPACE_CHARACTERS = /\s+/g;
-
-  	// hoisted class for cyclic dependency
-  	class Range {
-  	  constructor (range, options) {
-  	    options = parseOptions(options);
-
-  	    if (range instanceof Range) {
-  	      if (
-  	        range.loose === !!options.loose &&
-  	        range.includePrerelease === !!options.includePrerelease
-  	      ) {
-  	        return range
-  	      } else {
-  	        return new Range(range.raw, options)
-  	      }
-  	    }
-
-  	    if (range instanceof Comparator) {
-  	      // just put it in the set and return
-  	      this.raw = range.value;
-  	      this.set = [[range]];
-  	      this.formatted = undefined;
-  	      return this
-  	    }
-
-  	    this.options = options;
-  	    this.loose = !!options.loose;
-  	    this.includePrerelease = !!options.includePrerelease;
-
-  	    // First reduce all whitespace as much as possible so we do not have to rely
-  	    // on potentially slow regexes like \s*. This is then stored and used for
-  	    // future error messages as well.
-  	    this.raw = range.trim().replace(SPACE_CHARACTERS, ' ');
-
-  	    // First, split on ||
-  	    this.set = this.raw
-  	      .split('||')
-  	      // map the range to a 2d array of comparators
-  	      .map(r => this.parseRange(r.trim()))
-  	      // throw out any comparator lists that are empty
-  	      // this generally means that it was not a valid range, which is allowed
-  	      // in loose mode, but will still throw if the WHOLE range is invalid.
-  	      .filter(c => c.length);
-
-  	    if (!this.set.length) {
-  	      throw new TypeError(`Invalid SemVer Range: ${this.raw}`)
-  	    }
-
-  	    // if we have any that are not the null set, throw out null sets.
-  	    if (this.set.length > 1) {
-  	      // keep the first one, in case they're all null sets
-  	      const first = this.set[0];
-  	      this.set = this.set.filter(c => !isNullSet(c[0]));
-  	      if (this.set.length === 0) {
-  	        this.set = [first];
-  	      } else if (this.set.length > 1) {
-  	        // if we have any that are *, then the range is just *
-  	        for (const c of this.set) {
-  	          if (c.length === 1 && isAny(c[0])) {
-  	            this.set = [c];
-  	            break
-  	          }
-  	        }
-  	      }
-  	    }
-
-  	    this.formatted = undefined;
-  	  }
-
-  	  get range () {
-  	    if (this.formatted === undefined) {
-  	      this.formatted = '';
-  	      for (let i = 0; i < this.set.length; i++) {
-  	        if (i > 0) {
-  	          this.formatted += '||';
-  	        }
-  	        const comps = this.set[i];
-  	        for (let k = 0; k < comps.length; k++) {
-  	          if (k > 0) {
-  	            this.formatted += ' ';
-  	          }
-  	          this.formatted += comps[k].toString().trim();
-  	        }
-  	      }
-  	    }
-  	    return this.formatted
-  	  }
-
-  	  format () {
-  	    return this.range
-  	  }
-
-  	  toString () {
-  	    return this.range
-  	  }
-
-  	  parseRange (range) {
-  	    // memoize range parsing for performance.
-  	    // this is a very hot path, and fully deterministic.
-  	    const memoOpts =
-  	      (this.options.includePrerelease && FLAG_INCLUDE_PRERELEASE) |
-  	      (this.options.loose && FLAG_LOOSE);
-  	    const memoKey = memoOpts + ':' + range;
-  	    const cached = cache.get(memoKey);
-  	    if (cached) {
-  	      return cached
-  	    }
-
-  	    const loose = this.options.loose;
-  	    // `1.2.3 - 1.2.4` => `>=1.2.3 <=1.2.4`
-  	    const hr = loose ? re[t.HYPHENRANGELOOSE] : re[t.HYPHENRANGE];
-  	    range = range.replace(hr, hyphenReplace(this.options.includePrerelease));
-  	    debug('hyphen replace', range);
-
-  	    // `> 1.2.3 < 1.2.5` => `>1.2.3 <1.2.5`
-  	    range = range.replace(re[t.COMPARATORTRIM], comparatorTrimReplace);
-  	    debug('comparator trim', range);
-
-  	    // `~ 1.2.3` => `~1.2.3`
-  	    range = range.replace(re[t.TILDETRIM], tildeTrimReplace);
-  	    debug('tilde trim', range);
-
-  	    // `^ 1.2.3` => `^1.2.3`
-  	    range = range.replace(re[t.CARETTRIM], caretTrimReplace);
-  	    debug('caret trim', range);
-
-  	    // At this point, the range is completely trimmed and
-  	    // ready to be split into comparators.
-
-  	    let rangeList = range
-  	      .split(' ')
-  	      .map(comp => parseComparator(comp, this.options))
-  	      .join(' ')
-  	      .split(/\s+/)
-  	      // >=0.0.0 is equivalent to *
-  	      .map(comp => replaceGTE0(comp, this.options));
-
-  	    if (loose) {
-  	      // in loose mode, throw out any that are not valid comparators
-  	      rangeList = rangeList.filter(comp => {
-  	        debug('loose invalid filter', comp, this.options);
-  	        return !!comp.match(re[t.COMPARATORLOOSE])
-  	      });
-  	    }
-  	    debug('range list', rangeList);
-
-  	    // if any comparators are the null set, then replace with JUST null set
-  	    // if more than one comparator, remove any * comparators
-  	    // also, don't include the same comparator more than once
-  	    const rangeMap = new Map();
-  	    const comparators = rangeList.map(comp => new Comparator(comp, this.options));
-  	    for (const comp of comparators) {
-  	      if (isNullSet(comp)) {
-  	        return [comp]
-  	      }
-  	      rangeMap.set(comp.value, comp);
-  	    }
-  	    if (rangeMap.size > 1 && rangeMap.has('')) {
-  	      rangeMap.delete('');
-  	    }
-
-  	    const result = [...rangeMap.values()];
-  	    cache.set(memoKey, result);
-  	    return result
-  	  }
-
-  	  intersects (range, options) {
-  	    if (!(range instanceof Range)) {
-  	      throw new TypeError('a Range is required')
-  	    }
-
-  	    return this.set.some((thisComparators) => {
-  	      return (
-  	        isSatisfiable(thisComparators, options) &&
-  	        range.set.some((rangeComparators) => {
-  	          return (
-  	            isSatisfiable(rangeComparators, options) &&
-  	            thisComparators.every((thisComparator) => {
-  	              return rangeComparators.every((rangeComparator) => {
-  	                return thisComparator.intersects(rangeComparator, options)
-  	              })
-  	            })
-  	          )
-  	        })
-  	      )
-  	    })
-  	  }
-
-  	  // if ANY of the sets match ALL of its comparators, then pass
-  	  test (version) {
-  	    if (!version) {
-  	      return false
-  	    }
-
-  	    if (typeof version === 'string') {
-  	      try {
-  	        version = new SemVer(version, this.options);
-  	      } catch (er) {
-  	        return false
-  	      }
-  	    }
-
-  	    for (let i = 0; i < this.set.length; i++) {
-  	      if (testSet(this.set[i], version, this.options)) {
-  	        return true
-  	      }
-  	    }
-  	    return false
-  	  }
-  	}
-
-  	range = Range;
-
-  	const LRU = requireLrucache();
-  	const cache = new LRU();
-
-  	const parseOptions = requireParseOptions();
-  	const Comparator = requireComparator();
-  	const debug = requireDebug();
-  	const SemVer = requireSemver$1();
-  	const {
-  	  safeRe: re,
-  	  t,
-  	  comparatorTrimReplace,
-  	  tildeTrimReplace,
-  	  caretTrimReplace,
-  	} = requireRe();
-  	const { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = requireConstants();
-
-  	const isNullSet = c => c.value === '<0.0.0-0';
-  	const isAny = c => c.value === '';
-
-  	// take a set of comparators and determine whether there
-  	// exists a version which can satisfy it
-  	const isSatisfiable = (comparators, options) => {
-  	  let result = true;
-  	  const remainingComparators = comparators.slice();
-  	  let testComparator = remainingComparators.pop();
-
-  	  while (result && remainingComparators.length) {
-  	    result = remainingComparators.every((otherComparator) => {
-  	      return testComparator.intersects(otherComparator, options)
-  	    });
-
-  	    testComparator = remainingComparators.pop();
-  	  }
-
-  	  return result
-  	};
-
-  	// comprised of xranges, tildes, stars, and gtlt's at this point.
-  	// already replaced the hyphen ranges
-  	// turn into a set of JUST comparators.
-  	const parseComparator = (comp, options) => {
-  	  comp = comp.replace(re[t.BUILD], '');
-  	  debug('comp', comp, options);
-  	  comp = replaceCarets(comp, options);
-  	  debug('caret', comp);
-  	  comp = replaceTildes(comp, options);
-  	  debug('tildes', comp);
-  	  comp = replaceXRanges(comp, options);
-  	  debug('xrange', comp);
-  	  comp = replaceStars(comp, options);
-  	  debug('stars', comp);
-  	  return comp
-  	};
-
-  	const isX = id => !id || id.toLowerCase() === 'x' || id === '*';
-
-  	// ~, ~> --> * (any, kinda silly)
-  	// ~2, ~2.x, ~2.x.x, ~>2, ~>2.x ~>2.x.x --> >=2.0.0 <3.0.0-0
-  	// ~2.0, ~2.0.x, ~>2.0, ~>2.0.x --> >=2.0.0 <2.1.0-0
-  	// ~1.2, ~1.2.x, ~>1.2, ~>1.2.x --> >=1.2.0 <1.3.0-0
-  	// ~1.2.3, ~>1.2.3 --> >=1.2.3 <1.3.0-0
-  	// ~1.2.0, ~>1.2.0 --> >=1.2.0 <1.3.0-0
-  	// ~0.0.1 --> >=0.0.1 <0.1.0-0
-  	const replaceTildes = (comp, options) => {
-  	  return comp
-  	    .trim()
-  	    .split(/\s+/)
-  	    .map((c) => replaceTilde(c, options))
-  	    .join(' ')
-  	};
-
-  	const replaceTilde = (comp, options) => {
-  	  const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
-  	  return comp.replace(r, (_, M, m, p, pr) => {
-  	    debug('tilde', comp, _, M, m, p, pr);
-  	    let ret;
-
-  	    if (isX(M)) {
-  	      ret = '';
-  	    } else if (isX(m)) {
-  	      ret = `>=${M}.0.0 <${+M + 1}.0.0-0`;
-  	    } else if (isX(p)) {
-  	      // ~1.2 == >=1.2.0 <1.3.0-0
-  	      ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
-  	    } else if (pr) {
-  	      debug('replaceTilde pr', pr);
-  	      ret = `>=${M}.${m}.${p}-${pr
-	      } <${M}.${+m + 1}.0-0`;
-  	    } else {
-  	      // ~1.2.3 == >=1.2.3 <1.3.0-0
-  	      ret = `>=${M}.${m}.${p
-	      } <${M}.${+m + 1}.0-0`;
-  	    }
-
-  	    debug('tilde return', ret);
-  	    return ret
-  	  })
-  	};
-
-  	// ^ --> * (any, kinda silly)
-  	// ^2, ^2.x, ^2.x.x --> >=2.0.0 <3.0.0-0
-  	// ^2.0, ^2.0.x --> >=2.0.0 <3.0.0-0
-  	// ^1.2, ^1.2.x --> >=1.2.0 <2.0.0-0
-  	// ^1.2.3 --> >=1.2.3 <2.0.0-0
-  	// ^1.2.0 --> >=1.2.0 <2.0.0-0
-  	// ^0.0.1 --> >=0.0.1 <0.0.2-0
-  	// ^0.1.0 --> >=0.1.0 <0.2.0-0
-  	const replaceCarets = (comp, options) => {
-  	  return comp
-  	    .trim()
-  	    .split(/\s+/)
-  	    .map((c) => replaceCaret(c, options))
-  	    .join(' ')
-  	};
-
-  	const replaceCaret = (comp, options) => {
-  	  debug('caret', comp, options);
-  	  const r = options.loose ? re[t.CARETLOOSE] : re[t.CARET];
-  	  const z = options.includePrerelease ? '-0' : '';
-  	  return comp.replace(r, (_, M, m, p, pr) => {
-  	    debug('caret', comp, _, M, m, p, pr);
-  	    let ret;
-
-  	    if (isX(M)) {
-  	      ret = '';
-  	    } else if (isX(m)) {
-  	      ret = `>=${M}.0.0${z} <${+M + 1}.0.0-0`;
-  	    } else if (isX(p)) {
-  	      if (M === '0') {
-  	        ret = `>=${M}.${m}.0${z} <${M}.${+m + 1}.0-0`;
-  	      } else {
-  	        ret = `>=${M}.${m}.0${z} <${+M + 1}.0.0-0`;
-  	      }
-  	    } else if (pr) {
-  	      debug('replaceCaret pr', pr);
-  	      if (M === '0') {
-  	        if (m === '0') {
-  	          ret = `>=${M}.${m}.${p}-${pr
-	          } <${M}.${m}.${+p + 1}-0`;
-  	        } else {
-  	          ret = `>=${M}.${m}.${p}-${pr
-	          } <${M}.${+m + 1}.0-0`;
-  	        }
-  	      } else {
-  	        ret = `>=${M}.${m}.${p}-${pr
-	        } <${+M + 1}.0.0-0`;
-  	      }
-  	    } else {
-  	      debug('no pr');
-  	      if (M === '0') {
-  	        if (m === '0') {
-  	          ret = `>=${M}.${m}.${p
-	          }${z} <${M}.${m}.${+p + 1}-0`;
-  	        } else {
-  	          ret = `>=${M}.${m}.${p
-	          }${z} <${M}.${+m + 1}.0-0`;
-  	        }
-  	      } else {
-  	        ret = `>=${M}.${m}.${p
-	        } <${+M + 1}.0.0-0`;
-  	      }
-  	    }
-
-  	    debug('caret return', ret);
-  	    return ret
-  	  })
-  	};
-
-  	const replaceXRanges = (comp, options) => {
-  	  debug('replaceXRanges', comp, options);
-  	  return comp
-  	    .split(/\s+/)
-  	    .map((c) => replaceXRange(c, options))
-  	    .join(' ')
-  	};
-
-  	const replaceXRange = (comp, options) => {
-  	  comp = comp.trim();
-  	  const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
-  	  return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
-  	    debug('xRange', comp, ret, gtlt, M, m, p, pr);
-  	    const xM = isX(M);
-  	    const xm = xM || isX(m);
-  	    const xp = xm || isX(p);
-  	    const anyX = xp;
-
-  	    if (gtlt === '=' && anyX) {
-  	      gtlt = '';
-  	    }
-
-  	    // if we're including prereleases in the match, then we need
-  	    // to fix this to -0, the lowest possible prerelease value
-  	    pr = options.includePrerelease ? '-0' : '';
-
-  	    if (xM) {
-  	      if (gtlt === '>' || gtlt === '<') {
-  	        // nothing is allowed
-  	        ret = '<0.0.0-0';
-  	      } else {
-  	        // nothing is forbidden
-  	        ret = '*';
-  	      }
-  	    } else if (gtlt && anyX) {
-  	      // we know patch is an x, because we have any x at all.
-  	      // replace X with 0
-  	      if (xm) {
-  	        m = 0;
-  	      }
-  	      p = 0;
-
-  	      if (gtlt === '>') {
-  	        // >1 => >=2.0.0
-  	        // >1.2 => >=1.3.0
-  	        gtlt = '>=';
-  	        if (xm) {
-  	          M = +M + 1;
-  	          m = 0;
-  	          p = 0;
-  	        } else {
-  	          m = +m + 1;
-  	          p = 0;
-  	        }
-  	      } else if (gtlt === '<=') {
-  	        // <=0.7.x is actually <0.8.0, since any 0.7.x should
-  	        // pass.  Similarly, <=7.x is actually <8.0.0, etc.
-  	        gtlt = '<';
-  	        if (xm) {
-  	          M = +M + 1;
-  	        } else {
-  	          m = +m + 1;
-  	        }
-  	      }
-
-  	      if (gtlt === '<') {
-  	        pr = '-0';
-  	      }
-
-  	      ret = `${gtlt + M}.${m}.${p}${pr}`;
-  	    } else if (xm) {
-  	      ret = `>=${M}.0.0${pr} <${+M + 1}.0.0-0`;
-  	    } else if (xp) {
-  	      ret = `>=${M}.${m}.0${pr
-	      } <${M}.${+m + 1}.0-0`;
-  	    }
-
-  	    debug('xRange return', ret);
-
-  	    return ret
-  	  })
-  	};
-
-  	// Because * is AND-ed with everything else in the comparator,
-  	// and '' means "any version", just remove the *s entirely.
-  	const replaceStars = (comp, options) => {
-  	  debug('replaceStars', comp, options);
-  	  // Looseness is ignored here.  star is always as loose as it gets!
-  	  return comp
-  	    .trim()
-  	    .replace(re[t.STAR], '')
-  	};
-
-  	const replaceGTE0 = (comp, options) => {
-  	  debug('replaceGTE0', comp, options);
-  	  return comp
-  	    .trim()
-  	    .replace(re[options.includePrerelease ? t.GTE0PRE : t.GTE0], '')
-  	};
-
-  	// This function is passed to string.replace(re[t.HYPHENRANGE])
-  	// M, m, patch, prerelease, build
-  	// 1.2 - 3.4.5 => >=1.2.0 <=3.4.5
-  	// 1.2.3 - 3.4 => >=1.2.0 <3.5.0-0 Any 3.4.x will do
-  	// 1.2 - 3.4 => >=1.2.0 <3.5.0-0
-  	// TODO build?
-  	const hyphenReplace = incPr => ($0,
-  	  from, fM, fm, fp, fpr, fb,
-  	  to, tM, tm, tp, tpr) => {
-  	  if (isX(fM)) {
-  	    from = '';
-  	  } else if (isX(fm)) {
-  	    from = `>=${fM}.0.0${incPr ? '-0' : ''}`;
-  	  } else if (isX(fp)) {
-  	    from = `>=${fM}.${fm}.0${incPr ? '-0' : ''}`;
-  	  } else if (fpr) {
-  	    from = `>=${from}`;
-  	  } else {
-  	    from = `>=${from}${incPr ? '-0' : ''}`;
-  	  }
-
-  	  if (isX(tM)) {
-  	    to = '';
-  	  } else if (isX(tm)) {
-  	    to = `<${+tM + 1}.0.0-0`;
-  	  } else if (isX(tp)) {
-  	    to = `<${tM}.${+tm + 1}.0-0`;
-  	  } else if (tpr) {
-  	    to = `<=${tM}.${tm}.${tp}-${tpr}`;
-  	  } else if (incPr) {
-  	    to = `<${tM}.${tm}.${+tp + 1}-0`;
-  	  } else {
-  	    to = `<=${to}`;
-  	  }
-
-  	  return `${from} ${to}`.trim()
-  	};
-
-  	const testSet = (set, version, options) => {
-  	  for (let i = 0; i < set.length; i++) {
-  	    if (!set[i].test(version)) {
-  	      return false
-  	    }
-  	  }
-
-  	  if (version.prerelease.length && !options.includePrerelease) {
-  	    // Find the set of versions that are allowed to have prereleases
-  	    // For example, ^1.2.3-pr.1 desugars to >=1.2.3-pr.1 <2.0.0
-  	    // That should allow `1.2.3-pr.2` to pass.
-  	    // However, `1.2.4-alpha.notready` should NOT be allowed,
-  	    // even though it's within the range set by the comparators.
-  	    for (let i = 0; i < set.length; i++) {
-  	      debug(set[i].semver);
-  	      if (set[i].semver === Comparator.ANY) {
-  	        continue
-  	      }
-
-  	      if (set[i].semver.prerelease.length > 0) {
-  	        const allowed = set[i].semver;
-  	        if (allowed.major === version.major &&
-  	            allowed.minor === version.minor &&
-  	            allowed.patch === version.patch) {
-  	          return true
-  	        }
-  	      }
-  	    }
-
-  	    // Version has a -pre, but it's not one of the ones we like.
-  	    return false
-  	  }
-
-  	  return true
-  	};
-  	return range;
-  }
-
-  var comparator;
-  var hasRequiredComparator;
-
-  function requireComparator () {
-  	if (hasRequiredComparator) return comparator;
-  	hasRequiredComparator = 1;
-
-  	const ANY = Symbol('SemVer ANY');
-  	// hoisted class for cyclic dependency
-  	class Comparator {
-  	  static get ANY () {
-  	    return ANY
-  	  }
-
-  	  constructor (comp, options) {
-  	    options = parseOptions(options);
-
-  	    if (comp instanceof Comparator) {
-  	      if (comp.loose === !!options.loose) {
-  	        return comp
-  	      } else {
-  	        comp = comp.value;
-  	      }
-  	    }
-
-  	    comp = comp.trim().split(/\s+/).join(' ');
-  	    debug('comparator', comp, options);
-  	    this.options = options;
-  	    this.loose = !!options.loose;
-  	    this.parse(comp);
-
-  	    if (this.semver === ANY) {
-  	      this.value = '';
-  	    } else {
-  	      this.value = this.operator + this.semver.version;
-  	    }
-
-  	    debug('comp', this);
-  	  }
-
-  	  parse (comp) {
-  	    const r = this.options.loose ? re[t.COMPARATORLOOSE] : re[t.COMPARATOR];
-  	    const m = comp.match(r);
-
-  	    if (!m) {
-  	      throw new TypeError(`Invalid comparator: ${comp}`)
-  	    }
-
-  	    this.operator = m[1] !== undefined ? m[1] : '';
-  	    if (this.operator === '=') {
-  	      this.operator = '';
-  	    }
-
-  	    // if it literally is just '>' or '' then allow anything.
-  	    if (!m[2]) {
-  	      this.semver = ANY;
-  	    } else {
-  	      this.semver = new SemVer(m[2], this.options.loose);
-  	    }
-  	  }
-
-  	  toString () {
-  	    return this.value
-  	  }
-
-  	  test (version) {
-  	    debug('Comparator.test', version, this.options.loose);
-
-  	    if (this.semver === ANY || version === ANY) {
-  	      return true
-  	    }
-
-  	    if (typeof version === 'string') {
-  	      try {
-  	        version = new SemVer(version, this.options);
-  	      } catch (er) {
-  	        return false
-  	      }
-  	    }
-
-  	    return cmp(version, this.operator, this.semver, this.options)
-  	  }
-
-  	  intersects (comp, options) {
-  	    if (!(comp instanceof Comparator)) {
-  	      throw new TypeError('a Comparator is required')
-  	    }
-
-  	    if (this.operator === '') {
-  	      if (this.value === '') {
-  	        return true
-  	      }
-  	      return new Range(comp.value, options).test(this.value)
-  	    } else if (comp.operator === '') {
-  	      if (comp.value === '') {
-  	        return true
-  	      }
-  	      return new Range(this.value, options).test(comp.semver)
-  	    }
-
-  	    options = parseOptions(options);
-
-  	    // Special cases where nothing can possibly be lower
-  	    if (options.includePrerelease &&
-  	      (this.value === '<0.0.0-0' || comp.value === '<0.0.0-0')) {
-  	      return false
-  	    }
-  	    if (!options.includePrerelease &&
-  	      (this.value.startsWith('<0.0.0') || comp.value.startsWith('<0.0.0'))) {
-  	      return false
-  	    }
-
-  	    // Same direction increasing (> or >=)
-  	    if (this.operator.startsWith('>') && comp.operator.startsWith('>')) {
-  	      return true
-  	    }
-  	    // Same direction decreasing (< or <=)
-  	    if (this.operator.startsWith('<') && comp.operator.startsWith('<')) {
-  	      return true
-  	    }
-  	    // same SemVer and both sides are inclusive (<= or >=)
-  	    if (
-  	      (this.semver.version === comp.semver.version) &&
-  	      this.operator.includes('=') && comp.operator.includes('=')) {
-  	      return true
-  	    }
-  	    // opposite directions less than
-  	    if (cmp(this.semver, '<', comp.semver, options) &&
-  	      this.operator.startsWith('>') && comp.operator.startsWith('<')) {
-  	      return true
-  	    }
-  	    // opposite directions greater than
-  	    if (cmp(this.semver, '>', comp.semver, options) &&
-  	      this.operator.startsWith('<') && comp.operator.startsWith('>')) {
-  	      return true
-  	    }
-  	    return false
-  	  }
-  	}
-
-  	comparator = Comparator;
-
-  	const parseOptions = requireParseOptions();
-  	const { safeRe: re, t } = requireRe();
-  	const cmp = requireCmp();
-  	const debug = requireDebug();
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-  	return comparator;
-  }
-
-  var satisfies_1;
-  var hasRequiredSatisfies;
-
-  function requireSatisfies () {
-  	if (hasRequiredSatisfies) return satisfies_1;
-  	hasRequiredSatisfies = 1;
-
-  	const Range = requireRange();
-  	const satisfies = (version, range, options) => {
-  	  try {
-  	    range = new Range(range, options);
-  	  } catch (er) {
-  	    return false
-  	  }
-  	  return range.test(version)
-  	};
-  	satisfies_1 = satisfies;
-  	return satisfies_1;
-  }
-
-  var toComparators_1;
-  var hasRequiredToComparators;
-
-  function requireToComparators () {
-  	if (hasRequiredToComparators) return toComparators_1;
-  	hasRequiredToComparators = 1;
-
-  	const Range = requireRange();
-
-  	// Mostly just for testing and legacy API reasons
-  	const toComparators = (range, options) =>
-  	  new Range(range, options).set
-  	    .map(comp => comp.map(c => c.value).join(' ').trim().split(' '));
-
-  	toComparators_1 = toComparators;
-  	return toComparators_1;
-  }
-
-  var maxSatisfying_1;
-  var hasRequiredMaxSatisfying;
-
-  function requireMaxSatisfying () {
-  	if (hasRequiredMaxSatisfying) return maxSatisfying_1;
-  	hasRequiredMaxSatisfying = 1;
-
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-
-  	const maxSatisfying = (versions, range, options) => {
-  	  let max = null;
-  	  let maxSV = null;
-  	  let rangeObj = null;
-  	  try {
-  	    rangeObj = new Range(range, options);
-  	  } catch (er) {
-  	    return null
-  	  }
-  	  versions.forEach((v) => {
-  	    if (rangeObj.test(v)) {
-  	      // satisfies(v, range, options)
-  	      if (!max || maxSV.compare(v) === -1) {
-  	        // compare(max, v, true)
-  	        max = v;
-  	        maxSV = new SemVer(max, options);
-  	      }
-  	    }
-  	  });
-  	  return max
-  	};
-  	maxSatisfying_1 = maxSatisfying;
-  	return maxSatisfying_1;
-  }
-
-  var minSatisfying_1;
-  var hasRequiredMinSatisfying;
-
-  function requireMinSatisfying () {
-  	if (hasRequiredMinSatisfying) return minSatisfying_1;
-  	hasRequiredMinSatisfying = 1;
-
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-  	const minSatisfying = (versions, range, options) => {
-  	  let min = null;
-  	  let minSV = null;
-  	  let rangeObj = null;
-  	  try {
-  	    rangeObj = new Range(range, options);
-  	  } catch (er) {
-  	    return null
-  	  }
-  	  versions.forEach((v) => {
-  	    if (rangeObj.test(v)) {
-  	      // satisfies(v, range, options)
-  	      if (!min || minSV.compare(v) === 1) {
-  	        // compare(min, v, true)
-  	        min = v;
-  	        minSV = new SemVer(min, options);
-  	      }
-  	    }
-  	  });
-  	  return min
-  	};
-  	minSatisfying_1 = minSatisfying;
-  	return minSatisfying_1;
-  }
-
-  var minVersion_1;
-  var hasRequiredMinVersion;
-
-  function requireMinVersion () {
-  	if (hasRequiredMinVersion) return minVersion_1;
-  	hasRequiredMinVersion = 1;
-
-  	const SemVer = requireSemver$1();
-  	const Range = requireRange();
-  	const gt = requireGt();
-
-  	const minVersion = (range, loose) => {
-  	  range = new Range(range, loose);
-
-  	  let minver = new SemVer('0.0.0');
-  	  if (range.test(minver)) {
-  	    return minver
-  	  }
-
-  	  minver = new SemVer('0.0.0-0');
-  	  if (range.test(minver)) {
-  	    return minver
-  	  }
-
-  	  minver = null;
-  	  for (let i = 0; i < range.set.length; ++i) {
-  	    const comparators = range.set[i];
-
-  	    let setMin = null;
-  	    comparators.forEach((comparator) => {
-  	      // Clone to avoid manipulating the comparator's semver object.
-  	      const compver = new SemVer(comparator.semver.version);
-  	      switch (comparator.operator) {
-  	        case '>':
-  	          if (compver.prerelease.length === 0) {
-  	            compver.patch++;
-  	          } else {
-  	            compver.prerelease.push(0);
-  	          }
-  	          compver.raw = compver.format();
-  	          /* fallthrough */
-  	        case '':
-  	        case '>=':
-  	          if (!setMin || gt(compver, setMin)) {
-  	            setMin = compver;
-  	          }
-  	          break
-  	        case '<':
-  	        case '<=':
-  	          /* Ignore maximum versions */
-  	          break
-  	        /* istanbul ignore next */
-  	        default:
-  	          throw new Error(`Unexpected operation: ${comparator.operator}`)
-  	      }
-  	    });
-  	    if (setMin && (!minver || gt(minver, setMin))) {
-  	      minver = setMin;
-  	    }
-  	  }
-
-  	  if (minver && range.test(minver)) {
-  	    return minver
-  	  }
-
-  	  return null
-  	};
-  	minVersion_1 = minVersion;
-  	return minVersion_1;
-  }
-
-  var valid;
-  var hasRequiredValid;
-
-  function requireValid () {
-  	if (hasRequiredValid) return valid;
-  	hasRequiredValid = 1;
-
-  	const Range = requireRange();
-  	const validRange = (range, options) => {
-  	  try {
-  	    // Return '*' instead of '' so that truthiness works.
-  	    // This will throw if it's invalid anyway
-  	    return new Range(range, options).range || '*'
-  	  } catch (er) {
-  	    return null
-  	  }
-  	};
-  	valid = validRange;
-  	return valid;
-  }
-
-  var outside_1;
-  var hasRequiredOutside;
-
-  function requireOutside () {
-  	if (hasRequiredOutside) return outside_1;
-  	hasRequiredOutside = 1;
-
-  	const SemVer = requireSemver$1();
-  	const Comparator = requireComparator();
-  	const { ANY } = Comparator;
-  	const Range = requireRange();
-  	const satisfies = requireSatisfies();
-  	const gt = requireGt();
-  	const lt = requireLt();
-  	const lte = requireLte();
-  	const gte = requireGte();
-
-  	const outside = (version, range, hilo, options) => {
-  	  version = new SemVer(version, options);
-  	  range = new Range(range, options);
-
-  	  let gtfn, ltefn, ltfn, comp, ecomp;
-  	  switch (hilo) {
-  	    case '>':
-  	      gtfn = gt;
-  	      ltefn = lte;
-  	      ltfn = lt;
-  	      comp = '>';
-  	      ecomp = '>=';
-  	      break
-  	    case '<':
-  	      gtfn = lt;
-  	      ltefn = gte;
-  	      ltfn = gt;
-  	      comp = '<';
-  	      ecomp = '<=';
-  	      break
-  	    default:
-  	      throw new TypeError('Must provide a hilo val of "<" or ">"')
-  	  }
-
-  	  // If it satisfies the range it is not outside
-  	  if (satisfies(version, range, options)) {
-  	    return false
-  	  }
-
-  	  // From now on, variable terms are as if we're in "gtr" mode.
-  	  // but note that everything is flipped for the "ltr" function.
-
-  	  for (let i = 0; i < range.set.length; ++i) {
-  	    const comparators = range.set[i];
-
-  	    let high = null;
-  	    let low = null;
-
-  	    comparators.forEach((comparator) => {
-  	      if (comparator.semver === ANY) {
-  	        comparator = new Comparator('>=0.0.0');
-  	      }
-  	      high = high || comparator;
-  	      low = low || comparator;
-  	      if (gtfn(comparator.semver, high.semver, options)) {
-  	        high = comparator;
-  	      } else if (ltfn(comparator.semver, low.semver, options)) {
-  	        low = comparator;
-  	      }
-  	    });
-
-  	    // If the edge version comparator has a operator then our version
-  	    // isn't outside it
-  	    if (high.operator === comp || high.operator === ecomp) {
-  	      return false
-  	    }
-
-  	    // If the lowest version comparator has an operator and our version
-  	    // is less than it then it isn't higher than the range
-  	    if ((!low.operator || low.operator === comp) &&
-  	        ltefn(version, low.semver)) {
-  	      return false
-  	    } else if (low.operator === ecomp && ltfn(version, low.semver)) {
-  	      return false
-  	    }
-  	  }
-  	  return true
-  	};
-
-  	outside_1 = outside;
-  	return outside_1;
-  }
-
-  var gtr_1;
-  var hasRequiredGtr;
-
-  function requireGtr () {
-  	if (hasRequiredGtr) return gtr_1;
-  	hasRequiredGtr = 1;
-
-  	// Determine if version is greater than all the versions possible in the range.
-  	const outside = requireOutside();
-  	const gtr = (version, range, options) => outside(version, range, '>', options);
-  	gtr_1 = gtr;
-  	return gtr_1;
-  }
-
-  var ltr_1;
-  var hasRequiredLtr;
-
-  function requireLtr () {
-  	if (hasRequiredLtr) return ltr_1;
-  	hasRequiredLtr = 1;
-
-  	const outside = requireOutside();
-  	// Determine if version is less than all the versions possible in the range
-  	const ltr = (version, range, options) => outside(version, range, '<', options);
-  	ltr_1 = ltr;
-  	return ltr_1;
-  }
-
-  var intersects_1;
-  var hasRequiredIntersects;
-
-  function requireIntersects () {
-  	if (hasRequiredIntersects) return intersects_1;
-  	hasRequiredIntersects = 1;
-
-  	const Range = requireRange();
-  	const intersects = (r1, r2, options) => {
-  	  r1 = new Range(r1, options);
-  	  r2 = new Range(r2, options);
-  	  return r1.intersects(r2, options)
-  	};
-  	intersects_1 = intersects;
-  	return intersects_1;
-  }
-
-  var simplify;
-  var hasRequiredSimplify;
-
-  function requireSimplify () {
-  	if (hasRequiredSimplify) return simplify;
-  	hasRequiredSimplify = 1;
-
-  	// given a set of versions and a range, create a "simplified" range
-  	// that includes the same versions that the original range does
-  	// If the original range is shorter than the simplified one, return that.
-  	const satisfies = requireSatisfies();
-  	const compare = requireCompare();
-  	simplify = (versions, range, options) => {
-  	  const set = [];
-  	  let first = null;
-  	  let prev = null;
-  	  const v = versions.sort((a, b) => compare(a, b, options));
-  	  for (const version of v) {
-  	    const included = satisfies(version, range, options);
-  	    if (included) {
-  	      prev = version;
-  	      if (!first) {
-  	        first = version;
-  	      }
-  	    } else {
-  	      if (prev) {
-  	        set.push([first, prev]);
-  	      }
-  	      prev = null;
-  	      first = null;
-  	    }
-  	  }
-  	  if (first) {
-  	    set.push([first, null]);
-  	  }
-
-  	  const ranges = [];
-  	  for (const [min, max] of set) {
-  	    if (min === max) {
-  	      ranges.push(min);
-  	    } else if (!max && min === v[0]) {
-  	      ranges.push('*');
-  	    } else if (!max) {
-  	      ranges.push(`>=${min}`);
-  	    } else if (min === v[0]) {
-  	      ranges.push(`<=${max}`);
-  	    } else {
-  	      ranges.push(`${min} - ${max}`);
-  	    }
-  	  }
-  	  const simplified = ranges.join(' || ');
-  	  const original = typeof range.raw === 'string' ? range.raw : String(range);
-  	  return simplified.length < original.length ? simplified : range
-  	};
-  	return simplify;
-  }
-
-  var subset_1;
-  var hasRequiredSubset;
-
-  function requireSubset () {
-  	if (hasRequiredSubset) return subset_1;
-  	hasRequiredSubset = 1;
-
-  	const Range = requireRange();
-  	const Comparator = requireComparator();
-  	const { ANY } = Comparator;
-  	const satisfies = requireSatisfies();
-  	const compare = requireCompare();
-
-  	// Complex range `r1 || r2 || ...` is a subset of `R1 || R2 || ...` iff:
-  	// - Every simple range `r1, r2, ...` is a null set, OR
-  	// - Every simple range `r1, r2, ...` which is not a null set is a subset of
-  	//   some `R1, R2, ...`
-  	//
-  	// Simple range `c1 c2 ...` is a subset of simple range `C1 C2 ...` iff:
-  	// - If c is only the ANY comparator
-  	//   - If C is only the ANY comparator, return true
-  	//   - Else if in prerelease mode, return false
-  	//   - else replace c with `[>=0.0.0]`
-  	// - If C is only the ANY comparator
-  	//   - if in prerelease mode, return true
-  	//   - else replace C with `[>=0.0.0]`
-  	// - Let EQ be the set of = comparators in c
-  	// - If EQ is more than one, return true (null set)
-  	// - Let GT be the highest > or >= comparator in c
-  	// - Let LT be the lowest < or <= comparator in c
-  	// - If GT and LT, and GT.semver > LT.semver, return true (null set)
-  	// - If any C is a = range, and GT or LT are set, return false
-  	// - If EQ
-  	//   - If GT, and EQ does not satisfy GT, return true (null set)
-  	//   - If LT, and EQ does not satisfy LT, return true (null set)
-  	//   - If EQ satisfies every C, return true
-  	//   - Else return false
-  	// - If GT
-  	//   - If GT.semver is lower than any > or >= comp in C, return false
-  	//   - If GT is >=, and GT.semver does not satisfy every C, return false
-  	//   - If GT.semver has a prerelease, and not in prerelease mode
-  	//     - If no C has a prerelease and the GT.semver tuple, return false
-  	// - If LT
-  	//   - If LT.semver is greater than any < or <= comp in C, return false
-  	//   - If LT is <=, and LT.semver does not satisfy every C, return false
-  	//   - If LT.semver has a prerelease, and not in prerelease mode
-  	//     - If no C has a prerelease and the LT.semver tuple, return false
-  	// - Else return true
-
-  	const subset = (sub, dom, options = {}) => {
-  	  if (sub === dom) {
-  	    return true
-  	  }
-
-  	  sub = new Range(sub, options);
-  	  dom = new Range(dom, options);
-  	  let sawNonNull = false;
-
-  	  OUTER: for (const simpleSub of sub.set) {
-  	    for (const simpleDom of dom.set) {
-  	      const isSub = simpleSubset(simpleSub, simpleDom, options);
-  	      sawNonNull = sawNonNull || isSub !== null;
-  	      if (isSub) {
-  	        continue OUTER
-  	      }
-  	    }
-  	    // the null set is a subset of everything, but null simple ranges in
-  	    // a complex range should be ignored.  so if we saw a non-null range,
-  	    // then we know this isn't a subset, but if EVERY simple range was null,
-  	    // then it is a subset.
-  	    if (sawNonNull) {
-  	      return false
-  	    }
-  	  }
-  	  return true
-  	};
-
-  	const minimumVersionWithPreRelease = [new Comparator('>=0.0.0-0')];
-  	const minimumVersion = [new Comparator('>=0.0.0')];
-
-  	const simpleSubset = (sub, dom, options) => {
-  	  if (sub === dom) {
-  	    return true
-  	  }
-
-  	  if (sub.length === 1 && sub[0].semver === ANY) {
-  	    if (dom.length === 1 && dom[0].semver === ANY) {
-  	      return true
-  	    } else if (options.includePrerelease) {
-  	      sub = minimumVersionWithPreRelease;
-  	    } else {
-  	      sub = minimumVersion;
-  	    }
-  	  }
-
-  	  if (dom.length === 1 && dom[0].semver === ANY) {
-  	    if (options.includePrerelease) {
-  	      return true
-  	    } else {
-  	      dom = minimumVersion;
-  	    }
-  	  }
-
-  	  const eqSet = new Set();
-  	  let gt, lt;
-  	  for (const c of sub) {
-  	    if (c.operator === '>' || c.operator === '>=') {
-  	      gt = higherGT(gt, c, options);
-  	    } else if (c.operator === '<' || c.operator === '<=') {
-  	      lt = lowerLT(lt, c, options);
-  	    } else {
-  	      eqSet.add(c.semver);
-  	    }
-  	  }
-
-  	  if (eqSet.size > 1) {
-  	    return null
-  	  }
-
-  	  let gtltComp;
-  	  if (gt && lt) {
-  	    gtltComp = compare(gt.semver, lt.semver, options);
-  	    if (gtltComp > 0) {
-  	      return null
-  	    } else if (gtltComp === 0 && (gt.operator !== '>=' || lt.operator !== '<=')) {
-  	      return null
-  	    }
-  	  }
-
-  	  // will iterate one or zero times
-  	  for (const eq of eqSet) {
-  	    if (gt && !satisfies(eq, String(gt), options)) {
-  	      return null
-  	    }
-
-  	    if (lt && !satisfies(eq, String(lt), options)) {
-  	      return null
-  	    }
-
-  	    for (const c of dom) {
-  	      if (!satisfies(eq, String(c), options)) {
-  	        return false
-  	      }
-  	    }
-
-  	    return true
-  	  }
-
-  	  let higher, lower;
-  	  let hasDomLT, hasDomGT;
-  	  // if the subset has a prerelease, we need a comparator in the superset
-  	  // with the same tuple and a prerelease, or it's not a subset
-  	  let needDomLTPre = lt &&
-  	    !options.includePrerelease &&
-  	    lt.semver.prerelease.length ? lt.semver : false;
-  	  let needDomGTPre = gt &&
-  	    !options.includePrerelease &&
-  	    gt.semver.prerelease.length ? gt.semver : false;
-  	  // exception: <1.2.3-0 is the same as <1.2.3
-  	  if (needDomLTPre && needDomLTPre.prerelease.length === 1 &&
-  	      lt.operator === '<' && needDomLTPre.prerelease[0] === 0) {
-  	    needDomLTPre = false;
-  	  }
-
-  	  for (const c of dom) {
-  	    hasDomGT = hasDomGT || c.operator === '>' || c.operator === '>=';
-  	    hasDomLT = hasDomLT || c.operator === '<' || c.operator === '<=';
-  	    if (gt) {
-  	      if (needDomGTPre) {
-  	        if (c.semver.prerelease && c.semver.prerelease.length &&
-  	            c.semver.major === needDomGTPre.major &&
-  	            c.semver.minor === needDomGTPre.minor &&
-  	            c.semver.patch === needDomGTPre.patch) {
-  	          needDomGTPre = false;
-  	        }
-  	      }
-  	      if (c.operator === '>' || c.operator === '>=') {
-  	        higher = higherGT(gt, c, options);
-  	        if (higher === c && higher !== gt) {
-  	          return false
-  	        }
-  	      } else if (gt.operator === '>=' && !satisfies(gt.semver, String(c), options)) {
-  	        return false
-  	      }
-  	    }
-  	    if (lt) {
-  	      if (needDomLTPre) {
-  	        if (c.semver.prerelease && c.semver.prerelease.length &&
-  	            c.semver.major === needDomLTPre.major &&
-  	            c.semver.minor === needDomLTPre.minor &&
-  	            c.semver.patch === needDomLTPre.patch) {
-  	          needDomLTPre = false;
-  	        }
-  	      }
-  	      if (c.operator === '<' || c.operator === '<=') {
-  	        lower = lowerLT(lt, c, options);
-  	        if (lower === c && lower !== lt) {
-  	          return false
-  	        }
-  	      } else if (lt.operator === '<=' && !satisfies(lt.semver, String(c), options)) {
-  	        return false
-  	      }
-  	    }
-  	    if (!c.operator && (lt || gt) && gtltComp !== 0) {
-  	      return false
-  	    }
-  	  }
-
-  	  // if there was a < or >, and nothing in the dom, then must be false
-  	  // UNLESS it was limited by another range in the other direction.
-  	  // Eg, >1.0.0 <1.0.1 is still a subset of <2.0.0
-  	  if (gt && hasDomLT && !lt && gtltComp !== 0) {
-  	    return false
-  	  }
-
-  	  if (lt && hasDomGT && !gt && gtltComp !== 0) {
-  	    return false
-  	  }
-
-  	  // we needed a prerelease range in a specific tuple, but didn't get one
-  	  // then this isn't a subset.  eg >=1.2.3-pre is not a subset of >=1.0.0,
-  	  // because it includes prereleases in the 1.2.3 tuple
-  	  if (needDomGTPre || needDomLTPre) {
-  	    return false
-  	  }
-
-  	  return true
-  	};
-
-  	// >=1.2.3 is lower than >1.2.3
-  	const higherGT = (a, b, options) => {
-  	  if (!a) {
-  	    return b
-  	  }
-  	  const comp = compare(a.semver, b.semver, options);
-  	  return comp > 0 ? a
-  	    : comp < 0 ? b
-  	    : b.operator === '>' && a.operator === '>=' ? b
-  	    : a
-  	};
-
-  	// <=1.2.3 is higher than <1.2.3
-  	const lowerLT = (a, b, options) => {
-  	  if (!a) {
-  	    return b
-  	  }
-  	  const comp = compare(a.semver, b.semver, options);
-  	  return comp < 0 ? a
-  	    : comp > 0 ? b
-  	    : b.operator === '<' && a.operator === '<=' ? b
-  	    : a
-  	};
-
-  	subset_1 = subset;
-  	return subset_1;
-  }
-
-  var semver;
-  var hasRequiredSemver;
-
-  function requireSemver () {
-  	if (hasRequiredSemver) return semver;
-  	hasRequiredSemver = 1;
-
-  	// just pre-load all the stuff that index.js lazily exports
-  	const internalRe = requireRe();
-  	const constants = requireConstants();
-  	const SemVer = requireSemver$1();
-  	const identifiers = requireIdentifiers();
-  	const parse = requireParse();
-  	const valid = requireValid$1();
-  	const clean = requireClean();
-  	const inc = requireInc();
-  	const diff = requireDiff();
-  	const major = requireMajor();
-  	const minor = requireMinor();
-  	const patch = requirePatch();
-  	const prerelease = requirePrerelease();
-  	const compare = requireCompare();
-  	const rcompare = requireRcompare();
-  	const compareLoose = requireCompareLoose();
-  	const compareBuild = requireCompareBuild();
-  	const sort = requireSort();
-  	const rsort = requireRsort();
-  	const gt = requireGt();
-  	const lt = requireLt();
-  	const eq = requireEq();
-  	const neq = requireNeq();
-  	const gte = requireGte();
-  	const lte = requireLte();
-  	const cmp = requireCmp();
-  	const coerce = requireCoerce();
-  	const Comparator = requireComparator();
-  	const Range = requireRange();
-  	const satisfies = requireSatisfies();
-  	const toComparators = requireToComparators();
-  	const maxSatisfying = requireMaxSatisfying();
-  	const minSatisfying = requireMinSatisfying();
-  	const minVersion = requireMinVersion();
-  	const validRange = requireValid();
-  	const outside = requireOutside();
-  	const gtr = requireGtr();
-  	const ltr = requireLtr();
-  	const intersects = requireIntersects();
-  	const simplifyRange = requireSimplify();
-  	const subset = requireSubset();
-  	semver = {
-  	  parse,
-  	  valid,
-  	  clean,
-  	  inc,
-  	  diff,
-  	  major,
-  	  minor,
-  	  patch,
-  	  prerelease,
-  	  compare,
-  	  rcompare,
-  	  compareLoose,
-  	  compareBuild,
-  	  sort,
-  	  rsort,
-  	  gt,
-  	  lt,
-  	  eq,
-  	  neq,
-  	  gte,
-  	  lte,
-  	  cmp,
-  	  coerce,
-  	  Comparator,
-  	  Range,
-  	  satisfies,
-  	  toComparators,
-  	  maxSatisfying,
-  	  minSatisfying,
-  	  minVersion,
-  	  validRange,
-  	  outside,
-  	  gtr,
-  	  ltr,
-  	  intersects,
-  	  simplifyRange,
-  	  subset,
-  	  SemVer,
-  	  re: internalRe.re,
-  	  src: internalRe.src,
-  	  tokens: internalRe.t,
-  	  SEMVER_SPEC_VERSION: constants.SEMVER_SPEC_VERSION,
-  	  RELEASE_TYPES: constants.RELEASE_TYPES,
-  	  compareIdentifiers: identifiers.compareIdentifiers,
-  	  rcompareIdentifiers: identifiers.rcompareIdentifiers,
-  	};
-  	return semver;
-  }
-
-  var version = "5.1.0";
-  var require$$1 = {
-  	version: version};
-
-  var type$3 = "object";
-  var properties$3 = {
-  	privileges: {
-  		type: "array",
-  		description: "Defines required privileges for the visual",
-  		items: {
-  			$ref: "#/definitions/privilege"
-  		}
-  	},
-  	dataRoles: {
-  		type: "array",
-  		description: "Defines data roles for the visual",
-  		items: {
-  			$ref: "#/definitions/dataRole"
-  		}
-  	},
-  	dataViewMappings: {
-  		type: "array",
-  		description: "Defines data mappings for the visual",
-  		items: {
-  			$ref: "#/definitions/dataViewMapping"
-  		}
-  	},
-  	objects: {
-  		$ref: "#/definitions/objects"
-  	},
-  	tooltips: {
-  		$ref: "#/definitions/tooltips"
-  	},
-  	sorting: {
-  		$ref: "#/definitions/sorting"
-  	},
-  	drilldown: {
-  		$ref: "#/definitions/drilldown"
-  	},
-  	expandCollapse: {
-  		$ref: "#/definitions/expandCollapse"
-  	},
-  	suppressDefaultTitle: {
-  		type: "boolean",
-  		description: "Indicates whether the visual should show a default title"
-  	},
-  	supportsKeyboardFocus: {
-  		type: "boolean",
-  		description: "Allows the visual to receive focus through keyboard navigation"
-  	},
-  	supportsHighlight: {
-  		type: "boolean",
-  		description: "Tells the host to include highlight data"
-  	},
-  	supportsSynchronizingFilterState: {
-  		type: "boolean",
-  		description: "Indicates whether the visual supports synchronization across report pages (for slicer visuals only)"
-  	},
-  	advancedEditModeSupport: {
-  		type: "number",
-  		description: "Indicates the action requested from the host when this visual enters Advanced Edit mode."
-  	},
-  	supportsLandingPage: {
-  		type: "boolean",
-  		description: "Indicates whether the visual supports a landing page"
-  	},
-  	supportsEmptyDataView: {
-  		type: "boolean",
-  		description: "Indicates whether the visual can receive formatting pane properties when it has no dataroles"
-  	},
-  	supportsMultiVisualSelection: {
-  		type: "boolean",
-  		description: "Indicates whether the visual supports multi selection"
-  	},
-  	subtotals: {
-  		description: "Specifies the subtotal customizations applied in the customizeQuery method",
-  		$ref: "#/definitions/subtotals"
-  	},
-  	migration: {
-  		$ref: "#/definitions/migration"
-  	},
-  	keepAllMetadataColumns: {
-  		type: "boolean",
-  		description: "Indicates that visual is going to receive all metadata columns, no matter what the active projections are"
-  	}
-  };
-  var required$1 = [
-  	"privileges"
-  ];
-  var additionalProperties = false;
-  var definitions$2 = {
-  	privilege: {
-  		type: "object",
-  		description: "privilege - Defines the name, essentiality, and optional parameters for a privilege",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "The internal name of the privilege",
-  				"enum": [
-  					"WebAccess",
-  					"LocalStorage",
-  					"ExportContent"
-  				]
-  			},
-  			essential: {
-  				type: "boolean",
-  				description: "Determines if the privilege is essential for the visual. Default value is false"
-  			},
-  			parameters: {
-  				type: "array",
-  				description: "Determines a list of privilege parameters if any",
-  				items: {
-  					type: "string",
-  					description: "The privilege parameter"
-  				}
-  			}
-  		},
-  		required: [
-  			"name"
-  		]
-  	},
-  	dataRole: {
-  		type: "object",
-  		description: "dataRole - Defines the name, displayName, and kind of a data role",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "The internal name for this data role used for all references to this role"
-  			},
-  			displayName: {
-  				type: "string",
-  				description: "The name of this data role that is shown to the user"
-  			},
-  			displayNameKey: {
-  				type: "string",
-  				description: "The localization key for the displayed name in the stringResourced file"
-  			},
-  			kind: {
-  				description: "The kind of data that can be bound do this role",
-  				$ref: "#/definitions/dataRole.kind"
-  			},
-  			description: {
-  				type: "string",
-  				description: "A description of this role shown to the user as a tooltip"
-  			},
-  			descriptionKey: {
-  				type: "string",
-  				description: "The localization key for the description in the stringResourced file"
-  			},
-  			preferredTypes: {
-  				type: "array",
-  				description: "Defines the preferred type of data for this data role",
-  				items: {
-  					$ref: "#/definitions/valueType"
-  				}
-  			},
-  			requiredTypes: {
-  				type: "array",
-  				description: "Defines the required type of data for this data role. Any values that do not match will be set to null",
-  				items: {
-  					$ref: "#/definitions/valueType"
-  				}
-  			}
-  		},
-  		required: [
-  			"name",
-  			"displayName",
-  			"kind"
-  		],
-  		additionalProperties: false
-  	},
-  	dataViewMapping: {
-  		type: "object",
-  		description: "dataMapping - Defines how data is mapped to data roles",
-  		properties: {
-  			conditions: {
-  				type: "array",
-  				description: "List of conditions that must be met for this data mapping",
-  				items: {
-  					type: "object",
-  					description: "condition - Defines conditions for a data mapping (each key needs to be a valid data role)",
-  					patternProperties: {
-  						"^[\\w\\s-]+$": {
-  							description: "Specifies the number of values that can be assigned to this data role in this mapping",
-  							$ref: "#/definitions/dataViewMapping.numberRangeWithKind"
-  						}
-  					},
-  					additionalProperties: false
-  				}
-  			},
-  			single: {
-  				$ref: "#/definitions/dataViewMapping.single"
-  			},
-  			categorical: {
-  				$ref: "#/definitions/dataViewMapping.categorical"
-  			},
-  			table: {
-  				$ref: "#/definitions/dataViewMapping.table"
-  			},
-  			matrix: {
-  				$ref: "#/definitions/dataViewMapping.matrix"
-  			},
-  			scriptResult: {
-  				$ref: "#/definitions/dataViewMapping.scriptResult"
-  			}
-  		},
-  		anyOf: [
-  			{
-  				required: [
-  					"single"
-  				]
-  			},
-  			{
-  				required: [
-  					"categorical"
-  				]
-  			},
-  			{
-  				required: [
-  					"table"
-  				]
-  			},
-  			{
-  				required: [
-  					"matrix"
-  				]
-  			},
-  			{
-  				required: [
-  					"scriptResult"
-  				]
-  			}
-  		],
-  		additionalProperties: false
-  	},
-  	"dataViewMapping.single": {
-  		type: "object",
-  		description: "single - Defines a single data mapping",
-  		properties: {
-  			role: {
-  				type: "string",
-  				description: "The data role to bind to this mapping"
-  			}
-  		},
-  		required: [
-  			"role"
-  		],
-  		additionalProperties: false
-  	},
-  	"dataViewMapping.categorical": {
-  		type: "object",
-  		description: "categorical - Defines a categorical data mapping",
-  		properties: {
-  			categories: {
-  				type: "object",
-  				description: "Defines data roles to be used as categories",
-  				properties: {
-  					bind: {
-  						$ref: "#/definitions/dataViewMapping.bindTo"
-  					},
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"bind"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			values: {
-  				type: "object",
-  				description: "Defines data roles to be used as values",
-  				properties: {
-  					bind: {
-  						$ref: "#/definitions/dataViewMapping.bindTo"
-  					},
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					group: {
-  						type: "object",
-  						description: "Groups on a a specific data role",
-  						properties: {
-  							by: {
-  								description: "Specifies a data role to use for grouping",
-  								type: "string"
-  							},
-  							select: {
-  								$ref: "#/definitions/dataViewMapping.select"
-  							},
-  							dataReductionAlgorithm: {
-  								$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  							}
-  						},
-  						required: [
-  							"by",
-  							"select"
-  						]
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"bind"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					},
-  					{
-  						required: [
-  							"group"
-  						]
-  					}
-  				]
-  			},
-  			dataVolume: {
-  				$ref: "#/definitions/dataViewMapping.dataVolume"
-  			}
-  		},
-  		additionalProperties: false
-  	},
-  	"dataViewMapping.table": {
-  		type: "object",
-  		description: "table - Defines a table data mapping",
-  		properties: {
-  			rows: {
-  				type: "object",
-  				description: "Rows to use for the table",
-  				properties: {
-  					bind: {
-  						$ref: "#/definitions/dataViewMapping.bindTo"
-  					},
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"bind"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			rowCount: {
-  				type: "object",
-  				description: "Specifies a constraint on the number of data rows supported by the visual",
-  				properties: {
-  					preferred: {
-  						description: "Specifies a preferred range of values for the constraint",
-  						$ref: "#/definitions/dataViewMapping.numberRange"
-  					},
-  					supported: {
-  						description: "Specifies a supported range of values for the constraint. Defaults to preferred if not specified.",
-  						$ref: "#/definitions/dataViewMapping.numberRange"
-  					}
-  				}
-  			},
-  			dataVolume: {
-  				$ref: "#/definitions/dataViewMapping.dataVolume"
-  			}
-  		},
-  		requires: [
-  			"rows"
-  		]
-  	},
-  	"dataViewMapping.matrix": {
-  		type: "object",
-  		description: "matrix - Defines a matrix data mapping",
-  		properties: {
-  			rows: {
-  				type: "object",
-  				description: "Defines the rows used for the matrix",
-  				properties: {
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			columns: {
-  				type: "object",
-  				description: "Defines the columns used for the matrix",
-  				properties: {
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					dataReductionAlgorithm: {
-  						$ref: "#/definitions/dataViewMapping.dataReductionAlgorithm"
-  					}
-  				},
-  				required: [
-  					"for"
-  				]
-  			},
-  			values: {
-  				type: "object",
-  				description: "Defines the values used for the matrix",
-  				properties: {
-  					"for": {
-  						$ref: "#/definitions/dataViewMapping.forIn"
-  					},
-  					select: {
-  						$ref: "#/definitions/dataViewMapping.select"
-  					}
-  				},
-  				oneOf: [
-  					{
-  						required: [
-  							"for"
-  						]
-  					},
-  					{
-  						required: [
-  							"select"
-  						]
-  					}
-  				]
-  			},
-  			dataVolume: {
-  				$ref: "#/definitions/dataViewMapping.dataVolume"
-  			}
-  		}
-  	},
-  	"dataViewMapping.scriptResult": {
-  		type: "object",
-  		description: "scriptResult - Defines a scriptResult data mapping",
-  		properties: {
-  			dataInput: {
-  				type: "object",
-  				description: "dataInput - Defines how data is mapped to data roles",
-  				properties: {
-  					table: {
-  						$ref: "#/definitions/dataViewMapping.table"
-  					}
-  				}
-  			},
-  			script: {
-  				type: "object",
-  				description: "script - Defines where the script text and provider are stored",
-  				properties: {
-  					scriptSourceDefault: {
-  						type: "string",
-  						description: "scriptSourceDefault - Defines the default script source value to be used when no script object is defined"
-  					},
-  					scriptProviderDefault: {
-  						type: "string",
-  						description: "scriptProviderDefault - Defines the default script provider value to be used when no provider object is defined"
-  					},
-  					scriptOutputType: {
-  						type: "string",
-  						description: "scriptOutputType - Defines the output type that the R script will generate"
-  					},
-  					source: {
-  						$ref: "#/definitions/dataViewObjectPropertyIdentifier"
-  					},
-  					provider: {
-  						$ref: "#/definitions/dataViewObjectPropertyIdentifier"
-  					}
-  				}
-  			}
-  		}
-  	},
-  	dataViewObjectPropertyIdentifier: {
-  		type: "object",
-  		description: "Points to an object property",
-  		properties: {
-  			objectName: {
-  				type: "string",
-  				description: "The name of a object"
-  			},
-  			propertyName: {
-  				type: "string",
-  				description: "The name of a property inside the object"
-  			}
-  		}
-  	},
-  	"dataViewMapping.bindTo": {
-  		type: "object",
-  		description: "Binds this data mapping to a single value",
-  		properties: {
-  			to: {
-  				type: "string",
-  				description: "The name of a data role to bind to"
-  			}
-  		},
-  		additionalProperties: false,
-  		required: [
-  			"to"
-  		]
-  	},
-  	"dataViewMapping.numberRange": {
-  		type: "object",
-  		description: "A number range from min to max",
-  		properties: {
-  			min: {
-  				type: "number",
-  				description: "Minimum value supported"
-  			},
-  			max: {
-  				type: "number",
-  				description: "Maximum value supported"
-  			}
-  		}
-  	},
-  	"dataViewMapping.numberRangeWithKind": {
-  		allOf: [
-  			{
-  				$ref: "#/definitions/dataViewMapping.numberRange"
-  			},
-  			{
-  				properties: {
-  					kind: {
-  						$ref: "#/definitions/dataRole.kind"
-  					}
-  				}
-  			}
-  		]
-  	},
-  	"dataRole.kind": {
-  		type: "string",
-  		"enum": [
-  			"Grouping",
-  			"Measure",
-  			"GroupingOrMeasure"
-  		]
-  	},
-  	"dataViewMapping.select": {
-  		type: "array",
-  		description: "Defines a list of properties to bind",
-  		items: {
-  			type: "object",
-  			properties: {
-  				bind: {
-  					$ref: "#/definitions/dataViewMapping.bindTo"
-  				},
-  				"for": {
-  					$ref: "#/definitions/dataViewMapping.forIn"
-  				}
-  			},
-  			oneOf: [
-  				{
-  					required: [
-  						"for"
-  					]
-  				},
-  				{
-  					required: [
-  						"bind"
-  					]
-  				}
-  			]
-  		}
-  	},
-  	"dataViewMapping.dataReductionAlgorithm": {
-  		type: "object",
-  		description: "Describes how to reduce the amount of data exposed to the visual",
-  		properties: {
-  			top: {
-  				type: "object",
-  				description: "Reduce the data to the Top count items",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			},
-  			bottom: {
-  				type: "object",
-  				description: "Reduce the data to the Bottom count items",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			},
-  			sample: {
-  				type: "object",
-  				description: "Reduce the data using a simple Sample of count items",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			},
-  			window: {
-  				type: "object",
-  				description: "Allow the data to be loaded one window, containing count items, at a time",
-  				properties: {
-  					count: {
-  						type: "number"
-  					}
-  				}
-  			}
-  		},
-  		additionalProperties: false,
-  		oneOf: [
-  			{
-  				required: [
-  					"top"
-  				]
-  			},
-  			{
-  				required: [
-  					"bottom"
-  				]
-  			},
-  			{
-  				required: [
-  					"sample"
-  				]
-  			},
-  			{
-  				required: [
-  					"window"
-  				]
-  			}
-  		]
-  	},
-  	"dataViewMapping.dataVolume": {
-  		description: "Specifies the volume of data the query should return (1-6)",
-  		type: "number",
-  		"enum": [
-  			1,
-  			2,
-  			3,
-  			4,
-  			5,
-  			6
-  		]
-  	},
-  	"dataViewMapping.forIn": {
-  		type: "object",
-  		description: "Binds this data mapping for all items in a collection",
-  		properties: {
-  			"in": {
-  				type: "string",
-  				description: "The name of a data role to iterate over"
-  			}
-  		},
-  		additionalProperties: false,
-  		required: [
-  			"in"
-  		]
-  	},
-  	objects: {
-  		type: "object",
-  		description: "A list of unique property groups",
-  		patternProperties: {
-  			"^[\\w\\s-]+$": {
-  				type: "object",
-  				description: "Settings for a group of properties",
-  				properties: {
-  					displayName: {
-  						type: "string",
-  						description: "The name shown to the user to describe this group of properties"
-  					},
-  					displayNameKey: {
-  						type: "string",
-  						description: "The localization key for the displayed name in the stringResourced file"
-  					},
-  					objectCategory: {
-  						type: "number",
-  						description: "What aspect of the visual this object controlls (1 = Formatting, 2 = Analytics). Formatting: look & feel, colors, axes, labels etc. Analytics: forcasts, trendlines, reference lines and shapes etc."
-  					},
-  					description: {
-  						type: "string",
-  						description: "A description of this object shown to the user as a tooltip"
-  					},
-  					descriptionKey: {
-  						type: "string",
-  						description: "The localization key for the description in the stringResourced file"
-  					},
-  					properties: {
-  						type: "object",
-  						description: "A list of unique properties contained in this group",
-  						patternProperties: {
-  							"^[\\w\\s-]+$": {
-  								$ref: "#/definitions/object.propertySettings"
-  							}
-  						},
-  						additionalProperties: false
-  					}
-  				},
-  				additionalProperties: false
-  			}
-  		},
-  		additionalProperties: false
-  	},
-  	tooltips: {
-  		type: "object",
-  		description: "Instructs the host to include tooltips ability",
-  		properties: {
-  			supportedTypes: {
-  				type: "object",
-  				description: "Instructs the host what tooltip types to support",
-  				properties: {
-  					"default": {
-  						type: "boolean",
-  						description: "Instructs the host to support showing default tooltips"
-  					},
-  					canvas: {
-  						type: "boolean",
-  						description: "Instructs the host to support showing canvas tooltips"
-  					}
-  				}
-  			},
-  			roles: {
-  				type: "array",
-  				items: {
-  					type: "string",
-  					description: "The name of the data role to bind the tooltips selected info to"
-  				}
-  			},
-  			supportEnhancedTooltips: {
-  				type: "boolean",
-  				description: "Indicates whether the visual support modern tooltip feature"
-  			}
-  		}
-  	},
-  	"object.propertySettings": {
-  		type: "object",
-  		description: "Settings for a property",
-  		properties: {
-  			displayName: {
-  				type: "string",
-  				description: "The name shown to the user to describe this property"
-  			},
-  			displayNameKey: {
-  				type: "string",
-  				description: "The localization key for the displayed name in the stringResourced file"
-  			},
-  			description: {
-  				type: "string",
-  				description: "A description of this property shown to the user as a tooltip"
-  			},
-  			descriptionKey: {
-  				type: "string",
-  				description: "The localization key for the description in the stringResourced file"
-  			},
-  			placeHolderText: {
-  				type: "string",
-  				description: "Text to display if the field is empty"
-  			},
-  			placeHolderTextKey: {
-  				type: "string",
-  				description: "The localization key for the placeHolderText in the stringResources file"
-  			},
-  			suppressFormatPainterCopy: {
-  				type: "boolean",
-  				description: "Indicates whether the Format Painter should ignore this property"
-  			},
-  			type: {
-  				description: "Describes what type of property this is and how it should be displayed to the user",
-  				$ref: "#/definitions/valueType"
-  			},
-  			rule: {
-  				type: "object",
-  				description: "Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",
-  				$ref: "#/definitions/substitutionRule"
-  			},
-  			filterState: {
-  				type: "boolean",
-  				description: "Indicates whether the property is a part of filtration information"
-  			}
-  		},
-  		additionalProperties: false
-  	},
-  	substitutionRule: {
-  		type: "object",
-  		description: "Describes substitution rule that replaces property object, described inside the rule, to current property object that contains this rule",
-  		properties: {
-  			inputRole: {
-  				type: "string",
-  				description: "The name of role. If this role is set, the substitution will be applied"
-  			},
-  			output: {
-  				type: "object",
-  				description: "Describes what exactly is necessary to replace",
-  				properties: {
-  					property: {
-  						type: "string",
-  						description: "The name of property object that will be replaced"
-  					},
-  					selector: {
-  						type: "array",
-  						description: "The array of selector names. Usually, it contains only one selector -- 'Category'",
-  						items: {
-  							type: "string",
-  							description: "The name of selector"
-  						}
-  					}
-  				}
-  			}
-  		}
-  	},
-  	sorting: {
-  		type: "object",
-  		description: "Specifies the default sorting behavior for the visual",
-  		properties: {
-  			"default": {
-  				type: "object",
-  				additionalProperties: false
-  			},
-  			custom: {
-  				type: "object",
-  				additionalProperties: false
-  			},
-  			implicit: {
-  				type: "object",
-  				description: "implicit sort",
-  				properties: {
-  					clauses: {
-  						type: "array",
-  						items: {
-  							type: "object",
-  							properties: {
-  								role: {
-  									type: "string"
-  								},
-  								direction: {
-  									type: "number",
-  									description: "Determines sort direction (1 = Ascending, 2 = Descending)",
-  									"enum": [
-  										1,
-  										2
-  									]
-  								}
-  							},
-  							additionalProperties: false
-  						}
-  					}
-  				},
-  				additionalProperties: false
-  			}
-  		},
-  		additionalProperties: false,
-  		anyOf: [
-  			{
-  				required: [
-  					"default"
-  				]
-  			},
-  			{
-  				required: [
-  					"custom"
-  				]
-  			},
-  			{
-  				required: [
-  					"implicit"
-  				]
-  			}
-  		]
-  	},
-  	drilldown: {
-  		type: "object",
-  		description: "Defines the visual's drill capability",
-  		properties: {
-  			roles: {
-  				type: "array",
-  				description: "The drillable role names for this visual",
-  				items: {
-  					type: "string",
-  					description: "The name of the role"
-  				}
-  			}
-  		}
-  	},
-  	expandCollapse: {
-  		type: "object",
-  		description: "Defines the visual's expandCollapse capability",
-  		properties: {
-  			roles: {
-  				type: "array",
-  				description: "The expandCollapsed role names for this visual",
-  				items: {
-  					type: "string",
-  					description: "The name of the role"
-  				}
-  			},
-  			addDataViewFlags: {
-  				type: "object",
-  				description: "The data view flags",
-  				defaultValue: {
-  					type: "boolean",
-  					description: "Indicates if the DataViewTreeNode will contain the isCollapsed flag by default"
-  				}
-  			},
-  			supportsMerge: {
-  				type: "boolean",
-  				description: "Indicates that the expansion state should be updated when query projections change, instead of being reset."
-  			},
-  			restoreProjectionsOrderFromBookmark: {
-  				type: "boolean",
-  				description: "Indicates that the bookmarked expansion state should be restored even if the query projections order no longer matches the expansion state levels."
-  			}
-  		}
-  	},
-  	valueType: {
-  		type: "object",
-  		properties: {
-  			bool: {
-  				type: "boolean",
-  				description: "A boolean value that will be displayed to the user as a toggle switch"
-  			},
-  			enumeration: {
-  				type: "array",
-  				description: "A list of values that will be displayed as a drop down list",
-  				items: {
-  					type: "object",
-  					description: "Describes an item in the enumeration list",
-  					properties: {
-  						displayName: {
-  							type: "string",
-  							description: "The name shown to the user to describe this item"
-  						},
-  						displayNameKey: {
-  							type: "string",
-  							description: "The localization key for the displayed name in the stringResourced file"
-  						},
-  						value: {
-  							type: "string",
-  							description: "The internal value of this property when this item is selected"
-  						}
-  					}
-  				}
-  			},
-  			fill: {
-  				type: "object",
-  				description: "A color value that will be displayed to the user as a color picker",
-  				properties: {
-  					solid: {
-  						type: "object",
-  						description: "A solid color value that will be displayed to the user as a color picker",
-  						properties: {
-  							color: {
-  								oneOf: [
-  									{
-  										type: "boolean"
-  									},
-  									{
-  										type: "object",
-  										properties: {
-  											nullable: {
-  												description: "Allows the user to select 'no fill' for the color",
-  												type: "boolean"
-  											}
-  										}
-  									}
-  								]
-  							}
-  						}
-  					}
-  				}
-  			},
-  			fillRule: {
-  				type: "object",
-  				description: "A color gradient that will be dispalyed to the user as a minimum (,medium) and maximum color pickers",
-  				properties: {
-  					linearGradient2: {
-  						type: "object",
-  						description: "Two color gradient",
-  						properties: {
-  							max: {
-  								type: "object",
-  								description: "Maximum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							min: {
-  								type: "object",
-  								description: "Minimum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							nullColoringStrategy: {
-  								type: "object",
-  								description: "Null color strategy"
-  							}
-  						}
-  					},
-  					linearGradient3: {
-  						type: "object",
-  						description: "Three color gradient",
-  						properties: {
-  							max: {
-  								type: "object",
-  								description: "Maximum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							min: {
-  								type: "object",
-  								description: "Minimum color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							mid: {
-  								type: "object",
-  								description: "Middle color for gradient",
-  								properties: {
-  									color: {
-  										type: "string"
-  									},
-  									value: {
-  										type: "number"
-  									}
-  								}
-  							},
-  							nullColoringStrategy: {
-  								type: "object",
-  								description: "Null color strategy"
-  							}
-  						}
-  					}
-  				}
-  			},
-  			formatting: {
-  				type: "object",
-  				description: "A numeric value that will be displayed to the user as a text input",
-  				properties: {
-  					labelDisplayUnits: {
-  						type: "boolean",
-  						description: "Displays a dropdown with common display units (Auto, None, Thousands, Millions, Billions, Trillions)"
-  					},
-  					alignment: {
-  						type: "boolean",
-  						description: "Displays a selector to allow the user to choose left, center, or right alignment"
-  					},
-  					fontSize: {
-  						type: "boolean",
-  						description: "Displays a slider that allows the user to choose a font size in points"
-  					},
-  					fontFamily: {
-  						type: "boolean",
-  						description: "Displays a dropdown with font families"
-  					},
-  					formatString: {
-  						type: "boolean",
-  						description: "Displays dynamic format string"
-  					}
-  				},
-  				additionalProperties: false,
-  				oneOf: [
-  					{
-  						required: [
-  							"labelDisplayUnits"
-  						]
-  					},
-  					{
-  						required: [
-  							"alignment"
-  						]
-  					},
-  					{
-  						required: [
-  							"fontSize"
-  						]
-  					},
-  					{
-  						required: [
-  							"fontFamily"
-  						]
-  					},
-  					{
-  						required: [
-  							"formatString"
-  						]
-  					}
-  				]
-  			},
-  			integer: {
-  				type: "boolean",
-  				description: "An integer (whole number) value that will be displayed to the user as a text input"
-  			},
-  			numeric: {
-  				type: "boolean",
-  				description: "A numeric value that will be displayed to the user as a text input"
-  			},
-  			filter: {
-  				oneOf: [
-  					{
-  						type: "boolean"
-  					},
-  					{
-  						type: "object",
-  						properties: {
-  							selfFilter: {
-  								type: "boolean"
-  							}
-  						}
-  					}
-  				],
-  				description: "A filter"
-  			},
-  			operations: {
-  				type: "object",
-  				description: "A visual operation",
-  				properties: {
-  					searchEnabled: {
-  						type: "boolean",
-  						description: "Turns search ability on"
-  					}
-  				}
-  			},
-  			text: {
-  				type: "boolean",
-  				description: "A text value that will be displayed to the user as a text input"
-  			},
-  			scripting: {
-  				type: "object",
-  				description: "A text value that will be displayed to the user as a script",
-  				properties: {
-  					source: {
-  						type: "boolean",
-  						description: "A source code"
-  					}
-  				}
-  			},
-  			geography: {
-  				type: "object",
-  				description: "Geographical data",
-  				properties: {
-  					address: {
-  						type: "boolean"
-  					},
-  					city: {
-  						type: "boolean"
-  					},
-  					continent: {
-  						type: "boolean"
-  					},
-  					country: {
-  						type: "boolean"
-  					},
-  					county: {
-  						type: "boolean"
-  					},
-  					region: {
-  						type: "boolean"
-  					},
-  					postalCode: {
-  						type: "boolean"
-  					},
-  					stateOrProvince: {
-  						type: "boolean"
-  					},
-  					place: {
-  						type: "boolean"
-  					},
-  					latitude: {
-  						type: "boolean"
-  					},
-  					longitude: {
-  						type: "boolean"
-  					}
-  				}
-  			}
-  		},
-  		additionalProperties: false,
-  		oneOf: [
-  			{
-  				required: [
-  					"bool"
-  				]
-  			},
-  			{
-  				required: [
-  					"enumeration"
-  				]
-  			},
-  			{
-  				required: [
-  					"fill"
-  				]
-  			},
-  			{
-  				required: [
-  					"fillRule"
-  				]
-  			},
-  			{
-  				required: [
-  					"formatting"
-  				]
-  			},
-  			{
-  				required: [
-  					"integer"
-  				]
-  			},
-  			{
-  				required: [
-  					"numeric"
-  				]
-  			},
-  			{
-  				required: [
-  					"text"
-  				]
-  			},
-  			{
-  				required: [
-  					"geography"
-  				]
-  			},
-  			{
-  				required: [
-  					"scripting"
-  				]
-  			},
-  			{
-  				required: [
-  					"filter"
-  				]
-  			},
-  			{
-  				required: [
-  					"operations"
-  				]
-  			}
-  		]
-  	},
-  	subtotals: {
-  		type: "object",
-  		description: "Specifies the subtotal request customizations applied to the outgoing data query",
-  		properties: {
-  			matrix: {
-  				description: "Defines the subtotal customizations of the outgoing data query of a matrix-dataview visual",
-  				$ref: "#/definitions/subtotals.matrix"
-  			}
-  		},
-  		requires: [
-  			"matrix"
-  		]
-  	},
-  	"subtotals.matrix": {
-  		type: "object",
-  		description: "Specifies the subtotal customizations of the outgoing data query of a matrix-dataview visual",
-  		properties: {
-  			rowSubtotals: {
-  				type: "object",
-  				description: "Indicates if the subtotal data should be requested for all fields in the rows field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			rowSubtotalsPerLevel: {
-  				type: "object",
-  				description: "Indicates if the subtotal data can be toggled for individual fields in the rows field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			columnSubtotals: {
-  				type: "object",
-  				description: "Indicates if the subtotal data should be requested for all fields in the columns field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			columnSubtotalsPerLevel: {
-  				type: "object",
-  				description: "Indicates if the subtotal data can be toggled for individual fields in the columns field well",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			levelSubtotalEnabled: {
-  				type: "object",
-  				description: "Unlike all other properites, this property is applied to individual rows/columns. The property indicates if the subtotals are requested for the row/column",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "boolean"
-  					}
-  				}
-  			},
-  			rowSubtotalsType: {
-  				type: "object",
-  				description: "Indicates location of row subtotals locations (Top, Bottom). Top means subtotals located at the start of datasource and calculated even before all datasource rows fetched, Bottom means subtotals located at the end of datasource and shown only after all rows are fetched",
-  				properties: {
-  					propertyIdentifier: {
-  						type: "object",
-  						properties: {
-  							objectName: {
-  								type: "string"
-  							},
-  							propertyName: {
-  								type: "string"
-  							}
-  						}
-  					},
-  					defaultValue: {
-  						type: "string",
-  						"enum": [
-  							"Top",
-  							"Bottom"
-  						]
-  					}
-  				}
-  			}
-  		},
-  		requires: [
-  			"matrix"
-  		]
-  	},
-  	migration: {
-  		type: "object",
-  		description: "Defines the supported APIs for migration",
-  		properties: {
-  			filter: {
-  				$ref: "#/definitions/migration.filter"
-  			}
-  		}
-  	},
-  	"migration.filter": {
-  		type: "object",
-  		description: "Defines the capabilities for migrating the filter API",
-  		properties: {
-  			shouldUseIdentityFilter: {
-  				type: "boolean",
-  				description: "Indicates whether the new filter should migrate to an identity filter"
-  			}
-  		}
-  	}
-  };
-  var require$$2 = {
-  	type: type$3,
-  	properties: properties$3,
-  	required: required$1,
-  	additionalProperties: additionalProperties,
-  	definitions: definitions$2
-  };
-
-  var type$2 = "object";
-  var properties$2 = {
-  	apiVersion: {
-  		type: "string",
-  		description: "Version of the IVisual API"
-  	},
-  	author: {
-  		type: "object",
-  		description: "Information about the author of the visual",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "Name of the visual author. This is displayed to users."
-  			},
-  			email: {
-  				type: "string",
-  				description: "E-mail of the visual author. This is displayed to users for support."
-  			}
-  		}
-  	},
-  	assets: {
-  		type: "object",
-  		description: "Assets used by the visual",
-  		properties: {
-  			icon: {
-  				type: "string",
-  				description: "A 20x20 png icon used to represent the visual"
-  			}
-  		}
-  	},
-  	externalJS: {
-  		type: "array",
-  		description: "An array of relative paths to 3rd party javascript libraries to load",
-  		items: {
-  			type: "string"
-  		}
-  	},
-  	stringResources: {
-  		type: "array",
-  		description: "An array of relative paths to string resources to load",
-  		items: {
-  			type: "string"
-  		},
-  		uniqueItems: true
-  	},
-  	style: {
-  		type: "string",
-  		description: "Relative path to the stylesheet (less) for the visual"
-  	},
-  	capabilities: {
-  		type: "string",
-  		description: "Relative path to the visual capabilities json file"
-  	},
-  	visual: {
-  		type: "object",
-  		description: "Details about this visual",
-  		properties: {
-  			description: {
-  				type: "string",
-  				description: "What does this visual do?"
-  			},
-  			name: {
-  				type: "string",
-  				description: "Internal visual name"
-  			},
-  			displayName: {
-  				type: "string",
-  				description: "A friendly name"
-  			},
-  			externals: {
-  				type: "array",
-  				description: "External files (such as JavaScript) that you would like to include"
-  			},
-  			guid: {
-  				type: "string",
-  				description: "Unique identifier for the visual"
-  			},
-  			visualClassName: {
-  				type: "string",
-  				description: "Class of your IVisual"
-  			},
-  			icon: {
-  				type: "string",
-  				description: "Icon path"
-  			},
-  			version: {
-  				type: "string",
-  				description: "Visual version"
-  			},
-  			gitHubUrl: {
-  				type: "string",
-  				description: "Url to the github repository for this visual"
-  			},
-  			supportUrl: {
-  				type: "string",
-  				description: "Url to the support page for this visual"
-  			}
-  		}
-  	}
-  };
-  var require$$3 = {
-  	type: type$2,
-  	properties: properties$2
-  };
-
-  var type$1 = "object";
-  var properties$1 = {
-  	cranPackages: {
-  		type: "array",
-  		description: "An array of the Cran packages required for the custom R visual script to operate",
-  		items: {
-  			$ref: "#/definitions/cranPackage"
-  		}
-  	}
-  };
-  var definitions$1 = {
-  	cranPackage: {
-  		type: "object",
-  		description: "cranPackage - Defines the name and displayName of a required Cran package",
-  		properties: {
-  			name: {
-  				type: "string",
-  				description: "The name for this Cran package"
-  			},
-  			displayName: {
-  				type: "string",
-  				description: "The name for this Cran package that is shown to the user"
-  			},
-  			url: {
-  				type: "string",
-  				description: "A url for package documentation in Cran website"
-  			}
-  		},
-  		required: [
-  			"name",
-  			"url"
-  		],
-  		additionalProperties: false
-  	}
-  };
-  var require$$4 = {
-  	type: type$1,
-  	properties: properties$1,
-  	definitions: definitions$1
-  };
-
-  var type = "object";
-  var properties = {
-  	locale: {
-  		$ref: "#/definitions/localeOptions"
-  	},
-  	values: {
-  		type: "object",
-  		description: "translations for the display name keys in the capabilities",
-  		additionalProperties: {
-  			type: "string"
-  		}
-  	}
-  };
-  var required = [
-  	"locale"
-  ];
-  var definitions = {
-  	localeOptions: {
-  		description: "Specifies the locale key from a list of supported locales",
-  		type: "string",
-  		"enum": [
-  			"ar-SA",
-  			"bg-BG",
-  			"ca-ES",
-  			"cs-CZ",
-  			"da-DK",
-  			"de-DE",
-  			"el-GR",
-  			"en-US",
-  			"es-ES",
-  			"et-EE",
-  			"eu-ES",
-  			"fi-FI",
-  			"fr-FR",
-  			"gl-ES",
-  			"he-IL",
-  			"hi-IN",
-  			"hr-HR",
-  			"hu-HU",
-  			"id-ID",
-  			"it-IT",
-  			"ja-JP",
-  			"kk-KZ",
-  			"ko-KR",
-  			"lt-LT",
-  			"lv-LV",
-  			"ms-MY",
-  			"nb-NO",
-  			"nl-NL",
-  			"pl-PL",
-  			"pt-BR",
-  			"pt-PT",
-  			"ro-RO",
-  			"ru-RU",
-  			"sk-SK",
-  			"sl-SI",
-  			"sr-Cyrl-RS",
-  			"sr-Latn-RS",
-  			"sv-SE",
-  			"th-TH",
-  			"tr-TR",
-  			"uk-UA",
-  			"vi-VN",
-  			"zh-CN",
-  			"zh-TW"
-  		]
-  	}
-  };
-  var require$$5 = {
-  	type: type,
-  	properties: properties,
-  	required: required,
-  	definitions: definitions
-  };
-
-  var hasRequiredPowerbiVisualsApi;
-
-  function requirePowerbiVisualsApi () {
-  	if (hasRequiredPowerbiVisualsApi) return powerbiVisualsApi;
-  	hasRequiredPowerbiVisualsApi = 1;
-  	const semver = requireSemver();
-
-  	let packageVersion = require$$1.version;
-  	let apiVersion = `${semver.major(packageVersion)}.${semver.minor(packageVersion)}.0`;
-
-  	powerbiVisualsApi.version = apiVersion;
-
-  	powerbiVisualsApi.schemas = {
-  	    capabilities: require$$2,
-  	    pbiviz: require$$3,
-  	    dependencies: require$$4,
-  	    stringResources: require$$5
-  	};
-  	return powerbiVisualsApi;
-  }
-
-  requirePowerbiVisualsApi();
-
-  class derivedSettingsClass {
-      update(inputSettings) {
-          const chartType = inputSettings.funnel.chart_type;
-          const pChartType = ["PR"].includes(chartType);
-          const percentSettingString = inputSettings.funnel.perc_labels;
-          let multiplier = inputSettings.funnel.multiplier;
-          let percentLabels;
-          if (percentSettingString === "Yes") {
-              multiplier = 100;
-          }
-          if (pChartType) {
-              multiplier = multiplier === 1 ? 100 : multiplier;
-          }
-          if (percentSettingString === "Automatic") {
-              percentLabels = pChartType && multiplier === 100;
-          }
-          else {
-              percentLabels = percentSettingString === "Yes";
-          }
-          this.multiplier = multiplier;
-          this.percentLabels = percentLabels;
-      }
-  }
-
-  /**
-   * This is the core class which controls the initialisation and
-   * updating of user-settings. Each member is its own class defining
-   * the types and default values for a given group of settings.
-   *
-   * These are defined in the settingsGroups.ts file
-   */
-  class settingsClass {
-      /**
-       * Function to read the values from the settings pane and update the
-       * values stored in the class.
-       *
-       * @param inputObjects
-       */
-      update(inputView) {
-          this.validationStatus
-              = JSON.parse(JSON.stringify({ status: 0, messages: new Array(), error: "" }));
-          // Get the names of all classes in settingsObject which have values to be updated
-          const allSettingGroups = Object.keys(this.settings);
-          allSettingGroups.forEach((settingGroup) => {
-              const condFormatting = extractConditionalFormatting(inputView === null || inputView === void 0 ? void 0 : inputView.categorical, settingGroup, this.settings);
-              if (condFormatting.validation.status !== 0) {
-                  this.validationStatus.status = condFormatting.validation.status;
-                  this.validationStatus.error = condFormatting.validation.error;
-              }
-              if (this.validationStatus.messages.length === 0) {
-                  this.validationStatus.messages = condFormatting.validation.messages;
-              }
-              else if (!condFormatting.validation.messages.every(d => d.length === 0)) {
-                  condFormatting.validation.messages.forEach((message, idx) => {
-                      if (message.length > 0) {
-                          this.validationStatus.messages[idx] = this.validationStatus.messages[idx].concat(message);
-                      }
-                  });
-              }
-              // Get the names of all settings in a given class and
-              // use those to extract and update the relevant values
-              const settingNames = Object.keys(this.settings[settingGroup]);
-              settingNames.forEach((settingName) => {
-                  this.settings[settingGroup][settingName]
-                      = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
-                          ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[0][settingName]
-                          : defaultSettings[settingGroup][settingName]["default"];
-              });
-          });
-          this.derivedSettings.update(this.settings);
-      }
-      getFormattingModel() {
-          var _a, _b;
-          const formattingModel = {
-              cards: []
-          };
-          for (const curr_card_name in settingsModel) {
-              let curr_card = {
-                  description: settingsModel[curr_card_name].description,
-                  displayName: settingsModel[curr_card_name].displayName,
-                  uid: curr_card_name + "_card_uid",
-                  groups: [],
-                  revertToDefaultDescriptors: []
-              };
-              for (const card_group in settingsModel[curr_card_name].settingsGroups) {
-                  let curr_group = {
-                      displayName: card_group === "all" ? settingsModel[curr_card_name].displayName : card_group,
-                      uid: curr_card_name + "_" + card_group + "_uid",
-                      slices: []
-                  };
-                  for (const setting in settingsModel[curr_card_name].settingsGroups[card_group]) {
-                      curr_card.revertToDefaultDescriptors.push({
-                          objectName: curr_card_name,
-                          propertyName: setting
-                      });
-                      let curr_slice = {
-                          uid: curr_card_name + "_" + card_group + "_" + setting + "_slice_uid",
-                          displayName: settingsModel[curr_card_name].settingsGroups[card_group][setting].displayName,
-                          control: {
-                              type: settingsModel[curr_card_name].settingsGroups[card_group][setting].type,
-                              properties: {
-                                  descriptor: {
-                                      objectName: curr_card_name,
-                                      propertyName: setting,
-                                      selector: { data: [{ dataViewWildcard: { matchingOption: 0 } }] },
-                                      instanceKind: (typeof this.settings[curr_card_name][setting]) != "boolean" ? 3 /* powerbi.default.VisualEnumerationInstanceKinds.ConstantOrRule */ : null
-                                  },
-                                  value: this.valueLookup(curr_card_name, card_group, setting),
-                                  items: (_a = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _a === void 0 ? void 0 : _a.items,
-                                  options: (_b = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _b === void 0 ? void 0 : _b.options
-                              }
-                          }
-                      };
-                      curr_group.slices.push(curr_slice);
-                  }
-                  curr_card.groups.push(curr_group);
-              }
-              formattingModel.cards.push(curr_card);
-          }
-          return formattingModel;
-      }
-      valueLookup(settingCardName, settingGroupName, settingName) {
-          var _a;
-          if (settingName.includes("colour")) {
-              return { value: this.settings[settingCardName][settingName] };
-          }
-          if (!isNullOrUndefined((_a = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a.items)) {
-              const allItems = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName].items;
-              const currValue = this.settings[settingCardName][settingName];
-              return allItems.find(item => item.value === currValue);
-          }
-          return this.settings[settingCardName][settingName];
-      }
-      constructor() {
-          this.settings = Object.fromEntries(Object.keys(defaultSettings).map((settingGroupName) => {
-              return [settingGroupName, Object.fromEntries(Object.keys(defaultSettings[settingGroupName]).map((settingName) => {
-                      return [settingName, defaultSettings[settingGroupName][settingName]];
-                  }))];
-          }));
-          this.derivedSettings = new derivedSettingsClass();
       }
   }
 
