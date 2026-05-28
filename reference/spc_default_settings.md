@@ -757,7 +757,7 @@ spc_default_settings()
 #> [1] -35
 #> 
 #> $x_axis$xlimit_label
-#> NULL
+#> [1] ""
 #> 
 #> $x_axis$xlimit_label_font
 #> [1] "'Arial', sans-serif"
@@ -807,7 +807,7 @@ spc_default_settings()
 #> [1] 0
 #> 
 #> $y_axis$ylimit_label
-#> NULL
+#> [1] ""
 #> 
 #> $y_axis$ylimit_label_font
 #> [1] "'Arial', sans-serif"
@@ -892,7 +892,7 @@ spc_default_settings()
 #> [1] "normal"
 #> 
 #> $summary_table$table_header_text_transform
-#> [1] "uppercase"
+#> [1] "capitalize"
 #> 
 #> $summary_table$table_header_text_padding
 #> [1] 1
@@ -931,7 +931,7 @@ spc_default_settings()
 #> [1] "normal"
 #> 
 #> $summary_table$table_body_text_transform
-#> [1] "uppercase"
+#> [1] "capitalize"
 #> 
 #> $summary_table$table_body_text_padding
 #> [1] 1
@@ -1075,7 +1075,7 @@ spc_default_settings("x_axis")
 #> [1] -35
 #> 
 #> $xlimit_label
-#> NULL
+#> [1] ""
 #> 
 #> $xlimit_label_font
 #> [1] "'Arial', sans-serif"
