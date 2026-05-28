@@ -4,6 +4,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   update-libs:
@@ -38,6 +39,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: steps.spc-update.outputs.visual-updated == 'true' || steps.funnel-update.outputs.visual-updated == 'true'
       run: |
+        # Generate PR Title
         TITLE="Update Bundled Lib(s): "
         if [ "${{ steps.spc-update.outputs.visual-updated }}" == "true" ]; then
           TITLE+="PBISPC to ${{ steps.spc-update.outputs.visual-version }}, "
@@ -45,8 +47,11 @@ jobs:
         if [ "${{ steps.funnel-update.outputs.visual-updated }}" == "true" ]; then
           TITLE+="PBIFUN to ${{ steps.funnel-update.outputs.visual-version }}"
         fi
+
         # Increment package version
         perl -i -pe 's/^Version:\s*(\d+)\.(\d+)\.(\d+)/"Version: $1.$2.".($3+1)/e' DESCRIPTION
+        git add DESCRIPTION
+        git commit -m "Increment package version"
 
         git push --set-upstream origin ${{ env.BRANCH }}
         gh pr create \
@@ -54,4 +59,6 @@ jobs:
           --body "This PR was automatically created by GitHub Actions." \
           --base main \
           --head ${{ env.BRANCH }}
+
+        gh workflow run R-CMD-check.yaml --ref ${{ env.BRANCH }}
       shell: bash
