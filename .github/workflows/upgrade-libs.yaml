@@ -1,6 +1,9 @@
 name: "Update Bundled PBI Visuals"
 on:
   workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   update-libs:
@@ -9,13 +12,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-      with:
-        token: ${{ secrets.CONTROLCHARTS_GH_PAT }}
 
     - name: Configure Git
       run: |
-        git config --global user.email "andrew.johnson@arjohnsonau.com"
-        git config --global user.name "andrjohns"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
         BRANCH=update-libs-$(echo $RANDOM | md5sum | head -c 10; echo)
         echo "BRANCH=$BRANCH" >> $GITHUB_ENV
         git checkout -b $BRANCH
@@ -33,8 +34,6 @@ jobs:
         type: "Funnel"
 
     - name: Generate PR
-      env:
-        GH_TOKEN: ${{ secrets.CONTROLCHARTS_GH_PAT }}
       if: steps.spc-update.outputs.visual-updated == 'true' || steps.funnel-update.outputs.visual-updated == 'true'
       run: |
         TITLE="Update Bundled Lib(s): "
@@ -44,9 +43,13 @@ jobs:
         if [ "${{ steps.funnel-update.outputs.visual-updated }}" == "true" ]; then
           TITLE+="PBIFUN to ${{ steps.funnel-update.outputs.visual-version }}"
         fi
+        # Increment package version
+        perl -i -pe 's/^Version:\s*(\d+)\.(\d+)\.(\d+)/"Version: $1.$2.".($3+1)/e' DESCRIPTION
+
         git push --set-upstream origin ${{ env.BRANCH }}
         gh pr create \
           --title "$TITLE" \
           --body "This PR was automatically created by GitHub Actions." \
           --base main \
           --head ${{ env.BRANCH }}
+      shell: bash
