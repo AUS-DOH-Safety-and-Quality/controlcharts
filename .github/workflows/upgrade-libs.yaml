@@ -34,6 +34,8 @@ jobs:
         type: "Funnel"
 
     - name: Generate PR
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: steps.spc-update.outputs.visual-updated == 'true' || steps.funnel-update.outputs.visual-updated == 'true'
       run: |
         TITLE="Update Bundled Lib(s): "
