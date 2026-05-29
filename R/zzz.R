@@ -22,17 +22,9 @@ ctx <- NULL
 
   # Extract default settings from each chart type and store in R
   for (type in c("spc", "funnel")) {
-    assign(paste0(".", type, "_default_settings_internal"),
-      lapply(ctx$get(paste0(type, ".defaultSettings")),
-             function(settings_group) {
-               lapply(settings_group, function(setting) {
-                if ("default" %in% names(setting)) {
-                  setting$default
-                } else {
-                  setting
-                }
-              })
-             }),
+    assign(
+      paste0(".", type, "_default_settings_internal"),
+      ctx$get(paste0(type, ".defaultSettings")),
       envir = topenv()
     )
   }
