@@ -26,7 +26,8 @@ funnel(
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
-  elementId = NULL
+  elementId = NULL,
+  return_objs = c("html_plot", "static_plot", "limits")
 )
 ```
 
@@ -162,6 +163,16 @@ funnel(
 - elementId:
 
   Optional HTML element ID for the chart.
+
+- return_objs:
+
+  Character vector of object types to return. Valid values are:
+
+  - `"html_plot"`: Interactive `htmlwidgets` plot
+
+  - `"static_plot"`: Non-interactive SVG plot
+
+  - `"limits"`: Calculated control limits
 
 ## Value
 

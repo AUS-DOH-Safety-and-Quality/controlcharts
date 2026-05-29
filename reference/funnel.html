@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,8 @@
 <span>  tooltip_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  height <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  elementId <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  elementId <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  return_objs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"html_plot"</span>, <span class="st">"static_plot"</span>, <span class="st">"limits"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -191,6 +192,14 @@ the chart will fill the height of its container.</p></dd>
 
 <dt id="arg-elementid">elementId<a class="anchor" aria-label="anchor" href="#arg-elementid"></a></dt>
 <dd><p>Optional HTML element ID for the chart.</p></dd>
+
+
+<dt id="arg-return-objs">return_objs<a class="anchor" aria-label="anchor" href="#arg-return-objs"></a></dt>
+<dd><p>Character vector of object types to return.
+Valid values are:</p><ul><li><p><code>"html_plot"</code>: Interactive <code>htmlwidgets</code> plot</p></li>
+<li><p><code>"static_plot"</code>: Non-interactive SVG plot</p></li>
+<li><p><code>"limits"</code>: Calculated control limits</p></li>
+</ul></dd>
 
 </dl></div>
     <div class="section level2">

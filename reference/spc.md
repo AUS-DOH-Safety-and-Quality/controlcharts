@@ -30,7 +30,8 @@ spc(
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
-  elementId = NULL
+  elementId = NULL,
+  return_objs = c("html_plot", "static_plot", "limits")
 )
 ```
 
@@ -187,8 +188,17 @@ spc(
 
   Optional HTML element ID for the chart.
 
+- return_objs:
+
+  Character vector of object types to return. Valid values are:
+
+  - `"html_plot"`: Interactive `htmlwidgets` plot
+
+  - `"static_plot"`: Non-interactive SVG plot
+
+  - `"limits"`: Calculated control limits
+
 ## Value
 
 An object of class `controlchart` containing the interactive plot,
-static plot, limits data frame, raw data, and a function to save the
-plot.
+static plot, limits data frame, and a function to save the plot.
