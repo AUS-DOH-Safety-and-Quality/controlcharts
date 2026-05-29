@@ -252,25 +252,38 @@ update_static_padding <- function(type, data_views) {
 }
 
 create_static <- function(type, data_views, title_settings,
-                          input_settings, width, height) {
+                          input_settings, width, height,
+                          rtn_static = TRUE, rtn_limits = TRUE
+                         ) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
   raw_ret <- ctx$call("updateHeadlessVisual", type, data_views,
-                      title_settings, width, height)
+                      title_settings, width, height,
+                      rtn_static, rtn_limits)
+
   if ("error" %in% names(raw_ret)) {
     stop(raw_ret$error, call. = FALSE)
   }
-  static_plot <- structure(
-    list(
-      type = type,
-      dataViews = data_views,
-      svg = raw_ret$svg,
-      # Set to non-null values, will be updated when printed
-      width = width,
-      height = height
-    ),
-    class = "static_plot"
-  )
+
+  rtn <- list()
+  if (rtn_static) {
+    rtn$static_plot = structure(
+      list(
+        type = type,
+        dataViews = data_views,
+        svg = raw_ret$svg,
+        # Set to non-null values, will be updated when printed
+        width = width,
+        height = height
+      ),
+      class = "static_plot"
+    )
+  }
+
+  if (!rtn_limits) {
+    return(rtn)
+  }
+
   limits <- NULL
   if (type == "spc") {
     limits <- lapply(raw_ret$plotPoints, function(elem) elem$table_row)
@@ -335,29 +348,51 @@ create_static <- function(type, data_views, title_settings,
     }
     limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
   }
-  list(
-    limits = limits,
-    static_plot = static_plot,
-    raw = raw_ret
-  )
+
+  rtn$limits <- limits
+  rtn
 }
 
-create_save_function <- function(type, html_plt, static_plt, data_views) {
+create_save_function <- function(type, rtn, data_views) {
+  has_html <- "html_plot" %in% names(rtn)
+  has_static <- "static_plot" %in% names(rtn)
+  html_plot <- NULL
+  static_plot <- NULL
+
+  if (has_html) {
+    html_plot <- rtn$html_plot
+  }
+  if (has_static) {
+    static_plot <- rtn$static_plot
+  }
+
   function(file, width = NULL, height = NULL) {
+    if (!(has_html || has_static)) {
+      stop("This object has no plots! Rerun the `", type, "()` function and ",
+           "pass 'html_plot' and/or 'static_plot' to the 'return_objs' argument")
+    }
     file_ext <- tools::file_ext(file)
+    if (file_ext == "html") {
+      if (!has_html) {
+        stop("This object has no html plot! Rerun the `", type, "()` function and ",
+            "pass 'html_plot' to the 'return_objs' argument")
+      }
+      htmlwidgets::saveWidget(html_plot, file, selfcontained = TRUE)
+      return(invisible(NULL))
+    }
+    if (!has_static) {
+      stop("This object has no static plot! Rerun the `", type, "()` function and ",
+          "pass 'static_plot' to the 'return_objs' argument")
+    }
     valid_exts <- c("webp", "png", "pdf", "svg", "ps", "eps", "html")
     if (!(file_ext %in% valid_exts)) {
       stop("'", file_ext, "' is not a supported file type! Valid options are: ",
            paste0(valid_exts, collapse = ", "))
     }
-    if (file_ext == "html") {
-      htmlwidgets::saveWidget(html_plt, file, selfcontained = TRUE)
-      return(invisible(NULL))
-    }
     # No change to size, save existing SVG as-is
     if (file_ext == "svg" && (is.null(width) && is.null(height))) {
-      writeLines(svg_string(static_plt$svg, static_plt$width,
-                            static_plt$height),
+      writeLines(svg_string(static_plot$svg, static_plot$width,
+                            static_plot$height),
                  con = file)
       return(invisible(NULL))
     }
@@ -370,8 +405,8 @@ create_save_function <- function(type, html_plt, static_plt, data_views) {
     }
 
     # If either width or height not provided by user, use existing
-    width <- ifelse(is.null(width), static_plt$width, width)
-    height <- ifelse(is.null(height), static_plt$height, height)
+    width <- ifelse(is.null(width), static_plot$width, width)
+    height <- ifelse(is.null(height), static_plot$height, height)
 
     svg <- ctx$call("updateHeadlessVisual", type, data_views, width, height)$svg
     svg_resized <- svg_string(svg, width, height)

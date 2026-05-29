@@ -29,7 +29,8 @@ spc(
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
-  elementId = NULL
+  elementId = NULL,
+  return_objs = c("html_plot", "static_plot", "limits")
 )
 }
 \arguments{
@@ -126,10 +127,18 @@ the chart will fill the width of its container.}
 the chart will fill the height of its container.}
 
 \item{elementId}{Optional HTML element ID for the chart.}
+
+\item{return_objs}{Character vector of object types to return.
+Valid values are:
+\itemize{
+\item \code{"html_plot"}: Interactive \code{htmlwidgets} plot
+\item \code{"static_plot"}: Non-interactive SVG plot
+\item \code{"limits"}: Calculated control limits
+}}
 }
 \value{
 An object of class \code{controlchart} containing the
-interactive plot, static plot, limits data frame, raw data,
+interactive plot, static plot, limits data frame,
 and a function to save the plot.
 }
 \description{

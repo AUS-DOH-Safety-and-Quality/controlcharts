@@ -1,6 +1,8 @@
 #' @exportS3Method
 print.controlchart <- function(x, ...) {
-  print(x$html_plot)
+  types <- c("html_plot", "static_plot", "limits")
+  to_print <- types[types %in% names(x)][1]
+  print(x[[to_print]])
 }
 
 # Method to print a static plot to the R graphics device
@@ -62,10 +64,13 @@ knit_print.static_plot <- function(x, ...) {
 # knit_print method for static_plot.
 #' @exportS3Method knitr::knit_print
 knit_print.controlchart <- function(x, ...) {
+  types_present <- names(x)
   # For knitr, print html for HTML output, and static plot for other formats
-  if (knitr::is_html_output()) {
+  if (knitr::is_html_output() && ("html_plot" %in% (types_present))) {
     knitr::knit_print(x$html_plot, ...)
-  } else {
+  } else if ("static_plot" %in% (types_present)) {
     knit_print.static_plot(x$static_plot, ...)
+  } else {
+    knitr::knit_print(x$limits, ...)
   }
 }

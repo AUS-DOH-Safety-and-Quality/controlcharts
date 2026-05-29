@@ -18,7 +18,18 @@ function initialiseHeadless() {
   globalThis.funnelVisual = new funnel.Visual(makeConstructorArgs(funnelDiv));
 }
 
-function updateHeadlessVisual(chartType, dataViews, title_settings, width, height) {
+function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height,
+                              rtn_static, rtn_limits) {
+  // Clear visual state
+  var visual = globalThis[chartType + "Visual"];
+  visual.update({
+    dataViews: [],
+    viewport: { width: width, height: height },
+    type: 2,
+    headless: true,
+    frontend: true
+  });
+
   var updateArgs = {
     dataViews: dataViews,
     viewport: { width: width, height: height },
@@ -27,26 +38,27 @@ function updateHeadlessVisual(chartType, dataViews, title_settings, width, heigh
     frontend: true
   };
 
-  var visual = globalThis[chartType + "Visual"];
-  visual.update(updateArgs);
+  var rtn = {};
+  if (rtn_static === true) {
+    visual.update(updateArgs);
+    updateChartTitle(visual.svg, titleSettings);
 
-  updateChartTitle(visual.svg, title_settings);
+    // Check for presence of 'errormessage' class and return error text if it exists
+    if (visual.svg.select('.errormessage').size() > 0) {
+      return { error: visual.svg.select('.errormessage').text() };
+    }
+    rtn.svg = visual.svg.node().innerHTML;
+  } else {
+    const updateStatus = visual.viewModel.update(updateArgs, visual.host);
+    if (!updateStatus) {
+      return { error: updateStatus.error };
+    }
+  }
 
-  // Check for presence of 'errormessage' class and return error text if it exists
-  if (visual.svg.select('.errormessage').size() > 0) {
-    return { error: visual.svg.select('.errormessage').text() };
+  if (rtn_limits === true) {
+    rtn.plotPoints = chartType === "funnel" ? visual.viewModel.plotPoints : visual.viewModel.plotPoints[0];
+    rtn.calculatedLimits = chartType === "funnel" ? visual.viewModel.calculatedLimits : undefined;
   }
-  var rtn = {
-    plotPoints: chartType === "funnel" ? visual.viewModel.plotPoints : visual.viewModel.plotPoints[0],
-    svg: visual.svg.node().innerHTML,
-    calculatedLimits: chartType === "funnel" ? visual.viewModel.calculatedLimits : undefined
-  }
-  visual.update({
-    dataViews: [],
-    viewport: { width: width, height: height },
-    type: 2,
-    headless: true,
-    frontend: true
-  });
+
   return rtn;
 }
