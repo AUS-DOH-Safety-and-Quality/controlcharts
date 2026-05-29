@@ -126,12 +126,6 @@ spc <- function(data,
     stop("data is required", call. = FALSE)
   }
 
-  return_objs <- unique(return_objs)
-  invalid_objs <- return_objs[!(return_objs %in% c("html_plot", "static_plot", "limits"))]
-  if (length(invalid_objs) > 0) {
-    stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
-  }
-
   is_crosstalk <- crosstalk::is.SharedData(data)
   if (is_crosstalk) {
     crosstalk_identities <- data$key()
@@ -164,25 +158,6 @@ spc <- function(data,
     numerators = eval(substitute(numerators), input_data, parent.frame())[cat_order]
   )
 
-  input_settings_processed <- validate_settings("spc", input_settings,
-                                                data_raw$crosstalk_identities,
-                                                cat_order)
-  input_settings <- input_settings_processed$input_settings
-  has_conditional_formatting <- input_settings_processed$has_conditional_formatting
-  aggregations <- validate_aggregations(aggregations)
-  title_settings <- validate_chart_title(title)
-
-  # If rendering a title, adjust the upper padding so that title
-  # does not overlap the chart
-  if (!is.null(title_settings$text)) {
-    if (is.null(input_settings$canvas$upper_padding)) {
-      input_settings$canvas$upper_padding =
-        spc_default_settings("canvas")$upper_padding
-    }
-    input_settings$canvas$upper_padding =
-      input_settings$canvas$upper_padding + title_padding(title_settings)
-  }
-
   if (!missing(denominators)) {
     data_raw$denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))[cat_order]
   }
@@ -199,122 +174,13 @@ spc <- function(data,
     data_raw$tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))[cat_order]
   }
 
-  has_labels <- !missing(labels)
-  if (has_labels) {
+  if (!missing(labels)) {
     data_raw$labels <- as.character(eval(substitute(labels), input_data, parent.frame()))[cat_order]
   }
 
-  unique_categories <- unique(data_raw$categories)
-
-  rtn_html <- "html_plot" %in% return_objs
-  rtn_static <- "static_plot" %in% return_objs
-  rtn_limits <- "limits" %in% return_objs
-  rtn <- list()
-  update_dataviews <- NULL
-
-  if (rtn_html) {
-    widget_data <- list(
-      title_settings = title_settings,
-      crosstalk_group = crosstalk_group,
-      tooltip_settings = validate_tooltips(tooltip_settings),
-      is_crosstalk = is_crosstalk
-    )
-
-    # Only store the raw data and aggregation settings for crosstalk inputs
-    #  where aggregations will need to be dynamically recomputed. For all
-    #  other inputs we just aggregate once and re-use
-    if (is_crosstalk) {
-      widget_data$data_raw <- data_raw
-      widget_data$input_settings <- input_settings
-      widget_data$aggregations <- aggregations
-      widget_data$has_conditional_formatting <- has_conditional_formatting
-      widget_data$unique_categories <- unique_categories
-    } else {
-      widget_data$update_values <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
-                                            has_conditional_formatting, unique_categories)
-      update_dataviews <- widget_data$update_values$dataViews
-    }
-
-    compressed <- FALSE
-    if (getOption("controlcharts.compress_data", FALSE)) {
-      if (!requireNamespace("zlib", quietly = TRUE)) {
-        stop("The 'zlib' package is required for compressing stored data.",
-            call. = FALSE)
-      }
-      compressed <- TRUE
-      widget_data <- zlib::compress(serialize(widget_data, NULL))
-    }
-
-    # Create interactive plot
-    rtn$html_plot <- htmlwidgets::createWidget(
-      name = "spc",
-      # Store compressed data to reduce size
-      x = widget_data,
-      sizingPolicy = htmlwidgets::sizingPolicy(
-        defaultWidth = "100%"
-      ),
-      width = width,
-      height = height,
-      package = "controlcharts",
-      elementId = elementId,
-      dependencies = crosstalk::crosstalkLibs(),
-      # preRenderHook to decompress data before rendering
-      preRenderHook = function(instance) {
-        if (compressed) {
-          instance$x <- unserialize(zlib::decompress(instance$x))
-        }
-        instance
-      }
-    )
-  }
-
-  if (rtn_static || rtn_limits) {
-    # Special characters to be escaped for headless use only,
-    # as is automatically done by htmlwidgets
-    input_settings <- escape_labels(input_settings)
-    title_escaped <- FALSE
-    if (!is.null(title_settings$text)) {
-      title_clean <- htmltools::htmlEscape(title_settings$text)
-      if (title_clean != title_settings$text) {
-        title_escaped <- TRUE
-        title_settings$text <- title_clean
-      }
-    }
-
-    labels_escaped <- FALSE
-    if (has_labels) {
-      labels_clean <- sapply(data_raw$labels, htmltools::htmlEscape)
-      if (any(labels_clean != data_raw$labels)) {
-        labels_escaped <- TRUE
-        data_raw$labels <- labels_clean
-      }
-    }
-
-    # If the JS input arguments were already calculated for the HTML plot and there
-    #   have been no changes to the inputs by escaping text, then skip re-calculating
-    if (is.null(update_dataviews) || title_escaped || labels_escaped) {
-      update_dataviews <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
-                                    has_conditional_formatting, unique_categories)$dataViews
-    }
-
-    data_views <- update_static_padding("spc", update_dataviews)
-
-    static <- create_static(
-      type = "spc",
-      data_views = data_views,
-      title_settings = title_settings,
-      input_settings = input_settings,
-      width = width,
-      height = height,
-      rtn_static = rtn_static,
-      rtn_limits = rtn_limits
-    )
-    rtn <- append(rtn, static)
-  }
-
-  rtn$save_plot <- create_save_function("spc", rtn, data_views)
-
-  structure(rtn, class = "controlchart")
+  create_controlchart("spc", data_raw, cat_order, is_crosstalk, crosstalk_group,
+                      input_settings, aggregations, title, tooltip_settings,
+                      width, height, elementId, return_objs)
 }
 
 #' Shiny bindings for wrapper
