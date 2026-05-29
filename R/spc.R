@@ -106,7 +106,9 @@ spc <- function(data,
                 tooltip_settings = NULL,
                 width = NULL,
                 height = NULL,
-                elementId = NULL) { # nolint: object_name_linter.
+                elementId = NULL,
+                return_objs = c("html_plot", "static_plot", "limits", "raw")
+                ) {
   if (missing(keys)) {
     stop("keys are required", call. = FALSE)
   }
@@ -115,6 +117,12 @@ spc <- function(data,
   }
   if (missing(data)) {
     stop("data is required", call. = FALSE)
+  }
+
+  return_objs <- unique(return_objs)
+  invalid_objs <- return_objs[!(return_objs %in% c("html_plot", "static_plot", "limits", "raw"))]
+  if (length(invalid_objs) > 0) {
+    stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
   }
 
   is_crosstalk <- crosstalk::is.SharedData(data)
