@@ -62,7 +62,7 @@ runs:
 
   - name: Install rollup
     run: |
-      npm install rollup @rollup/plugin-commonjs @rollup/plugin-json @rollup/plugin-node-resolve @rollup/plugin-typescript
+      npm install rollup @rollup/plugin-commonjs @rollup/plugin-json @rollup/plugin-node-resolve @rollup/plugin-typescript tslib
     working-directory: ${{ env.REPO_NAME }}
     shell: bash
 
