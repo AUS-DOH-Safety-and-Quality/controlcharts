@@ -141,6 +141,12 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       categorical: {
         categories: args.categories,
         values: args.values
+      },
+      metadata: {
+        columns: [
+          { roles: { key: true }},
+          { roles: { numerators: true }}
+        ]
       }
     }],
     crosstalk_identities: args.crosstalk_identities
