@@ -189,7 +189,7 @@ var spc = (function (exports) {
     querySelectorAll: function(selector) { return this._parent.querySelectorAll(selector); }
   };
 
-  function constant$3(x) {
+  function constant$2(x) {
     return function() {
       return x;
     };
@@ -276,7 +276,7 @@ var spc = (function (exports) {
         parents = this._parents,
         groups = this._groups;
 
-    if (typeof value !== "function") value = constant$3(value);
+    if (typeof value !== "function") value = constant$2(value);
 
     for (var m = groups.length, update = new Array(m), enter = new Array(m), exit = new Array(m), j = 0; j < m; ++j) {
       var parent = parents[j],
@@ -373,7 +373,7 @@ var spc = (function (exports) {
   }
 
   function selection_sort(compare) {
-    if (!compare) compare = ascending$1;
+    if (!compare) compare = ascending;
 
     function compareNode(a, b) {
       return a && b ? compare(a.__data__, b.__data__) : !a - !b;
@@ -391,7 +391,7 @@ var spc = (function (exports) {
     return new Selection(sortgroups, this._parents).order();
   }
 
-  function ascending$1(a, b) {
+  function ascending(a, b) {
     return a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
   }
 
@@ -952,7 +952,7 @@ var spc = (function (exports) {
         : new Selection([array$1(selector)], root);
   }
 
-  function constant$2(x) {
+  function constant$1(x) {
     return function constant() {
       return x;
     };
@@ -1176,14 +1176,14 @@ var spc = (function (exports) {
   }
 
   function line(x$1, y$1) {
-    var defined = constant$2(true),
+    var defined = constant$1(true),
         context = null,
         curve = curveLinear,
         output = null,
         path = withPath(line);
 
-    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant$2(x$1);
-    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant$2(y$1);
+    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant$1(x$1);
+    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant$1(y$1);
 
     function line(data) {
       var i,
@@ -1206,15 +1206,15 @@ var spc = (function (exports) {
     }
 
     line.x = function(_) {
-      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant$2(+_), line) : x$1;
+      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant$1(+_), line) : x$1;
     };
 
     line.y = function(_) {
-      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant$2(+_), line) : y$1;
+      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant$1(+_), line) : y$1;
     };
 
     line.defined = function(_) {
-      return arguments.length ? (defined = typeof _ === "function" ? _ : constant$2(!!_), line) : defined;
+      return arguments.length ? (defined = typeof _ === "function" ? _ : constant$1(!!_), line) : defined;
     };
 
     line.curve = function(_) {
@@ -1357,8 +1357,8 @@ var spc = (function (exports) {
     let context = null,
         path = withPath(symbol);
 
-    type = typeof type === "function" ? type : constant$2(type || circle);
-    size = typeof size === "function" ? size : constant$2(size === undefined ? 64 : +size);
+    type = typeof type === "function" ? type : constant$1(type || circle);
+    size = typeof size === "function" ? size : constant$1(size === undefined ? 64 : +size);
 
     function symbol() {
       let buffer;
@@ -1368,11 +1368,11 @@ var spc = (function (exports) {
     }
 
     symbol.type = function(_) {
-      return arguments.length ? (type = typeof _ === "function" ? _ : constant$2(_), symbol) : type;
+      return arguments.length ? (type = typeof _ === "function" ? _ : constant$1(_), symbol) : type;
     };
 
     symbol.size = function(_) {
-      return arguments.length ? (size = typeof _ === "function" ? _ : constant$2(+_), symbol) : size;
+      return arguments.length ? (size = typeof _ === "function" ? _ : constant$1(+_), symbol) : size;
     };
 
     symbol.context = function(_) {
@@ -1382,7 +1382,7 @@ var spc = (function (exports) {
     return symbol;
   }
 
-  function identity$2(x) {
+  function identity(x) {
     return x;
   }
 
@@ -1400,7 +1400,7 @@ var spc = (function (exports) {
     return "translate(0," + y + ")";
   }
 
-  function number$2(scale) {
+  function number(scale) {
     return d => +scale(d);
   }
 
@@ -1428,12 +1428,12 @@ var spc = (function (exports) {
 
     function axis(context) {
       var values = tickValues == null ? (scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain()) : tickValues,
-          format = tickFormat == null ? (scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity$2) : tickFormat,
+          format = tickFormat == null ? (scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity) : tickFormat,
           spacing = Math.max(tickSizeInner, 0) + tickPadding,
           range = scale.range(),
           range0 = +range[0] + offset,
           range1 = +range[range.length - 1] + offset,
-          position = (scale.bandwidth ? center : number$2)(scale.copy(), offset),
+          position = (scale.bandwidth ? center : number)(scale.copy(), offset),
           selection = context.selection ? context.selection() : context,
           path = selection.selectAll(".domain").data([null]),
           tick = selection.selectAll(".tick").data(values, scale).order(),
@@ -1551,1297 +1551,6 @@ var spc = (function (exports) {
     return axis(left, scale);
   }
 
-  function ascending(a, b) {
-    return a == null || b == null ? NaN : a < b ? -1 : a > b ? 1 : a >= b ? 0 : NaN;
-  }
-
-  function descending(a, b) {
-    return a == null || b == null ? NaN
-      : b < a ? -1
-      : b > a ? 1
-      : b >= a ? 0
-      : NaN;
-  }
-
-  function bisector(f) {
-    let compare1, compare2, delta;
-
-    // If an accessor is specified, promote it to a comparator. In this case we
-    // can test whether the search value is (self-) comparable. We can’t do this
-    // for a comparator (except for specific, known comparators) because we can’t
-    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
-    // used to test whether a single value is comparable.
-    if (f.length !== 2) {
-      compare1 = ascending;
-      compare2 = (d, x) => ascending(f(d), x);
-      delta = (d, x) => f(d) - x;
-    } else {
-      compare1 = f === ascending || f === descending ? f : zero$1;
-      compare2 = f;
-      delta = f;
-    }
-
-    function left(a, x, lo = 0, hi = a.length) {
-      if (lo < hi) {
-        if (compare1(x, x) !== 0) return hi;
-        do {
-          const mid = (lo + hi) >>> 1;
-          if (compare2(a[mid], x) < 0) lo = mid + 1;
-          else hi = mid;
-        } while (lo < hi);
-      }
-      return lo;
-    }
-
-    function right(a, x, lo = 0, hi = a.length) {
-      if (lo < hi) {
-        if (compare1(x, x) !== 0) return hi;
-        do {
-          const mid = (lo + hi) >>> 1;
-          if (compare2(a[mid], x) <= 0) lo = mid + 1;
-          else hi = mid;
-        } while (lo < hi);
-      }
-      return lo;
-    }
-
-    function center(a, x, lo = 0, hi = a.length) {
-      const i = left(a, x, lo, hi - 1);
-      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
-    }
-
-    return {left, center, right};
-  }
-
-  function zero$1() {
-    return 0;
-  }
-
-  function number$1(x) {
-    return x === null ? NaN : +x;
-  }
-
-  const ascendingBisect = bisector(ascending);
-  const bisectRight = ascendingBisect.right;
-  bisector(number$1).center;
-
-  const e10 = Math.sqrt(50),
-      e5 = Math.sqrt(10),
-      e2 = Math.sqrt(2);
-
-  function tickSpec(start, stop, count) {
-    const step = (stop - start) / Math.max(0, count),
-        power = Math.floor(Math.log10(step)),
-        error = step / Math.pow(10, power),
-        factor = error >= e10 ? 10 : error >= e5 ? 5 : error >= e2 ? 2 : 1;
-    let i1, i2, inc;
-    if (power < 0) {
-      inc = Math.pow(10, -power) / factor;
-      i1 = Math.round(start * inc);
-      i2 = Math.round(stop * inc);
-      if (i1 / inc < start) ++i1;
-      if (i2 / inc > stop) --i2;
-      inc = -inc;
-    } else {
-      inc = Math.pow(10, power) * factor;
-      i1 = Math.round(start / inc);
-      i2 = Math.round(stop / inc);
-      if (i1 * inc < start) ++i1;
-      if (i2 * inc > stop) --i2;
-    }
-    if (i2 < i1 && 0.5 <= count && count < 2) return tickSpec(start, stop, count * 2);
-    return [i1, i2, inc];
-  }
-
-  function ticks(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    if (!(count > 0)) return [];
-    if (start === stop) return [start];
-    const reverse = stop < start, [i1, i2, inc] = reverse ? tickSpec(stop, start, count) : tickSpec(start, stop, count);
-    if (!(i2 >= i1)) return [];
-    const n = i2 - i1 + 1, ticks = new Array(n);
-    if (reverse) {
-      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) / -inc;
-      else for (let i = 0; i < n; ++i) ticks[i] = (i2 - i) * inc;
-    } else {
-      if (inc < 0) for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) / -inc;
-      else for (let i = 0; i < n; ++i) ticks[i] = (i1 + i) * inc;
-    }
-    return ticks;
-  }
-
-  function tickIncrement(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    return tickSpec(start, stop, count)[2];
-  }
-
-  function tickStep(start, stop, count) {
-    stop = +stop, start = +start, count = +count;
-    const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
-    return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
-  }
-
-  function initRange(domain, range) {
-    switch (arguments.length) {
-      case 0: break;
-      case 1: this.range(domain); break;
-      default: this.range(range).domain(domain); break;
-    }
-    return this;
-  }
-
-  function define(constructor, factory, prototype) {
-    constructor.prototype = factory.prototype = prototype;
-    prototype.constructor = constructor;
-  }
-
-  function extend(parent, definition) {
-    var prototype = Object.create(parent.prototype);
-    for (var key in definition) prototype[key] = definition[key];
-    return prototype;
-  }
-
-  function Color() {}
-
-  var darker = 0.7;
-  var brighter = 1 / darker;
-
-  var reI = "\\s*([+-]?\\d+)\\s*",
-      reN = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)\\s*",
-      reP = "\\s*([+-]?(?:\\d*\\.)?\\d+(?:[eE][+-]?\\d+)?)%\\s*",
-      reHex = /^#([0-9a-f]{3,8})$/,
-      reRgbInteger = new RegExp(`^rgb\\(${reI},${reI},${reI}\\)$`),
-      reRgbPercent = new RegExp(`^rgb\\(${reP},${reP},${reP}\\)$`),
-      reRgbaInteger = new RegExp(`^rgba\\(${reI},${reI},${reI},${reN}\\)$`),
-      reRgbaPercent = new RegExp(`^rgba\\(${reP},${reP},${reP},${reN}\\)$`),
-      reHslPercent = new RegExp(`^hsl\\(${reN},${reP},${reP}\\)$`),
-      reHslaPercent = new RegExp(`^hsla\\(${reN},${reP},${reP},${reN}\\)$`);
-
-  var named = {
-    aliceblue: 0xf0f8ff,
-    antiquewhite: 0xfaebd7,
-    aqua: 0x00ffff,
-    aquamarine: 0x7fffd4,
-    azure: 0xf0ffff,
-    beige: 0xf5f5dc,
-    bisque: 0xffe4c4,
-    black: 0x000000,
-    blanchedalmond: 0xffebcd,
-    blue: 0x0000ff,
-    blueviolet: 0x8a2be2,
-    brown: 0xa52a2a,
-    burlywood: 0xdeb887,
-    cadetblue: 0x5f9ea0,
-    chartreuse: 0x7fff00,
-    chocolate: 0xd2691e,
-    coral: 0xff7f50,
-    cornflowerblue: 0x6495ed,
-    cornsilk: 0xfff8dc,
-    crimson: 0xdc143c,
-    cyan: 0x00ffff,
-    darkblue: 0x00008b,
-    darkcyan: 0x008b8b,
-    darkgoldenrod: 0xb8860b,
-    darkgray: 0xa9a9a9,
-    darkgreen: 0x006400,
-    darkgrey: 0xa9a9a9,
-    darkkhaki: 0xbdb76b,
-    darkmagenta: 0x8b008b,
-    darkolivegreen: 0x556b2f,
-    darkorange: 0xff8c00,
-    darkorchid: 0x9932cc,
-    darkred: 0x8b0000,
-    darksalmon: 0xe9967a,
-    darkseagreen: 0x8fbc8f,
-    darkslateblue: 0x483d8b,
-    darkslategray: 0x2f4f4f,
-    darkslategrey: 0x2f4f4f,
-    darkturquoise: 0x00ced1,
-    darkviolet: 0x9400d3,
-    deeppink: 0xff1493,
-    deepskyblue: 0x00bfff,
-    dimgray: 0x696969,
-    dimgrey: 0x696969,
-    dodgerblue: 0x1e90ff,
-    firebrick: 0xb22222,
-    floralwhite: 0xfffaf0,
-    forestgreen: 0x228b22,
-    fuchsia: 0xff00ff,
-    gainsboro: 0xdcdcdc,
-    ghostwhite: 0xf8f8ff,
-    gold: 0xffd700,
-    goldenrod: 0xdaa520,
-    gray: 0x808080,
-    green: 0x008000,
-    greenyellow: 0xadff2f,
-    grey: 0x808080,
-    honeydew: 0xf0fff0,
-    hotpink: 0xff69b4,
-    indianred: 0xcd5c5c,
-    indigo: 0x4b0082,
-    ivory: 0xfffff0,
-    khaki: 0xf0e68c,
-    lavender: 0xe6e6fa,
-    lavenderblush: 0xfff0f5,
-    lawngreen: 0x7cfc00,
-    lemonchiffon: 0xfffacd,
-    lightblue: 0xadd8e6,
-    lightcoral: 0xf08080,
-    lightcyan: 0xe0ffff,
-    lightgoldenrodyellow: 0xfafad2,
-    lightgray: 0xd3d3d3,
-    lightgreen: 0x90ee90,
-    lightgrey: 0xd3d3d3,
-    lightpink: 0xffb6c1,
-    lightsalmon: 0xffa07a,
-    lightseagreen: 0x20b2aa,
-    lightskyblue: 0x87cefa,
-    lightslategray: 0x778899,
-    lightslategrey: 0x778899,
-    lightsteelblue: 0xb0c4de,
-    lightyellow: 0xffffe0,
-    lime: 0x00ff00,
-    limegreen: 0x32cd32,
-    linen: 0xfaf0e6,
-    magenta: 0xff00ff,
-    maroon: 0x800000,
-    mediumaquamarine: 0x66cdaa,
-    mediumblue: 0x0000cd,
-    mediumorchid: 0xba55d3,
-    mediumpurple: 0x9370db,
-    mediumseagreen: 0x3cb371,
-    mediumslateblue: 0x7b68ee,
-    mediumspringgreen: 0x00fa9a,
-    mediumturquoise: 0x48d1cc,
-    mediumvioletred: 0xc71585,
-    midnightblue: 0x191970,
-    mintcream: 0xf5fffa,
-    mistyrose: 0xffe4e1,
-    moccasin: 0xffe4b5,
-    navajowhite: 0xffdead,
-    navy: 0x000080,
-    oldlace: 0xfdf5e6,
-    olive: 0x808000,
-    olivedrab: 0x6b8e23,
-    orange: 0xffa500,
-    orangered: 0xff4500,
-    orchid: 0xda70d6,
-    palegoldenrod: 0xeee8aa,
-    palegreen: 0x98fb98,
-    paleturquoise: 0xafeeee,
-    palevioletred: 0xdb7093,
-    papayawhip: 0xffefd5,
-    peachpuff: 0xffdab9,
-    peru: 0xcd853f,
-    pink: 0xffc0cb,
-    plum: 0xdda0dd,
-    powderblue: 0xb0e0e6,
-    purple: 0x800080,
-    rebeccapurple: 0x663399,
-    red: 0xff0000,
-    rosybrown: 0xbc8f8f,
-    royalblue: 0x4169e1,
-    saddlebrown: 0x8b4513,
-    salmon: 0xfa8072,
-    sandybrown: 0xf4a460,
-    seagreen: 0x2e8b57,
-    seashell: 0xfff5ee,
-    sienna: 0xa0522d,
-    silver: 0xc0c0c0,
-    skyblue: 0x87ceeb,
-    slateblue: 0x6a5acd,
-    slategray: 0x708090,
-    slategrey: 0x708090,
-    snow: 0xfffafa,
-    springgreen: 0x00ff7f,
-    steelblue: 0x4682b4,
-    tan: 0xd2b48c,
-    teal: 0x008080,
-    thistle: 0xd8bfd8,
-    tomato: 0xff6347,
-    turquoise: 0x40e0d0,
-    violet: 0xee82ee,
-    wheat: 0xf5deb3,
-    white: 0xffffff,
-    whitesmoke: 0xf5f5f5,
-    yellow: 0xffff00,
-    yellowgreen: 0x9acd32
-  };
-
-  define(Color, color, {
-    copy(channels) {
-      return Object.assign(new this.constructor, this, channels);
-    },
-    displayable() {
-      return this.rgb().displayable();
-    },
-    hex: color_formatHex, // Deprecated! Use color.formatHex.
-    formatHex: color_formatHex,
-    formatHex8: color_formatHex8,
-    formatHsl: color_formatHsl,
-    formatRgb: color_formatRgb,
-    toString: color_formatRgb
-  });
-
-  function color_formatHex() {
-    return this.rgb().formatHex();
-  }
-
-  function color_formatHex8() {
-    return this.rgb().formatHex8();
-  }
-
-  function color_formatHsl() {
-    return hslConvert(this).formatHsl();
-  }
-
-  function color_formatRgb() {
-    return this.rgb().formatRgb();
-  }
-
-  function color(format) {
-    var m, l;
-    format = (format + "").trim().toLowerCase();
-    return (m = reHex.exec(format)) ? (l = m[1].length, m = parseInt(m[1], 16), l === 6 ? rgbn(m) // #ff0000
-        : l === 3 ? new Rgb((m >> 8 & 0xf) | (m >> 4 & 0xf0), (m >> 4 & 0xf) | (m & 0xf0), ((m & 0xf) << 4) | (m & 0xf), 1) // #f00
-        : l === 8 ? rgba(m >> 24 & 0xff, m >> 16 & 0xff, m >> 8 & 0xff, (m & 0xff) / 0xff) // #ff000000
-        : l === 4 ? rgba((m >> 12 & 0xf) | (m >> 8 & 0xf0), (m >> 8 & 0xf) | (m >> 4 & 0xf0), (m >> 4 & 0xf) | (m & 0xf0), (((m & 0xf) << 4) | (m & 0xf)) / 0xff) // #f000
-        : null) // invalid hex
-        : (m = reRgbInteger.exec(format)) ? new Rgb(m[1], m[2], m[3], 1) // rgb(255, 0, 0)
-        : (m = reRgbPercent.exec(format)) ? new Rgb(m[1] * 255 / 100, m[2] * 255 / 100, m[3] * 255 / 100, 1) // rgb(100%, 0%, 0%)
-        : (m = reRgbaInteger.exec(format)) ? rgba(m[1], m[2], m[3], m[4]) // rgba(255, 0, 0, 1)
-        : (m = reRgbaPercent.exec(format)) ? rgba(m[1] * 255 / 100, m[2] * 255 / 100, m[3] * 255 / 100, m[4]) // rgb(100%, 0%, 0%, 1)
-        : (m = reHslPercent.exec(format)) ? hsla(m[1], m[2] / 100, m[3] / 100, 1) // hsl(120, 50%, 50%)
-        : (m = reHslaPercent.exec(format)) ? hsla(m[1], m[2] / 100, m[3] / 100, m[4]) // hsla(120, 50%, 50%, 1)
-        : named.hasOwnProperty(format) ? rgbn(named[format]) // eslint-disable-line no-prototype-builtins
-        : format === "transparent" ? new Rgb(NaN, NaN, NaN, 0)
-        : null;
-  }
-
-  function rgbn(n) {
-    return new Rgb(n >> 16 & 0xff, n >> 8 & 0xff, n & 0xff, 1);
-  }
-
-  function rgba(r, g, b, a) {
-    if (a <= 0) r = g = b = NaN;
-    return new Rgb(r, g, b, a);
-  }
-
-  function rgbConvert(o) {
-    if (!(o instanceof Color)) o = color(o);
-    if (!o) return new Rgb;
-    o = o.rgb();
-    return new Rgb(o.r, o.g, o.b, o.opacity);
-  }
-
-  function rgb$1(r, g, b, opacity) {
-    return arguments.length === 1 ? rgbConvert(r) : new Rgb(r, g, b, opacity == null ? 1 : opacity);
-  }
-
-  function Rgb(r, g, b, opacity) {
-    this.r = +r;
-    this.g = +g;
-    this.b = +b;
-    this.opacity = +opacity;
-  }
-
-  define(Rgb, rgb$1, extend(Color, {
-    brighter(k) {
-      k = k == null ? brighter : Math.pow(brighter, k);
-      return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
-    },
-    darker(k) {
-      k = k == null ? darker : Math.pow(darker, k);
-      return new Rgb(this.r * k, this.g * k, this.b * k, this.opacity);
-    },
-    rgb() {
-      return this;
-    },
-    clamp() {
-      return new Rgb(clampi(this.r), clampi(this.g), clampi(this.b), clampa(this.opacity));
-    },
-    displayable() {
-      return (-0.5 <= this.r && this.r < 255.5)
-          && (-0.5 <= this.g && this.g < 255.5)
-          && (-0.5 <= this.b && this.b < 255.5)
-          && (0 <= this.opacity && this.opacity <= 1);
-    },
-    hex: rgb_formatHex, // Deprecated! Use color.formatHex.
-    formatHex: rgb_formatHex,
-    formatHex8: rgb_formatHex8,
-    formatRgb: rgb_formatRgb,
-    toString: rgb_formatRgb
-  }));
-
-  function rgb_formatHex() {
-    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}`;
-  }
-
-  function rgb_formatHex8() {
-    return `#${hex(this.r)}${hex(this.g)}${hex(this.b)}${hex((isNaN(this.opacity) ? 1 : this.opacity) * 255)}`;
-  }
-
-  function rgb_formatRgb() {
-    const a = clampa(this.opacity);
-    return `${a === 1 ? "rgb(" : "rgba("}${clampi(this.r)}, ${clampi(this.g)}, ${clampi(this.b)}${a === 1 ? ")" : `, ${a})`}`;
-  }
-
-  function clampa(opacity) {
-    return isNaN(opacity) ? 1 : Math.max(0, Math.min(1, opacity));
-  }
-
-  function clampi(value) {
-    return Math.max(0, Math.min(255, Math.round(value) || 0));
-  }
-
-  function hex(value) {
-    value = clampi(value);
-    return (value < 16 ? "0" : "") + value.toString(16);
-  }
-
-  function hsla(h, s, l, a) {
-    if (a <= 0) h = s = l = NaN;
-    else if (l <= 0 || l >= 1) h = s = NaN;
-    else if (s <= 0) h = NaN;
-    return new Hsl(h, s, l, a);
-  }
-
-  function hslConvert(o) {
-    if (o instanceof Hsl) return new Hsl(o.h, o.s, o.l, o.opacity);
-    if (!(o instanceof Color)) o = color(o);
-    if (!o) return new Hsl;
-    if (o instanceof Hsl) return o;
-    o = o.rgb();
-    var r = o.r / 255,
-        g = o.g / 255,
-        b = o.b / 255,
-        min = Math.min(r, g, b),
-        max = Math.max(r, g, b),
-        h = NaN,
-        s = max - min,
-        l = (max + min) / 2;
-    if (s) {
-      if (r === max) h = (g - b) / s + (g < b) * 6;
-      else if (g === max) h = (b - r) / s + 2;
-      else h = (r - g) / s + 4;
-      s /= l < 0.5 ? max + min : 2 - max - min;
-      h *= 60;
-    } else {
-      s = l > 0 && l < 1 ? 0 : h;
-    }
-    return new Hsl(h, s, l, o.opacity);
-  }
-
-  function hsl(h, s, l, opacity) {
-    return arguments.length === 1 ? hslConvert(h) : new Hsl(h, s, l, opacity == null ? 1 : opacity);
-  }
-
-  function Hsl(h, s, l, opacity) {
-    this.h = +h;
-    this.s = +s;
-    this.l = +l;
-    this.opacity = +opacity;
-  }
-
-  define(Hsl, hsl, extend(Color, {
-    brighter(k) {
-      k = k == null ? brighter : Math.pow(brighter, k);
-      return new Hsl(this.h, this.s, this.l * k, this.opacity);
-    },
-    darker(k) {
-      k = k == null ? darker : Math.pow(darker, k);
-      return new Hsl(this.h, this.s, this.l * k, this.opacity);
-    },
-    rgb() {
-      var h = this.h % 360 + (this.h < 0) * 360,
-          s = isNaN(h) || isNaN(this.s) ? 0 : this.s,
-          l = this.l,
-          m2 = l + (l < 0.5 ? l : 1 - l) * s,
-          m1 = 2 * l - m2;
-      return new Rgb(
-        hsl2rgb(h >= 240 ? h - 240 : h + 120, m1, m2),
-        hsl2rgb(h, m1, m2),
-        hsl2rgb(h < 120 ? h + 240 : h - 120, m1, m2),
-        this.opacity
-      );
-    },
-    clamp() {
-      return new Hsl(clamph(this.h), clampt(this.s), clampt(this.l), clampa(this.opacity));
-    },
-    displayable() {
-      return (0 <= this.s && this.s <= 1 || isNaN(this.s))
-          && (0 <= this.l && this.l <= 1)
-          && (0 <= this.opacity && this.opacity <= 1);
-    },
-    formatHsl() {
-      const a = clampa(this.opacity);
-      return `${a === 1 ? "hsl(" : "hsla("}${clamph(this.h)}, ${clampt(this.s) * 100}%, ${clampt(this.l) * 100}%${a === 1 ? ")" : `, ${a})`}`;
-    }
-  }));
-
-  function clamph(value) {
-    value = (value || 0) % 360;
-    return value < 0 ? value + 360 : value;
-  }
-
-  function clampt(value) {
-    return Math.max(0, Math.min(1, value || 0));
-  }
-
-  /* From FvD 13.37, CSS Color Module Level 3 */
-  function hsl2rgb(h, m1, m2) {
-    return (h < 60 ? m1 + (m2 - m1) * h / 60
-        : h < 180 ? m2
-        : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60
-        : m1) * 255;
-  }
-
-  var constant$1 = x => () => x;
-
-  function linear$1(a, d) {
-    return function(t) {
-      return a + t * d;
-    };
-  }
-
-  function exponential(a, b, y) {
-    return a = Math.pow(a, y), b = Math.pow(b, y) - a, y = 1 / y, function(t) {
-      return Math.pow(a + t * b, y);
-    };
-  }
-
-  function gamma$1(y) {
-    return (y = +y) === 1 ? nogamma : function(a, b) {
-      return b - a ? exponential(a, b, y) : constant$1(isNaN(a) ? b : a);
-    };
-  }
-
-  function nogamma(a, b) {
-    var d = b - a;
-    return d ? linear$1(a, d) : constant$1(isNaN(a) ? b : a);
-  }
-
-  var rgb = (function rgbGamma(y) {
-    var color = gamma$1(y);
-
-    function rgb(start, end) {
-      var r = color((start = rgb$1(start)).r, (end = rgb$1(end)).r),
-          g = color(start.g, end.g),
-          b = color(start.b, end.b),
-          opacity = nogamma(start.opacity, end.opacity);
-      return function(t) {
-        start.r = r(t);
-        start.g = g(t);
-        start.b = b(t);
-        start.opacity = opacity(t);
-        return start + "";
-      };
-    }
-
-    rgb.gamma = rgbGamma;
-
-    return rgb;
-  })(1);
-
-  function numberArray(a, b) {
-    if (!b) b = [];
-    var n = a ? Math.min(b.length, a.length) : 0,
-        c = b.slice(),
-        i;
-    return function(t) {
-      for (i = 0; i < n; ++i) c[i] = a[i] * (1 - t) + b[i] * t;
-      return c;
-    };
-  }
-
-  function isNumberArray(x) {
-    return ArrayBuffer.isView(x) && !(x instanceof DataView);
-  }
-
-  function genericArray(a, b) {
-    var nb = b ? b.length : 0,
-        na = a ? Math.min(nb, a.length) : 0,
-        x = new Array(na),
-        c = new Array(nb),
-        i;
-
-    for (i = 0; i < na; ++i) x[i] = interpolate(a[i], b[i]);
-    for (; i < nb; ++i) c[i] = b[i];
-
-    return function(t) {
-      for (i = 0; i < na; ++i) c[i] = x[i](t);
-      return c;
-    };
-  }
-
-  function date(a, b) {
-    var d = new Date;
-    return a = +a, b = +b, function(t) {
-      return d.setTime(a * (1 - t) + b * t), d;
-    };
-  }
-
-  function interpolateNumber(a, b) {
-    return a = +a, b = +b, function(t) {
-      return a * (1 - t) + b * t;
-    };
-  }
-
-  function object(a, b) {
-    var i = {},
-        c = {},
-        k;
-
-    if (a === null || typeof a !== "object") a = {};
-    if (b === null || typeof b !== "object") b = {};
-
-    for (k in b) {
-      if (k in a) {
-        i[k] = interpolate(a[k], b[k]);
-      } else {
-        c[k] = b[k];
-      }
-    }
-
-    return function(t) {
-      for (k in i) c[k] = i[k](t);
-      return c;
-    };
-  }
-
-  var reA = /[-+]?(?:\d+\.?\d*|\.?\d+)(?:[eE][-+]?\d+)?/g,
-      reB = new RegExp(reA.source, "g");
-
-  function zero(b) {
-    return function() {
-      return b;
-    };
-  }
-
-  function one(b) {
-    return function(t) {
-      return b(t) + "";
-    };
-  }
-
-  function string(a, b) {
-    var bi = reA.lastIndex = reB.lastIndex = 0, // scan index for next number in b
-        am, // current match in a
-        bm, // current match in b
-        bs, // string preceding current number in b, if any
-        i = -1, // index in s
-        s = [], // string constants and placeholders
-        q = []; // number interpolators
-
-    // Coerce inputs to strings.
-    a = a + "", b = b + "";
-
-    // Interpolate pairs of numbers in a & b.
-    while ((am = reA.exec(a))
-        && (bm = reB.exec(b))) {
-      if ((bs = bm.index) > bi) { // a string precedes the next number in b
-        bs = b.slice(bi, bs);
-        if (s[i]) s[i] += bs; // coalesce with previous string
-        else s[++i] = bs;
-      }
-      if ((am = am[0]) === (bm = bm[0])) { // numbers in a & b match
-        if (s[i]) s[i] += bm; // coalesce with previous string
-        else s[++i] = bm;
-      } else { // interpolate non-matching numbers
-        s[++i] = null;
-        q.push({i: i, x: interpolateNumber(am, bm)});
-      }
-      bi = reB.lastIndex;
-    }
-
-    // Add remains of b.
-    if (bi < b.length) {
-      bs = b.slice(bi);
-      if (s[i]) s[i] += bs; // coalesce with previous string
-      else s[++i] = bs;
-    }
-
-    // Special optimization for only a single match.
-    // Otherwise, interpolate each of the numbers and rejoin the string.
-    return s.length < 2 ? (q[0]
-        ? one(q[0].x)
-        : zero(b))
-        : (b = q.length, function(t) {
-            for (var i = 0, o; i < b; ++i) s[(o = q[i]).i] = o.x(t);
-            return s.join("");
-          });
-  }
-
-  function interpolate(a, b) {
-    var t = typeof b, c;
-    return b == null || t === "boolean" ? constant$1(b)
-        : (t === "number" ? interpolateNumber
-        : t === "string" ? ((c = color(b)) ? (b = c, rgb) : string)
-        : b instanceof color ? rgb
-        : b instanceof Date ? date
-        : isNumberArray(b) ? numberArray
-        : Array.isArray(b) ? genericArray
-        : typeof b.valueOf !== "function" && typeof b.toString !== "function" || isNaN(b) ? object
-        : interpolateNumber)(a, b);
-  }
-
-  function interpolateRound(a, b) {
-    return a = +a, b = +b, function(t) {
-      return Math.round(a * (1 - t) + b * t);
-    };
-  }
-
-  function constants(x) {
-    return function() {
-      return x;
-    };
-  }
-
-  function number(x) {
-    return +x;
-  }
-
-  var unit = [0, 1];
-
-  function identity$1(x) {
-    return x;
-  }
-
-  function normalize(a, b) {
-    return (b -= (a = +a))
-        ? function(x) { return (x - a) / b; }
-        : constants(isNaN(b) ? NaN : 0.5);
-  }
-
-  function clamper(a, b) {
-    var t;
-    if (a > b) t = a, a = b, b = t;
-    return function(x) { return Math.max(a, Math.min(b, x)); };
-  }
-
-  // normalize(a, b)(x) takes a domain value x in [a,b] and returns the corresponding parameter t in [0,1].
-  // interpolate(a, b)(t) takes a parameter t in [0,1] and returns the corresponding range value x in [a,b].
-  function bimap(domain, range, interpolate) {
-    var d0 = domain[0], d1 = domain[1], r0 = range[0], r1 = range[1];
-    if (d1 < d0) d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
-    else d0 = normalize(d0, d1), r0 = interpolate(r0, r1);
-    return function(x) { return r0(d0(x)); };
-  }
-
-  function polymap(domain, range, interpolate) {
-    var j = Math.min(domain.length, range.length) - 1,
-        d = new Array(j),
-        r = new Array(j),
-        i = -1;
-
-    // Reverse descending domains.
-    if (domain[j] < domain[0]) {
-      domain = domain.slice().reverse();
-      range = range.slice().reverse();
-    }
-
-    while (++i < j) {
-      d[i] = normalize(domain[i], domain[i + 1]);
-      r[i] = interpolate(range[i], range[i + 1]);
-    }
-
-    return function(x) {
-      var i = bisectRight(domain, x, 1, j) - 1;
-      return r[i](d[i](x));
-    };
-  }
-
-  function copy(source, target) {
-    return target
-        .domain(source.domain())
-        .range(source.range())
-        .interpolate(source.interpolate())
-        .clamp(source.clamp())
-        .unknown(source.unknown());
-  }
-
-  function transformer() {
-    var domain = unit,
-        range = unit,
-        interpolate$1 = interpolate,
-        transform,
-        untransform,
-        unknown,
-        clamp = identity$1,
-        piecewise,
-        output,
-        input;
-
-    function rescale() {
-      var n = Math.min(domain.length, range.length);
-      if (clamp !== identity$1) clamp = clamper(domain[0], domain[n - 1]);
-      piecewise = n > 2 ? polymap : bimap;
-      output = input = null;
-      return scale;
-    }
-
-    function scale(x) {
-      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise(domain.map(transform), range, interpolate$1)))(transform(clamp(x)));
-    }
-
-    scale.invert = function(y) {
-      return clamp(untransform((input || (input = piecewise(range, domain.map(transform), interpolateNumber)))(y)));
-    };
-
-    scale.domain = function(_) {
-      return arguments.length ? (domain = Array.from(_, number), rescale()) : domain.slice();
-    };
-
-    scale.range = function(_) {
-      return arguments.length ? (range = Array.from(_), rescale()) : range.slice();
-    };
-
-    scale.rangeRound = function(_) {
-      return range = Array.from(_), interpolate$1 = interpolateRound, rescale();
-    };
-
-    scale.clamp = function(_) {
-      return arguments.length ? (clamp = _ ? true : identity$1, rescale()) : clamp !== identity$1;
-    };
-
-    scale.interpolate = function(_) {
-      return arguments.length ? (interpolate$1 = _, rescale()) : interpolate$1;
-    };
-
-    scale.unknown = function(_) {
-      return arguments.length ? (unknown = _, scale) : unknown;
-    };
-
-    return function(t, u) {
-      transform = t, untransform = u;
-      return rescale();
-    };
-  }
-
-  function continuous() {
-    return transformer()(identity$1, identity$1);
-  }
-
-  function formatDecimal(x) {
-    return Math.abs(x = Math.round(x)) >= 1e21
-        ? x.toLocaleString("en").replace(/,/g, "")
-        : x.toString(10);
-  }
-
-  // Computes the decimal coefficient and exponent of the specified number x with
-  // significant digits p, where x is positive and p is in [1, 21] or undefined.
-  // For example, formatDecimalParts(1.23) returns ["123", 0].
-  function formatDecimalParts(x, p) {
-    if ((i = (x = p ? x.toExponential(p - 1) : x.toExponential()).indexOf("e")) < 0) return null; // NaN, ±Infinity
-    var i, coefficient = x.slice(0, i);
-
-    // The string returned by toExponential either has the form \d\.\d+e[-+]\d+
-    // (e.g., 1.2e+3) or the form \de[-+]\d+ (e.g., 1e+3).
-    return [
-      coefficient.length > 1 ? coefficient[0] + coefficient.slice(2) : coefficient,
-      +x.slice(i + 1)
-    ];
-  }
-
-  function exponent(x) {
-    return x = formatDecimalParts(Math.abs(x)), x ? x[1] : NaN;
-  }
-
-  function formatGroup(grouping, thousands) {
-    return function(value, width) {
-      var i = value.length,
-          t = [],
-          j = 0,
-          g = grouping[0],
-          length = 0;
-
-      while (i > 0 && g > 0) {
-        if (length + g + 1 > width) g = Math.max(1, width - length);
-        t.push(value.substring(i -= g, i + g));
-        if ((length += g + 1) > width) break;
-        g = grouping[j = (j + 1) % grouping.length];
-      }
-
-      return t.reverse().join(thousands);
-    };
-  }
-
-  function formatNumerals(numerals) {
-    return function(value) {
-      return value.replace(/[0-9]/g, function(i) {
-        return numerals[+i];
-      });
-    };
-  }
-
-  // [[fill]align][sign][symbol][0][width][,][.precision][~][type]
-  var re = /^(?:(.)?([<>=^]))?([+\-( ])?([$#])?(0)?(\d+)?(,)?(\.\d+)?(~)?([a-z%])?$/i;
-
-  function formatSpecifier(specifier) {
-    if (!(match = re.exec(specifier))) throw new Error("invalid format: " + specifier);
-    var match;
-    return new FormatSpecifier({
-      fill: match[1],
-      align: match[2],
-      sign: match[3],
-      symbol: match[4],
-      zero: match[5],
-      width: match[6],
-      comma: match[7],
-      precision: match[8] && match[8].slice(1),
-      trim: match[9],
-      type: match[10]
-    });
-  }
-
-  formatSpecifier.prototype = FormatSpecifier.prototype; // instanceof
-
-  function FormatSpecifier(specifier) {
-    this.fill = specifier.fill === undefined ? " " : specifier.fill + "";
-    this.align = specifier.align === undefined ? ">" : specifier.align + "";
-    this.sign = specifier.sign === undefined ? "-" : specifier.sign + "";
-    this.symbol = specifier.symbol === undefined ? "" : specifier.symbol + "";
-    this.zero = !!specifier.zero;
-    this.width = specifier.width === undefined ? undefined : +specifier.width;
-    this.comma = !!specifier.comma;
-    this.precision = specifier.precision === undefined ? undefined : +specifier.precision;
-    this.trim = !!specifier.trim;
-    this.type = specifier.type === undefined ? "" : specifier.type + "";
-  }
-
-  FormatSpecifier.prototype.toString = function() {
-    return this.fill
-        + this.align
-        + this.sign
-        + this.symbol
-        + (this.zero ? "0" : "")
-        + (this.width === undefined ? "" : Math.max(1, this.width | 0))
-        + (this.comma ? "," : "")
-        + (this.precision === undefined ? "" : "." + Math.max(0, this.precision | 0))
-        + (this.trim ? "~" : "")
-        + this.type;
-  };
-
-  // Trims insignificant zeros, e.g., replaces 1.2000k with 1.2k.
-  function formatTrim(s) {
-    out: for (var n = s.length, i = 1, i0 = -1, i1; i < n; ++i) {
-      switch (s[i]) {
-        case ".": i0 = i1 = i; break;
-        case "0": if (i0 === 0) i0 = i; i1 = i; break;
-        default: if (!+s[i]) break out; if (i0 > 0) i0 = 0; break;
-      }
-    }
-    return i0 > 0 ? s.slice(0, i0) + s.slice(i1 + 1) : s;
-  }
-
-  var prefixExponent;
-
-  function formatPrefixAuto(x, p) {
-    var d = formatDecimalParts(x, p);
-    if (!d) return x + "";
-    var coefficient = d[0],
-        exponent = d[1],
-        i = exponent - (prefixExponent = Math.max(-8, Math.min(8, Math.floor(exponent / 3))) * 3) + 1,
-        n = coefficient.length;
-    return i === n ? coefficient
-        : i > n ? coefficient + new Array(i - n + 1).join("0")
-        : i > 0 ? coefficient.slice(0, i) + "." + coefficient.slice(i)
-        : "0." + new Array(1 - i).join("0") + formatDecimalParts(x, Math.max(0, p + i - 1))[0]; // less than 1y!
-  }
-
-  function formatRounded(x, p) {
-    var d = formatDecimalParts(x, p);
-    if (!d) return x + "";
-    var coefficient = d[0],
-        exponent = d[1];
-    return exponent < 0 ? "0." + new Array(-exponent).join("0") + coefficient
-        : coefficient.length > exponent + 1 ? coefficient.slice(0, exponent + 1) + "." + coefficient.slice(exponent + 1)
-        : coefficient + new Array(exponent - coefficient.length + 2).join("0");
-  }
-
-  var formatTypes = {
-    "%": (x, p) => (x * 100).toFixed(p),
-    "b": (x) => Math.round(x).toString(2),
-    "c": (x) => x + "",
-    "d": formatDecimal,
-    "e": (x, p) => x.toExponential(p),
-    "f": (x, p) => x.toFixed(p),
-    "g": (x, p) => x.toPrecision(p),
-    "o": (x) => Math.round(x).toString(8),
-    "p": (x, p) => formatRounded(x * 100, p),
-    "r": formatRounded,
-    "s": formatPrefixAuto,
-    "X": (x) => Math.round(x).toString(16).toUpperCase(),
-    "x": (x) => Math.round(x).toString(16)
-  };
-
-  function identity(x) {
-    return x;
-  }
-
-  var map = Array.prototype.map,
-      prefixes = ["y","z","a","f","p","n","µ","m","","k","M","G","T","P","E","Z","Y"];
-
-  function formatLocale(locale) {
-    var group = locale.grouping === undefined || locale.thousands === undefined ? identity : formatGroup(map.call(locale.grouping, Number), locale.thousands + ""),
-        currencyPrefix = locale.currency === undefined ? "" : locale.currency[0] + "",
-        currencySuffix = locale.currency === undefined ? "" : locale.currency[1] + "",
-        decimal = locale.decimal === undefined ? "." : locale.decimal + "",
-        numerals = locale.numerals === undefined ? identity : formatNumerals(map.call(locale.numerals, String)),
-        percent = locale.percent === undefined ? "%" : locale.percent + "",
-        minus = locale.minus === undefined ? "−" : locale.minus + "",
-        nan = locale.nan === undefined ? "NaN" : locale.nan + "";
-
-    function newFormat(specifier) {
-      specifier = formatSpecifier(specifier);
-
-      var fill = specifier.fill,
-          align = specifier.align,
-          sign = specifier.sign,
-          symbol = specifier.symbol,
-          zero = specifier.zero,
-          width = specifier.width,
-          comma = specifier.comma,
-          precision = specifier.precision,
-          trim = specifier.trim,
-          type = specifier.type;
-
-      // The "n" type is an alias for ",g".
-      if (type === "n") comma = true, type = "g";
-
-      // The "" type, and any invalid type, is an alias for ".12~g".
-      else if (!formatTypes[type]) precision === undefined && (precision = 12), trim = true, type = "g";
-
-      // If zero fill is specified, padding goes after sign and before digits.
-      if (zero || (fill === "0" && align === "=")) zero = true, fill = "0", align = "=";
-
-      // Compute the prefix and suffix.
-      // For SI-prefix, the suffix is lazily computed.
-      var prefix = symbol === "$" ? currencyPrefix : symbol === "#" && /[boxX]/.test(type) ? "0" + type.toLowerCase() : "",
-          suffix = symbol === "$" ? currencySuffix : /[%p]/.test(type) ? percent : "";
-
-      // What format function should we use?
-      // Is this an integer type?
-      // Can this type generate exponential notation?
-      var formatType = formatTypes[type],
-          maybeSuffix = /[defgprs%]/.test(type);
-
-      // Set the default precision if not specified,
-      // or clamp the specified precision to the supported range.
-      // For significant precision, it must be in [1, 21].
-      // For fixed precision, it must be in [0, 20].
-      precision = precision === undefined ? 6
-          : /[gprs]/.test(type) ? Math.max(1, Math.min(21, precision))
-          : Math.max(0, Math.min(20, precision));
-
-      function format(value) {
-        var valuePrefix = prefix,
-            valueSuffix = suffix,
-            i, n, c;
-
-        if (type === "c") {
-          valueSuffix = formatType(value) + valueSuffix;
-          value = "";
-        } else {
-          value = +value;
-
-          // Determine the sign. -0 is not less than 0, but 1 / -0 is!
-          var valueNegative = value < 0 || 1 / value < 0;
-
-          // Perform the initial formatting.
-          value = isNaN(value) ? nan : formatType(Math.abs(value), precision);
-
-          // Trim insignificant zeros.
-          if (trim) value = formatTrim(value);
-
-          // If a negative value rounds to zero after formatting, and no explicit positive sign is requested, hide the sign.
-          if (valueNegative && +value === 0 && sign !== "+") valueNegative = false;
-
-          // Compute the prefix and suffix.
-          valuePrefix = (valueNegative ? (sign === "(" ? sign : minus) : sign === "-" || sign === "(" ? "" : sign) + valuePrefix;
-          valueSuffix = (type === "s" ? prefixes[8 + prefixExponent / 3] : "") + valueSuffix + (valueNegative && sign === "(" ? ")" : "");
-
-          // Break the formatted value into the integer “value” part that can be
-          // grouped, and fractional or exponential “suffix” part that is not.
-          if (maybeSuffix) {
-            i = -1, n = value.length;
-            while (++i < n) {
-              if (c = value.charCodeAt(i), 48 > c || c > 57) {
-                valueSuffix = (c === 46 ? decimal + value.slice(i + 1) : value.slice(i)) + valueSuffix;
-                value = value.slice(0, i);
-                break;
-              }
-            }
-          }
-        }
-
-        // If the fill character is not "0", grouping is applied before padding.
-        if (comma && !zero) value = group(value, Infinity);
-
-        // Compute the padding.
-        var length = valuePrefix.length + value.length + valueSuffix.length,
-            padding = length < width ? new Array(width - length + 1).join(fill) : "";
-
-        // If the fill character is "0", grouping is applied after padding.
-        if (comma && zero) value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
-
-        // Reconstruct the final output based on the desired alignment.
-        switch (align) {
-          case "<": value = valuePrefix + value + valueSuffix + padding; break;
-          case "=": value = valuePrefix + padding + value + valueSuffix; break;
-          case "^": value = padding.slice(0, length = padding.length >> 1) + valuePrefix + value + valueSuffix + padding.slice(length); break;
-          default: value = padding + valuePrefix + value + valueSuffix; break;
-        }
-
-        return numerals(value);
-      }
-
-      format.toString = function() {
-        return specifier + "";
-      };
-
-      return format;
-    }
-
-    function formatPrefix(specifier, value) {
-      var f = newFormat((specifier = formatSpecifier(specifier), specifier.type = "f", specifier)),
-          e = Math.max(-8, Math.min(8, Math.floor(exponent(value) / 3))) * 3,
-          k = Math.pow(10, -e),
-          prefix = prefixes[8 + e / 3];
-      return function(value) {
-        return f(k * value) + prefix;
-      };
-    }
-
-    return {
-      format: newFormat,
-      formatPrefix: formatPrefix
-    };
-  }
-
-  var locale;
-  var format;
-  var formatPrefix;
-
-  defaultLocale({
-    thousands: ",",
-    grouping: [3],
-    currency: ["$", ""]
-  });
-
-  function defaultLocale(definition) {
-    locale = formatLocale(definition);
-    format = locale.format;
-    formatPrefix = locale.formatPrefix;
-    return locale;
-  }
-
-  function precisionFixed(step) {
-    return Math.max(0, -exponent(Math.abs(step)));
-  }
-
-  function precisionPrefix(step, value) {
-    return Math.max(0, Math.max(-8, Math.min(8, Math.floor(exponent(value) / 3))) * 3 - exponent(Math.abs(step)));
-  }
-
-  function precisionRound(step, max) {
-    step = Math.abs(step), max = Math.abs(max) - step;
-    return Math.max(0, exponent(max) - exponent(step)) + 1;
-  }
-
-  function tickFormat(start, stop, count, specifier) {
-    var step = tickStep(start, stop, count),
-        precision;
-    specifier = formatSpecifier(specifier == null ? ",f" : specifier);
-    switch (specifier.type) {
-      case "s": {
-        var value = Math.max(Math.abs(start), Math.abs(stop));
-        if (specifier.precision == null && !isNaN(precision = precisionPrefix(step, value))) specifier.precision = precision;
-        return formatPrefix(specifier, value);
-      }
-      case "":
-      case "e":
-      case "g":
-      case "p":
-      case "r": {
-        if (specifier.precision == null && !isNaN(precision = precisionRound(step, Math.max(Math.abs(start), Math.abs(stop))))) specifier.precision = precision - (specifier.type === "e");
-        break;
-      }
-      case "f":
-      case "%": {
-        if (specifier.precision == null && !isNaN(precision = precisionFixed(step))) specifier.precision = precision - (specifier.type === "%") * 2;
-        break;
-      }
-    }
-    return format(specifier);
-  }
-
-  function linearish(scale) {
-    var domain = scale.domain;
-
-    scale.ticks = function(count) {
-      var d = domain();
-      return ticks(d[0], d[d.length - 1], count == null ? 10 : count);
-    };
-
-    scale.tickFormat = function(count, specifier) {
-      var d = domain();
-      return tickFormat(d[0], d[d.length - 1], count == null ? 10 : count, specifier);
-    };
-
-    scale.nice = function(count) {
-      if (count == null) count = 10;
-
-      var d = domain();
-      var i0 = 0;
-      var i1 = d.length - 1;
-      var start = d[i0];
-      var stop = d[i1];
-      var prestep;
-      var step;
-      var maxIter = 10;
-
-      if (stop < start) {
-        step = start, start = stop, stop = step;
-        step = i0, i0 = i1, i1 = step;
-      }
-      
-      while (maxIter-- > 0) {
-        step = tickIncrement(start, stop, count);
-        if (step === prestep) {
-          d[i0] = start;
-          d[i1] = stop;
-          return domain(d);
-        } else if (step > 0) {
-          start = Math.floor(start / step) * step;
-          stop = Math.ceil(stop / step) * step;
-        } else if (step < 0) {
-          start = Math.ceil(start * step) / step;
-          stop = Math.floor(stop * step) / step;
-        } else {
-          break;
-        }
-        prestep = step;
-      }
-
-      return scale;
-    };
-
-    return scale;
-  }
-
-  function linear() {
-    var scale = continuous();
-
-    scale.copy = function() {
-      return copy(scale, linear());
-    };
-
-    initRange.apply(scale, arguments);
-
-    return linearish(scale);
-  }
-
   var noop = {value: () => {}};
 
   function dispatch() {
@@ -2876,7 +1585,7 @@ var spc = (function (exports) {
 
       // If no callback was specified, return the callback of the given type and name.
       if (arguments.length < 2) {
-        while (++i < n) if ((t = (typename = T[i]).type) && (t = get(_[t], typename.name))) return t;
+        while (++i < n) if ((t = (typename = T[i]).type) && (t = get$1(_[t], typename.name))) return t;
         return;
       }
 
@@ -2906,7 +1615,7 @@ var spc = (function (exports) {
     }
   };
 
-  function get(type, name) {
+  function get$1(type, name) {
     for (var i = 0, n = type.length, c; i < n; ++i) {
       if ((c = type[i]).name === name) {
         return c.value;
@@ -3190,7 +1899,6 @@ var spc = (function (exports) {
     axisLeft: axisLeft,
     drag: drag,
     line: line,
-    scaleLinear: linear,
     select: select,
     selectAll: selectAll,
     symbol: Symbol$1,
@@ -3204,6 +1912,19 @@ var spc = (function (exports) {
     symbolWye: wye
   });
 
+  function isNullOrUndefined(value) {
+      return value === null || value === undefined;
+  }
+
+  const FormattingComponent = {
+      AlignmentGroup: "AlignmentGroup",
+      ColorPicker: "ColorPicker",
+      Dropdown: "Dropdown",
+      FontPicker: "FontPicker",
+      NumUpDown: "NumUpDown",
+      TextInput: "TextInput",
+      ToggleSwitch: "ToggleSwitch",
+  };
   const defaultColours = {
       improvement: "#00B0F0",
       deterioration: "#E46C0A",
@@ -3215,33 +1936,27 @@ var spc = (function (exports) {
       lightgray: "#D3D3D3",
       white: "#FFFFFF"
   };
-  function numberOption(displayName, defaultValue) {
-      return {
+  function numberOption(displayName, defaultValue, minMax) {
+      const rtn = {
           displayName: displayName,
-          type: "NumUpDown",
+          type: FormattingComponent.NumUpDown,
           default: defaultValue
       };
-  }
-  function numberOptionMin(displayName, defaultValue, minValue) {
-      return {
-          displayName: displayName,
-          type: "NumUpDown",
-          default: defaultValue,
-          options: { minValue: { value: minValue } }
-      };
-  }
-  function numberOptionMinMax(displayName, defaultValue, minValue, maxValue) {
-      return {
-          displayName: displayName,
-          type: "NumUpDown",
-          default: defaultValue,
-          options: { minValue: { value: minValue }, maxValue: { value: maxValue } }
-      };
+      if (!isNullOrUndefined(minMax)) {
+          rtn.options = {};
+          if (!isNullOrUndefined(minMax.min)) {
+              rtn.options.minValue = { value: minMax.min };
+          }
+          if (!isNullOrUndefined(minMax.max)) {
+              rtn.options.maxValue = { value: minMax.max };
+          }
+      }
+      return rtn;
   }
   function toggleOption(displayName, defaultValue) {
       return {
           displayName: displayName,
-          type: "ToggleSwitch",
+          type: FormattingComponent.ToggleSwitch,
           default: defaultValue
       };
   }
@@ -3251,14 +1966,14 @@ var spc = (function (exports) {
   function colourOption(displayName, type) {
       return {
           displayName: displayName,
-          type: "ColorPicker",
+          type: FormattingComponent.ColorPicker,
           default: defaultColours[type]
       };
   }
   function fontOption(displayName) {
       return {
           displayName: displayName,
-          type: "FontPicker",
+          type: FormattingComponent.FontPicker,
           default: "'Arial', sans-serif",
           valid: [
               "'Arial', sans-serif",
@@ -3292,7 +2007,7 @@ var spc = (function (exports) {
       };
   }
   function fontSizeOption(displayName) {
-      return numberOptionMinMax(displayName, 10, 0, 100);
+      return numberOption(displayName, 10, { min: 0, max: 100 });
   }
   const valueTransforms = {
       none: (x) => x,
@@ -3302,7 +2017,7 @@ var spc = (function (exports) {
       const numValues = validValues.length;
       const rtn = {
           displayName: displayName,
-          type: "Dropdown",
+          type: FormattingComponent.Dropdown,
           default: defaultValue,
           valid: validValues,
           items: new Array(numValues)
@@ -3322,7 +2037,7 @@ var spc = (function (exports) {
   function textOption(displayName, defaultValue) {
       return {
           displayName: displayName,
-          type: "TextInput",
+          type: FormattingComponent.TextInput,
           default: defaultValue
       };
   }
@@ -3333,12 +2048,12 @@ var spc = (function (exports) {
       return dropdownOption(displayName, "solid", ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"], "sentence");
   }
   function borderWidthOption(displayName) {
-      return numberOptionMin(displayName, 1, 0);
+      return numberOption(displayName, 1, { min: 0 });
   }
   function alignmentOption(displayName) {
       return {
           displayName: displayName,
-          type: "AlignmentGroup",
+          type: FormattingComponent.AlignmentGroup,
           default: "center",
           valid: ["center", "left", "right"]
       };
@@ -3348,6 +2063,26 @@ var spc = (function (exports) {
   }
   function textTransformOption(displayName) {
       return dropdownOption(displayName, "capitalize", ["uppercase", "lowercase", "capitalize", "none"], "sentence");
+  }
+  function addGetters(settingCategory) {
+      let inputClone = JSON.parse(JSON.stringify(settingCategory));
+      let settingNames = [];
+      for (const group in inputClone.settingsGroups) {
+          for (const setting in inputClone.settingsGroups[group]) {
+              settingNames.push(setting);
+              Object.defineProperty(inputClone, setting, {
+                  get: function () {
+                      return inputClone.settingsGroups[group][setting];
+                  }
+              });
+          }
+      }
+      Object.defineProperty(inputClone, "settingNames", {
+          get: function () {
+              return settingNames;
+          }
+      });
+      return inputClone;
   }
 
   const canvasSettings = {
@@ -3386,8 +2121,8 @@ var spc = (function (exports) {
                   "t - Time Between Events"
               ]),
               outliers_in_limits: toggleOption("Keep Outliers in Limit Calcs.", false),
-              multiplier: numberOptionMin("Multiplier", 1, 0),
-              sig_figs: numberOptionMinMax("Decimals to Report:", 2, 0, 20),
+              multiplier: numberOption("Multiplier", 1, { min: 0 }),
+              sig_figs: numberOption("Decimals to Report:", 2, { min: 0, max: 20 }),
               perc_labels: dropdownOption("Report as percentage", "Automatic", ["Automatic", "Yes", "No"]),
               split_on_click: toggleOption("Split Limits on Click", false),
               num_points_subset: numberOption("Subset Number of Points for Limit Calculations", undefined),
@@ -3424,7 +2159,7 @@ var spc = (function (exports) {
           },
           "Shifts": {
               shift: toggleOption("Highlight Shifts", false),
-              shift_n: numberOptionMin("Shift Points", 7, 1),
+              shift_n: numberOption("Shift Points", 7, { min: 1 }),
               shift_colour_improvement: colourOption("Imp. Shift Colour", "improvement"),
               shift_colour_deterioration: colourOption("Det. Shift Colour", "deterioration"),
               shift_colour_neutral_low: colourOption("Neutral (Low) Shift Colour", "neutral_low"),
@@ -3432,7 +2167,7 @@ var spc = (function (exports) {
           },
           "Trends": {
               trend: toggleOption("Highlight Trends", false),
-              trend_n: numberOptionMin("Trend Points", 5, 1),
+              trend_n: numberOption("Trend Points", 5, { min: 1 }),
               trend_colour_improvement: colourOption("Imp. Trend Colour", "improvement"),
               trend_colour_deterioration: colourOption("Det. Trend Colour", "deterioration"),
               trend_colour_neutral_low: colourOption("Neutral (Low) Trend Colour", "neutral_low"),
@@ -3459,10 +2194,10 @@ var spc = (function (exports) {
               show_variation_icons: toggleOption("Show Variation Icons", false),
               flag_last_point: toggleOption("Flag Only Last Point", true),
               variation_icons_locations: dropdownOption("Variation Icon Locations", "Top Right", iconLocations),
-              variation_icons_scaling: numberOptionMin("Scale Variation Icon Size", 1, 0),
+              variation_icons_scaling: numberOption("Scale Variation Icon Size", 1, { min: 0 }),
               show_assurance_icons: toggleOption("Show Assurance Icons", false),
               assurance_icons_locations: dropdownOption("Assurance Icon Locations", "Top Right", iconLocations),
-              assurance_icons_scaling: numberOptionMin("Scale Assurance Icon Size", 1, 0)
+              assurance_icons_scaling: numberOption("Scale Assurance Icon Size", 1, { min: 0 })
           }
       }
   };
@@ -3474,13 +2209,13 @@ var spc = (function (exports) {
           "all": {
               show_dots: toggleOption("Show Scatter", true),
               shape: dropdownOption("Shape", "Circle", ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"]),
-              size: numberOptionMinMax("Size", 2.5, 0, 100),
+              size: numberOption("Size", 2.5, { min: 0, max: 100 }),
               colour: colourOption("Colour", "common_cause"),
               colour_outline: colourOption("Outline Colour", "common_cause"),
-              width_outline: numberOptionMinMax("Outline Width", 1, 0, 100),
-              opacity: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_selected: numberOptionMinMax("Opacity if Selected", 1, 0, 1),
-              opacity_unselected: numberOptionMinMax("Opacity if Unselected", 0.2, 0, 1)
+              width_outline: numberOption("Outline Width", 1, { min: 0, max: 100 }),
+              opacity: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_selected: numberOption("Opacity if Selected", 1, { min: 0, max: 1 }),
+              opacity_unselected: numberOption("Opacity if Unselected", 0.2, { min: 0, max: 1 })
           }
       }
   };
@@ -3491,15 +2226,15 @@ var spc = (function (exports) {
       settingsGroups: {
           "Main": {
               show_main: toggleOption("Show Main Line", true),
-              width_main: numberOptionMinMax("Main Line Width", 1, 0, 100),
+              width_main: numberOption("Main Line Width", 1, { min: 0, max: 100 }),
               type_main: lineTypeOption("Main Line Type", "10 0"),
               colour_main: colourOption("Main Line Colour", "common_cause"),
-              opacity_main: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_main: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_main: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_main: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_main: toggleOption("Connect Rebaselined Limits", false),
               plot_label_show_main: toggleOption("Show Value on Plot", false),
               plot_label_show_all_main: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_main: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_main: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_main: lineLabelPositionOption(),
               plot_label_vpad_main: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_main: numberOption("Value Horizontal Padding", 10),
@@ -3510,17 +2245,17 @@ var spc = (function (exports) {
           },
           "Target": {
               show_target: toggleOption("Show Target", true),
-              width_target: numberOptionMinMax("Line Width", 1.5, 0, 100),
+              width_target: numberOption("Line Width", 1.5, { min: 0, max: 100 }),
               type_target: lineTypeOption("Line Type", "10 0"),
               colour_target: colourOption("Line Colour", "standard"),
-              opacity_target: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_target: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_target: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_target: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_target: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_target: toggleOption("Show value in tooltip", true),
               ttip_label_target: textOption("Tooltip Label", "Centerline"),
               plot_label_show_target: toggleOption("Show Value on Plot", false),
               plot_label_show_all_target: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_target: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_target: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_target: lineLabelPositionOption(),
               plot_label_vpad_target: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_target: numberOption("Value Horizontal Padding", 10),
@@ -3533,17 +2268,17 @@ var spc = (function (exports) {
               show_alt_target: toggleOption("Show Alt. Target Line", false),
               alt_target: numberOption("Additional Target Value:", undefined),
               multiplier_alt_target: toggleOption("Apply Multiplier to Alt. Target", false),
-              width_alt_target: numberOptionMinMax("Line Width", 1.5, 0, 100),
+              width_alt_target: numberOption("Line Width", 1.5, { min: 0, max: 100 }),
               type_alt_target: lineTypeOption("Line Type", "10 0"),
               colour_alt_target: colourOption("Line Colour", "standard"),
-              opacity_alt_target: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_alt_target: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_alt_target: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_alt_target: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_alt_target: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_alt_target: toggleOption("Show value in tooltip", true),
               ttip_label_alt_target: textOption("Tooltip Label", "Alt. Target"),
               plot_label_show_alt_target: toggleOption("Show Value on Plot", false),
               plot_label_show_all_alt_target: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_alt_target: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_alt_target: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_alt_target: lineLabelPositionOption(),
               plot_label_vpad_alt_target: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_alt_target: numberOption("Value Horizontal Padding", 10),
@@ -3554,11 +2289,11 @@ var spc = (function (exports) {
           },
           "68% Limits": {
               show_68: toggleOption("Show 68% Lines", false),
-              width_68: numberOptionMinMax("Line Width", 2, 0, 100),
+              width_68: numberOption("Line Width", 2, { min: 0, max: 100 }),
               type_68: lineTypeOption("Line Type", "2 5"),
               colour_68: colourOption("Line Colour", "limits"),
-              opacity_68: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_68: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_68: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_68: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_68: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_68: toggleOption("Show value in tooltip", true),
               ttip_label_68: textOption("Tooltip Label", "68% Limit"),
@@ -3566,7 +2301,7 @@ var spc = (function (exports) {
               ttip_label_68_prefix_upper: textOption("Tooltip Label - Upper Prefix", "Upper "),
               plot_label_show_68: toggleOption("Show Value on Plot", false),
               plot_label_show_all_68: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_68: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_68: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_68: lineLabelPositionOption(),
               plot_label_vpad_68: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_68: numberOption("Value Horizontal Padding", 10),
@@ -3577,11 +2312,11 @@ var spc = (function (exports) {
           },
           "95% Limits": {
               show_95: toggleOption("Show 95% Lines", true),
-              width_95: numberOptionMinMax("Line Width", 2, 0, 100),
+              width_95: numberOption("Line Width", 2, { min: 0, max: 100 }),
               type_95: lineTypeOption("Line Type", "2 5"),
               colour_95: colourOption("Line Colour", "limits"),
-              opacity_95: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_95: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_95: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_95: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_95: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_95: toggleOption("Show value in tooltip", true),
               ttip_label_95: textOption("Tooltip Label", "95% Limit"),
@@ -3589,7 +2324,7 @@ var spc = (function (exports) {
               ttip_label_95_prefix_upper: textOption("Tooltip Label - Upper Prefix", "Upper "),
               plot_label_show_95: toggleOption("Show Value on Plot", false),
               plot_label_show_all_95: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_95: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_95: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_95: lineLabelPositionOption(),
               plot_label_vpad_95: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_95: numberOption("Value Horizontal Padding", 10),
@@ -3600,11 +2335,11 @@ var spc = (function (exports) {
           },
           "99% Limits": {
               show_99: toggleOption("Show 99% Lines", true),
-              width_99: numberOptionMinMax("Line Width", 2, 0, 100),
+              width_99: numberOption("Line Width", 2, { min: 0, max: 100 }),
               type_99: lineTypeOption("Line Type", "10 10"),
               colour_99: colourOption("Line Colour", "limits"),
-              opacity_99: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_99: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_99: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_99: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_99: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_99: toggleOption("Show value in tooltip", true),
               ttip_label_99: textOption("Tooltip Label", "99% Limit"),
@@ -3612,7 +2347,7 @@ var spc = (function (exports) {
               ttip_label_99_prefix_upper: textOption("Tooltip Label - Upper Prefix", "Upper "),
               plot_label_show_99: toggleOption("Show Value on Plot", false),
               plot_label_show_all_99: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_99: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_99: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_99: lineLabelPositionOption(),
               plot_label_vpad_99: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_99: numberOption("Value Horizontal Padding", 10),
@@ -3626,11 +2361,11 @@ var spc = (function (exports) {
               specification_upper: numberOption("Upper Specification Limit:", undefined),
               specification_lower: numberOption("Lower Specification Limit:", undefined),
               multiplier_specification: toggleOption("Apply Multiplier to Specification Limits", false),
-              width_specification: numberOptionMinMax("Line Width", 2, 0, 100),
+              width_specification: numberOption("Line Width", 2, { min: 0, max: 100 }),
               type_specification: lineTypeOption("Line Type", "10 10"),
               colour_specification: colourOption("Line Colour", "limits"),
-              opacity_specification: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_specification: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_specification: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_specification: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_specification: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_specification: toggleOption("Show value in tooltip", true),
               ttip_label_specification: textOption("Tooltip Label", "specification Limit"),
@@ -3638,7 +2373,7 @@ var spc = (function (exports) {
               ttip_label_specification_prefix_upper: textOption("Tooltip Label - Upper Prefix", "Upper "),
               plot_label_show_specification: toggleOption("Show Value on Plot", false),
               plot_label_show_all_specification: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_specification: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_specification: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_specification: lineLabelPositionOption(),
               plot_label_vpad_specification: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_specification: numberOption("Value Horizontal Padding", 10),
@@ -3649,17 +2384,17 @@ var spc = (function (exports) {
           },
           "Trend": {
               show_trend: toggleOption("Show Trend", false),
-              width_trend: numberOptionMinMax("Line Width", 1.5, 0, 100),
+              width_trend: numberOption("Line Width", 1.5, { min: 0, max: 100 }),
               type_trend: lineTypeOption("Line Type", "10 0"),
               colour_trend: colourOption("Line Colour", "common_cause"),
-              opacity_trend: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              opacity_unselected_trend: numberOptionMinMax("Opacity if Any Selected", 0.2, 0, 1),
+              opacity_trend: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              opacity_unselected_trend: numberOption("Opacity if Any Selected", 0.2, { min: 0, max: 1 }),
               join_rebaselines_trend: toggleOption("Connect Rebaselined Limits", false),
               ttip_show_trend: toggleOption("Show value in tooltip", true),
               ttip_label_trend: textOption("Tooltip Label", "Centerline"),
               plot_label_show_trend: toggleOption("Show Value on Plot", false),
               plot_label_show_all_trend: toggleOption("Show Value at all Re-Baselines", false),
-              plot_label_show_n_trend: numberOptionMin("Show Value at Last N Re-Baselines", 1, 1),
+              plot_label_show_n_trend: numberOption("Show Value at Last N Re-Baselines", 1, { min: 1 }),
               plot_label_position_trend: lineLabelPositionOption(),
               plot_label_vpad_trend: numberOption("Value Vertical Padding", 0),
               plot_label_hpad_trend: numberOption("Value Horizontal Padding", 10),
@@ -3683,11 +2418,11 @@ var spc = (function (exports) {
           },
           "Ticks": {
               xlimit_ticks: toggleOption("Draw Ticks", true),
-              xlimit_tick_count: numberOptionMinMax("Maximum Ticks", 10, 0, 100),
+              xlimit_tick_count: numberOption("Maximum Ticks", 10, { min: 0, max: 100 }),
               xlimit_tick_font: fontOption("Tick Font"),
               xlimit_tick_size: fontSizeOption("Tick Font Size"),
               xlimit_tick_colour: colourOption("Tick Font Colour", "standard"),
-              xlimit_tick_rotation: numberOptionMinMax("Tick Rotation (Degrees)", -35, -360, 360)
+              xlimit_tick_rotation: numberOption("Tick Rotation (Degrees)", -35, { min: -360, max: 360 })
           },
           "Label": {
               xlimit_label: textOption("Label", ""),
@@ -3705,18 +2440,18 @@ var spc = (function (exports) {
           "Axis": {
               ylimit_show: toggleOption("Show Y Axis", true),
               ylimit_colour: colourOption("Axis Colour", "standard"),
-              limit_multiplier: numberOptionMin("Axis Scaling Factor", 1.5, 0),
-              ylimit_sig_figs: numberOptionMinMax("Tick Decimal Places", undefined, 0, 100),
+              limit_multiplier: numberOption("Axis Scaling Factor", 1.5, { min: 0 }),
+              ylimit_sig_figs: numberOption("Tick Decimal Places", undefined, { min: 0, max: 100 }),
               ylimit_l: numberOption("Lower Limit", undefined),
               ylimit_u: numberOption("Upper Limit", undefined)
           },
           "Ticks": {
               ylimit_ticks: toggleOption("Draw Ticks", true),
-              ylimit_tick_count: numberOptionMinMax("Maximum Ticks", 10, 0, 100),
+              ylimit_tick_count: numberOption("Maximum Ticks", 10, { min: 0, max: 100 }),
               ylimit_tick_font: fontOption("Tick Font"),
               ylimit_tick_size: fontSizeOption("Tick Font Size"),
               ylimit_tick_colour: colourOption("Tick Font Colour", "standard"),
-              ylimit_tick_rotation: numberOptionMinMax("Tick Rotation (Degrees)", 0, -360, 360)
+              ylimit_tick_rotation: numberOption("Tick Rotation (Degrees)", 0, { min: -360, max: 360 })
           },
           "Label": {
               ylimit_label: textOption("Label", ""),
@@ -3753,9 +2488,9 @@ var spc = (function (exports) {
               ]),
               table_assurance_filter: dropdownOption("Filter by Assurance Type", "all", ["all", "any", "pass", "fail", "inconsistent"], "none", ["All", "Consistent - Any", "Consistent Pass", "Consistent Fail", "Inconsistent"]),
               table_text_overflow: dropdownOption("Text Overflow Handling", "ellipsis", ["ellipsis", "clip", "none"], "sentence"),
-              table_opacity: numberOptionMinMax("Default Opacity", 1, 0, 1),
-              table_opacity_selected: numberOptionMinMax("Opacity if Selected", 1, 0, 1),
-              table_opacity_unselected: numberOptionMinMax("Opacity if Unselected", 0.2, 0, 1),
+              table_opacity: numberOption("Default Opacity", 1, { min: 0, max: 1 }),
+              table_opacity_selected: numberOption("Opacity if Selected", 1, { min: 0, max: 1 }),
+              table_opacity_unselected: numberOption("Opacity if Unselected", 0.2, { min: 0, max: 1 }),
               table_outer_border_style: borderStyleOption("Outer Border Style"),
               table_outer_border_width: borderWidthOption("Outer Border Width"),
               table_outer_border_colour: colourOption("Outer Border Colour", "standard"),
@@ -3770,7 +2505,7 @@ var spc = (function (exports) {
               table_header_text_align: alignmentOption("Text Alignment"),
               table_header_font_weight: fontWeightOption("Header Font Weight"),
               table_header_text_transform: textTransformOption("Header Text Transform"),
-              table_header_text_padding: numberOptionMinMax("Padding Around Text", 1, 0, 100),
+              table_header_text_padding: numberOption("Padding Around Text", 1, { min: 0, max: 100 }),
               table_header_colour: colourOption("Header Font Colour", "standard"),
               table_header_bg_colour: colourOption("Header Background Colour", "lightgray"),
               table_header_border_style: borderStyleOption("Header Border Style"),
@@ -3785,7 +2520,7 @@ var spc = (function (exports) {
               table_body_text_align: alignmentOption("Text Alignment"),
               table_body_font_weight: fontWeightOption("Font Weight"),
               table_body_text_transform: textTransformOption("Text Transform"),
-              table_body_text_padding: numberOptionMinMax("Padding Around Text", 1, 0, 100),
+              table_body_text_padding: numberOption("Padding Around Text", 1, { min: 0, max: 100 }),
               table_body_colour: colourOption("Body Font Colour", "standard"),
               table_body_bg_colour: colourOption("Body Background Colour", "white"),
               table_body_border_style: borderStyleOption("Body Border Style"),
@@ -3816,17 +2551,17 @@ var spc = (function (exports) {
               label_position: dropdownOption("Label Position", "top", ["top", "bottom"], "sentence"),
               label_y_offset: numberOption("Label Offset from Top/Bottom (px)", 20),
               label_line_offset: numberOption("Label Offset from Connecting Line (px)", 5),
-              label_angle_offset: numberOptionMinMax("Label Angle Offset (degrees)", 0, -90, 90),
+              label_angle_offset: numberOption("Label Angle Offset (degrees)", 0, { min: -90, max: 90 }),
               label_font: fontOption("Label Font"),
               label_size: fontSizeOption("Label Font Size"),
               label_colour: colourOption("Label Font Colour", "standard"),
               label_line_colour: colourOption("Connecting Line Colour", "standard"),
-              label_line_width: numberOptionMinMax("Connecting Line Width", 1, 0, 100),
+              label_line_width: numberOption("Connecting Line Width", 1, { min: 0, max: 100 }),
               label_line_type: lineTypeOption("Connecting Line Type", "10 0"),
-              label_line_max_length: numberOptionMinMax("Max Connecting Line Length (px)", 1000, 0, 10000),
+              label_line_max_length: numberOption("Max Connecting Line Length (px)", 1000, { min: 0, max: 10000 }),
               label_marker_show: toggleOption("Show Line Markers", true),
               label_marker_offset: numberOption("Marker Offset from Value (px)", 5),
-              label_marker_size: numberOptionMinMax("Marker Size", 3, 0, 100),
+              label_marker_size: numberOption("Marker Size", 3, { min: 0, max: 100 }),
               label_marker_colour: colourOption("Marker Fill Colour", "standard"),
               label_marker_outline_colour: colourOption("Marker Outline Colour", "standard")
           }
@@ -3834,47 +2569,33 @@ var spc = (function (exports) {
   };
 
   const settingsModel = {
-      canvas: canvasSettings,
-      spc: spcSettings,
-      outliers: outliersSettings,
-      nhs_icons: nhsIconsSettings,
-      scatter: scatterSettings,
-      lines: linesSettings,
-      x_axis: xAxisSettings,
-      y_axis: yAxisSettings,
-      dates: datesSettings,
-      summary_table: summaryTableSettings,
-      download_options: downloadSettings,
-      labels: labelsSettings
-  };
-  for (const key in settingsModel) {
-      let settingNames = [];
-      for (const group in settingsModel[key].settingsGroups) {
-          for (const setting in settingsModel[key].settingsGroups[group]) {
-              settingNames.push(setting);
-              Object.defineProperty(settingsModel[key], setting, {
-                  get: function () {
-                      return this.settingsGroups[group][setting];
-                  }
-              });
-          }
-      }
-      Object.defineProperty(settingsModel[key], "settingNames", {
-          get: function () {
-              return settingNames;
-          }
-      });
-  }
-  Object.defineProperty(settingsModel, "defaultValues", {
-      get: function () {
+      canvas: addGetters(canvasSettings),
+      spc: addGetters(spcSettings),
+      outliers: addGetters(outliersSettings),
+      nhs_icons: addGetters(nhsIconsSettings),
+      scatter: addGetters(scatterSettings),
+      lines: addGetters(linesSettings),
+      x_axis: addGetters(xAxisSettings),
+      y_axis: addGetters(yAxisSettings),
+      dates: addGetters(datesSettings),
+      summary_table: addGetters(summaryTableSettings),
+      download_options: addGetters(downloadSettings),
+      labels: addGetters(labelsSettings),
+      get defaultValues() {
           let ret = {};
           for (const key in this) {
-              const currSettings = this[key].settingNames;
-              ret[key] = Object.fromEntries(currSettings.map(d => [d, this[key][d]["default"]]));
+              if (key === "defaultValues")
+                  continue;
+              const currSettings = this[key];
+              const currSettingNames = currSettings.settingNames;
+              ret[key] = {};
+              for (const setting of currSettingNames) {
+                  ret[key][setting] = currSettings[setting].default;
+              }
           }
           return ret;
       }
-  });
+  };
   const defaultSettings = settingsModel.defaultValues;
 
   function drawXAxis(selection, visualObj) {
@@ -3947,10 +2668,6 @@ var spc = (function (exports) {
           .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
   }
 
-  function isNullOrUndefined(value) {
-      return value === null || value === undefined;
-  }
-
   function drawYAxis(selection, visualObj) {
       const yAxisGroup = selection.select(".yaxisgroup");
       const yAxisLabel = selection.select(".yaxislabel");
@@ -3978,8 +2695,8 @@ var spc = (function (exports) {
               const derivedSettings = visualObj.viewModel.inputSettings.derivedSettings[0];
               yAxis.tickFormat((d) => {
                   return derivedSettings.percentLabels
-                      ? d.toFixed(sig_figs) + "%"
-                      : d.toFixed(sig_figs);
+                      ? d.valueOf().toFixed(sig_figs) + "%"
+                      : d.valueOf().toFixed(sig_figs);
               });
           }
       }
@@ -4066,6 +2783,9 @@ var spc = (function (exports) {
                   y_coord = plotProperties.yScale(plotPoints[i].value);
               }
           }
+          if (isNullOrUndefined(indexNearestValue) || isNullOrUndefined(x_coord) || isNullOrUndefined(y_coord)) {
+              return;
+          }
           visualObj.host.tooltipService.show({
               dataItems: plotPoints[indexNearestValue].tooltip,
               identities: [plotPoints[indexNearestValue].identity],
@@ -4089,6 +2809,10 @@ var spc = (function (exports) {
       });
   }
 
+  function get(obj, key1, key2) {
+      return obj[key1][key2];
+  }
+
   const lineNameMap = {
       "ll99": "99",
       "ll95": "95",
@@ -4106,7 +2830,7 @@ var spc = (function (exports) {
   function getAesthetic(type, group, aesthetic, inputSettings) {
       const mapName = group.includes("line") ? lineNameMap[type] : type;
       const settingName = aesthetic + "_" + mapName;
-      return inputSettings[group][settingName];
+      return get(inputSettings, group, settingName);
   }
 
   function between(x, lower, upper) {
@@ -4175,7 +2899,8 @@ var spc = (function (exports) {
   }
 
   function drawDots(selection, visualObj) {
-      if (!visualObj.viewModel.inputSettings.settings[0].scatter.show_dots) {
+      const plotProperties = visualObj.plotProperties;
+      if (!visualObj.viewModel.inputSettings.settings[0].scatter.show_dots || !plotProperties.displayPlot) {
           selection
               .select(".dotsgroup")
               .selectAll("path")
@@ -4184,10 +2909,10 @@ var spc = (function (exports) {
               .remove();
           return;
       }
-      const ylower = visualObj.plotProperties.yAxis.lower;
-      const yupper = visualObj.plotProperties.yAxis.upper;
-      const xlower = visualObj.plotProperties.xAxis.lower;
-      const xupper = visualObj.plotProperties.xAxis.upper;
+      const ylower = plotProperties.yAxis.lower;
+      const yupper = plotProperties.yAxis.upper;
+      const xlower = plotProperties.xAxis.lower;
+      const xupper = plotProperties.xAxis.upper;
       selection
           .select(".dotsgroup")
           .selectAll("path")
@@ -4203,7 +2928,7 @@ var spc = (function (exports) {
           if (!between(d.value, ylower, yupper) || !between(d.x, xlower, xupper)) {
               return "translate(0, 0) scale(0)";
           }
-          return `translate(${visualObj.plotProperties.xScale(d.x)}, ${visualObj.plotProperties.yScale(d.value)})`;
+          return `translate(${plotProperties.xScale(d.x)}, ${plotProperties.yScale(d.value)})`;
       })
           .style("fill", (d) => {
           return d.aesthetics.colour;
@@ -4213,6 +2938,9 @@ var spc = (function (exports) {
       })
           .style("stroke-width", (d) => d.aesthetics.width_outline)
           .on("click", (event, d) => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
           if (visualObj.host.hostCapabilities.allowInteractions) {
               if (visualObj.viewModel.inputSettings.settings[0].spc.split_on_click) {
                   const xIndex = visualObj.viewModel.splitIndexes.indexOf(d.x);
@@ -4225,7 +2953,7 @@ var spc = (function (exports) {
                   visualObj.host.persistProperties({
                       replace: [{
                               objectName: "split_indexes_storage",
-                              selector: undefined,
+                              selector: {},
                               properties: { split_indexes: JSON.stringify(visualObj.viewModel.splitIndexes) }
                           }]
                   });
@@ -4241,6 +2969,9 @@ var spc = (function (exports) {
           }
       })
           .on("mouseover", (event, d) => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
           const x = event.pageX;
           const y = event.pageY;
           visualObj.host.tooltipService.show({
@@ -4251,12 +2982,18 @@ var spc = (function (exports) {
           });
       })
           .on("mouseout", () => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
           visualObj.host.tooltipService.hide({
               immediately: true,
               isTouchEvent: false
           });
       });
       selection.on('click', () => {
+          if (!plotProperties.displayPlot) {
+              return;
+          }
           visualObj.selectionManager.clear();
           visualObj.updateHighlighting();
       });
@@ -5200,10 +3937,10 @@ var spc = (function (exports) {
       selection.append('g').classed("dotsgroup", true);
   }
 
-  function drawErrors(selection, options, colourPalette, message, type = null) {
+  function drawErrors(selection, options, colourPalette, message, type) {
       selection.call(initialiseSVG, true);
       const errMessageSVG = selection.append("g").classed("errormessage", true);
-      if (type) {
+      if (type !== "") {
           const preamble = {
               "internal": "Internal Error! Please file a bug report with the following text:",
               "settings": "Invalid settings provided for all observations! First error:"
@@ -5306,12 +4043,17 @@ var spc = (function (exports) {
           }).style("background-color", "lightgray");
       })
           .on("mouseout", (event) => {
-          var _a, _b;
+          var _a;
           let currentTD = select(event.target).select(function () {
               return this.closest("td");
           });
           let rowData = select(currentTD.node().parentNode).datum();
-          currentTD.style("background-color", (_b = (_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"]) !== null && _b !== void 0 ? _b : "inherit");
+          if ("table_body_bg_colour" in rowData.aesthetics) {
+              currentTD.style("background-color", (_a = rowData.aesthetics.table_body_bg_colour) !== null && _a !== void 0 ? _a : "inherit");
+          }
+          else {
+              currentTD.style("background-color", "inherit");
+          }
       });
       if (tableSettings.table_text_overflow !== "none") {
           tableRows.style("overflow", "hidden")
@@ -5352,7 +4094,7 @@ var spc = (function (exports) {
       const tableCells = selection.select(".table-body")
           .selectAll('tr')
           .selectAll('td')
-          .data((d) => cols.map(col => {
+          .data(d => cols.map(col => {
           return { column: col.name, value: d.table_row[col.name] };
       }))
           .join('td');
@@ -5380,10 +4122,10 @@ var spc = (function (exports) {
           else {
               const value = typeof d.value === "number"
                   ? d.value.toFixed(inputSettings.spc.sig_figs)
-                  : d.value;
+                  : ((_a = d.value) !== null && _a !== void 0 ? _a : "");
               currNode.text(value).classed("cell-text", true);
           }
-          const tableAesthetics = ((_a = rowData.aesthetics) === null || _a === void 0 ? void 0 : _a["table_body_bg_colour"])
+          const tableAesthetics = ("table_body_bg_colour" in rowData.aesthetics)
               ? rowData.aesthetics
               : inputSettings.summary_table;
           currNode.style("background-color", tableAesthetics.table_body_bg_colour)
@@ -5518,7 +4260,7 @@ var spc = (function (exports) {
           .join("g")
           .classed("text-group-inner", true)
           .each(function (d) {
-          var _a;
+          var _a, _b;
           const textGroup = select(this);
           if (((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "") {
               textGroup.remove();
@@ -5539,7 +4281,7 @@ var spc = (function (exports) {
           textElement
               .attr("x", x)
               .attr("y", y)
-              .text(d.label.text_value)
+              .text((_b = d.label.text_value) !== null && _b !== void 0 ? _b : "")
               .style("text-anchor", "middle")
               .style("font-size", `${d.label.aesthetics.label_size}px`)
               .style("font-family", d.label.aesthetics.label_font)
@@ -5743,28 +4485,140 @@ var spc = (function (exports) {
       return Math.max(...values);
   }
 
+  function tickSpec(start, stop, count) {
+      const step = (stop - start) / count;
+      const power = Math.floor(Math.log10(step));
+      const error = step / Math.pow(10, power);
+      const factor = error >= 7.07 ? 10 : error >= 3.16 ? 5 : error >= 1.41 ? 2 : 1;
+      let i1;
+      let i2;
+      let inc;
+      if (power < 0) {
+          inc = Math.pow(10, -power) / factor;
+          i1 = Math.round(start * inc);
+          i2 = Math.round(stop * inc);
+          if (i1 / inc < start)
+              ++i1;
+          if (i2 / inc > stop)
+              --i2;
+          inc = -inc;
+      }
+      else {
+          inc = Math.pow(10, power) * factor;
+          i1 = Math.round(start / inc);
+          i2 = Math.round(stop / inc);
+          if (i1 * inc < start)
+              ++i1;
+          if (i2 * inc > stop)
+              --i2;
+      }
+      if (i2 < i1 && 0.5 <= count && count < 2) {
+          return tickSpec(start, stop, count * 2);
+      }
+      if (inc < 0) {
+          inc = 1 / (-inc);
+      }
+      return [i1, i2, inc];
+  }
+  function scaleLinear() {
+      let domain = [0, 1];
+      let range = [0, 1];
+      function scale(x) {
+          const [d0, d1] = domain;
+          const [r0, r1] = range;
+          return r0 + (r1 - r0) * ((x - d0) / (d1 - d0));
+      }
+      scale.domain = function (newDomain) {
+          if (!newDomain) {
+              return domain.slice();
+          }
+          domain = newDomain;
+          return scale;
+      };
+      scale.range = function (newRange) {
+          if (!newRange) {
+              return range.slice();
+          }
+          range = newRange;
+          return scale;
+      };
+      scale.invert = function (y) {
+          const [d0, d1] = domain;
+          const [r0, r1] = range;
+          return d0 + (d1 - d0) * ((y - r0) / (r1 - r0));
+      };
+      scale.copy = function () {
+          const newScale = scaleLinear();
+          newScale.domain(domain);
+          newScale.range(range);
+          return newScale;
+      };
+      scale.ticks = function (count) {
+          const [d0, d1] = domain;
+          count !== null && count !== void 0 ? count : (count = 10);
+          if (count <= 0) {
+              return [];
+          }
+          if (d0 === d1) {
+              return [d0];
+          }
+          const [i1, i2, inc] = tickSpec(d0, d1, count);
+          if (!(i2 >= i1))
+              return [];
+          const n = i2 - i1 + 1;
+          const ticks = new Array(n);
+          for (let i = 0; i < n; ++i) {
+              ticks[i] = (i1 + i) * inc;
+          }
+          return ticks;
+      };
+      return scale;
+  }
+
   class plotPropertiesClass {
       initialiseScale(svgWidth, svgHeight) {
-          this.xScale = linear()
+          this.xScale = scaleLinear()
               .domain([this.xAxis.lower, this.xAxis.upper])
               .range([this.xAxis.start_padding,
               svgWidth - this.xAxis.end_padding]);
-          this.yScale = linear()
+          this.yScale = scaleLinear()
               .domain([this.yAxis.lower, this.yAxis.upper])
               .range([svgHeight - this.yAxis.start_padding,
               this.yAxis.end_padding]);
       }
+      constructor() {
+          const dummyAxisProperties = {
+              lower: 0,
+              upper: 1,
+              start_padding: 0,
+              end_padding: 0,
+              colour: "#000000",
+              ticks: true,
+              tick_size: "5px",
+              tick_font: "sans-serif",
+              tick_colour: "#000000",
+              tick_rotation: 0,
+              tick_count: 5,
+              label: "",
+              label_size: "12px",
+              label_font: "sans-serif",
+              label_colour: "#000000"
+          };
+          this.displayPlot = false;
+          this.xAxis = dummyAxisProperties;
+          this.yAxis = dummyAxisProperties;
+          this.xScale = scaleLinear().domain([0, 1]).range([0, 1]);
+          this.yScale = scaleLinear().domain([0, 1]).range([0, 1]);
+      }
       update(options, viewModel) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
           const plotPoints = (_a = viewModel.plotPoints[0]) !== null && _a !== void 0 ? _a : [];
           const controlLimits = viewModel.controlLimits[0];
           const inputData = viewModel.inputData[0];
           const inputSettings = viewModel.inputSettings.settings[0];
           const derivedSettings = viewModel.inputSettings.derivedSettings[0];
           const colorPalette = viewModel.colourPalette;
-          this.displayPlot = plotPoints
-              ? plotPoints.length > 0
-              : null;
+          this.displayPlot = plotPoints.length > 0;
           let xLowerLimit = inputSettings.x_axis.xlimit_l;
           let xUpperLimit = inputSettings.x_axis.xlimit_u;
           let yLowerLimit = inputSettings.y_axis.ylimit_l;
@@ -5773,17 +4627,23 @@ var spc = (function (exports) {
               xUpperLimit = !isNullOrUndefined(xUpperLimit) ? xUpperLimit : max(controlLimits.keys.map(d => d.x));
               const limitMultiplier = inputSettings.y_axis.limit_multiplier;
               const values = controlLimits.values.filter(d => isValidNumber(d));
-              const ul99 = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d));
-              const speclimits_upper = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _d === void 0 ? void 0 : _d.filter(d => isValidNumber(d));
-              const ll99 = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d));
-              const speclimits_lower = (_f = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _f === void 0 ? void 0 : _f.filter(d => isValidNumber(d));
-              const alt_targets = (_g = controlLimits.alt_targets) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d));
-              const targets = (_h = controlLimits.targets) === null || _h === void 0 ? void 0 : _h.filter(d => isValidNumber(d));
+              const ul99 = (_d = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d))) !== null && _d !== void 0 ? _d : [];
+              const speclimits_upper = (_f = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d))) !== null && _f !== void 0 ? _f : [];
+              const ll99 = (_h = (_g = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d))) !== null && _h !== void 0 ? _h : [];
+              const speclimits_lower = (_k = (_j = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _j === void 0 ? void 0 : _j.filter(d => isValidNumber(d))) !== null && _k !== void 0 ? _k : [];
+              const alt_targets = (_m = (_l = controlLimits.alt_targets) === null || _l === void 0 ? void 0 : _l.filter(d => isValidNumber(d))) !== null && _m !== void 0 ? _m : [];
+              const targets = (_p = (_o = controlLimits.targets) === null || _o === void 0 ? void 0 : _o.filter(d => isValidNumber(d))) !== null && _p !== void 0 ? _p : [];
               const maxValue = max(values);
               const maxValueOrLimit = max((values.concat(ul99).concat(speclimits_upper).concat(alt_targets)).filter(d => isValidNumber(d)));
               const minValueOrLimit = min((values.concat(ll99).concat(speclimits_lower).concat(alt_targets)).filter(d => isValidNumber(d)));
-              const maxTarget = (_j = max(targets)) !== null && _j !== void 0 ? _j : 0;
-              const minTarget = (_k = min(targets)) !== null && _k !== void 0 ? _k : 0;
+              let maxTarget = max(targets);
+              if (!isValidNumber(maxTarget)) {
+                  maxTarget = (maxValueOrLimit - minValueOrLimit) / 2 + minValueOrLimit;
+              }
+              let minTarget = min(targets);
+              if (!isValidNumber(minTarget)) {
+                  minTarget = (maxValueOrLimit - minValueOrLimit) / 2 + minValueOrLimit;
+              }
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
               const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
               const multiplier = derivedSettings.multiplier;
@@ -6822,9 +5682,6 @@ var spc = (function (exports) {
   }
 
   function c4(sampleSize) {
-      if ((sampleSize <= 1) || isNullOrUndefined(sampleSize)) {
-          return null;
-      }
       const Nminus1 = sampleSize - 1;
       return Math.sqrt(2.0 / Nminus1)
           * Math.exp(lgamma(sampleSize / 2.0) - lgamma(Nminus1 / 2.0));
@@ -6833,17 +5690,7 @@ var spc = (function (exports) {
       return Math.sqrt(1 - Math.pow(c4(sampleSize), 2));
   }
   function a3(sampleSize) {
-      const filt_samp = sampleSize <= 1 ? null : sampleSize;
-      return 3.0 / (c4(filt_samp) * Math.sqrt(filt_samp));
-  }
-  function b_helper(sampleSize, sigma) {
-      return (sigma * c5(sampleSize)) / c4(sampleSize);
-  }
-  function b3(sampleSize, sigma) {
-      return 1 - b_helper(sampleSize, sigma);
-  }
-  function b4(sampleSize, sigma) {
-      return 1 + b_helper(sampleSize, sigma);
+      return 3.0 / (c4(sampleSize) * Math.sqrt(sampleSize));
   }
 
   function sLimits(args) {
@@ -6873,13 +5720,17 @@ var spc = (function (exports) {
           ul99: new Array(n)
       };
       for (let i = 0; i < n; i++) {
+          const c5c4 = (c5(count_per_group[i]) / c4(count_per_group[i]));
+          const sigma = cl * c5c4;
+          const twoSigma = 2 * sigma;
+          const threeSigma = 3 * sigma;
           rtn.targets[i] = cl;
-          rtn.ll99[i] = cl * b3(count_per_group[i], 3);
-          rtn.ll95[i] = cl * b3(count_per_group[i], 2);
-          rtn.ll68[i] = cl * b3(count_per_group[i], 1);
-          rtn.ul68[i] = cl * b4(count_per_group[i], 1);
-          rtn.ul95[i] = cl * b4(count_per_group[i], 2);
-          rtn.ul99[i] = cl * b4(count_per_group[i], 3);
+          rtn.ll99[i] = cl - threeSigma;
+          rtn.ll95[i] = cl - twoSigma;
+          rtn.ll68[i] = cl - sigma;
+          rtn.ul68[i] = cl + sigma;
+          rtn.ul95[i] = cl + twoSigma;
+          rtn.ul99[i] = cl + threeSigma;
       }
       return rtn;
   }
@@ -7118,21 +5969,20 @@ var spc = (function (exports) {
   }
 
   function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
-      var _a;
+      var _a, _b, _c;
       const propertyValue = (_a = settingObject === null || settingObject === void 0 ? void 0 : settingObject[settingGroup]) === null || _a === void 0 ? void 0 : _a[settingName];
       if (isNullOrUndefined(propertyValue)) {
           return defaultValue;
       }
-      return (propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) ? propertyValue.solid.color
-          : propertyValue;
+      return ((_c = (_b = propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) === null || _b === void 0 ? void 0 : _b.color) !== null && _c !== void 0 ? _c : propertyValue);
   }
   function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings, idxs) {
       var _a, _b, _c;
       if (isNullOrUndefined(categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories)) {
-          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+          return { values: undefined, validation: { status: 0, messages: rep(new Array(), 1) } };
       }
       if (((_c = (_b = (_a = categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.identity) === null || _c === void 0 ? void 0 : _c.length) === 0) {
-          return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+          return { values: undefined, validation: { status: 0, messages: rep(new Array(), 1) } };
       }
       const inputCategories = categoricalView.categories[0];
       const settingNames = Object.keys(inputSettings[settingGroupName]);
@@ -7142,23 +5992,31 @@ var spc = (function (exports) {
       for (let i = 0; i < n; i++) {
           const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
           rtn[i] = Object.fromEntries(settingNames.map(settingName => {
-              var _a, _b, _c, _d, _e, _f, _g;
-              const defaultSetting = defaultSettings[settingGroupName][settingName];
+              var _a, _b, _c, _d;
+              const defaultSetting = get(defaultSettings, settingGroupName, settingName);
               let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
               extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
-              const valid = (_b = (_a = settingsModel[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a["valid"]) !== null && _b !== void 0 ? _b : (_c = settingsModel[settingGroupName][settingName]) === null || _c === void 0 ? void 0 : _c["options"];
-              const isNumericRange = !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue);
+              const settingEntry = get(settingsModel, settingGroupName, settingName);
+              let valid = undefined;
+              if ("valid" in settingEntry) {
+                  valid = settingEntry.valid;
+              }
+              else if ("options" in settingEntry) {
+                  valid = settingEntry.options;
+              }
               const defaultIsUndefined = isNullOrUndefined(defaultSetting);
               if (valid && !defaultIsUndefined) {
                   let message = "";
-                  if (valid instanceof Array && !valid.includes(extractedSetting)) {
-                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
+                  if (valid instanceof Array) {
+                      if (!valid.includes(extractedSetting)) {
+                          message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
+                      }
                   }
-                  else if (isNumericRange && !between(extractedSetting, (_d = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _d === void 0 ? void 0 : _d.value, (_e = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _e === void 0 ? void 0 : _e.value)) {
-                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_f = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _f === void 0 ? void 0 : _f.value} and ${(_g = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _g === void 0 ? void 0 : _g.value}`;
+                  else if ((!isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue)) && !between(extractedSetting, (_a = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _a === void 0 ? void 0 : _a.value, (_b = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _b === void 0 ? void 0 : _b.value)) {
+                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_c = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _c === void 0 ? void 0 : _c.value} and ${(_d = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _d === void 0 ? void 0 : _d.value}`;
                   }
                   if (message !== "") {
-                      extractedSetting = defaultSettings[settingGroupName][settingName];
+                      extractedSetting = defaultSetting;
                       validationRtn.messages[i].push(message);
                   }
               }
@@ -7190,7 +6048,7 @@ var spc = (function (exports) {
       "up": "Rate"
   };
   class derivedSettingsClass {
-      update(inputSettingsSpc) {
+      constructor(inputSettingsSpc) {
           const chartType = inputSettingsSpc.chart_type;
           const pChartType = ["p", "pp"].includes(chartType);
           const percentSettingString = inputSettingsSpc.perc_labels;
@@ -7227,6 +6085,9 @@ var spc = (function (exports) {
       }
   }
 
+  const VisualEnumerationInstanceKinds = {
+      ConstantOrRule: (1 << 0 | 1 << 1),
+  };
   class settingsClass {
       update(inputView, groupIdxs) {
           this.validationStatus
@@ -7235,12 +6096,12 @@ var spc = (function (exports) {
           this.derivedSettings = new Array();
           groupIdxs.forEach(() => {
               this.settings.push(settingsModel.defaultValues);
-              this.derivedSettings.push(new derivedSettingsClass());
+              this.derivedSettings.push(new derivedSettingsClass(this.settings[0].spc));
           });
           const all_idxs = groupIdxs.flat();
           const allSettingGroups = Object.keys(this.settings[0]);
           allSettingGroups.forEach((settingGroup) => {
-              const condFormatting = extractConditionalFormatting(inputView === null || inputView === void 0 ? void 0 : inputView.categorical, settingGroup, this.settings[0], all_idxs);
+              const condFormatting = extractConditionalFormatting(inputView.categorical, settingGroup, this.settings[0], all_idxs);
               if (condFormatting.validation.status !== 0) {
                   this.validationStatus.status = condFormatting.validation.status;
                   this.validationStatus.error = condFormatting.validation.error;
@@ -7261,7 +6122,7 @@ var spc = (function (exports) {
                       this.settings[idx_idx][settingGroup][settingName]
                           = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
                               ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[idx[0]][settingName]
-                              : defaultSettings[settingGroup][settingName];
+                              : get(defaultSettings, settingGroup, settingName);
                   });
               });
           });
@@ -7274,53 +6135,76 @@ var spc = (function (exports) {
               }
           }
           this.settings.forEach((settingsItem, idx) => {
-              this.derivedSettings[idx].update(settingsItem.spc);
+              this.derivedSettings[idx] = new derivedSettingsClass(settingsItem.spc);
           });
       }
       getFormattingModel() {
-          var _a, _b;
           const formattingModel = {
               cards: []
           };
-          for (const curr_card_name in settingsModel) {
+          for (const settingsModelKey in settingsModel) {
+              const currCardName = settingsModelKey;
               let curr_card = {
-                  description: settingsModel[curr_card_name].description,
-                  displayName: settingsModel[curr_card_name].displayName,
-                  uid: curr_card_name + "_card_uid",
+                  description: settingsModel[currCardName].description,
+                  displayName: settingsModel[currCardName].displayName,
+                  uid: currCardName + "_card_uid",
                   groups: [],
                   revertToDefaultDescriptors: []
               };
-              for (const card_group in settingsModel[curr_card_name].settingsGroups) {
+              const currSettingsGroups = settingsModel[currCardName].settingsGroups;
+              for (const settingsGroupKey in currSettingsGroups) {
+                  const currSettingsGroupName = settingsGroupKey;
                   let curr_group = {
-                      displayName: card_group === "all" ? settingsModel[curr_card_name].displayName : card_group,
-                      uid: curr_card_name + "_" + card_group + "_uid",
+                      displayName: currSettingsGroupName === "all" ? settingsModel[currCardName].displayName : currSettingsGroupName,
+                      uid: currCardName + "_" + currSettingsGroupName + "_uid",
                       slices: []
                   };
-                  for (const setting in settingsModel[curr_card_name].settingsGroups[card_group]) {
+                  const currSettings = currSettingsGroups[currSettingsGroupName];
+                  for (const settingNamekey in currSettings) {
+                      const currSettingName = settingNamekey;
                       curr_card.revertToDefaultDescriptors.push({
-                          objectName: curr_card_name,
-                          propertyName: setting
+                          objectName: currCardName,
+                          propertyName: currSettingName
                       });
+                      currSettings[currSettingName].type;
                       let curr_slice = {
-                          uid: curr_card_name + "_" + card_group + "_" + setting + "_slice_uid",
-                          displayName: settingsModel[curr_card_name].settingsGroups[card_group][setting].displayName,
+                          uid: currCardName + "_" + currSettingsGroupName + "_" + currSettingName + "_slice_uid",
+                          displayName: currSettings[currSettingName].displayName,
                           control: {
-                              type: settingsModel[curr_card_name].settingsGroups[card_group][setting].type,
+                              type: currSettings[currSettingName].type,
                               properties: {
                                   descriptor: {
-                                      objectName: curr_card_name,
-                                      propertyName: setting,
-                                      selector: { data: [{ dataViewWildcard: { matchingOption: 0 } }] },
-                                      instanceKind: (typeof this.settings[0][curr_card_name][setting]) != "boolean"
-                                          ? 3
-                                          : null
+                                      objectName: currCardName,
+                                      propertyName: currSettingName,
+                                      selector: { data: [{ dataViewWildcard: { matchingOption: 0 } }] }
                                   },
-                                  value: this.valueLookup(curr_card_name, card_group, setting),
-                                  items: (_a = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _a === void 0 ? void 0 : _a.items,
-                                  options: (_b = settingsModel[curr_card_name].settingsGroups[card_group][setting]) === null || _b === void 0 ? void 0 : _b.options
+                                  value: {}
                               }
                           }
                       };
+                      const currSettingValue = get(this.settings[0], currCardName, currSettingName);
+                      if (currSettings[currSettingName].type === FormattingComponent.ColorPicker) {
+                          curr_slice.control.properties.value
+                              = { value: currSettingValue };
+                      }
+                      else if (currSettings[currSettingName].type === FormattingComponent.Dropdown) {
+                          const currItems = currSettings[currSettingName].items;
+                          curr_slice.control.properties.items
+                              = currItems;
+                          curr_slice.control.properties.value
+                              = currItems.find(item => item.value === currSettingValue);
+                      }
+                      else {
+                          curr_slice.control.properties.value = currSettingValue;
+                      }
+                      if (currSettings[currSettingName].type !== FormattingComponent.ToggleSwitch) {
+                          curr_slice.control.properties.descriptor.instanceKind
+                              = VisualEnumerationInstanceKinds.ConstantOrRule;
+                      }
+                      if ("options" in currSettings[currSettingName]) {
+                          curr_slice.control.properties.options
+                              = currSettings[currSettingName].options;
+                      }
                       curr_group.slices.push(curr_slice);
                   }
                   curr_card.groups.push(curr_group);
@@ -7329,21 +6213,10 @@ var spc = (function (exports) {
           }
           return formattingModel;
       }
-      valueLookup(settingCardName, settingGroupName, settingName) {
-          var _a;
-          if (settingName.includes("colour")) {
-              return { value: this.settings[0][settingCardName][settingName] };
-          }
-          if (!isNullOrUndefined((_a = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName]) === null || _a === void 0 ? void 0 : _a.items)) {
-              const allItems = settingsModel[settingCardName].settingsGroups[settingGroupName][settingName].items;
-              const currValue = this.settings[0][settingCardName][settingName];
-              return allItems.find(item => item.value === currValue);
-          }
-          return this.settings[0][settingCardName][settingName];
-      }
       constructor() {
+          this.validationStatus = { status: 0, messages: new Array(), error: "" };
           this.settings = [settingsModel.defaultValues];
-          this.derivedSettings = [new derivedSettingsClass()];
+          this.derivedSettings = [new derivedSettingsClass(this.settings[0].spc)];
       }
   }
 
@@ -7495,7 +6368,7 @@ var spc = (function (exports) {
 
   function formatPrimitiveValue(rawValue, config) {
       if (isNullOrUndefined(rawValue)) {
-          return null;
+          return "";
       }
       if (config.valueType.numeric) {
           return rawValue.toString();
@@ -7540,11 +6413,12 @@ var spc = (function (exports) {
           if (key !== "date_format_locale" && key !== "date_format_delim") {
               const formattedKey = key.replace("date_format_", "");
               const lookup = dateOptionsLookup[formattedKey];
-              const val = lookup[date_settings[key]];
+              const dateSettingValue = date_settings[key];
+              const val = lookup[dateSettingValue];
               if (!isNullOrUndefined(val)) {
                   formatOpts.push([formattedKey, val]);
-                  if (formattedKey === "day" && date_settings[key] !== "DD") {
-                      formatOpts.push(["weekday", weekdayDateMap[date_settings[key]]]);
+                  if (formattedKey === "day" && dateSettingValue !== "DD" && !isNullOrUndefined(weekdayDateMap[dateSettingValue])) {
+                      formatOpts.push(["weekday", weekdayDateMap[dateSettingValue]]);
                   }
               }
           }
@@ -7568,7 +6442,7 @@ var spc = (function (exports) {
   };
   function temporalTypeToKey(inputType, inputValue) {
       if (!inputType.temporal) {
-          return null;
+          return [];
       }
       if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "DayOfMonth") {
           return ["day", (inputValue)];
@@ -7583,7 +6457,7 @@ var spc = (function (exports) {
           return ["year", (inputValue)];
       }
       else {
-          return null;
+          return [];
       }
   }
   function parseInputDates(inputs, idxs) {
@@ -7606,7 +6480,7 @@ var spc = (function (exports) {
       }
       else {
           for (let i = 0; i < n_keys; i++) {
-              inputDates[i] = isNullOrUndefined((_d = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _d === void 0 ? void 0 : _d.values[idxs[i]]) ? null : new Date(((_e = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _e === void 0 ? void 0 : _e.values[idxs[i]]));
+              inputDates[i] = isNullOrUndefined((_d = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _d === void 0 ? void 0 : _d.values[idxs[i]]) ? undefined : new Date(((_e = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _e === void 0 ? void 0 : _e.values[idxs[i]]));
           }
       }
       return { dates: inputDates, quarters: inputQuarters };
@@ -7637,6 +6511,9 @@ var spc = (function (exports) {
           month: "",
           year: ""
       };
+      if (isNullOrUndefined(date)) {
+          return result;
+      }
       if (options.weekday === "short") {
           result.weekday = weekdayShort[locale][date.getDay()];
       }
@@ -7670,7 +6547,7 @@ var spc = (function (exports) {
       let ret = new Array(n_keys);
       if (col.length === 1 && !((_a = col[0].source.type) === null || _a === void 0 ? void 0 : _a.temporal)) {
           for (let i = 0; i < n_keys; i++) {
-              ret[i] = isNullOrUndefined(col[0].values[idxs[i]]) ? null : String(col[0].values[idxs[i]]);
+              ret[i] = isNullOrUndefined(col[0].values[idxs[i]]) ? undefined : String(col[0].values[idxs[i]]);
           }
           return ret;
       }
@@ -7679,7 +6556,7 @@ var spc = (function (exports) {
           const blankKey = rep("", col.length).join(delim);
           for (let i = 0; i < n_keys; i++) {
               const currKey = col.map(keyCol => keyCol.values[idxs[i]]).join(delim);
-              ret[i] = currKey === blankKey ? null : currKey;
+              ret[i] = currKey === blankKey ? undefined : currKey;
           }
           return ret;
       }
@@ -7690,7 +6567,7 @@ var spc = (function (exports) {
       let month_elem = locale === "en-GB" ? "month" : "day";
       for (let i = 0; i < n_keys; i++) {
           if (isNullOrUndefined(inputDates.dates[i])) {
-              ret[i] = null;
+              ret[i] = undefined;
           }
           else {
               const datePartsRecord = formatDateParts(inputDates.dates[i], locale, formatOptions);
@@ -7735,8 +6612,8 @@ var spc = (function (exports) {
       const combinedKeys = [];
       const n_keys = idxs.length;
       for (let i = 0; i < n_keys; i++) {
-          const keyParts = formattedKeys.map(keys => keys[i]).filter(k => k !== null && k !== undefined);
-          combinedKeys.push(keyParts.length > 0 ? keyParts.join(" ") : null);
+          const keyParts = formattedKeys.map(keys => keys[i]).filter(k => !isNullOrUndefined(k));
+          combinedKeys.push(keyParts.length > 0 ? keyParts.join(" ") : undefined);
       }
       return combinedKeys;
   }
@@ -7767,19 +6644,19 @@ var spc = (function (exports) {
       }
       const columnRaw = inputView.values.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b[name]; });
       if (columnRaw.length === 0) {
-          return null;
+          return undefined;
       }
       const n_keys = idxs.length;
       if (name === "groupings" || name === "labels") {
           let ret = new Array(n_keys);
           for (let i = 0; i < n_keys; i++) {
-              ret[i] = isNullOrUndefined((_b = (_a = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b[idxs[i]]) ? null : String(columnRaw[0].values[idxs[i]]);
+              ret[i] = isNullOrUndefined((_b = (_a = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b[idxs[i]]) ? undefined : String(columnRaw[0].values[idxs[i]]);
           }
           return ret;
       }
       let ret = new Array(n_keys);
       for (let i = 0; i < n_keys; i++) {
-          ret[i] = isNullOrUndefined((_d = (_c = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _c === void 0 ? void 0 : _c.values) === null || _d === void 0 ? void 0 : _d[idxs[i]]) ? null : Number(columnRaw[0].values[idxs[i]]);
+          ret[i] = isNullOrUndefined((_d = (_c = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _c === void 0 ? void 0 : _c.values) === null || _d === void 0 ? void 0 : _d[idxs[i]]) ? undefined : Number(columnRaw[0].values[idxs[i]]);
       }
       return ret;
   }
@@ -7811,13 +6688,15 @@ var spc = (function (exports) {
           rtn.message = "Numerator missing";
           rtn.type = 3;
       }
-      if (isNaN(numerator)) {
-          rtn.message = "Numerator is not a number";
-          rtn.type = 10;
-      }
-      if (chart_type_props.numerator_non_negative && numerator < 0) {
-          rtn.message = "Numerator negative";
-          rtn.type = 4;
+      else {
+          if (isNaN(numerator)) {
+              rtn.message = "Numerator is not a number";
+              rtn.type = 10;
+          }
+          if (chart_type_props.numerator_non_negative && numerator < 0) {
+              rtn.message = "Numerator negative";
+              rtn.type = 4;
+          }
       }
       if (check_denom) {
           if (isNullOrUndefined(denominator)) {
@@ -7832,7 +6711,7 @@ var spc = (function (exports) {
               rtn.message = "Denominator negative";
               rtn.type = 6;
           }
-          else if (chart_type_props.numerator_leq_denominator && denominator < numerator) {
+          else if (chart_type_props.numerator_leq_denominator && !isNullOrUndefined(numerator) && denominator < numerator) {
               rtn.message = "Denominator < numerator";
               rtn.type = 7;
           }
@@ -7846,7 +6725,7 @@ var spc = (function (exports) {
               rtn.message = "SD missing";
               rtn.type = 8;
           }
-          else if (isNaN(xbar_sd)) {
+          else if (isNaN(xbar_sd) && !isNullOrUndefined(numerator)) {
               rtn.message = "SD is not a number";
               rtn.type = 12;
           }
@@ -7954,28 +6833,28 @@ var spc = (function (exports) {
 
   function invalidInputData(inputValidStatus) {
       return {
-          limitInputArgs: null,
-          spcSettings: null,
-          highlights: null,
+          limitInputArgs: {},
+          spcSettings: {},
+          highlights: [],
           anyHighlights: false,
-          categories: null,
-          groupings: null,
-          groupingIndexes: null,
-          scatter_formatting: null,
-          line_formatting: null,
-          label_formatting: null,
-          tooltips: null,
-          labels: null,
+          categories: {},
+          groupings: [],
+          groupingIndexes: [],
+          scatter_formatting: [],
+          line_formatting: [],
+          label_formatting: [],
+          tooltips: [],
+          labels: [],
           anyLabels: false,
           warningMessage: inputValidStatus.error,
-          alt_targets: null,
-          speclimits_lower: null,
-          speclimits_upper: null,
+          alt_targets: [],
+          speclimits_lower: [],
+          speclimits_upper: [],
           validationStatus: inputValidStatus
       };
   }
   function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
-      var _a, _b, _c, _d, _e, _f;
+      var _a, _b, _c, _d, _e, _f, _g;
       const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
       const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
       const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
@@ -7983,13 +6862,13 @@ var spc = (function (exports) {
       const tooltips = extractDataColumn(inputView, "tooltips", inputSettings, idxs);
       const groupings = extractDataColumn(inputView, "groupings", inputSettings, idxs);
       const labels = extractDataColumn(inputView, "labels", inputSettings, idxs);
-      const highlights = idxs.map(d => { var _a, _b, _c; return (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) === null || _c === void 0 ? void 0 : _c[d]; });
-      let scatter_cond = (_a = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _a === void 0 ? void 0 : _a.values;
-      let lines_cond = (_b = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _b === void 0 ? void 0 : _b.values;
-      let labels_cond = (_c = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
-      let alt_targets = lines_cond.map(d => inputSettings.lines.show_alt_target ? d.alt_target : null);
-      let speclimits_lower = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values.map(d => d.show_specification ? d.specification_lower : null);
-      let speclimits_upper = (_e = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values.map(d => d.show_specification ? d.specification_upper : null);
+      const highlights = isNullOrUndefined((_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) ? undefined : idxs.map(d => { var _a, _b, _c; return (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) === null || _c === void 0 ? void 0 : _c[d]; });
+      let scatter_cond = (_c = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
+      let lines_cond = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values;
+      let labels_cond = (_e = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values;
+      let alt_targets = inputSettings.lines.show_alt_target ? lines_cond.map(d => d.alt_target) : undefined;
+      let speclimits_lower = inputSettings.lines.show_specification ? lines_cond.map(d => d.specification_lower) : undefined;
+      let speclimits_upper = inputSettings.lines.show_specification ? lines_cond.map(d => d.specification_upper) : undefined;
       let spcSettings = (_f = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values;
       const inputValidStatus = validateInputData(keys, numerators, denominators, xbar_sds, derivedSettings.chart_type_props, idxs);
       if (inputValidStatus.status !== 0) {
@@ -8017,18 +6896,21 @@ var spc = (function (exports) {
               removalMessages.push(`${groupVarName} ${keys[idx]} removed due to: ${inputValidStatus.messages[idx]}.`);
           }
       });
-      const valid_groupings = extractValues(groupings, valid_ids);
-      const groupingIndexes = new Array();
-      let current_grouping = valid_groupings[0];
-      valid_groupings.forEach((d, idx) => {
-          if (d !== current_grouping) {
-              groupingIndexes.push(idx - 1);
-              current_grouping = d;
-          }
-      });
-      const valid_alt_targets = extractValues(alt_targets, valid_ids);
+      let groupingIndexes = undefined;
+      const valid_groupings = isNullOrUndefined(groupings) ? undefined : extractValues(groupings, valid_ids);
+      if (!isNullOrUndefined(valid_groupings)) {
+          let current_grouping = valid_groupings[0];
+          groupingIndexes = new Array();
+          valid_groupings.forEach((d, idx) => {
+              if (d !== current_grouping) {
+                  groupingIndexes.push(idx - 1);
+                  current_grouping = d;
+              }
+          });
+      }
+      const valid_alt_targets = isNullOrUndefined(alt_targets) ? undefined : extractValues(alt_targets, valid_ids);
       if (inputSettings.nhs_icons.show_assurance_icons) {
-          const alt_targets_length = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets.length;
+          const alt_targets_length = (_g = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets.length) !== null && _g !== void 0 ? _g : 0;
           if (alt_targets_length > 0) {
               const last_target = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets[alt_targets_length - 1];
               if (isNullOrUndefined(last_target)) {
@@ -8039,7 +6921,7 @@ var spc = (function (exports) {
               removalMessages.push("NHS Assurance icon requires chart with control limits.");
           }
       }
-      const curr_highlights = extractValues(highlights, valid_ids);
+      const curr_highlights = isNullOrUndefined(highlights) ? undefined : extractValues(highlights, valid_ids);
       const num_points_subset = spcSettings[0].num_points_subset;
       let subset_points;
       if (isNullOrUndefined(num_points_subset) || !between(num_points_subset, 1, valid_ids.length)) {
@@ -8053,22 +6935,22 @@ var spc = (function (exports) {
               subset_points = seq(valid_ids.length - spcSettings[0].num_points_subset, valid_ids.length - 1);
           }
       }
-      const valid_labels = extractValues(labels, valid_ids);
+      const valid_labels = isNullOrUndefined(labels) ? undefined : extractValues(labels, valid_ids);
       return {
           limitInputArgs: {
               keys: valid_keys,
               numerators: extractValues(numerators, valid_ids),
-              denominators: extractValues(denominators, valid_ids),
-              xbar_sds: extractValues(xbar_sds, valid_ids),
+              denominators: isNullOrUndefined(denominators) ? undefined : extractValues(denominators, valid_ids),
+              xbar_sds: isNullOrUndefined(xbar_sds) ? undefined : extractValues(xbar_sds, valid_ids),
               outliers_in_limits: spcSettings[0].outliers_in_limits,
               subset_points: subset_points
           },
           spcSettings: spcSettings[0],
-          tooltips: extractValues(tooltips, valid_ids),
+          tooltips: isNullOrUndefined(tooltips) ? undefined : extractValues(tooltips, valid_ids),
           labels: valid_labels,
-          anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
+          anyLabels: !isNullOrUndefined(valid_labels) && valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
           highlights: curr_highlights,
-          anyHighlights: curr_highlights.filter(d => !isNullOrUndefined(d)).length > 0,
+          anyHighlights: !isNullOrUndefined(curr_highlights) && curr_highlights.filter(d => !isNullOrUndefined(d)).length > 0,
           categories: inputView.categories[0],
           groupings: valid_groupings,
           groupingIndexes: groupingIndexes,
@@ -8077,27 +6959,27 @@ var spc = (function (exports) {
           label_formatting: extractValues(labels_cond, valid_ids),
           warningMessage: removalMessages.length > 0 ? removalMessages.join("\n") : "",
           alt_targets: valid_alt_targets,
-          speclimits_lower: extractValues(speclimits_lower, valid_ids),
-          speclimits_upper: extractValues(speclimits_upper, valid_ids),
+          speclimits_lower: isNullOrUndefined(speclimits_lower) ? speclimits_lower : extractValues(speclimits_lower, valid_ids),
+          speclimits_upper: isNullOrUndefined(speclimits_upper) ? speclimits_upper : extractValues(speclimits_upper, valid_ids),
           validationStatus: inputValidStatus
       };
   }
 
-  function validateDataView(inputDV, inputSettingsClass) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+  function validateDataViewColumns(inputDV, inputSettingsClass) {
+      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
       if (isNullOrUndefined(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) || (((_e = (_d = (_c = (_b = (_a = inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.identity) === null || _e === void 0 ? void 0 : _e.length) === 0)) {
           return "";
       }
       if (isNullOrUndefined((_g = (_f = inputDV[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) || isNullOrUndefined((_j = (_h = inputDV[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
           return "";
       }
-      const numeratorsPresent = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; });
+      const numeratorsPresent = (_m = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; })) !== null && _m !== void 0 ? _m : false;
       if (!numeratorsPresent) {
           return "No Numerators passed!";
       }
-      let needs_denominator;
-      let needs_sd;
-      let chart_type;
+      let needs_denominator = false;
+      let needs_sd = false;
+      let chart_type = inputSettingsClass.settings[0].spc.chart_type;
       if ((inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettings.length) > 0) {
           inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettings.forEach((d) => {
               if (d.chart_type_props.needs_denominator) {
@@ -8116,13 +6998,13 @@ var spc = (function (exports) {
           needs_sd = inputSettingsClass.derivedSettings[0].chart_type_props.needs_sd;
       }
       if (needs_denominator) {
-          const denominatorsPresent = (_o = (_m = inputDV[0].categorical) === null || _m === void 0 ? void 0 : _m.values) === null || _o === void 0 ? void 0 : _o.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; });
+          const denominatorsPresent = (_q = (_p = (_o = inputDV[0].categorical) === null || _o === void 0 ? void 0 : _o.values) === null || _p === void 0 ? void 0 : _p.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; })) !== null && _q !== void 0 ? _q : false;
           if (!denominatorsPresent) {
               return `Chart type '${chart_type}' requires denominators!`;
           }
       }
       if (needs_sd) {
-          const xbarSDPresent = (_q = (_p = inputDV[0].categorical) === null || _p === void 0 ? void 0 : _p.values) === null || _q === void 0 ? void 0 : _q.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; });
+          const xbarSDPresent = (_t = (_s = (_r = inputDV[0].categorical) === null || _r === void 0 ? void 0 : _r.values) === null || _s === void 0 ? void 0 : _s.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; })) !== null && _t !== void 0 ? _t : false;
           if (!xbarSDPresent) {
               return `Chart type '${chart_type}' requires SDs!`;
           }
@@ -8148,9 +7030,9 @@ var spc = (function (exports) {
       }
       const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
       const intercept = (sumY - slope * sumX) / n;
-      const trendLine = [];
+      const trendLine = new Array(n);
       for (let i = 0; i < n; i++) {
-          trendLine.push(slope * (i + 1) + intercept);
+          trendLine[i] = slope * (i + 1) + intercept;
       }
       return trendLine;
   }
@@ -8262,6 +7144,25 @@ var spc = (function (exports) {
       return shift_detected;
   }
 
+  function updateOptionsUndefined(options) {
+      var _a, _b, _c, _d;
+      if (isNullOrUndefined(options === null || options === void 0 ? void 0 : options.dataViews)
+          || (options.dataViews.length === 0)
+          || isNullOrUndefined((_a = options.dataViews[0]) === null || _a === void 0 ? void 0 : _a.categorical)
+          || isNullOrUndefined((_b = options.dataViews[0].categorical) === null || _b === void 0 ? void 0 : _b.categories)
+          || options.dataViews[0].categorical.categories.length === 0
+          || isNullOrUndefined(options.dataViews[0].categorical.categories[0].source)
+          || isNullOrUndefined((_c = options.dataViews[0].metadata) === null || _c === void 0 ? void 0 : _c.columns)
+          || !(options.dataViews[0].metadata.columns.some(d => { var _a; return !isNullOrUndefined((_a = d === null || d === void 0 ? void 0 : d.roles) === null || _a === void 0 ? void 0 : _a.key); }))) {
+          return 2;
+      }
+      if (isNullOrUndefined((_d = options.dataViews[0].categorical) === null || _d === void 0 ? void 0 : _d.values)
+          || !(options.dataViews[0].metadata.columns.some(d => { var _a; return !isNullOrUndefined((_a = d === null || d === void 0 ? void 0 : d.roles) === null || _a === void 0 ? void 0 : _a.numerators); }))) {
+          return 3;
+      }
+      return 1;
+  }
+
   class viewModelClass {
       get showGrouped() {
           return this.inputData && this.inputData.length > 1;
@@ -8278,12 +7179,24 @@ var spc = (function (exports) {
           this.groupStartEndIndexes = new Array();
           this.identities = new Array();
           this.tableColumns = new Array();
-          this.colourPalette = null;
+          this.colourPalette = {};
           this.headless = false;
           this.frontend = false;
+          this.tickLabels = [];
+          this.svgWidth = 0;
+          this.svgHeight = 0;
+          this.indicatorVarNames = [];
+          this.groupNames = [];
       }
       update(options, host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
+          const updateOptionsStatus = updateOptionsUndefined(options);
+          if (updateOptionsStatus === 2) {
+              return { status: false, error: "" };
+          }
+          else if (updateOptionsStatus === 3) {
+              return { status: false, error: "No Numerators passed!" };
+          }
           if (isNullOrUndefined(this.colourPalette)) {
               this.colourPalette = {
                   isHighContrast: host.colorPalette.isHighContrast,
@@ -8295,17 +7208,17 @@ var spc = (function (exports) {
           }
           this.svgWidth = options.viewport.width;
           this.svgHeight = options.viewport.height;
-          this.headless = (_a = options === null || options === void 0 ? void 0 : options["headless"]) !== null && _a !== void 0 ? _a : false;
-          this.frontend = (_b = options === null || options === void 0 ? void 0 : options["frontend"]) !== null && _b !== void 0 ? _b : false;
-          const indicator_cols = (_e = (_d = (_c = options.dataViews[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories) === null || _e === void 0 ? void 0 : _e.filter(d => d.source.roles.indicator);
-          this.indicatorVarNames = (_f = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _f !== void 0 ? _f : [];
+          this.headless = (_a = options === null || options === void 0 ? void 0 : options.headless) !== null && _a !== void 0 ? _a : false;
+          this.frontend = (_b = options === null || options === void 0 ? void 0 : options.frontend) !== null && _b !== void 0 ? _b : false;
+          const indicator_cols = (_f = (_e = (_d = (_c = options.dataViews[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories) === null || _e === void 0 ? void 0 : _e.filter(d => d.source.roles.indicator)) !== null && _f !== void 0 ? _f : [];
+          this.indicatorVarNames = (_g = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _g !== void 0 ? _g : [];
           const n_indicators = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length;
-          const n_values = (_m = (_l = (_k = (_j = (_h = (_g = options.dataViews[0]) === null || _g === void 0 ? void 0 : _g.categorical) === null || _h === void 0 ? void 0 : _h.categories) === null || _j === void 0 ? void 0 : _j[0]) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.length) !== null && _m !== void 0 ? _m : 1;
+          const n_values = (_o = (_m = (_l = (_k = (_j = (_h = options.dataViews[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories) === null || _k === void 0 ? void 0 : _k[0]) === null || _l === void 0 ? void 0 : _l.values) === null || _m === void 0 ? void 0 : _m.length) !== null && _o !== void 0 ? _o : 1;
           const res = { status: true };
           const idx_per_indicator = new Array();
           idx_per_indicator.push([0]);
           this.groupNames = new Array();
-          this.groupNames.push((_o = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _o !== void 0 ? _o : []);
+          this.groupNames.push((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _p !== void 0 ? _p : []);
           let curr_grp = 0;
           for (let i = 1; i < n_values; i++) {
               let same_indicator = true;
@@ -8317,7 +7230,7 @@ var spc = (function (exports) {
               }
               else {
                   idx_per_indicator.push([i]);
-                  this.groupNames.push((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _p !== void 0 ? _p : []);
+                  this.groupNames.push((_q = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _q !== void 0 ? _q : []);
                   curr_grp += 1;
               }
           }
@@ -8330,15 +7243,16 @@ var spc = (function (exports) {
               res.type = "settings";
               return res;
           }
-          const checkDV = validateDataView(options.dataViews, this.inputSettings);
+          const checkDV = validateDataViewColumns(options.dataViews, this.inputSettings);
           if (checkDV !== "valid") {
               res.status = false;
               res.error = checkDV;
               return res;
           }
+          let invalidData = false;
           if (options.type === 2 || this.firstRun) {
               const hasIndicator = options.dataViews[0].categorical.categories.some(d => d.source.roles.indicator);
-              const split_indexes_str = (_u = ((_t = (_s = (_r = (_q = options.dataViews[0]) === null || _q === void 0 ? void 0 : _q.metadata) === null || _r === void 0 ? void 0 : _r.objects) === null || _s === void 0 ? void 0 : _s.split_indexes_storage) === null || _t === void 0 ? void 0 : _t.split_indexes)) !== null && _u !== void 0 ? _u : "[]";
+              const split_indexes_str = (_v = ((_u = (_t = (_s = (_r = options.dataViews[0]) === null || _r === void 0 ? void 0 : _r.metadata) === null || _s === void 0 ? void 0 : _s.objects) === null || _t === void 0 ? void 0 : _t.split_indexes_storage) === null || _u === void 0 ? void 0 : _u.split_indexes)) !== null && _v !== void 0 ? _v : "[]";
               const split_indexes = JSON.parse(split_indexes_str);
               this.splitIndexes = hasIndicator ? [] : split_indexes;
               this.inputData = new Array();
@@ -8351,40 +7265,37 @@ var spc = (function (exports) {
                   const settings = this.inputSettings.settings[idx];
                   const derivedSettings = this.inputSettings.derivedSettings[idx];
                   const inpData = extractInputData(options.dataViews[0].categorical, settings, derivedSettings, this.inputSettings.validationStatus.messages, group_idxs);
-                  const invalidData = inpData.validationStatus.status !== 0;
-                  const groupStartEnd = invalidData
-                      ? new Array()
-                      : this.getGroupingIndexes(inpData, idx === 0 ? this.splitIndexes : undefined);
-                  const limits = invalidData
-                      ? null
-                      : this.calculateLimits(inpData, groupStartEnd, settings);
-                  const outliers = invalidData
-                      ? null
-                      : this.flagOutliers(limits, groupStartEnd, settings, derivedSettings);
-                  if (!invalidData) {
-                      this.scaleAndTruncateLimits(limits, settings, derivedSettings);
+                  this.inputData.push(inpData);
+                  if (inpData.validationStatus.status !== 0) {
+                      invalidData = true;
+                      return;
                   }
+                  const groupStartEnd = this.getGroupingIndexes(inpData, idx === 0 ? this.splitIndexes : undefined);
+                  const limits = this.calculateLimits(inpData, groupStartEnd, settings);
+                  const outliers = this.flagOutliers(limits, groupStartEnd, settings, derivedSettings);
+                  this.scaleAndTruncateLimits(limits, settings, derivedSettings);
                   const identities = group_idxs.map(i => {
                       return host.createSelectionIdBuilder()
                           .withCategory(options.dataViews[0].categorical.categories[0], i)
                           .createSelectionId();
                   });
-                  this.inputData.push(inpData);
                   this.groupStartEndIndexes.push(groupStartEnd);
                   this.controlLimits.push(limits);
                   this.outliers.push(outliers);
                   this.identities.push(identities);
               });
-              if (this.showGrouped) {
-                  this.initialisePlotDataGrouped();
-              }
-              else {
-                  this.initialisePlotData(host);
-                  this.initialiseGroupedLines();
+              if (!invalidData) {
+                  if (this.showGrouped) {
+                      this.initialisePlotDataGrouped();
+                  }
+                  else {
+                      this.initialisePlotData(host);
+                      this.initialiseGroupedLines();
+                  }
               }
           }
           this.firstRun = false;
-          if (this.inputData.some(d => d.validationStatus.status !== 0)) {
+          if (invalidData) {
               res.status = false;
               res.error = this.inputData
                   .filter(d => d.validationStatus.status !== 0)
@@ -8401,9 +7312,10 @@ var spc = (function (exports) {
           return res;
       }
       getGroupingIndexes(inputData, splitIndexes) {
+          var _a;
           const allIndexes = (splitIndexes !== null && splitIndexes !== void 0 ? splitIndexes : [])
               .concat([-1])
-              .concat(inputData.groupingIndexes)
+              .concat((_a = inputData.groupingIndexes) !== null && _a !== void 0 ? _a : [])
               .concat([inputData.limitInputArgs.keys.length - 1])
               .filter((d, idx, arr) => arr.indexOf(d) === idx)
               .sort((a, b) => a - b);
@@ -8414,16 +7326,17 @@ var spc = (function (exports) {
           return groupStartEndIndexes;
       }
       calculateLimits(inputData, groupStartEndIndexes, inputSettings) {
-          var _a;
           const limitFunction = limitFunctions[inputSettings.spc.chart_type];
           inputData.limitInputArgs.outliers_in_limits = inputSettings.spc.outliers_in_limits;
           let controlLimits;
           if (groupStartEndIndexes.length > 1) {
               const groupedData = groupStartEndIndexes.map((indexes) => {
                   let data = JSON.parse(JSON.stringify(inputData));
-                  Object.keys(data.limitInputArgs).forEach(key => {
+                  let limitKeys = Object.keys(data.limitInputArgs);
+                  limitKeys.forEach(key => {
                       if (Array.isArray(data.limitInputArgs[key])) {
-                          data.limitInputArgs[key] = data.limitInputArgs[key].slice(indexes[0], indexes[1]);
+                          const groupVal = data.limitInputArgs[key].slice(indexes[0], indexes[1]);
+                          data.limitInputArgs[key] = groupVal;
                           if (key === "subset_points") {
                               data.limitInputArgs[key] = data.limitInputArgs[key].map((d) => d - indexes[0]);
                           }
@@ -8439,9 +7352,8 @@ var spc = (function (exports) {
               controlLimits = calcLimitsGrouped.reduce((all, curr) => {
                   const allInner = all;
                   Object.entries(all).forEach((entry, idx) => {
-                      var _a;
-                      const newValues = Object.entries(curr)[idx][1];
-                      allInner[entry[0]] = (_a = entry[1]) === null || _a === void 0 ? void 0 : _a.concat(newValues);
+                      const newValues = entry[1].concat(Object.entries(curr)[idx][1]);
+                      allInner[entry[0]] = newValues;
                   });
                   return allInner;
               });
@@ -8453,11 +7365,12 @@ var spc = (function (exports) {
           controlLimits.alt_targets = inputData.alt_targets;
           controlLimits.speclimits_lower = inputData.speclimits_lower;
           controlLimits.speclimits_upper = inputData.speclimits_upper;
-          for (const key of Object.keys(controlLimits)) {
-              if (key === "keys") {
+          for (const key in controlLimits) {
+              const keyTyped = key;
+              if (keyTyped === "keys" || keyTyped == "values" || isNullOrUndefined(controlLimits[keyTyped])) {
                   continue;
               }
-              controlLimits[key] = (_a = controlLimits[key]) === null || _a === void 0 ? void 0 : _a.map(d => isNaN(d) ? null : d);
+              controlLimits[keyTyped] = controlLimits[keyTyped].map(d => !isValidNumber(d) ? undefined : d);
           }
           return controlLimits;
       }
@@ -8579,7 +7492,7 @@ var spc = (function (exports) {
               table_row_entries.push(["lcl99", formatValues((_q = limits.ll99) === null || _q === void 0 ? void 0 : _q[lastIndex], "value")]);
               table_row_entries.push(["variation", varIcons[0]]);
               table_row_entries.push(["assurance", assIcon]);
-              if (anyTooltips) {
+              if (anyTooltips && !isNullOrUndefined(this.inputData[i].tooltips)) {
                   this.inputData[i].tooltips[lastIndex].forEach(tooltip => {
                       table_row_entries.push([tooltip.displayName, tooltip.value]);
                   });
@@ -8597,7 +7510,7 @@ var spc = (function (exports) {
           }
       }
       initialisePlotData(host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
+          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
           const inputData = this.inputData[0];
           const controlLimits = this.controlLimits[0];
           const outliers = this.outliers[0];
@@ -8677,16 +7590,16 @@ var spc = (function (exports) {
                   denominator: (_b = controlLimits.denominators) === null || _b === void 0 ? void 0 : _b[i],
                   value: controlLimits.values[i],
                   target: controlLimits.targets[i],
-                  alt_target: controlLimits.alt_targets[i],
-                  ll99: (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _c === void 0 ? void 0 : _c[i],
-                  ll95: (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll95) === null || _d === void 0 ? void 0 : _d[i],
-                  ll68: (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll68) === null || _e === void 0 ? void 0 : _e[i],
-                  ul68: (_f = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul68) === null || _f === void 0 ? void 0 : _f[i],
-                  ul95: (_g = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul95) === null || _g === void 0 ? void 0 : _g[i],
-                  ul99: (_h = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _h === void 0 ? void 0 : _h[i],
-                  speclimits_lower: (_j = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _j === void 0 ? void 0 : _j[i],
-                  speclimits_upper: (_k = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _k === void 0 ? void 0 : _k[i],
-                  trend_line: (_l = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.trend_line) === null || _l === void 0 ? void 0 : _l[i],
+                  alt_target: (_c = controlLimits.alt_targets) === null || _c === void 0 ? void 0 : _c[i],
+                  ll99: (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _d === void 0 ? void 0 : _d[i],
+                  ll95: (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll95) === null || _e === void 0 ? void 0 : _e[i],
+                  ll68: (_f = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll68) === null || _f === void 0 ? void 0 : _f[i],
+                  ul68: (_g = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul68) === null || _g === void 0 ? void 0 : _g[i],
+                  ul95: (_h = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul95) === null || _h === void 0 ? void 0 : _h[i],
+                  ul99: (_j = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _j === void 0 ? void 0 : _j[i],
+                  speclimits_lower: (_k = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _k === void 0 ? void 0 : _k[i],
+                  speclimits_upper: (_l = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _l === void 0 ? void 0 : _l[i],
+                  trend_line: (_m = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.trend_line) === null || _m === void 0 ? void 0 : _m[i],
                   astpoint: outliers.astpoint[i],
                   trend: outliers.trend[i],
                   shift: outliers.shift[i],
@@ -8700,21 +7613,22 @@ var spc = (function (exports) {
                   identity: host.createSelectionIdBuilder()
                       .withCategory(inputData.categories, inputData.limitInputArgs.keys[i].id)
                       .createSelectionId(),
-                  highlighted: !isNullOrUndefined((_m = inputData.highlights) === null || _m === void 0 ? void 0 : _m[index]),
-                  tooltip: buildTooltip(table_row, (_o = inputData === null || inputData === void 0 ? void 0 : inputData.tooltips) === null || _o === void 0 ? void 0 : _o[index], settings, derivedSettings),
+                  highlighted: !isNullOrUndefined((_o = inputData.highlights) === null || _o === void 0 ? void 0 : _o[index]),
+                  tooltip: buildTooltip(table_row, (_p = inputData === null || inputData === void 0 ? void 0 : inputData.tooltips) === null || _p === void 0 ? void 0 : _p[index], settings, derivedSettings),
                   label: {
-                      text_value: (_p = inputData.labels) === null || _p === void 0 ? void 0 : _p[index],
+                      text_value: (_q = inputData.labels) === null || _q === void 0 ? void 0 : _q[index],
                       aesthetics: inputData.label_formatting[index],
-                      angle: null,
-                      distance: null,
-                      line_offset: null,
-                      marker_offset: null
+                      angle: undefined,
+                      distance: undefined,
+                      line_offset: undefined,
+                      marker_offset: undefined
                   }
               });
               this.tickLabels.push({ x: index, label: controlLimits.keys[i].label });
           }
       }
       initialiseGroupedLines() {
+          var _a, _b;
           const settings = this.inputSettings.settings[0];
           const derivedSettings = this.inputSettings.derivedSettings[0];
           const controlLimits = this.controlLimits[0];
@@ -8752,9 +7666,9 @@ var spc = (function (exports) {
           }
           const nLimits = controlLimits.keys.length;
           for (let i = 0; i < nLimits; i++) {
-              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || inputData.groupingIndexes.includes(i - 1);
+              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || ((_b = (_a = inputData.groupingIndexes) === null || _a === void 0 ? void 0 : _a.includes(i - 1)) !== null && _b !== void 0 ? _b : false);
               let isNewAltTarget = false;
-              if (i > 0 && settings.lines.show_alt_target) {
+              if (i > 0 && settings.lines.show_alt_target && !isNullOrUndefined(controlLimits.alt_targets)) {
                   isNewAltTarget = controlLimits.alt_targets[i] !== controlLimits.alt_targets[i - 1];
               }
               labels.forEach(label => {
@@ -8765,7 +7679,7 @@ var spc = (function (exports) {
                       const is_rebaseline = label !== "alt_targets" && isRebaselinePoint;
                       formattedLines.push({
                           x: controlLimits.keys[i].x,
-                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? null : (_a = controlLimits[label]) === null || _a === void 0 ? void 0 : _a[i],
+                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? undefined : (_a = controlLimits[label]) === null || _a === void 0 ? void 0 : _a[i],
                           group: label,
                           aesthetics: inputData.line_formatting[i]
                       });
@@ -8800,6 +7714,9 @@ var spc = (function (exports) {
               }
           }
           lines_to_scale.forEach(limit => {
+              if (isNullOrUndefined(controlLimits[limit])) {
+                  return;
+              }
               for (let i = 0; i < controlLimits[limit].length; i++) {
                   if (!isNullOrUndefined(controlLimits[limit][i])) {
                       controlLimits[limit][i] = controlLimits[limit][i] * multiplier;
@@ -8807,6 +7724,9 @@ var spc = (function (exports) {
               }
           });
           lines_to_truncate.forEach(limit => {
+              if (isNullOrUndefined(controlLimits[limit])) {
+                  return;
+              }
               for (let i = 0; i < controlLimits[limit].length; i++) {
                   if (!isNullOrUndefined(controlLimits[limit][i])) {
                       const lower_trunc = isValidNumber(inputSettings.spc.ll_truncate)
@@ -8821,7 +7741,6 @@ var spc = (function (exports) {
           });
       }
       flagOutliers(controlLimits, groupStartEndIndexes, inputSettings, derivedSettings) {
-          var _a, _b, _c, _d;
           const process_flag_type = inputSettings.outliers.process_flag_type;
           const improvement_direction = inputSettings.outliers.improvement_direction;
           const trend_n = inputSettings.outliers.trend_n;
@@ -8850,8 +7769,8 @@ var spc = (function (exports) {
                       const ast_limit = limit_map[inputSettings.outliers.astronomical_limit];
                       const ll_prefix = ast_specification ? "speclimits_lower" : "ll";
                       const ul_prefix = ast_specification ? "speclimits_upper" : "ul";
-                      const lower_limits = (_a = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ll_prefix}${ast_limit}`]) === null || _a === void 0 ? void 0 : _a.slice(start, end);
-                      const upper_limits = (_b = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ul_prefix}${ast_limit}`]) === null || _b === void 0 ? void 0 : _b.slice(start, end);
+                      const lower_limits = controlLimits[`${ll_prefix}${ast_limit}`].slice(start, end);
+                      const upper_limits = controlLimits[`${ul_prefix}${ast_limit}`].slice(start, end);
                       astronomical(group_values, lower_limits, upper_limits)
                           .forEach((flag, idx) => outliers.astpoint[start + idx] = flag);
                   }
@@ -8860,8 +7779,8 @@ var spc = (function (exports) {
                       const two_in_three_limit = limit_map[inputSettings.outliers.two_in_three_limit];
                       const ll_prefix = two_in_three_specification ? "speclimits_lower" : "ll";
                       const ul_prefix = two_in_three_specification ? "speclimits_upper" : "ul";
-                      const lower_warn_limits = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ll_prefix}${two_in_three_limit}`]) === null || _c === void 0 ? void 0 : _c.slice(start, end);
-                      const upper_warn_limits = (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits[`${ul_prefix}${two_in_three_limit}`]) === null || _d === void 0 ? void 0 : _d.slice(start, end);
+                      const lower_warn_limits = controlLimits[`${ll_prefix}${two_in_three_limit}`].slice(start, end);
+                      const upper_warn_limits = controlLimits[`${ul_prefix}${two_in_three_limit}`].slice(start, end);
                       twoInThree(group_values, lower_warn_limits, upper_warn_limits, highlight_series)
                           .forEach((flag, idx) => outliers.two_in_three[start + idx] = flag);
                   }
@@ -8904,15 +7823,16 @@ var spc = (function (exports) {
           table.append('tbody').classed("table-body", true);
       }
       update(options) {
-          var _a, _b, _c, _d, _e, _f;
+          var _a, _b, _c, _d, _e, _f, _g, _h;
           try {
               this.host.eventService.renderingStarted(options);
               this.svg.select(".errormessage").remove();
               const update_status = this.viewModel.update(options, this.host);
               if (!update_status.status) {
+                  this.plotProperties.displayPlot = false;
                   this.resizeCanvas(options.viewport.width, options.viewport.height);
                   if ((_f = (_e = (_d = (_c = (_b = (_a = this.viewModel) === null || _a === void 0 ? void 0 : _a.inputSettings) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.canvas) === null || _e === void 0 ? void 0 : _e.show_errors) !== null && _f !== void 0 ? _f : true) {
-                      this.svg.call(drawErrors, options, this.viewModel.colourPalette, update_status === null || update_status === void 0 ? void 0 : update_status.error, update_status === null || update_status === void 0 ? void 0 : update_status.type);
+                      this.svg.call(drawErrors, options, this.viewModel.colourPalette, (_g = update_status === null || update_status === void 0 ? void 0 : update_status.error) !== null && _g !== void 0 ? _g : "", (_h = update_status === null || update_status === void 0 ? void 0 : update_status.type) !== null && _h !== void 0 ? _h : "");
                   }
                   else {
                       this.svg.call(initialiseSVG, true);
@@ -9005,7 +7925,7 @@ var spc = (function (exports) {
           });
           dotsSelection.style("fill-opacity", (d) => d.aesthetics.opacity);
           dotsSelection.style("stroke-opacity", (d) => d.aesthetics.opacity);
-          tableSelection.style("opacity", (d) => d.aesthetics["table_opacity"]);
+          tableSelection.style("opacity", (d) => d.aesthetics.table_opacity);
           if (anyHighlights || (allSelectionIDs.length > 0)) {
               linesSelection.style("stroke-opacity", (d) => {
                   return getAesthetic(d[0], "lines", "opacity_unselected", this.viewModel.inputSettings.settings[0]);
