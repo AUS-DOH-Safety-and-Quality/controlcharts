@@ -10,6 +10,8 @@ jobs:
   update-libs:
     name: "Update Bundled PBI Visuals"
     runs-on: "ubuntu-latest"
+    env:
+      BRANCH: ""
 
     steps:
     - uses: actions/checkout@v6
@@ -42,9 +44,12 @@ jobs:
         # Generate PR Title
         TITLE="Update Bundled Lib(s): "
         if [ "${{ steps.spc-update.outputs.visual-updated }}" == "true" ]; then
-          TITLE+="PBISPC to ${{ steps.spc-update.outputs.visual-version }}, "
+          TITLE+="PBISPC to ${{ steps.spc-update.outputs.visual-version }}"
         fi
         if [ "${{ steps.funnel-update.outputs.visual-updated }}" == "true" ]; then
+          if [ "${{ steps.spc-update.outputs.visual-updated }}" == "true" ]; then
+            TITLE+=", "
+          fi
           TITLE+="PBIFUN to ${{ steps.funnel-update.outputs.visual-version }}"
         fi
 
