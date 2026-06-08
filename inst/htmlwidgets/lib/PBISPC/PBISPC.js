@@ -2851,11 +2851,11 @@ var spc = (function (exports) {
       const xupper = visualObj.plotProperties.xAxis.upper;
       selection
           .select(".linesgroup")
-          .selectAll(".linegroup")
+          .selectChildren()
           .data(visualObj.viewModel.groupedLines)
           .join("g")
-          .classed("linegroup", true)
           .each(function (currLineDataFull) {
+          select(this).classed(currLineDataFull[0] + "-linegroup", true);
           const currLine = currLineDataFull[0];
           const currLineData = currLineDataFull[1].filter((d) => between(d.x, xlower, xupper));
           const n = currLineData.length;
@@ -2863,38 +2863,70 @@ var spc = (function (exports) {
           let anyValid = false;
           let xValues = new Array(n);
           let yValues = new Array(n);
+          let stroke = new Array(n);
+          let strokeWidth = new Array(n);
+          let strokeDashArray = new Array(n);
+          let conditionalStroke = false;
+          let conditionalStrokeWidth = false;
+          let conditionalDashArray = false;
           for (let i = 0; i < n; i++) {
               const currPoint = currLineData[i];
               xValues[i] = visualObj.plotProperties.xScale(currPoint.x);
               yValues[i] = visualObj.plotProperties.yScale(currPoint.line_value);
+              stroke[i] = visualObj.viewModel.colourPalette.isHighContrast
+                  ? visualObj.viewModel.colourPalette.foregroundColour
+                  : getAesthetic(currLine, "lines", "colour", { lines: currPoint.aesthetics });
+              strokeWidth[i] = getAesthetic(currLine, "lines", "width", { lines: currPoint.aesthetics });
+              strokeDashArray[i] = getAesthetic(currLine, "lines", "type", { lines: currPoint.aesthetics });
+              if (i > 0) {
+                  conditionalStroke = conditionalStroke || (stroke[i] !== stroke[i - 1]);
+                  conditionalStrokeWidth = conditionalStrokeWidth || (strokeWidth[i] !== strokeWidth[i - 1]);
+                  conditionalDashArray = conditionalDashArray || (strokeDashArray[i] !== strokeDashArray[i - 1]);
+              }
               yValidStatus[i] = !isNullOrUndefined(currPoint.line_value) && between(currPoint.line_value, ylower, yupper);
               anyValid = anyValid || yValidStatus[i];
           }
+          const conditionalFormatting = conditionalStroke || conditionalStrokeWidth || conditionalDashArray;
           if (!anyValid) {
               select(this).selectAll("line").remove();
+              select(this).selectAll("path").remove();
               return;
           }
-          select(this)
-              .selectAll("line")
-              .data(currLineData.slice(1))
-              .join("line")
-              .attr("x1", (_, idx) => yValidStatus[idx] ? xValues[idx] : xValues[idx + 1])
-              .attr("y1", (_, idx) => yValidStatus[idx] ? yValues[idx] : yValues[idx + 1])
-              .attr("x2", (_, idx) => yValidStatus[idx + 1] ? xValues[idx + 1] : xValues[idx])
-              .attr("y2", (_, idx) => yValidStatus[idx + 1] ? yValues[idx + 1] : yValues[idx])
-              .attr("fill", "none")
-              .attr("stroke", (d) => {
-              return visualObj.viewModel.colourPalette.isHighContrast
-                  ? visualObj.viewModel.colourPalette.foregroundColour
-                  : getAesthetic(currLine, "lines", "colour", { lines: d.aesthetics });
-          })
-              .attr("stroke-width", (d) => getAesthetic(currLine, "lines", "width", { lines: d.aesthetics }))
-              .attr("stroke-dasharray", (d) => getAesthetic(currLine, "lines", "type", { lines: d.aesthetics }))
-              .attr("stroke-dashoffset", (_, idx) => {
-              const prev_x = visualObj.plotProperties.xScale(currLineData[0].x);
-              const curr_x = visualObj.plotProperties.xScale(currLineData[idx].x);
-              return curr_x - prev_x;
-          });
+          if (conditionalFormatting) {
+              select(this).selectAll("path").remove();
+              select(this)
+                  .selectAll("line")
+                  .data(currLineData.slice(1))
+                  .join("line")
+                  .attr("x1", (_, idx) => yValidStatus[idx] ? xValues[idx] : xValues[idx + 1])
+                  .attr("y1", (_, idx) => yValidStatus[idx] ? yValues[idx] : yValues[idx + 1])
+                  .attr("x2", (_, idx) => yValidStatus[idx + 1] ? xValues[idx + 1] : xValues[idx])
+                  .attr("y2", (_, idx) => yValidStatus[idx + 1] ? yValues[idx + 1] : yValues[idx])
+                  .attr("fill", "none")
+                  .attr("stroke", (_, idx) => stroke[idx])
+                  .attr("stroke-width", (_, idx) => strokeWidth[idx])
+                  .attr("stroke-dasharray", (_, idx) => strokeDashArray[idx])
+                  .attr("stroke-dashoffset", (_, idx) => {
+                  const prev_x = visualObj.plotProperties.xScale(currLineData[0].x);
+                  const curr_x = visualObj.plotProperties.xScale(currLineData[idx].x);
+                  return curr_x - prev_x;
+              });
+          }
+          else {
+              select(this).selectAll("line").remove();
+              select(this)
+                  .selectAll("path")
+                  .data([currLineDataFull[1]])
+                  .join("path")
+                  .attr("d", line()
+                  .x((_, idx) => yValidStatus[idx] ? xValues[idx] : xValues[idx + 1])
+                  .y((_, idx) => yValidStatus[idx] ? yValues[idx] : yValues[idx + 1])
+                  .defined((_, idx) => yValidStatus[idx]))
+                  .attr("fill", "none")
+                  .attr("stroke", (_, idx) => stroke[idx])
+                  .attr("stroke-dasharray", (_, idx) => strokeDashArray[idx])
+                  .attr("stroke-width", (_, idx) => strokeWidth[idx]);
+          }
       });
   }
 
@@ -7352,6 +7384,9 @@ var spc = (function (exports) {
               controlLimits = calcLimitsGrouped.reduce((all, curr) => {
                   const allInner = all;
                   Object.entries(all).forEach((entry, idx) => {
+                      if (isNullOrUndefined(entry[1])) {
+                          return;
+                      }
                       const newValues = entry[1].concat(Object.entries(curr)[idx][1]);
                       allInner[entry[0]] = newValues;
                   });
