@@ -189,7 +189,7 @@ var spc = (function (exports) {
     querySelectorAll: function(selector) { return this._parent.querySelectorAll(selector); }
   };
 
-  function constant$2(x) {
+  function constant$1(x) {
     return function() {
       return x;
     };
@@ -276,7 +276,7 @@ var spc = (function (exports) {
         parents = this._parents,
         groups = this._groups;
 
-    if (typeof value !== "function") value = constant$2(value);
+    if (typeof value !== "function") value = constant$1(value);
 
     for (var m = groups.length, update = new Array(m), enter = new Array(m), exit = new Array(m), j = 0; j < m; ++j) {
       var parent = parents[j],
@@ -762,7 +762,7 @@ var spc = (function (exports) {
     };
   }
 
-  function parseTypenames$1(typenames) {
+  function parseTypenames(typenames) {
     return typenames.trim().split(/^|\s+/).map(function(t) {
       var name = "", i = t.indexOf(".");
       if (i >= 0) name = t.slice(i + 1), t = t.slice(0, i);
@@ -805,7 +805,7 @@ var spc = (function (exports) {
   }
 
   function selection_on(typename, value, options) {
-    var typenames = parseTypenames$1(typename + ""), i, n = typenames.length, t;
+    var typenames = parseTypenames(typename + ""), i, n = typenames.length, t;
 
     if (arguments.length < 2) {
       var on = this.node().__on;
@@ -921,38 +921,13 @@ var spc = (function (exports) {
         : new Selection([[selector]], root);
   }
 
-  function sourceEvent(event) {
-    let sourceEvent;
-    while (sourceEvent = event.sourceEvent) event = sourceEvent;
-    return event;
-  }
-
-  function pointer(event, node) {
-    event = sourceEvent(event);
-    if (node === undefined) node = event.currentTarget;
-    if (node) {
-      var svg = node.ownerSVGElement || node;
-      if (svg.createSVGPoint) {
-        var point = svg.createSVGPoint();
-        point.x = event.clientX, point.y = event.clientY;
-        point = point.matrixTransform(node.getScreenCTM().inverse());
-        return [point.x, point.y];
-      }
-      if (node.getBoundingClientRect) {
-        var rect = node.getBoundingClientRect();
-        return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
-      }
-    }
-    return [event.pageX, event.pageY];
-  }
-
   function selectAll(selector) {
     return typeof selector === "string"
         ? new Selection([document.querySelectorAll(selector)], [document.documentElement])
         : new Selection([array$1(selector)], root);
   }
 
-  function constant$1(x) {
+  function constant(x) {
     return function constant() {
       return x;
     };
@@ -1176,14 +1151,14 @@ var spc = (function (exports) {
   }
 
   function line(x$1, y$1) {
-    var defined = constant$1(true),
+    var defined = constant(true),
         context = null,
         curve = curveLinear,
         output = null,
         path = withPath(line);
 
-    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant$1(x$1);
-    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant$1(y$1);
+    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant(x$1);
+    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant(y$1);
 
     function line(data) {
       var i,
@@ -1206,15 +1181,15 @@ var spc = (function (exports) {
     }
 
     line.x = function(_) {
-      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant$1(+_), line) : x$1;
+      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant(+_), line) : x$1;
     };
 
     line.y = function(_) {
-      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant$1(+_), line) : y$1;
+      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant(+_), line) : y$1;
     };
 
     line.defined = function(_) {
-      return arguments.length ? (defined = typeof _ === "function" ? _ : constant$1(!!_), line) : defined;
+      return arguments.length ? (defined = typeof _ === "function" ? _ : constant(!!_), line) : defined;
     };
 
     line.curve = function(_) {
@@ -1357,8 +1332,8 @@ var spc = (function (exports) {
     let context = null,
         path = withPath(symbol);
 
-    type = typeof type === "function" ? type : constant$1(type || circle);
-    size = typeof size === "function" ? size : constant$1(size === undefined ? 64 : +size);
+    type = typeof type === "function" ? type : constant(type || circle);
+    size = typeof size === "function" ? size : constant(size === undefined ? 64 : +size);
 
     function symbol() {
       let buffer;
@@ -1368,11 +1343,11 @@ var spc = (function (exports) {
     }
 
     symbol.type = function(_) {
-      return arguments.length ? (type = typeof _ === "function" ? _ : constant$1(_), symbol) : type;
+      return arguments.length ? (type = typeof _ === "function" ? _ : constant(_), symbol) : type;
     };
 
     symbol.size = function(_) {
-      return arguments.length ? (size = typeof _ === "function" ? _ : constant$1(+_), symbol) : size;
+      return arguments.length ? (size = typeof _ === "function" ? _ : constant(+_), symbol) : size;
     };
 
     symbol.context = function(_) {
@@ -1551,353 +1526,10 @@ var spc = (function (exports) {
     return axis(left, scale);
   }
 
-  var noop = {value: () => {}};
-
-  function dispatch() {
-    for (var i = 0, n = arguments.length, _ = {}, t; i < n; ++i) {
-      if (!(t = arguments[i] + "") || (t in _) || /[\s.]/.test(t)) throw new Error("illegal type: " + t);
-      _[t] = [];
-    }
-    return new Dispatch(_);
-  }
-
-  function Dispatch(_) {
-    this._ = _;
-  }
-
-  function parseTypenames(typenames, types) {
-    return typenames.trim().split(/^|\s+/).map(function(t) {
-      var name = "", i = t.indexOf(".");
-      if (i >= 0) name = t.slice(i + 1), t = t.slice(0, i);
-      if (t && !types.hasOwnProperty(t)) throw new Error("unknown type: " + t);
-      return {type: t, name: name};
-    });
-  }
-
-  Dispatch.prototype = dispatch.prototype = {
-    constructor: Dispatch,
-    on: function(typename, callback) {
-      var _ = this._,
-          T = parseTypenames(typename + "", _),
-          t,
-          i = -1,
-          n = T.length;
-
-      // If no callback was specified, return the callback of the given type and name.
-      if (arguments.length < 2) {
-        while (++i < n) if ((t = (typename = T[i]).type) && (t = get$1(_[t], typename.name))) return t;
-        return;
-      }
-
-      // If a type was specified, set the callback for the given type and name.
-      // Otherwise, if a null callback was specified, remove callbacks of the given name.
-      if (callback != null && typeof callback !== "function") throw new Error("invalid callback: " + callback);
-      while (++i < n) {
-        if (t = (typename = T[i]).type) _[t] = set(_[t], typename.name, callback);
-        else if (callback == null) for (t in _) _[t] = set(_[t], typename.name, null);
-      }
-
-      return this;
-    },
-    copy: function() {
-      var copy = {}, _ = this._;
-      for (var t in _) copy[t] = _[t].slice();
-      return new Dispatch(copy);
-    },
-    call: function(type, that) {
-      if ((n = arguments.length - 2) > 0) for (var args = new Array(n), i = 0, n, t; i < n; ++i) args[i] = arguments[i + 2];
-      if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
-      for (t = this._[type], i = 0, n = t.length; i < n; ++i) t[i].value.apply(that, args);
-    },
-    apply: function(type, that, args) {
-      if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
-      for (var t = this._[type], i = 0, n = t.length; i < n; ++i) t[i].value.apply(that, args);
-    }
-  };
-
-  function get$1(type, name) {
-    for (var i = 0, n = type.length, c; i < n; ++i) {
-      if ((c = type[i]).name === name) {
-        return c.value;
-      }
-    }
-  }
-
-  function set(type, name, callback) {
-    for (var i = 0, n = type.length; i < n; ++i) {
-      if (type[i].name === name) {
-        type[i] = noop, type = type.slice(0, i).concat(type.slice(i + 1));
-        break;
-      }
-    }
-    if (callback != null) type.push({name: name, value: callback});
-    return type;
-  }
-
-  // These are typically used in conjunction with noevent to ensure that we can
-  // preventDefault on the event.
-  const nonpassive = {passive: false};
-  const nonpassivecapture = {capture: true, passive: false};
-
-  function nopropagation(event) {
-    event.stopImmediatePropagation();
-  }
-
-  function noevent(event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-  }
-
-  function nodrag(view) {
-    var root = view.document.documentElement,
-        selection = select(view).on("dragstart.drag", noevent, nonpassivecapture);
-    if ("onselectstart" in root) {
-      selection.on("selectstart.drag", noevent, nonpassivecapture);
-    } else {
-      root.__noselect = root.style.MozUserSelect;
-      root.style.MozUserSelect = "none";
-    }
-  }
-
-  function yesdrag(view, noclick) {
-    var root = view.document.documentElement,
-        selection = select(view).on("dragstart.drag", null);
-    if (noclick) {
-      selection.on("click.drag", noevent, nonpassivecapture);
-      setTimeout(function() { selection.on("click.drag", null); }, 0);
-    }
-    if ("onselectstart" in root) {
-      selection.on("selectstart.drag", null);
-    } else {
-      root.style.MozUserSelect = root.__noselect;
-      delete root.__noselect;
-    }
-  }
-
-  var constant = x => () => x;
-
-  function DragEvent(type, {
-    sourceEvent,
-    subject,
-    target,
-    identifier,
-    active,
-    x, y, dx, dy,
-    dispatch
-  }) {
-    Object.defineProperties(this, {
-      type: {value: type, enumerable: true, configurable: true},
-      sourceEvent: {value: sourceEvent, enumerable: true, configurable: true},
-      subject: {value: subject, enumerable: true, configurable: true},
-      target: {value: target, enumerable: true, configurable: true},
-      identifier: {value: identifier, enumerable: true, configurable: true},
-      active: {value: active, enumerable: true, configurable: true},
-      x: {value: x, enumerable: true, configurable: true},
-      y: {value: y, enumerable: true, configurable: true},
-      dx: {value: dx, enumerable: true, configurable: true},
-      dy: {value: dy, enumerable: true, configurable: true},
-      _: {value: dispatch}
-    });
-  }
-
-  DragEvent.prototype.on = function() {
-    var value = this._.on.apply(this._, arguments);
-    return value === this._ ? this : value;
-  };
-
-  // Ignore right-click, since that should open the context menu.
-  function defaultFilter(event) {
-    return !event.ctrlKey && !event.button;
-  }
-
-  function defaultContainer() {
-    return this.parentNode;
-  }
-
-  function defaultSubject(event, d) {
-    return d == null ? {x: event.x, y: event.y} : d;
-  }
-
-  function defaultTouchable() {
-    return navigator.maxTouchPoints || ("ontouchstart" in this);
-  }
-
-  function drag() {
-    var filter = defaultFilter,
-        container = defaultContainer,
-        subject = defaultSubject,
-        touchable = defaultTouchable,
-        gestures = {},
-        listeners = dispatch("start", "drag", "end"),
-        active = 0,
-        mousedownx,
-        mousedowny,
-        mousemoving,
-        touchending,
-        clickDistance2 = 0;
-
-    function drag(selection) {
-      selection
-          .on("mousedown.drag", mousedowned)
-        .filter(touchable)
-          .on("touchstart.drag", touchstarted)
-          .on("touchmove.drag", touchmoved, nonpassive)
-          .on("touchend.drag touchcancel.drag", touchended)
-          .style("touch-action", "none")
-          .style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
-    }
-
-    function mousedowned(event, d) {
-      if (touchending || !filter.call(this, event, d)) return;
-      var gesture = beforestart(this, container.call(this, event, d), event, d, "mouse");
-      if (!gesture) return;
-      select(event.view)
-        .on("mousemove.drag", mousemoved, nonpassivecapture)
-        .on("mouseup.drag", mouseupped, nonpassivecapture);
-      nodrag(event.view);
-      nopropagation(event);
-      mousemoving = false;
-      mousedownx = event.clientX;
-      mousedowny = event.clientY;
-      gesture("start", event);
-    }
-
-    function mousemoved(event) {
-      noevent(event);
-      if (!mousemoving) {
-        var dx = event.clientX - mousedownx, dy = event.clientY - mousedowny;
-        mousemoving = dx * dx + dy * dy > clickDistance2;
-      }
-      gestures.mouse("drag", event);
-    }
-
-    function mouseupped(event) {
-      select(event.view).on("mousemove.drag mouseup.drag", null);
-      yesdrag(event.view, mousemoving);
-      noevent(event);
-      gestures.mouse("end", event);
-    }
-
-    function touchstarted(event, d) {
-      if (!filter.call(this, event, d)) return;
-      var touches = event.changedTouches,
-          c = container.call(this, event, d),
-          n = touches.length, i, gesture;
-
-      for (i = 0; i < n; ++i) {
-        if (gesture = beforestart(this, c, event, d, touches[i].identifier, touches[i])) {
-          nopropagation(event);
-          gesture("start", event, touches[i]);
-        }
-      }
-    }
-
-    function touchmoved(event) {
-      var touches = event.changedTouches,
-          n = touches.length, i, gesture;
-
-      for (i = 0; i < n; ++i) {
-        if (gesture = gestures[touches[i].identifier]) {
-          noevent(event);
-          gesture("drag", event, touches[i]);
-        }
-      }
-    }
-
-    function touchended(event) {
-      var touches = event.changedTouches,
-          n = touches.length, i, gesture;
-
-      if (touchending) clearTimeout(touchending);
-      touchending = setTimeout(function() { touchending = null; }, 500); // Ghost clicks are delayed!
-      for (i = 0; i < n; ++i) {
-        if (gesture = gestures[touches[i].identifier]) {
-          nopropagation(event);
-          gesture("end", event, touches[i]);
-        }
-      }
-    }
-
-    function beforestart(that, container, event, d, identifier, touch) {
-      var dispatch = listeners.copy(),
-          p = pointer(touch || event, container), dx, dy,
-          s;
-
-      if ((s = subject.call(that, new DragEvent("beforestart", {
-          sourceEvent: event,
-          target: drag,
-          identifier,
-          active,
-          x: p[0],
-          y: p[1],
-          dx: 0,
-          dy: 0,
-          dispatch
-        }), d)) == null) return;
-
-      dx = s.x - p[0] || 0;
-      dy = s.y - p[1] || 0;
-
-      return function gesture(type, event, touch) {
-        var p0 = p, n;
-        switch (type) {
-          case "start": gestures[identifier] = gesture, n = active++; break;
-          case "end": delete gestures[identifier], --active; // falls through
-          case "drag": p = pointer(touch || event, container), n = active; break;
-        }
-        dispatch.call(
-          type,
-          that,
-          new DragEvent(type, {
-            sourceEvent: event,
-            subject: s,
-            target: drag,
-            identifier,
-            active: n,
-            x: p[0] + dx,
-            y: p[1] + dy,
-            dx: p[0] - p0[0],
-            dy: p[1] - p0[1],
-            dispatch
-          }),
-          d
-        );
-      };
-    }
-
-    drag.filter = function(_) {
-      return arguments.length ? (filter = typeof _ === "function" ? _ : constant(!!_), drag) : filter;
-    };
-
-    drag.container = function(_) {
-      return arguments.length ? (container = typeof _ === "function" ? _ : constant(_), drag) : container;
-    };
-
-    drag.subject = function(_) {
-      return arguments.length ? (subject = typeof _ === "function" ? _ : constant(_), drag) : subject;
-    };
-
-    drag.touchable = function(_) {
-      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant(!!_), drag) : touchable;
-    };
-
-    drag.on = function() {
-      var value = listeners.on.apply(listeners, arguments);
-      return value === listeners ? drag : value;
-    };
-
-    drag.clickDistance = function(_) {
-      return arguments.length ? (clickDistance2 = (_ = +_) * _, drag) : Math.sqrt(clickDistance2);
-    };
-
-    return drag;
-  }
-
   var d3 = /*#__PURE__*/Object.freeze({
     __proto__: null,
     axisBottom: axisBottom,
     axisLeft: axisLeft,
-    drag: drag,
     line: line,
     select: select,
     selectAll: selectAll,
@@ -2022,7 +1654,7 @@ var spc = (function (exports) {
           valid: validValues,
           items: new Array(numValues)
       };
-      const transformFun = valueTransforms[(displayTransform !== null && displayTransform !== void 0 ? displayTransform : "none")];
+      const transformFun = valueTransforms[(displayTransform ?? "none")];
       for (let i = 0; i < numValues; i++) {
           rtn.items[i] = {
               displayName: displayNames ? displayNames[i] : transformFun(validValues[i]),
@@ -3831,7 +3463,7 @@ var spc = (function (exports) {
       }
       const imp_direction = inputSettings.outliers.improvement_direction;
       const N = controlLimits.ll99.length - 1;
-      if (isNullOrUndefined(controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.alt_targets) || imp_direction === "neutral") {
+      if (isNullOrUndefined(controlLimits?.alt_targets) || imp_direction === "neutral") {
           return "none";
       }
       const alt_target = controlLimits.alt_targets[N];
@@ -4075,13 +3707,12 @@ var spc = (function (exports) {
           }).style("background-color", "lightgray");
       })
           .on("mouseout", (event) => {
-          var _a;
           let currentTD = select(event.target).select(function () {
               return this.closest("td");
           });
           let rowData = select(currentTD.node().parentNode).datum();
           if ("table_body_bg_colour" in rowData.aesthetics) {
-              currentTD.style("background-color", (_a = rowData.aesthetics.table_body_bg_colour) !== null && _a !== void 0 ? _a : "inherit");
+              currentTD.style("background-color", rowData.aesthetics.table_body_bg_colour ?? "inherit");
           }
           else {
               currentTD.style("background-color", "inherit");
@@ -4133,7 +3764,6 @@ var spc = (function (exports) {
       const draw_icons = inputSettings.nhs_icons.show_variation_icons || inputSettings.nhs_icons.show_assurance_icons;
       const thisSelDims = tableCells.node().getBoundingClientRect();
       tableCells.each(function (d) {
-          var _a;
           const currNode = select(this);
           const parentNode = select(currNode.property("parentNode"));
           const rowData = parentNode.datum();
@@ -4154,7 +3784,7 @@ var spc = (function (exports) {
           else {
               const value = typeof d.value === "number"
                   ? d.value.toFixed(inputSettings.spc.sig_figs)
-                  : ((_a = d.value) !== null && _a !== void 0 ? _a : "");
+                  : (d.value ?? "");
               currNode.text(value).classed("cell-text", true);
           }
           const tableAesthetics = ("table_body_bg_colour" in rowData.aesthetics)
@@ -4214,7 +3844,6 @@ var spc = (function (exports) {
   }
 
   function getLabelAttributes(d, visualObj) {
-      var _a, _b;
       const label_direction_mult = d.label.aesthetics.label_position === "top" ? -1 : 1;
       const plotHeight = visualObj.viewModel.svgHeight;
       const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
@@ -4225,8 +3854,8 @@ var spc = (function (exports) {
       let side_length = label_position === "top" ? (y - label_initial) : (label_initial - y);
       const x_val = visualObj.plotProperties.xScale(d.x);
       const y_val = visualObj.plotProperties.yScale(d.value);
-      const theta = (_a = d.label.angle) !== null && _a !== void 0 ? _a : (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
-      side_length = (_b = d.label.distance) !== null && _b !== void 0 ? _b : (Math.min(side_length, d.label.aesthetics.label_line_max_length));
+      const theta = d.label.angle ?? (d.label.aesthetics.label_angle_offset + label_direction_mult * 90);
+      side_length = d.label.distance ?? (Math.min(side_length, d.label.aesthetics.label_line_max_length));
       let line_offset = d.label.aesthetics.label_line_offset;
       line_offset = label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
       let marker_offset = d.label.aesthetics.label_marker_offset + d.label.aesthetics.label_size / 2;
@@ -4250,51 +3879,33 @@ var spc = (function (exports) {
       };
   }
   function drawLabels(selection, visualObj) {
-      var _a;
       if (!visualObj.viewModel.inputSettings.settings[0].labels.show_labels
-          || !((_a = visualObj.viewModel.inputData[0]) === null || _a === void 0 ? void 0 : _a.anyLabels)) {
+          || !visualObj.viewModel.inputData[0]?.anyLabels) {
           selection.select(".text-labels").remove();
           return;
       }
       if (selection.select(".text-labels").empty()) {
           selection.append("g").classed("text-labels", true);
       }
-      const dragFun = drag().on("drag", function (e) {
-          const d = e.subject;
-          const x_val = visualObj.plotProperties.xScale(d.x);
-          const y_val = visualObj.plotProperties.yScale(d.value);
-          const angle = Math.atan2(e.sourceEvent.y - y_val, e.sourceEvent.x - x_val) * 180 / Math.PI;
-          const distance = Math.sqrt(Math.pow(e.sourceEvent.y - y_val, 2) + Math.pow(e.sourceEvent.x - x_val, 2));
-          const marker_offset = 10;
-          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
-          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
-          e.subject.label.angle = angle;
-          e.subject.label.distance = distance;
-          select(this)
-              .select("text")
-              .attr("x", e.sourceEvent.x)
-              .attr("y", e.sourceEvent.y);
-          let line_offset = d.label.aesthetics.label_line_offset;
-          line_offset = d.label.aesthetics.label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
-          select(this)
-              .select("line")
-              .attr("x1", e.sourceEvent.x)
-              .attr("y1", e.sourceEvent.y + line_offset)
-              .attr("x2", x_val + x_offset)
-              .attr("y2", y_val + y_offset);
-          select(this)
-              .select("path")
-              .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
-      });
+      function screenToSvg(clientX, clientY, svg) {
+          const point = svg.createSVGPoint();
+          point.x = clientX;
+          point.y = clientY;
+          const ctm = svg.getScreenCTM();
+          if (!ctm)
+              return { x: 0, y: 0 };
+          const inv = ctm.inverse();
+          const transformed = point.matrixTransform(inv);
+          return { x: transformed.x, y: transformed.y };
+      }
       selection.select(".text-labels")
           .selectAll(".text-group-inner")
           .data(visualObj.viewModel.plotPoints[0])
           .join("g")
           .classed("text-group-inner", true)
           .each(function (d) {
-          var _a, _b;
           const textGroup = select(this);
-          if (((_a = d.label.text_value) !== null && _a !== void 0 ? _a : "") === "") {
+          if ((d.label.text_value ?? "") === "") {
               textGroup.remove();
               return;
           }
@@ -4313,7 +3924,7 @@ var spc = (function (exports) {
           textElement
               .attr("x", x)
               .attr("y", y)
-              .text((_b = d.label.text_value) !== null && _b !== void 0 ? _b : "")
+              .text(d.label.text_value ?? "")
               .style("text-anchor", "middle")
               .style("font-size", `${d.label.aesthetics.label_size}px`)
               .style("font-family", d.label.aesthetics.label_font)
@@ -4336,7 +3947,52 @@ var spc = (function (exports) {
               .style("fill", d.label.aesthetics.label_marker_colour)
               .style("stroke", d.label.aesthetics.label_marker_outline_colour);
           if (!visualObj.viewModel.headless) {
-              textGroup.call(dragFun);
+              const x_val = visualObj.plotProperties.xScale(d.x);
+              const y_val = visualObj.plotProperties.yScale(d.value);
+              const marker_offset = 10;
+              const svgEl = visualObj.svg.node();
+              textGroup
+                  .style("touch-action", "none")
+                  .on("pointerdown", function (event) {
+                  const g = this;
+                  g.setPointerCapture(event.pointerId);
+                  const onMove = (e) => {
+                      const { x, y } = screenToSvg(e.clientX, e.clientY, svgEl);
+                      const angle = Math.atan2(y - y_val, x - x_val) * 180 / Math.PI;
+                      const distance = Math.sqrt(Math.pow(y - y_val, 2) + Math.pow(x - x_val, 2));
+                      d.label.angle = angle;
+                      d.label.distance = distance;
+                      const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
+                      const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
+                      let line_offset = d.label.aesthetics.label_line_offset;
+                      line_offset = d.label.aesthetics.label_position === "top"
+                          ? line_offset
+                          : -(line_offset + d.label.aesthetics.label_size / 2);
+                      textGroup
+                          .select("text")
+                          .attr("x", x)
+                          .attr("y", y);
+                      textGroup
+                          .select("line")
+                          .attr("x1", x)
+                          .attr("y1", y + line_offset)
+                          .attr("x2", x_val + x_offset)
+                          .attr("y2", y_val + y_offset);
+                      textGroup
+                          .select("path")
+                          .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
+                  };
+                  const onUp = (e) => {
+                      const g2 = this;
+                      g2.releasePointerCapture(e.pointerId);
+                      g2.removeEventListener("pointermove", onMove);
+                      g2.removeEventListener("pointerup", onUp);
+                      g2.removeEventListener("pointercancel", onUp);
+                  };
+                  this.addEventListener("pointermove", onMove);
+                  this.addEventListener("pointerup", onUp);
+                  this.addEventListener("pointercancel", onUp);
+              });
           }
       });
   }
@@ -4587,7 +4243,7 @@ var spc = (function (exports) {
       };
       scale.ticks = function (count) {
           const [d0, d1] = domain;
-          count !== null && count !== void 0 ? count : (count = 10);
+          count ?? (count = 10);
           if (count <= 0) {
               return [];
           }
@@ -4643,8 +4299,7 @@ var spc = (function (exports) {
           this.yScale = scaleLinear().domain([0, 1]).range([0, 1]);
       }
       update(options, viewModel) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p;
-          const plotPoints = (_a = viewModel.plotPoints[0]) !== null && _a !== void 0 ? _a : [];
+          const plotPoints = viewModel.plotPoints[0] ?? [];
           const controlLimits = viewModel.controlLimits[0];
           const inputData = viewModel.inputData[0];
           const inputSettings = viewModel.inputSettings.settings[0];
@@ -4655,16 +4310,16 @@ var spc = (function (exports) {
           let xUpperLimit = inputSettings.x_axis.xlimit_u;
           let yLowerLimit = inputSettings.y_axis.ylimit_l;
           let yUpperLimit = inputSettings.y_axis.ylimit_u;
-          if (((_b = inputData === null || inputData === void 0 ? void 0 : inputData.validationStatus) === null || _b === void 0 ? void 0 : _b.status) == 0 && controlLimits) {
+          if (inputData?.validationStatus?.status == 0 && controlLimits) {
               xUpperLimit = !isNullOrUndefined(xUpperLimit) ? xUpperLimit : max(controlLimits.keys.map(d => d.x));
               const limitMultiplier = inputSettings.y_axis.limit_multiplier;
               const values = controlLimits.values.filter(d => isValidNumber(d));
-              const ul99 = (_d = (_c = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _c === void 0 ? void 0 : _c.filter(d => isValidNumber(d))) !== null && _d !== void 0 ? _d : [];
-              const speclimits_upper = (_f = (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _e === void 0 ? void 0 : _e.filter(d => isValidNumber(d))) !== null && _f !== void 0 ? _f : [];
-              const ll99 = (_h = (_g = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _g === void 0 ? void 0 : _g.filter(d => isValidNumber(d))) !== null && _h !== void 0 ? _h : [];
-              const speclimits_lower = (_k = (_j = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _j === void 0 ? void 0 : _j.filter(d => isValidNumber(d))) !== null && _k !== void 0 ? _k : [];
-              const alt_targets = (_m = (_l = controlLimits.alt_targets) === null || _l === void 0 ? void 0 : _l.filter(d => isValidNumber(d))) !== null && _m !== void 0 ? _m : [];
-              const targets = (_p = (_o = controlLimits.targets) === null || _o === void 0 ? void 0 : _o.filter(d => isValidNumber(d))) !== null && _p !== void 0 ? _p : [];
+              const ul99 = controlLimits?.ul99?.filter(d => isValidNumber(d)) ?? [];
+              const speclimits_upper = controlLimits?.speclimits_upper?.filter(d => isValidNumber(d)) ?? [];
+              const ll99 = controlLimits?.ll99?.filter(d => isValidNumber(d)) ?? [];
+              const speclimits_lower = controlLimits?.speclimits_lower?.filter(d => isValidNumber(d)) ?? [];
+              const alt_targets = controlLimits.alt_targets?.filter(d => isValidNumber(d)) ?? [];
+              const targets = controlLimits.targets?.filter(d => isValidNumber(d)) ?? [];
               const maxValue = max(values);
               const maxValueOrLimit = max((values.concat(ul99).concat(speclimits_upper).concat(alt_targets)).filter(d => isValidNumber(d)));
               const minValueOrLimit = min((values.concat(ll99).concat(speclimits_lower).concat(alt_targets)).filter(d => isValidNumber(d)));
@@ -4679,10 +4334,10 @@ var spc = (function (exports) {
               const upperLimitRaw = maxTarget + (maxValueOrLimit - maxTarget) * limitMultiplier;
               const lowerLimitRaw = minTarget - (minTarget - minValueOrLimit) * limitMultiplier;
               const multiplier = derivedSettings.multiplier;
-              yUpperLimit !== null && yUpperLimit !== void 0 ? yUpperLimit : (yUpperLimit = (derivedSettings.percentLabels && !(maxValue > (1 * multiplier)))
+              yUpperLimit ?? (yUpperLimit = (derivedSettings.percentLabels && !(maxValue > (1 * multiplier)))
                   ? Math.min(upperLimitRaw, 1 * multiplier)
                   : upperLimitRaw);
-              yLowerLimit !== null && yLowerLimit !== void 0 ? yLowerLimit : (yLowerLimit = derivedSettings.percentLabels
+              yLowerLimit ?? (yLowerLimit = derivedSettings.percentLabels
                   ? Math.max(lowerLimitRaw, 0)
                   : lowerLimitRaw);
               const keysToPlot = controlLimits.keys.map(d => d.x);
@@ -4917,7 +4572,7 @@ var spc = (function (exports) {
       const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
       const n_sub = args.subset_points.length;
       const numerators = args.numerators;
-      const denominators = args === null || args === void 0 ? void 0 : args.denominators;
+      const denominators = args?.denominators;
       const subset_points = args.subset_points;
       let ratio_subset = new Array(n_sub);
       for (let i = 0; i < n_sub; i++) {
@@ -4991,7 +4646,7 @@ var spc = (function (exports) {
       const useRatio = isNullOrUndefined(args.denominators) ? false : args.denominators.length > 0;
       const n_sub = args.subset_points.length;
       const numerators = args.numerators;
-      const denominators = args === null || args === void 0 ? void 0 : args.denominators;
+      const denominators = args?.denominators;
       const subset_points = args.subset_points;
       let ratio_subset = new Array(n_sub);
       for (let i = 0; i < n_sub; i++) {
@@ -6001,19 +5656,17 @@ var spc = (function (exports) {
   }
 
   function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
-      var _a, _b, _c;
-      const propertyValue = (_a = settingObject === null || settingObject === void 0 ? void 0 : settingObject[settingGroup]) === null || _a === void 0 ? void 0 : _a[settingName];
+      const propertyValue = settingObject?.[settingGroup]?.[settingName];
       if (isNullOrUndefined(propertyValue)) {
           return defaultValue;
       }
-      return ((_c = (_b = propertyValue === null || propertyValue === void 0 ? void 0 : propertyValue.solid) === null || _b === void 0 ? void 0 : _b.color) !== null && _c !== void 0 ? _c : propertyValue);
+      return (propertyValue?.solid?.color ?? propertyValue);
   }
   function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings, idxs) {
-      var _a, _b, _c;
-      if (isNullOrUndefined(categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories)) {
+      if (isNullOrUndefined(categoricalView?.categories)) {
           return { values: undefined, validation: { status: 0, messages: rep(new Array(), 1) } };
       }
-      if (((_c = (_b = (_a = categoricalView === null || categoricalView === void 0 ? void 0 : categoricalView.categories) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.identity) === null || _c === void 0 ? void 0 : _c.length) === 0) {
+      if (categoricalView?.categories?.[0]?.identity?.length === 0) {
           return { values: undefined, validation: { status: 0, messages: rep(new Array(), 1) } };
       }
       const inputCategories = categoricalView.categories[0];
@@ -6024,7 +5677,6 @@ var spc = (function (exports) {
       for (let i = 0; i < n; i++) {
           const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
           rtn[i] = Object.fromEntries(settingNames.map(settingName => {
-              var _a, _b, _c, _d;
               const defaultSetting = get(defaultSettings, settingGroupName, settingName);
               let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
               extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
@@ -6044,8 +5696,8 @@ var spc = (function (exports) {
                           message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
                       }
                   }
-                  else if ((!isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.minValue) || !isNullOrUndefined(valid === null || valid === void 0 ? void 0 : valid.maxValue)) && !between(extractedSetting, (_a = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _a === void 0 ? void 0 : _a.value, (_b = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _b === void 0 ? void 0 : _b.value)) {
-                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${(_c = valid === null || valid === void 0 ? void 0 : valid.minValue) === null || _c === void 0 ? void 0 : _c.value} and ${(_d = valid === null || valid === void 0 ? void 0 : valid.maxValue) === null || _d === void 0 ? void 0 : _d.value}`;
+                  else if ((!isNullOrUndefined(valid?.minValue) || !isNullOrUndefined(valid?.maxValue)) && !between(extractedSetting, valid?.minValue?.value, valid?.maxValue?.value)) {
+                      message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${valid?.minValue?.value} and ${valid?.maxValue?.value}`;
                   }
                   if (message !== "") {
                       extractedSetting = defaultSetting;
@@ -6152,8 +5804,8 @@ var spc = (function (exports) {
               settingNames.forEach((settingName) => {
                   groupIdxs.forEach((idx, idx_idx) => {
                       this.settings[idx_idx][settingGroup][settingName]
-                          = (condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values)
-                              ? condFormatting === null || condFormatting === void 0 ? void 0 : condFormatting.values[idx[0]][settingName]
+                          = condFormatting?.values
+                              ? condFormatting?.values[idx[0]][settingName]
                               : get(defaultSettings, settingGroup, settingName);
                   });
               });
@@ -6476,16 +6128,16 @@ var spc = (function (exports) {
       if (!inputType.temporal) {
           return [];
       }
-      if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "DayOfMonth") {
+      if (inputType?.["category"] === "DayOfMonth") {
           return ["day", (inputValue)];
       }
-      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Months") {
+      else if (inputType?.["category"] === "Months") {
           return ["month", monthNameToNumber[(inputValue)]];
       }
-      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Quarters") {
+      else if (inputType?.["category"] === "Quarters") {
           return ["quarter", inputValue];
       }
-      else if ((inputType === null || inputType === void 0 ? void 0 : inputType["category"]) === "Years") {
+      else if (inputType?.["category"] === "Years") {
           return ["year", (inputValue)];
       }
       else {
@@ -6493,7 +6145,6 @@ var spc = (function (exports) {
       }
   }
   function parseInputDates(inputs, idxs) {
-      var _a, _b, _c, _d, _e;
       const n_keys = idxs.length;
       let inputDates = [];
       const inputQuarters = [];
@@ -6504,15 +6155,15 @@ var spc = (function (exports) {
                   datePartsArray.push(temporalTypeToKey(inputs[j].source.type, inputs[j].values[idxs[i]]));
               }
               const datePartsObj = Object.fromEntries(datePartsArray);
-              if (datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.quarter) {
+              if (datePartsObj?.quarter) {
                   inputQuarters.push(datePartsObj.quarter);
               }
-              inputDates[i] = new Date((_a = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.year) !== null && _a !== void 0 ? _a : 1970, (_b = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.month) !== null && _b !== void 0 ? _b : 0, (_c = datePartsObj === null || datePartsObj === void 0 ? void 0 : datePartsObj.day) !== null && _c !== void 0 ? _c : 1);
+              inputDates[i] = new Date(datePartsObj?.year ?? 1970, datePartsObj?.month ?? 0, datePartsObj?.day ?? 1);
           }
       }
       else {
           for (let i = 0; i < n_keys; i++) {
-              inputDates[i] = isNullOrUndefined((_d = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _d === void 0 ? void 0 : _d.values[idxs[i]]) ? undefined : new Date(((_e = inputs === null || inputs === void 0 ? void 0 : inputs[0]) === null || _e === void 0 ? void 0 : _e.values[idxs[i]]));
+              inputDates[i] = isNullOrUndefined(inputs?.[0]?.values[idxs[i]]) ? undefined : new Date((inputs?.[0]?.values[idxs[i]]));
           }
       }
       return { dates: inputDates, quarters: inputQuarters };
@@ -6574,17 +6225,16 @@ var spc = (function (exports) {
   }
 
   function formatKeys(col, inputSettings, idxs) {
-      var _a, _b, _c;
       const n_keys = idxs.length;
       let ret = new Array(n_keys);
-      if (col.length === 1 && !((_a = col[0].source.type) === null || _a === void 0 ? void 0 : _a.temporal)) {
+      if (col.length === 1 && !(col[0].source.type?.temporal)) {
           for (let i = 0; i < n_keys; i++) {
               ret[i] = isNullOrUndefined(col[0].values[idxs[i]]) ? undefined : String(col[0].values[idxs[i]]);
           }
           return ret;
       }
       const delim = inputSettings.dates.date_format_delim;
-      if (!(col.every(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.type) === null || _b === void 0 ? void 0 : _b.temporal; }))) {
+      if (!(col.every(d => d.source?.type?.temporal))) {
           const blankKey = rep("", col.length).join(delim);
           for (let i = 0; i < n_keys; i++) {
               const currKey = col.map(keyCol => keyCol.values[idxs[i]]).join(delim);
@@ -6604,16 +6254,18 @@ var spc = (function (exports) {
           else {
               const datePartsRecord = formatDateParts(inputDates.dates[i], locale, formatOptions);
               const datePartStrings = [datePartsRecord.weekday + " " + datePartsRecord[day_elem],
-                  datePartsRecord[month_elem], (_c = (_b = inputDates.quarters) === null || _b === void 0 ? void 0 : _b[i]) !== null && _c !== void 0 ? _c : "", datePartsRecord.year];
+                  datePartsRecord[month_elem],
+                  inputDates.quarters?.[i] ?? "",
+                  datePartsRecord.year];
               ret[i] = datePartStrings.filter(d => String(d).trim()).join(delim);
           }
       }
       return ret;
   }
   function extractKeys(inputView, inputSettings, idxs) {
-      const col = inputView.categories.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b["key"]; });
+      const col = inputView.categories.filter(viewColumn => viewColumn.source?.roles?.["key"]);
       const groupedCols = {};
-      let queryNames = col.map(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.queryName) !== null && _b !== void 0 ? _b : ""; });
+      let queryNames = col.map(d => d.source?.queryName ?? "");
       const uniqueQueryNames = new Set();
       queryNames = queryNames.map((queryName, idx) => {
           if (uniqueQueryNames.has(queryName)) {
@@ -6655,9 +6307,8 @@ var spc = (function (exports) {
       let ret = new Array(n_keys);
       for (let i = 0; i < n_keys; i++) {
           ret[i] = tooltipColumns.map(viewColumn => {
-              var _a;
               const config = { valueType: viewColumn.source.type, dateSettings: inputSettings.dates };
-              const tooltipValueFormatted = formatPrimitiveValue((_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.values) === null || _a === void 0 ? void 0 : _a[idxs[i]], config);
+              const tooltipValueFormatted = formatPrimitiveValue(viewColumn?.values?.[idxs[i]], config);
               return {
                   displayName: viewColumn.source.displayName,
                   value: tooltipValueFormatted
@@ -6667,14 +6318,13 @@ var spc = (function (exports) {
       return ret;
   }
   function extractDataColumn(inputView, name, inputSettings, idxs) {
-      var _a, _b, _c, _d;
       if (name === "key") {
           return extractKeys(inputView, inputSettings, idxs);
       }
       if (name === "tooltips") {
           return extractTooltips(inputView, inputSettings, idxs);
       }
-      const columnRaw = inputView.values.filter(viewColumn => { var _a, _b; return (_b = (_a = viewColumn === null || viewColumn === void 0 ? void 0 : viewColumn.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b[name]; });
+      const columnRaw = inputView.values.filter(viewColumn => viewColumn?.source?.roles?.[name]);
       if (columnRaw.length === 0) {
           return undefined;
       }
@@ -6682,13 +6332,13 @@ var spc = (function (exports) {
       if (name === "groupings" || name === "labels") {
           let ret = new Array(n_keys);
           for (let i = 0; i < n_keys; i++) {
-              ret[i] = isNullOrUndefined((_b = (_a = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _a === void 0 ? void 0 : _a.values) === null || _b === void 0 ? void 0 : _b[idxs[i]]) ? undefined : String(columnRaw[0].values[idxs[i]]);
+              ret[i] = isNullOrUndefined(columnRaw?.[0]?.values?.[idxs[i]]) ? undefined : String(columnRaw[0].values[idxs[i]]);
           }
           return ret;
       }
       let ret = new Array(n_keys);
       for (let i = 0; i < n_keys; i++) {
-          ret[i] = isNullOrUndefined((_d = (_c = columnRaw === null || columnRaw === void 0 ? void 0 : columnRaw[0]) === null || _c === void 0 ? void 0 : _c.values) === null || _d === void 0 ? void 0 : _d[idxs[i]]) ? undefined : Number(columnRaw[0].values[idxs[i]]);
+          ret[i] = isNullOrUndefined(columnRaw?.[0]?.values?.[idxs[i]]) ? undefined : Number(columnRaw[0].values[idxs[i]]);
       }
       return ret;
   }
@@ -6776,7 +6426,7 @@ var spc = (function (exports) {
           || (chart_type_props.denominator_optional && !isNullOrUndefined(denominators) && denominators.length > 0);
       const n = idxs.length;
       for (let i = 0; i < n; i++) {
-          const validation = validateInputDataImpl(keys[i], numerators === null || numerators === void 0 ? void 0 : numerators[i], denominators === null || denominators === void 0 ? void 0 : denominators[i], xbar_sds === null || xbar_sds === void 0 ? void 0 : xbar_sds[i], chart_type_props, check_denom);
+          const validation = validateInputDataImpl(keys[i], numerators?.[i], denominators?.[i], xbar_sds?.[i], chart_type_props, check_denom);
           messages.push(validation.message);
           all_status.push(validation.type);
       }
@@ -6886,7 +6536,6 @@ var spc = (function (exports) {
       };
   }
   function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
-      var _a, _b, _c, _d, _e, _f, _g;
       const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
       const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
       const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
@@ -6894,14 +6543,14 @@ var spc = (function (exports) {
       const tooltips = extractDataColumn(inputView, "tooltips", inputSettings, idxs);
       const groupings = extractDataColumn(inputView, "groupings", inputSettings, idxs);
       const labels = extractDataColumn(inputView, "labels", inputSettings, idxs);
-      const highlights = isNullOrUndefined((_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) ? undefined : idxs.map(d => { var _a, _b, _c; return (_c = (_b = (_a = inputView === null || inputView === void 0 ? void 0 : inputView.values) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.highlights) === null || _c === void 0 ? void 0 : _c[d]; });
-      let scatter_cond = (_c = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)) === null || _c === void 0 ? void 0 : _c.values;
-      let lines_cond = (_d = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)) === null || _d === void 0 ? void 0 : _d.values;
-      let labels_cond = (_e = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)) === null || _e === void 0 ? void 0 : _e.values;
+      const highlights = isNullOrUndefined(inputView?.values?.[0]?.highlights) ? undefined : idxs.map(d => inputView?.values?.[0]?.highlights?.[d]);
+      let scatter_cond = extractConditionalFormatting(inputView, "scatter", inputSettings, idxs)?.values;
+      let lines_cond = extractConditionalFormatting(inputView, "lines", inputSettings, idxs)?.values;
+      let labels_cond = extractConditionalFormatting(inputView, "labels", inputSettings, idxs)?.values;
       let alt_targets = inputSettings.lines.show_alt_target ? lines_cond.map(d => d.alt_target) : undefined;
       let speclimits_lower = inputSettings.lines.show_specification ? lines_cond.map(d => d.specification_lower) : undefined;
       let speclimits_upper = inputSettings.lines.show_specification ? lines_cond.map(d => d.specification_upper) : undefined;
-      let spcSettings = (_f = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)) === null || _f === void 0 ? void 0 : _f.values;
+      let spcSettings = extractConditionalFormatting(inputView, "spc", inputSettings, idxs)?.values;
       const inputValidStatus = validateInputData(keys, numerators, denominators, xbar_sds, derivedSettings.chart_type_props, idxs);
       if (inputValidStatus.status !== 0) {
           return invalidInputData(inputValidStatus);
@@ -6942,9 +6591,9 @@ var spc = (function (exports) {
       }
       const valid_alt_targets = isNullOrUndefined(alt_targets) ? undefined : extractValues(alt_targets, valid_ids);
       if (inputSettings.nhs_icons.show_assurance_icons) {
-          const alt_targets_length = (_g = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets.length) !== null && _g !== void 0 ? _g : 0;
+          const alt_targets_length = valid_alt_targets?.length ?? 0;
           if (alt_targets_length > 0) {
-              const last_target = valid_alt_targets === null || valid_alt_targets === void 0 ? void 0 : valid_alt_targets[alt_targets_length - 1];
+              const last_target = valid_alt_targets?.[alt_targets_length - 1];
               if (isNullOrUndefined(last_target)) {
                   removalMessages.push("NHS Assurance icon requires a valid alt. target at last observation.");
               }
@@ -6998,22 +6647,23 @@ var spc = (function (exports) {
   }
 
   function validateDataViewColumns(inputDV, inputSettingsClass) {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
-      if (isNullOrUndefined(inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) || (((_e = (_d = (_c = (_b = (_a = inputDV === null || inputDV === void 0 ? void 0 : inputDV[0]) === null || _a === void 0 ? void 0 : _a.categorical) === null || _b === void 0 ? void 0 : _b.categories) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.identity) === null || _e === void 0 ? void 0 : _e.length) === 0)) {
+      if (isNullOrUndefined(inputDV?.[0]) || (inputDV?.[0]?.categorical?.categories?.[0]?.identity?.length === 0)) {
           return "";
       }
-      if (isNullOrUndefined((_g = (_f = inputDV[0]) === null || _f === void 0 ? void 0 : _f.categorical) === null || _g === void 0 ? void 0 : _g.categories) || isNullOrUndefined((_j = (_h = inputDV[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.key; }))) {
+      if (isNullOrUndefined(inputDV[0]?.categorical?.categories) || isNullOrUndefined(inputDV[0]?.categorical?.categories.some(d => d.source?.roles?.key))) {
           return "";
       }
-      const numeratorsPresent = (_m = (_l = (_k = inputDV[0].categorical) === null || _k === void 0 ? void 0 : _k.values) === null || _l === void 0 ? void 0 : _l.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.numerators; })) !== null && _m !== void 0 ? _m : false;
+      const numeratorsPresent = inputDV[0].categorical
+          ?.values
+          ?.some(d => d.source?.roles?.numerators) ?? false;
       if (!numeratorsPresent) {
           return "No Numerators passed!";
       }
       let needs_denominator = false;
       let needs_sd = false;
       let chart_type = inputSettingsClass.settings[0].spc.chart_type;
-      if ((inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettings.length) > 0) {
-          inputSettingsClass === null || inputSettingsClass === void 0 ? void 0 : inputSettingsClass.derivedSettings.forEach((d) => {
+      if (inputSettingsClass?.derivedSettings.length > 0) {
+          inputSettingsClass?.derivedSettings.forEach((d) => {
               if (d.chart_type_props.needs_denominator) {
                   chart_type = d.chart_type_props.name;
                   needs_denominator = true;
@@ -7030,13 +6680,17 @@ var spc = (function (exports) {
           needs_sd = inputSettingsClass.derivedSettings[0].chart_type_props.needs_sd;
       }
       if (needs_denominator) {
-          const denominatorsPresent = (_q = (_p = (_o = inputDV[0].categorical) === null || _o === void 0 ? void 0 : _o.values) === null || _p === void 0 ? void 0 : _p.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.denominators; })) !== null && _q !== void 0 ? _q : false;
+          const denominatorsPresent = inputDV[0].categorical
+              ?.values
+              ?.some(d => d.source?.roles?.denominators) ?? false;
           if (!denominatorsPresent) {
               return `Chart type '${chart_type}' requires denominators!`;
           }
       }
       if (needs_sd) {
-          const xbarSDPresent = (_t = (_s = (_r = inputDV[0].categorical) === null || _r === void 0 ? void 0 : _r.values) === null || _s === void 0 ? void 0 : _s.some(d => { var _a, _b; return (_b = (_a = d.source) === null || _a === void 0 ? void 0 : _a.roles) === null || _b === void 0 ? void 0 : _b.xbar_sds; })) !== null && _t !== void 0 ? _t : false;
+          const xbarSDPresent = inputDV[0].categorical
+              ?.values
+              ?.some(d => d.source?.roles?.xbar_sds) ?? false;
           if (!xbarSDPresent) {
               return `Chart type '${chart_type}' requires SDs!`;
           }
@@ -7070,7 +6724,6 @@ var spc = (function (exports) {
   }
 
   function groupBy(data, key) {
-      var _a;
       const groupedData = new Map();
       for (let i = 0; i < data.length; i++) {
           const item = data[i];
@@ -7078,7 +6731,7 @@ var spc = (function (exports) {
           if (!groupedData.has(keyValue)) {
               groupedData.set(keyValue, []);
           }
-          (_a = groupedData.get(keyValue)) === null || _a === void 0 ? void 0 : _a.push(item);
+          groupedData.get(keyValue)?.push(item);
       }
       return Array.from(groupedData);
   }
@@ -7177,19 +6830,18 @@ var spc = (function (exports) {
   }
 
   function updateOptionsUndefined(options) {
-      var _a, _b, _c, _d;
-      if (isNullOrUndefined(options === null || options === void 0 ? void 0 : options.dataViews)
+      if (isNullOrUndefined(options?.dataViews)
           || (options.dataViews.length === 0)
-          || isNullOrUndefined((_a = options.dataViews[0]) === null || _a === void 0 ? void 0 : _a.categorical)
-          || isNullOrUndefined((_b = options.dataViews[0].categorical) === null || _b === void 0 ? void 0 : _b.categories)
+          || isNullOrUndefined(options.dataViews[0]?.categorical)
+          || isNullOrUndefined(options.dataViews[0].categorical?.categories)
           || options.dataViews[0].categorical.categories.length === 0
           || isNullOrUndefined(options.dataViews[0].categorical.categories[0].source)
-          || isNullOrUndefined((_c = options.dataViews[0].metadata) === null || _c === void 0 ? void 0 : _c.columns)
-          || !(options.dataViews[0].metadata.columns.some(d => { var _a; return !isNullOrUndefined((_a = d === null || d === void 0 ? void 0 : d.roles) === null || _a === void 0 ? void 0 : _a.key); }))) {
+          || isNullOrUndefined(options.dataViews[0].metadata?.columns)
+          || !(options.dataViews[0].metadata.columns.some(d => !isNullOrUndefined(d?.roles?.key)))) {
           return 2;
       }
-      if (isNullOrUndefined((_d = options.dataViews[0].categorical) === null || _d === void 0 ? void 0 : _d.values)
-          || !(options.dataViews[0].metadata.columns.some(d => { var _a; return !isNullOrUndefined((_a = d === null || d === void 0 ? void 0 : d.roles) === null || _a === void 0 ? void 0 : _a.numerators); }))) {
+      if (isNullOrUndefined(options.dataViews[0].categorical?.values)
+          || !(options.dataViews[0].metadata.columns.some(d => !isNullOrUndefined(d?.roles?.numerators)))) {
           return 3;
       }
       return 1;
@@ -7221,7 +6873,6 @@ var spc = (function (exports) {
           this.groupNames = [];
       }
       update(options, host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v;
           const updateOptionsStatus = updateOptionsUndefined(options);
           if (updateOptionsStatus === 2) {
               return { status: false, error: "" };
@@ -7240,29 +6891,29 @@ var spc = (function (exports) {
           }
           this.svgWidth = options.viewport.width;
           this.svgHeight = options.viewport.height;
-          this.headless = (_a = options === null || options === void 0 ? void 0 : options.headless) !== null && _a !== void 0 ? _a : false;
-          this.frontend = (_b = options === null || options === void 0 ? void 0 : options.frontend) !== null && _b !== void 0 ? _b : false;
-          const indicator_cols = (_f = (_e = (_d = (_c = options.dataViews[0]) === null || _c === void 0 ? void 0 : _c.categorical) === null || _d === void 0 ? void 0 : _d.categories) === null || _e === void 0 ? void 0 : _e.filter(d => d.source.roles.indicator)) !== null && _f !== void 0 ? _f : [];
-          this.indicatorVarNames = (_g = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.source.displayName)) !== null && _g !== void 0 ? _g : [];
-          const n_indicators = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.length;
-          const n_values = (_o = (_m = (_l = (_k = (_j = (_h = options.dataViews[0]) === null || _h === void 0 ? void 0 : _h.categorical) === null || _j === void 0 ? void 0 : _j.categories) === null || _k === void 0 ? void 0 : _k[0]) === null || _l === void 0 ? void 0 : _l.values) === null || _m === void 0 ? void 0 : _m.length) !== null && _o !== void 0 ? _o : 1;
+          this.headless = options?.headless ?? false;
+          this.frontend = options?.frontend ?? false;
+          const indicator_cols = options.dataViews[0]?.categorical?.categories?.filter(d => d.source.roles.indicator) ?? [];
+          this.indicatorVarNames = indicator_cols?.map(d => d.source.displayName) ?? [];
+          const n_indicators = indicator_cols?.length;
+          const n_values = options.dataViews[0]?.categorical?.categories?.[0]?.values?.length ?? 1;
           const res = { status: true };
           const idx_per_indicator = new Array();
           idx_per_indicator.push([0]);
           this.groupNames = new Array();
-          this.groupNames.push((_p = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[0])) !== null && _p !== void 0 ? _p : []);
+          this.groupNames.push(indicator_cols?.map(d => d.values[0]) ?? []);
           let curr_grp = 0;
           for (let i = 1; i < n_values; i++) {
               let same_indicator = true;
               for (let j = 0; j < n_indicators; j++) {
-                  same_indicator = same_indicator && ((indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[j].values[i]) === (indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols[j].values[i - 1]));
+                  same_indicator = same_indicator && (indicator_cols?.[j].values[i] === indicator_cols?.[j].values[i - 1]);
               }
               if (same_indicator) {
                   idx_per_indicator[curr_grp].push(i);
               }
               else {
                   idx_per_indicator.push([i]);
-                  this.groupNames.push((_q = indicator_cols === null || indicator_cols === void 0 ? void 0 : indicator_cols.map(d => d.values[i])) !== null && _q !== void 0 ? _q : []);
+                  this.groupNames.push(indicator_cols?.map(d => d.values[i]) ?? []);
                   curr_grp += 1;
               }
           }
@@ -7284,7 +6935,7 @@ var spc = (function (exports) {
           let invalidData = false;
           if (options.type === 2 || this.firstRun) {
               const hasIndicator = options.dataViews[0].categorical.categories.some(d => d.source.roles.indicator);
-              const split_indexes_str = (_v = ((_u = (_t = (_s = (_r = options.dataViews[0]) === null || _r === void 0 ? void 0 : _r.metadata) === null || _s === void 0 ? void 0 : _s.objects) === null || _t === void 0 ? void 0 : _t.split_indexes_storage) === null || _u === void 0 ? void 0 : _u.split_indexes)) !== null && _v !== void 0 ? _v : "[]";
+              const split_indexes_str = (options.dataViews[0]?.metadata?.objects?.split_indexes_storage?.split_indexes) ?? "[]";
               const split_indexes = JSON.parse(split_indexes_str);
               this.splitIndexes = hasIndicator ? [] : split_indexes;
               this.inputData = new Array();
@@ -7344,10 +6995,9 @@ var spc = (function (exports) {
           return res;
       }
       getGroupingIndexes(inputData, splitIndexes) {
-          var _a;
-          const allIndexes = (splitIndexes !== null && splitIndexes !== void 0 ? splitIndexes : [])
+          const allIndexes = (splitIndexes ?? [])
               .concat([-1])
-              .concat((_a = inputData.groupingIndexes) !== null && _a !== void 0 ? _a : [])
+              .concat(inputData.groupingIndexes ?? [])
               .concat([inputData.limitInputArgs.keys.length - 1])
               .filter((d, idx, arr) => arr.indexOf(d) === idx)
               .sort((a, b) => a - b);
@@ -7410,7 +7060,6 @@ var spc = (function (exports) {
           return controlLimits;
       }
       initialisePlotDataGrouped() {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
           this.plotPoints = new Array();
           this.tableColumns = new Array();
           const tableColumnsDef = new Array();
@@ -7457,14 +7106,14 @@ var spc = (function (exports) {
           if (nhsIconSettings.show_assurance_icons) {
               tableColumnsDef.push({ name: "assurance", label: "Assurance" });
           }
-          const anyTooltips = this.inputData.some(d => { var _a; return (_a = d === null || d === void 0 ? void 0 : d.tooltips) === null || _a === void 0 ? void 0 : _a.some(t => t.length > 0); });
+          const anyTooltips = this.inputData.some(d => d?.tooltips?.some(t => t.length > 0));
           if (anyTooltips) {
-              (_b = (_a = this.inputData) === null || _a === void 0 ? void 0 : _a[0].tooltips) === null || _b === void 0 ? void 0 : _b[0].forEach(tooltip => {
+              this.inputData?.[0].tooltips?.[0].forEach(tooltip => {
                   tableColumnsDef.push({ name: tooltip.displayName, label: tooltip.displayName });
               });
           }
           for (let i = 0; i < this.groupNames.length; i++) {
-              if (isNullOrUndefined((_c = this.inputData[i]) === null || _c === void 0 ? void 0 : _c.categories)) {
+              if (isNullOrUndefined(this.inputData[i]?.categories)) {
                   continue;
               }
               const formatValues = valueFormatter(this.inputSettings.settings[i], this.inputSettings.derivedSettings[i]);
@@ -7513,18 +7162,18 @@ var spc = (function (exports) {
               this.indicatorVarNames.forEach((indicator_name, idx) => {
                   table_row_entries.push([indicator_name, this.groupNames[i][idx]]);
               });
-              table_row_entries.push(["latest_date", (_d = limits.keys) === null || _d === void 0 ? void 0 : _d[lastIndex].label]);
-              table_row_entries.push(["value", formatValues((_e = limits.values) === null || _e === void 0 ? void 0 : _e[lastIndex], "value")]);
-              table_row_entries.push(["numerator", formatValues((_f = limits.numerators) === null || _f === void 0 ? void 0 : _f[lastIndex], "integer")]);
-              table_row_entries.push(["denominator", formatValues((_g = limits.denominators) === null || _g === void 0 ? void 0 : _g[lastIndex], "integer")]);
-              table_row_entries.push(["target", formatValues((_h = limits.targets) === null || _h === void 0 ? void 0 : _h[lastIndex], "value")]);
-              table_row_entries.push(["alt_target", formatValues((_j = limits.alt_targets) === null || _j === void 0 ? void 0 : _j[lastIndex], "value")]);
-              table_row_entries.push(["ucl99", formatValues((_k = limits.ul99) === null || _k === void 0 ? void 0 : _k[lastIndex], "value")]);
-              table_row_entries.push(["ucl95", formatValues((_l = limits.ul95) === null || _l === void 0 ? void 0 : _l[lastIndex], "value")]);
-              table_row_entries.push(["ucl68", formatValues((_m = limits.ul68) === null || _m === void 0 ? void 0 : _m[lastIndex], "value")]);
-              table_row_entries.push(["lcl68", formatValues((_o = limits.ll68) === null || _o === void 0 ? void 0 : _o[lastIndex], "value")]);
-              table_row_entries.push(["lcl95", formatValues((_p = limits.ll95) === null || _p === void 0 ? void 0 : _p[lastIndex], "value")]);
-              table_row_entries.push(["lcl99", formatValues((_q = limits.ll99) === null || _q === void 0 ? void 0 : _q[lastIndex], "value")]);
+              table_row_entries.push(["latest_date", limits.keys?.[lastIndex].label]);
+              table_row_entries.push(["value", formatValues(limits.values?.[lastIndex], "value")]);
+              table_row_entries.push(["numerator", formatValues(limits.numerators?.[lastIndex], "integer")]);
+              table_row_entries.push(["denominator", formatValues(limits.denominators?.[lastIndex], "integer")]);
+              table_row_entries.push(["target", formatValues(limits.targets?.[lastIndex], "value")]);
+              table_row_entries.push(["alt_target", formatValues(limits.alt_targets?.[lastIndex], "value")]);
+              table_row_entries.push(["ucl99", formatValues(limits.ul99?.[lastIndex], "value")]);
+              table_row_entries.push(["ucl95", formatValues(limits.ul95?.[lastIndex], "value")]);
+              table_row_entries.push(["ucl68", formatValues(limits.ul68?.[lastIndex], "value")]);
+              table_row_entries.push(["lcl68", formatValues(limits.ll68?.[lastIndex], "value")]);
+              table_row_entries.push(["lcl95", formatValues(limits.ll95?.[lastIndex], "value")]);
+              table_row_entries.push(["lcl99", formatValues(limits.ll99?.[lastIndex], "value")]);
               table_row_entries.push(["variation", varIcons[0]]);
               table_row_entries.push(["assurance", assIcon]);
               if (anyTooltips && !isNullOrUndefined(this.inputData[i].tooltips)) {
@@ -7545,7 +7194,6 @@ var spc = (function (exports) {
           }
       }
       initialisePlotData(host) {
-          var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
           const inputData = this.inputData[0];
           const controlLimits = this.controlLimits[0];
           const outliers = this.outliers[0];
@@ -7621,20 +7269,20 @@ var spc = (function (exports) {
               }
               const table_row = {
                   date: controlLimits.keys[i].label,
-                  numerator: (_a = controlLimits.numerators) === null || _a === void 0 ? void 0 : _a[i],
-                  denominator: (_b = controlLimits.denominators) === null || _b === void 0 ? void 0 : _b[i],
+                  numerator: controlLimits.numerators?.[i],
+                  denominator: controlLimits.denominators?.[i],
                   value: controlLimits.values[i],
                   target: controlLimits.targets[i],
-                  alt_target: (_c = controlLimits.alt_targets) === null || _c === void 0 ? void 0 : _c[i],
-                  ll99: (_d = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll99) === null || _d === void 0 ? void 0 : _d[i],
-                  ll95: (_e = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll95) === null || _e === void 0 ? void 0 : _e[i],
-                  ll68: (_f = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ll68) === null || _f === void 0 ? void 0 : _f[i],
-                  ul68: (_g = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul68) === null || _g === void 0 ? void 0 : _g[i],
-                  ul95: (_h = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul95) === null || _h === void 0 ? void 0 : _h[i],
-                  ul99: (_j = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.ul99) === null || _j === void 0 ? void 0 : _j[i],
-                  speclimits_lower: (_k = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_lower) === null || _k === void 0 ? void 0 : _k[i],
-                  speclimits_upper: (_l = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.speclimits_upper) === null || _l === void 0 ? void 0 : _l[i],
-                  trend_line: (_m = controlLimits === null || controlLimits === void 0 ? void 0 : controlLimits.trend_line) === null || _m === void 0 ? void 0 : _m[i],
+                  alt_target: controlLimits.alt_targets?.[i],
+                  ll99: controlLimits?.ll99?.[i],
+                  ll95: controlLimits?.ll95?.[i],
+                  ll68: controlLimits?.ll68?.[i],
+                  ul68: controlLimits?.ul68?.[i],
+                  ul95: controlLimits?.ul95?.[i],
+                  ul99: controlLimits?.ul99?.[i],
+                  speclimits_lower: controlLimits?.speclimits_lower?.[i],
+                  speclimits_upper: controlLimits?.speclimits_upper?.[i],
+                  trend_line: controlLimits?.trend_line?.[i],
                   astpoint: outliers.astpoint[i],
                   trend: outliers.trend[i],
                   shift: outliers.shift[i],
@@ -7648,10 +7296,10 @@ var spc = (function (exports) {
                   identity: host.createSelectionIdBuilder()
                       .withCategory(inputData.categories, inputData.limitInputArgs.keys[i].id)
                       .createSelectionId(),
-                  highlighted: !isNullOrUndefined((_o = inputData.highlights) === null || _o === void 0 ? void 0 : _o[index]),
-                  tooltip: buildTooltip(table_row, (_p = inputData === null || inputData === void 0 ? void 0 : inputData.tooltips) === null || _p === void 0 ? void 0 : _p[index], settings, derivedSettings),
+                  highlighted: !isNullOrUndefined(inputData.highlights?.[index]),
+                  tooltip: buildTooltip(table_row, inputData?.tooltips?.[index], settings, derivedSettings),
                   label: {
-                      text_value: (_q = inputData.labels) === null || _q === void 0 ? void 0 : _q[index],
+                      text_value: inputData.labels?.[index],
                       aesthetics: inputData.label_formatting[index],
                       angle: undefined,
                       distance: undefined,
@@ -7663,7 +7311,6 @@ var spc = (function (exports) {
           }
       }
       initialiseGroupedLines() {
-          var _a, _b;
           const settings = this.inputSettings.settings[0];
           const derivedSettings = this.inputSettings.derivedSettings[0];
           const controlLimits = this.controlLimits[0];
@@ -7701,27 +7348,26 @@ var spc = (function (exports) {
           }
           const nLimits = controlLimits.keys.length;
           for (let i = 0; i < nLimits; i++) {
-              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || ((_b = (_a = inputData.groupingIndexes) === null || _a === void 0 ? void 0 : _a.includes(i - 1)) !== null && _b !== void 0 ? _b : false);
+              const isRebaselinePoint = this.splitIndexes.includes(i - 1) || (inputData.groupingIndexes?.includes(i - 1) ?? false);
               let isNewAltTarget = false;
               if (i > 0 && settings.lines.show_alt_target && !isNullOrUndefined(controlLimits.alt_targets)) {
                   isNewAltTarget = controlLimits.alt_targets[i] !== controlLimits.alt_targets[i - 1];
               }
               labels.forEach(label => {
-                  var _a, _b;
                   const join_rebaselines = settings.lines[`join_rebaselines_${lineNameMap[label]}`];
                   if (isRebaselinePoint || isNewAltTarget) {
                       const is_alt_target = label === "alt_targets" && isNewAltTarget;
                       const is_rebaseline = label !== "alt_targets" && isRebaselinePoint;
                       formattedLines.push({
                           x: controlLimits.keys[i].x,
-                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? undefined : (_a = controlLimits[label]) === null || _a === void 0 ? void 0 : _a[i],
+                          line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? undefined : controlLimits[label]?.[i],
                           group: label,
                           aesthetics: inputData.line_formatting[i]
                       });
                   }
                   formattedLines.push({
                       x: controlLimits.keys[i].x,
-                      line_value: (_b = controlLimits[label]) === null || _b === void 0 ? void 0 : _b[i],
+                      line_value: controlLimits[label]?.[i],
                       group: label,
                       aesthetics: inputData.line_formatting[i]
                   });
@@ -7858,7 +7504,6 @@ var spc = (function (exports) {
           table.append('tbody').classed("table-body", true);
       }
       update(options) {
-          var _a, _b, _c, _d, _e, _f, _g, _h;
           try {
               this.host.eventService.renderingStarted(options);
               this.svg.select(".errormessage").remove();
@@ -7866,8 +7511,8 @@ var spc = (function (exports) {
               if (!update_status.status) {
                   this.plotProperties.displayPlot = false;
                   this.resizeCanvas(options.viewport.width, options.viewport.height);
-                  if ((_f = (_e = (_d = (_c = (_b = (_a = this.viewModel) === null || _a === void 0 ? void 0 : _a.inputSettings) === null || _b === void 0 ? void 0 : _b.settings) === null || _c === void 0 ? void 0 : _c[0]) === null || _d === void 0 ? void 0 : _d.canvas) === null || _e === void 0 ? void 0 : _e.show_errors) !== null && _f !== void 0 ? _f : true) {
-                      this.svg.call(drawErrors, options, this.viewModel.colourPalette, (_g = update_status === null || update_status === void 0 ? void 0 : update_status.error) !== null && _g !== void 0 ? _g : "", (_h = update_status === null || update_status === void 0 ? void 0 : update_status.type) !== null && _h !== void 0 ? _h : "");
+                  if (this.viewModel?.inputSettings?.settings?.[0]?.canvas?.show_errors ?? true) {
+                      this.svg.call(drawErrors, options, this.viewModel.colourPalette, update_status?.error ?? "", update_status?.type ?? "");
                   }
                   else {
                       this.svg.call(initialiseSVG, true);
