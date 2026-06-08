@@ -189,7 +189,7 @@ var spc = (function (exports) {
     querySelectorAll: function(selector) { return this._parent.querySelectorAll(selector); }
   };
 
-  function constant$2(x) {
+  function constant$1(x) {
     return function() {
       return x;
     };
@@ -276,7 +276,7 @@ var spc = (function (exports) {
         parents = this._parents,
         groups = this._groups;
 
-    if (typeof value !== "function") value = constant$2(value);
+    if (typeof value !== "function") value = constant$1(value);
 
     for (var m = groups.length, update = new Array(m), enter = new Array(m), exit = new Array(m), j = 0; j < m; ++j) {
       var parent = parents[j],
@@ -762,7 +762,7 @@ var spc = (function (exports) {
     };
   }
 
-  function parseTypenames$1(typenames) {
+  function parseTypenames(typenames) {
     return typenames.trim().split(/^|\s+/).map(function(t) {
       var name = "", i = t.indexOf(".");
       if (i >= 0) name = t.slice(i + 1), t = t.slice(0, i);
@@ -805,7 +805,7 @@ var spc = (function (exports) {
   }
 
   function selection_on(typename, value, options) {
-    var typenames = parseTypenames$1(typename + ""), i, n = typenames.length, t;
+    var typenames = parseTypenames(typename + ""), i, n = typenames.length, t;
 
     if (arguments.length < 2) {
       var on = this.node().__on;
@@ -921,38 +921,13 @@ var spc = (function (exports) {
         : new Selection([[selector]], root);
   }
 
-  function sourceEvent(event) {
-    let sourceEvent;
-    while (sourceEvent = event.sourceEvent) event = sourceEvent;
-    return event;
-  }
-
-  function pointer(event, node) {
-    event = sourceEvent(event);
-    if (node === undefined) node = event.currentTarget;
-    if (node) {
-      var svg = node.ownerSVGElement || node;
-      if (svg.createSVGPoint) {
-        var point = svg.createSVGPoint();
-        point.x = event.clientX, point.y = event.clientY;
-        point = point.matrixTransform(node.getScreenCTM().inverse());
-        return [point.x, point.y];
-      }
-      if (node.getBoundingClientRect) {
-        var rect = node.getBoundingClientRect();
-        return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
-      }
-    }
-    return [event.pageX, event.pageY];
-  }
-
   function selectAll(selector) {
     return typeof selector === "string"
         ? new Selection([document.querySelectorAll(selector)], [document.documentElement])
         : new Selection([array$1(selector)], root);
   }
 
-  function constant$1(x) {
+  function constant(x) {
     return function constant() {
       return x;
     };
@@ -1176,14 +1151,14 @@ var spc = (function (exports) {
   }
 
   function line(x$1, y$1) {
-    var defined = constant$1(true),
+    var defined = constant(true),
         context = null,
         curve = curveLinear,
         output = null,
         path = withPath(line);
 
-    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant$1(x$1);
-    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant$1(y$1);
+    x$1 = typeof x$1 === "function" ? x$1 : (x$1 === undefined) ? x : constant(x$1);
+    y$1 = typeof y$1 === "function" ? y$1 : (y$1 === undefined) ? y : constant(y$1);
 
     function line(data) {
       var i,
@@ -1206,15 +1181,15 @@ var spc = (function (exports) {
     }
 
     line.x = function(_) {
-      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant$1(+_), line) : x$1;
+      return arguments.length ? (x$1 = typeof _ === "function" ? _ : constant(+_), line) : x$1;
     };
 
     line.y = function(_) {
-      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant$1(+_), line) : y$1;
+      return arguments.length ? (y$1 = typeof _ === "function" ? _ : constant(+_), line) : y$1;
     };
 
     line.defined = function(_) {
-      return arguments.length ? (defined = typeof _ === "function" ? _ : constant$1(!!_), line) : defined;
+      return arguments.length ? (defined = typeof _ === "function" ? _ : constant(!!_), line) : defined;
     };
 
     line.curve = function(_) {
@@ -1357,8 +1332,8 @@ var spc = (function (exports) {
     let context = null,
         path = withPath(symbol);
 
-    type = typeof type === "function" ? type : constant$1(type || circle);
-    size = typeof size === "function" ? size : constant$1(size === undefined ? 64 : +size);
+    type = typeof type === "function" ? type : constant(type || circle);
+    size = typeof size === "function" ? size : constant(size === undefined ? 64 : +size);
 
     function symbol() {
       let buffer;
@@ -1368,11 +1343,11 @@ var spc = (function (exports) {
     }
 
     symbol.type = function(_) {
-      return arguments.length ? (type = typeof _ === "function" ? _ : constant$1(_), symbol) : type;
+      return arguments.length ? (type = typeof _ === "function" ? _ : constant(_), symbol) : type;
     };
 
     symbol.size = function(_) {
-      return arguments.length ? (size = typeof _ === "function" ? _ : constant$1(+_), symbol) : size;
+      return arguments.length ? (size = typeof _ === "function" ? _ : constant(+_), symbol) : size;
     };
 
     symbol.context = function(_) {
@@ -1551,353 +1526,10 @@ var spc = (function (exports) {
     return axis(left, scale);
   }
 
-  var noop = {value: () => {}};
-
-  function dispatch() {
-    for (var i = 0, n = arguments.length, _ = {}, t; i < n; ++i) {
-      if (!(t = arguments[i] + "") || (t in _) || /[\s.]/.test(t)) throw new Error("illegal type: " + t);
-      _[t] = [];
-    }
-    return new Dispatch(_);
-  }
-
-  function Dispatch(_) {
-    this._ = _;
-  }
-
-  function parseTypenames(typenames, types) {
-    return typenames.trim().split(/^|\s+/).map(function(t) {
-      var name = "", i = t.indexOf(".");
-      if (i >= 0) name = t.slice(i + 1), t = t.slice(0, i);
-      if (t && !types.hasOwnProperty(t)) throw new Error("unknown type: " + t);
-      return {type: t, name: name};
-    });
-  }
-
-  Dispatch.prototype = dispatch.prototype = {
-    constructor: Dispatch,
-    on: function(typename, callback) {
-      var _ = this._,
-          T = parseTypenames(typename + "", _),
-          t,
-          i = -1,
-          n = T.length;
-
-      // If no callback was specified, return the callback of the given type and name.
-      if (arguments.length < 2) {
-        while (++i < n) if ((t = (typename = T[i]).type) && (t = get$1(_[t], typename.name))) return t;
-        return;
-      }
-
-      // If a type was specified, set the callback for the given type and name.
-      // Otherwise, if a null callback was specified, remove callbacks of the given name.
-      if (callback != null && typeof callback !== "function") throw new Error("invalid callback: " + callback);
-      while (++i < n) {
-        if (t = (typename = T[i]).type) _[t] = set(_[t], typename.name, callback);
-        else if (callback == null) for (t in _) _[t] = set(_[t], typename.name, null);
-      }
-
-      return this;
-    },
-    copy: function() {
-      var copy = {}, _ = this._;
-      for (var t in _) copy[t] = _[t].slice();
-      return new Dispatch(copy);
-    },
-    call: function(type, that) {
-      if ((n = arguments.length - 2) > 0) for (var args = new Array(n), i = 0, n, t; i < n; ++i) args[i] = arguments[i + 2];
-      if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
-      for (t = this._[type], i = 0, n = t.length; i < n; ++i) t[i].value.apply(that, args);
-    },
-    apply: function(type, that, args) {
-      if (!this._.hasOwnProperty(type)) throw new Error("unknown type: " + type);
-      for (var t = this._[type], i = 0, n = t.length; i < n; ++i) t[i].value.apply(that, args);
-    }
-  };
-
-  function get$1(type, name) {
-    for (var i = 0, n = type.length, c; i < n; ++i) {
-      if ((c = type[i]).name === name) {
-        return c.value;
-      }
-    }
-  }
-
-  function set(type, name, callback) {
-    for (var i = 0, n = type.length; i < n; ++i) {
-      if (type[i].name === name) {
-        type[i] = noop, type = type.slice(0, i).concat(type.slice(i + 1));
-        break;
-      }
-    }
-    if (callback != null) type.push({name: name, value: callback});
-    return type;
-  }
-
-  // These are typically used in conjunction with noevent to ensure that we can
-  // preventDefault on the event.
-  const nonpassive = {passive: false};
-  const nonpassivecapture = {capture: true, passive: false};
-
-  function nopropagation(event) {
-    event.stopImmediatePropagation();
-  }
-
-  function noevent(event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-  }
-
-  function nodrag(view) {
-    var root = view.document.documentElement,
-        selection = select(view).on("dragstart.drag", noevent, nonpassivecapture);
-    if ("onselectstart" in root) {
-      selection.on("selectstart.drag", noevent, nonpassivecapture);
-    } else {
-      root.__noselect = root.style.MozUserSelect;
-      root.style.MozUserSelect = "none";
-    }
-  }
-
-  function yesdrag(view, noclick) {
-    var root = view.document.documentElement,
-        selection = select(view).on("dragstart.drag", null);
-    if (noclick) {
-      selection.on("click.drag", noevent, nonpassivecapture);
-      setTimeout(function() { selection.on("click.drag", null); }, 0);
-    }
-    if ("onselectstart" in root) {
-      selection.on("selectstart.drag", null);
-    } else {
-      root.style.MozUserSelect = root.__noselect;
-      delete root.__noselect;
-    }
-  }
-
-  var constant = x => () => x;
-
-  function DragEvent(type, {
-    sourceEvent,
-    subject,
-    target,
-    identifier,
-    active,
-    x, y, dx, dy,
-    dispatch
-  }) {
-    Object.defineProperties(this, {
-      type: {value: type, enumerable: true, configurable: true},
-      sourceEvent: {value: sourceEvent, enumerable: true, configurable: true},
-      subject: {value: subject, enumerable: true, configurable: true},
-      target: {value: target, enumerable: true, configurable: true},
-      identifier: {value: identifier, enumerable: true, configurable: true},
-      active: {value: active, enumerable: true, configurable: true},
-      x: {value: x, enumerable: true, configurable: true},
-      y: {value: y, enumerable: true, configurable: true},
-      dx: {value: dx, enumerable: true, configurable: true},
-      dy: {value: dy, enumerable: true, configurable: true},
-      _: {value: dispatch}
-    });
-  }
-
-  DragEvent.prototype.on = function() {
-    var value = this._.on.apply(this._, arguments);
-    return value === this._ ? this : value;
-  };
-
-  // Ignore right-click, since that should open the context menu.
-  function defaultFilter(event) {
-    return !event.ctrlKey && !event.button;
-  }
-
-  function defaultContainer() {
-    return this.parentNode;
-  }
-
-  function defaultSubject(event, d) {
-    return d == null ? {x: event.x, y: event.y} : d;
-  }
-
-  function defaultTouchable() {
-    return navigator.maxTouchPoints || ("ontouchstart" in this);
-  }
-
-  function drag() {
-    var filter = defaultFilter,
-        container = defaultContainer,
-        subject = defaultSubject,
-        touchable = defaultTouchable,
-        gestures = {},
-        listeners = dispatch("start", "drag", "end"),
-        active = 0,
-        mousedownx,
-        mousedowny,
-        mousemoving,
-        touchending,
-        clickDistance2 = 0;
-
-    function drag(selection) {
-      selection
-          .on("mousedown.drag", mousedowned)
-        .filter(touchable)
-          .on("touchstart.drag", touchstarted)
-          .on("touchmove.drag", touchmoved, nonpassive)
-          .on("touchend.drag touchcancel.drag", touchended)
-          .style("touch-action", "none")
-          .style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
-    }
-
-    function mousedowned(event, d) {
-      if (touchending || !filter.call(this, event, d)) return;
-      var gesture = beforestart(this, container.call(this, event, d), event, d, "mouse");
-      if (!gesture) return;
-      select(event.view)
-        .on("mousemove.drag", mousemoved, nonpassivecapture)
-        .on("mouseup.drag", mouseupped, nonpassivecapture);
-      nodrag(event.view);
-      nopropagation(event);
-      mousemoving = false;
-      mousedownx = event.clientX;
-      mousedowny = event.clientY;
-      gesture("start", event);
-    }
-
-    function mousemoved(event) {
-      noevent(event);
-      if (!mousemoving) {
-        var dx = event.clientX - mousedownx, dy = event.clientY - mousedowny;
-        mousemoving = dx * dx + dy * dy > clickDistance2;
-      }
-      gestures.mouse("drag", event);
-    }
-
-    function mouseupped(event) {
-      select(event.view).on("mousemove.drag mouseup.drag", null);
-      yesdrag(event.view, mousemoving);
-      noevent(event);
-      gestures.mouse("end", event);
-    }
-
-    function touchstarted(event, d) {
-      if (!filter.call(this, event, d)) return;
-      var touches = event.changedTouches,
-          c = container.call(this, event, d),
-          n = touches.length, i, gesture;
-
-      for (i = 0; i < n; ++i) {
-        if (gesture = beforestart(this, c, event, d, touches[i].identifier, touches[i])) {
-          nopropagation(event);
-          gesture("start", event, touches[i]);
-        }
-      }
-    }
-
-    function touchmoved(event) {
-      var touches = event.changedTouches,
-          n = touches.length, i, gesture;
-
-      for (i = 0; i < n; ++i) {
-        if (gesture = gestures[touches[i].identifier]) {
-          noevent(event);
-          gesture("drag", event, touches[i]);
-        }
-      }
-    }
-
-    function touchended(event) {
-      var touches = event.changedTouches,
-          n = touches.length, i, gesture;
-
-      if (touchending) clearTimeout(touchending);
-      touchending = setTimeout(function() { touchending = null; }, 500); // Ghost clicks are delayed!
-      for (i = 0; i < n; ++i) {
-        if (gesture = gestures[touches[i].identifier]) {
-          nopropagation(event);
-          gesture("end", event, touches[i]);
-        }
-      }
-    }
-
-    function beforestart(that, container, event, d, identifier, touch) {
-      var dispatch = listeners.copy(),
-          p = pointer(touch || event, container), dx, dy,
-          s;
-
-      if ((s = subject.call(that, new DragEvent("beforestart", {
-          sourceEvent: event,
-          target: drag,
-          identifier,
-          active,
-          x: p[0],
-          y: p[1],
-          dx: 0,
-          dy: 0,
-          dispatch
-        }), d)) == null) return;
-
-      dx = s.x - p[0] || 0;
-      dy = s.y - p[1] || 0;
-
-      return function gesture(type, event, touch) {
-        var p0 = p, n;
-        switch (type) {
-          case "start": gestures[identifier] = gesture, n = active++; break;
-          case "end": delete gestures[identifier], --active; // falls through
-          case "drag": p = pointer(touch || event, container), n = active; break;
-        }
-        dispatch.call(
-          type,
-          that,
-          new DragEvent(type, {
-            sourceEvent: event,
-            subject: s,
-            target: drag,
-            identifier,
-            active: n,
-            x: p[0] + dx,
-            y: p[1] + dy,
-            dx: p[0] - p0[0],
-            dy: p[1] - p0[1],
-            dispatch
-          }),
-          d
-        );
-      };
-    }
-
-    drag.filter = function(_) {
-      return arguments.length ? (filter = typeof _ === "function" ? _ : constant(!!_), drag) : filter;
-    };
-
-    drag.container = function(_) {
-      return arguments.length ? (container = typeof _ === "function" ? _ : constant(_), drag) : container;
-    };
-
-    drag.subject = function(_) {
-      return arguments.length ? (subject = typeof _ === "function" ? _ : constant(_), drag) : subject;
-    };
-
-    drag.touchable = function(_) {
-      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant(!!_), drag) : touchable;
-    };
-
-    drag.on = function() {
-      var value = listeners.on.apply(listeners, arguments);
-      return value === listeners ? drag : value;
-    };
-
-    drag.clickDistance = function(_) {
-      return arguments.length ? (clickDistance2 = (_ = +_) * _, drag) : Math.sqrt(clickDistance2);
-    };
-
-    return drag;
-  }
-
   var d3 = /*#__PURE__*/Object.freeze({
     __proto__: null,
     axisBottom: axisBottom,
     axisLeft: axisLeft,
-    drag: drag,
     line: line,
     select: select,
     selectAll: selectAll,
@@ -4259,33 +3891,17 @@ var spc = (function (exports) {
       if (selection.select(".text-labels").empty()) {
           selection.append("g").classed("text-labels", true);
       }
-      const dragFun = drag().on("drag", function (e) {
-          const d = e.subject;
-          const x_val = visualObj.plotProperties.xScale(d.x);
-          const y_val = visualObj.plotProperties.yScale(d.value);
-          const angle = Math.atan2(e.sourceEvent.y - y_val, e.sourceEvent.x - x_val) * 180 / Math.PI;
-          const distance = Math.sqrt(Math.pow(e.sourceEvent.y - y_val, 2) + Math.pow(e.sourceEvent.x - x_val, 2));
-          const marker_offset = 10;
-          const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
-          const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
-          e.subject.label.angle = angle;
-          e.subject.label.distance = distance;
-          select(this)
-              .select("text")
-              .attr("x", e.sourceEvent.x)
-              .attr("y", e.sourceEvent.y);
-          let line_offset = d.label.aesthetics.label_line_offset;
-          line_offset = d.label.aesthetics.label_position === "top" ? line_offset : -(line_offset + d.label.aesthetics.label_size / 2);
-          select(this)
-              .select("line")
-              .attr("x1", e.sourceEvent.x)
-              .attr("y1", e.sourceEvent.y + line_offset)
-              .attr("x2", x_val + x_offset)
-              .attr("y2", y_val + y_offset);
-          select(this)
-              .select("path")
-              .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
-      });
+      function screenToSvg(clientX, clientY, svg) {
+          const point = svg.createSVGPoint();
+          point.x = clientX;
+          point.y = clientY;
+          const ctm = svg.getScreenCTM();
+          if (!ctm)
+              return { x: 0, y: 0 };
+          const inv = ctm.inverse();
+          const transformed = point.matrixTransform(inv);
+          return { x: transformed.x, y: transformed.y };
+      }
       selection.select(".text-labels")
           .selectAll(".text-group-inner")
           .data(visualObj.viewModel.plotPoints[0])
@@ -4336,7 +3952,52 @@ var spc = (function (exports) {
               .style("fill", d.label.aesthetics.label_marker_colour)
               .style("stroke", d.label.aesthetics.label_marker_outline_colour);
           if (!visualObj.viewModel.headless) {
-              textGroup.call(dragFun);
+              const x_val = visualObj.plotProperties.xScale(d.x);
+              const y_val = visualObj.plotProperties.yScale(d.value);
+              const marker_offset = 10;
+              const svgEl = visualObj.svg.node();
+              textGroup
+                  .style("touch-action", "none")
+                  .on("pointerdown", function (event) {
+                  const g = this;
+                  g.setPointerCapture(event.pointerId);
+                  const onMove = (e) => {
+                      const { x, y } = screenToSvg(e.clientX, e.clientY, svgEl);
+                      const angle = Math.atan2(y - y_val, x - x_val) * 180 / Math.PI;
+                      const distance = Math.sqrt(Math.pow(y - y_val, 2) + Math.pow(x - x_val, 2));
+                      d.label.angle = angle;
+                      d.label.distance = distance;
+                      const x_offset = marker_offset * Math.cos(angle * Math.PI / 180);
+                      const y_offset = marker_offset * Math.sin(angle * Math.PI / 180);
+                      let line_offset = d.label.aesthetics.label_line_offset;
+                      line_offset = d.label.aesthetics.label_position === "top"
+                          ? line_offset
+                          : -(line_offset + d.label.aesthetics.label_size / 2);
+                      textGroup
+                          .select("text")
+                          .attr("x", x)
+                          .attr("y", y);
+                      textGroup
+                          .select("line")
+                          .attr("x1", x)
+                          .attr("y1", y + line_offset)
+                          .attr("x2", x_val + x_offset)
+                          .attr("y2", y_val + y_offset);
+                      textGroup
+                          .select("path")
+                          .attr("transform", `translate(${x_val + x_offset}, ${y_val + y_offset}) rotate(${angle - 90})`);
+                  };
+                  const onUp = (e) => {
+                      const g2 = this;
+                      g2.releasePointerCapture(e.pointerId);
+                      g2.removeEventListener("pointermove", onMove);
+                      g2.removeEventListener("pointerup", onUp);
+                      g2.removeEventListener("pointercancel", onUp);
+                  };
+                  this.addEventListener("pointermove", onMove);
+                  this.addEventListener("pointerup", onUp);
+                  this.addEventListener("pointercancel", onUp);
+              });
           }
       });
   }
