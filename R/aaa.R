@@ -28,3 +28,5 @@ minify_deps(system.file("htmlwidgets", "lib", "UTILS", "headlessUtils.js",
                         package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "UTILS", "interactiveUtils.js",
                         package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "UTILS", "ccD3.js",
+                        package = "controlcharts"))

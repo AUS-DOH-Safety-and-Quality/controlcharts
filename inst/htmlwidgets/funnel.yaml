@@ -9,5 +9,6 @@ dependencies:
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
     script:
+      - ccD3.min.js
       - commonUtils.min.js
       - interactiveUtils.min.js

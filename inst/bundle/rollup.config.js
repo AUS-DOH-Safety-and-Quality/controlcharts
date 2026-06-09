@@ -9,8 +9,7 @@ export default
     input: ['spc.ts', 'funnel.ts', 'ccD3.ts'],
     output: {
       format: 'es',
-      dir: 'dist',
-      chunkFileNames: 'ccDeps.js'
+      dir: 'dist'
     },
     plugins: [
       typescript({ tsconfig: './tsconfig.json' }),

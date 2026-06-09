@@ -14,6 +14,8 @@ ctx <- NULL
   # construct the SVGs, so we use a dummy-DOM implementation
   # for headless rendering
   .load_js_file(ctx, "js/minidom.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/ccD3.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.min.js")

@@ -1,8 +1,6 @@
 name: "Update Bundled PBI Visuals"
 on:
   workflow_dispatch:
-  push:
-    branches: [bundles-test]
 permissions:
   contents: write
   pull-requests: write
@@ -41,7 +39,6 @@ jobs:
       run: |
         mv inst/bundle/dist/funnel.js inst/htmlwidgets/lib/PBIFUN/PBIFUN.js
         mv inst/bundle/dist/spc.js inst/htmlwidgets/lib/PBISPC/PBISPC.js
-        mv inst/bundle/dist/ccDeps.js inst/htmlwidgets/lib/UTILS/ccDeps.js
         mv inst/bundle/dist/ccD3.js inst/htmlwidgets/lib/UTILS/ccD3.js
 
     - name: Commit funnel changes
@@ -101,11 +98,11 @@ jobs:
         git commit -m "Increment package version"
 
         git push --set-upstream origin ${{ env.BRANCH }}
-        #gh pr create \
-        #  --title "$TITLE" \
-        #  --body "This PR was automatically created by GitHub Actions." \
-        #  --base main \
-        #  --head ${{ env.BRANCH }}
+        gh pr create \
+          --title "$TITLE" \
+          --body "This PR was automatically created by GitHub Actions." \
+          --base main \
+          --head ${{ env.BRANCH }}
 
-        #gh workflow run R-CMD-check.yaml --ref ${{ env.BRANCH }}
+        gh workflow run R-CMD-check.yaml --ref ${{ env.BRANCH }}
       shell: bash
