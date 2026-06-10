@@ -12,6 +12,9 @@ jobs:
     runs-on: "ubuntu-latest"
     env:
       BRANCH: ""
+      PBIFUNVER: ""
+      PBISPCVER: ""
+      PBIDEPS: ""
 
     steps:
     - uses: actions/checkout@v6
@@ -24,33 +27,69 @@ jobs:
         echo "BRANCH=$BRANCH" >> $GITHUB_ENV
         git checkout -b $BRANCH
 
-    - name: Update SPC lib
-      id: spc-update
-      uses: ./.github/actions/upgrade-pbi-lib
-      with:
-        type: "SPC"
+    - name: Bundle Visuals
+      run: |
+        git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-SPC PowerBI-SPC
+        git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Funnels PowerBI-Funnels
+        npm install
+        npm run bundle
+      working-directory: 'inst/bundle'
 
-    - name: Update Funnel lib
-      id: funnel-update
-      uses: ./.github/actions/upgrade-pbi-lib
-      with:
-        type: "Funnel"
+    - name: Update lib files
+      run: |
+        mv inst/bundle/dist/funnel.js inst/htmlwidgets/lib/PBIFUN/PBIFUN.js
+        mv inst/bundle/dist/spc.js inst/htmlwidgets/lib/PBISPC/PBISPC.js
+        mv inst/bundle/dist/ccD3.js inst/htmlwidgets/lib/UTILS/ccD3.js
+
+    - name: Commit funnel changes
+      run: |
+        if [[ -n "$(git status inst/htmlwidgets/lib/PBIFUN -s)" ]]; then
+          PBIFUNVER=$(jq '.visual.version' inst/bundle/PowerBI-Funnels/pbiviz.json | sed 's/"//g')
+          echo "PBIFUNVER=$PBIFUNVER" >> $GITHUB_ENV
+          sed -i "/- name: PBIFUN/{n;s/version: .*/version: $PBIFUNVER/;}" inst/htmlwidgets/funnel.yaml
+          git add inst/htmlwidgets/lib/PBIFUN inst/htmlwidgets/funnel.yaml
+          git commit -m "Update PBIFUN library to version $PBIFUNVER"
+        fi
+
+    - name: Commit SPC changes
+      run: |
+        if [[ -n "$(git status inst/htmlwidgets/lib/PBISPC -s)" ]]; then
+          PBISPCVER=$(jq '.visual.version' inst/bundle/PowerBI-SPC/pbiviz.json | sed 's/"//g')
+          echo "PBISPCVER=$PBISPCVER" >> $GITHUB_ENV
+          sed -i "/- name: PBISPC/{n;s/version: .*/version: $PBISPCVER/;}" inst/htmlwidgets/spc.yaml
+          git add inst/htmlwidgets/lib/PBISPC inst/htmlwidgets/spc.yaml
+          git commit -m "Update PBISPC library to version $PBISPCVER"
+        fi
+
+    - name: Commit dependency changes
+      run: |
+        if [[ -n "$(git status inst/htmlwidgets/lib/UTILS -s)" ]]; then
+          echo "PBIDEPS=true" >> $GITHUB_ENV
+          git add inst/htmlwidgets/lib/UTILS
+          git commit -m "Update visual dependencies"
+        fi
 
     - name: Generate PR
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: steps.spc-update.outputs.visual-updated == 'true' || steps.funnel-update.outputs.visual-updated == 'true'
+      if: env.PBIFUNVER != '' || env.PBISPCVER != '' || env.PBIDEPS != ''
       run: |
         # Generate PR Title
         TITLE="Update Bundled Lib(s): "
-        if [ "${{ steps.spc-update.outputs.visual-updated }}" == "true" ]; then
-          TITLE+="PBISPC to ${{ steps.spc-update.outputs.visual-version }}"
+        if [[ -n "${{ env.PBISPCVER }}" ]]; then
+          TITLE+="PBISPC to ${{ env.PBISPCVER }}"
         fi
-        if [ "${{ steps.funnel-update.outputs.visual-updated }}" == "true" ]; then
-          if [ "${{ steps.spc-update.outputs.visual-updated }}" == "true" ]; then
+        if [[ -n "${{ env.PBIFUNVER }}" ]]; then
+          if [[ -n "${{ env.PBISPCVER }}" ]]; then
             TITLE+=", "
           fi
-          TITLE+="PBIFUN to ${{ steps.funnel-update.outputs.visual-version }}"
+          TITLE+="PBIFUN to ${{ env.PBIFUNVER }}"
+        fi
+        if [[ -n "${{ env.PBIDEPS }}" ]]; then
+          if [[ -n "${{ env.PBIFUNVER }}" ]]; then
+            TITLE+=", "
+          fi
+          TITLE+="Visual dependencies"
         fi
 
         # Increment package version

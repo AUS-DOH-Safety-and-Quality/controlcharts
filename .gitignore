@@ -10,3 +10,6 @@ node_modules
 /doc/
 /Meta/
 *.min.js
+inst/bundle/PowerBI-SPC
+inst/bundle/PowerBI-Funnels
+inst/bundle/dist
