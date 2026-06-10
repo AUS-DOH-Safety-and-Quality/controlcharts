@@ -66,7 +66,7 @@ funnel_default_settings()
 #> [1] TRUE
 #> 
 #> $funnel$ttip_label_group
-#> [1] "Group"
+#> [1] "Automatic"
 #> 
 #> $funnel$ttip_show_numerator
 #> [1] TRUE
@@ -455,7 +455,7 @@ funnel_default_settings()
 #> [1] 0
 #> 
 #> $x_axis$xlimit_label
-#> NULL
+#> [1] ""
 #> 
 #> $x_axis$xlimit_label_font
 #> [1] "'Arial', sans-serif"
@@ -499,7 +499,7 @@ funnel_default_settings()
 #> [1] 0
 #> 
 #> $y_axis$ylimit_label
-#> NULL
+#> [1] ""
 #> 
 #> $y_axis$ylimit_label_font
 #> [1] "'Arial', sans-serif"
@@ -620,7 +620,7 @@ funnel_default_settings("x_axis")
 #> [1] 0
 #> 
 #> $xlimit_label
-#> NULL
+#> [1] ""
 #> 
 #> $xlimit_label_font
 #> [1] "'Arial', sans-serif"

@@ -1,5 +1,7 @@
 /*
   Assumes that the following files have already been loaded:
+    - ./ccDeps.js
+    - ./ccD3.js
     - ./commonUtils.js
     - ../PBISPC/PBISPC.js
     - ../PBIFUN/PBIFUN.js
@@ -11,10 +13,10 @@ function initialiseHeadless() {
   globalThis.document = document;
   globalThis.window = window;
 
-  var spcDiv = spc.d3.select(document.body).append('div').classed('spc-container', true).node();
+  var spcDiv = ccD3.select(document.body).append('div').classed('spc-container', true).node();
   globalThis.spcVisual = new spc.Visual(makeConstructorArgs(spcDiv));
 
-  var funnelDiv = spc.d3.select(document.body).append('div').classed('funnel-container', true).node();
+  var funnelDiv = ccD3.select(document.body).append('div').classed('funnel-container', true).node();
   globalThis.funnelVisual = new funnel.Visual(makeConstructorArgs(funnelDiv));
 }
 
