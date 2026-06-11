@@ -1,10 +1,5 @@
 
 dependencies:
-  - name: PBIFUN
-    version: 1.7.0.18
-    src: htmlwidgets/lib/PBIFUN
-    script:
-      - PBIFUN.min.js
   - name: UTILS
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
@@ -12,3 +7,8 @@ dependencies:
       - ccD3.min.js
       - commonUtils.min.js
       - interactiveUtils.min.js
+  - name: PBIFUN
+    version: 1.7.0.18
+    src: htmlwidgets/lib/PBIFUN
+    script:
+      - PBIFUN.min.js
