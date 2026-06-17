@@ -397,7 +397,7 @@ create_save_function <- function(type, rtn, data_views) {
       return(invisible(NULL))
     }
     if (!(file_ext %in% c("html", "svg"))) {
-      if (!requireNamespace("rsvg", quietly = TRUE)) {
+      if (!("rsvg" %in% utils::installed.packages()[,"Package"])) {
         stop("The 'rsvg' package is required for saving plots in ",
              "formats other than SVG or HTML but is not installed.",
              call. = FALSE)
@@ -490,7 +490,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
 
     compressed <- FALSE
     if (getOption("controlcharts.compress_data", FALSE)) {
-      if (!requireNamespace("zlib", quietly = TRUE)) {
+      if (!("zlib" %in% utils::installed.packages()[,"Package"])) {
         stop("The 'zlib' package is required for compressing stored data.",
             call. = FALSE)
       }
