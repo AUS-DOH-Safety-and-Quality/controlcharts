@@ -1,4 +1,4 @@
-init_chrome <- function() {
+init_chromote <- function() {
   if (Sys.getenv("CHROMOTE_CHROME") == "") {
     edge_path <- "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
 
@@ -12,11 +12,14 @@ init_chrome <- function() {
   # Need to temporarily ignore http/s proxy when initialising chromote
   # session, otherwise it fails to connect
   proxies <- Sys.getenv(c("https_proxy", "http_proxy"))
-  on.exit(do.call(Sys.setenv, as.list(proxies)), add = TRUE)
-  Sys.unsetenv("http_proxy")
-  Sys.unsetenv("https_proxy")
+  if (any(proxies != "")) {
+    on.exit(do.call(Sys.setenv, as.list(proxies)), add = TRUE)
+    Sys.unsetenv("http_proxy")
+    Sys.unsetenv("https_proxy")
+  }
 
-  chromote::ChromoteSession$new()
+  chromote::set_default_chromote_object(chromote::Chromote$new())
+  invisible(NULL)
 }
 
 parse_styles <- function(style_str) {
@@ -69,8 +72,6 @@ parse_rgb <- function(rgb_string) {
   rgb_vals <- as.numeric(strsplit(gsub("rgb\\(|\\)", "", rgb_string), ",")[[1]])
   grDevices::rgb(rgb_vals[1], rgb_vals[2], rgb_vals[3], maxColorValue = 255)
 }
-
-parse_translate <- function(translate_str)
 
 parse_dots <- function(nodeset) {
   dots_nodes <- xml2::xml_children(xml2::xml_find_all(nodeset, './/*[@class="dotsgroup"]'))

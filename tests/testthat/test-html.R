@@ -1,6 +1,7 @@
 skip_on_cran()
 
 source("helpers.R")
+init_chromote()
 
 test_that("Example HTML plot rendered with defaults", {
   dat <- data.frame(
@@ -11,7 +12,7 @@ test_that("Example HTML plot rendered with defaults", {
   outfile <- tempfile(fileext = ".html")
   spc_chart$save_plot(outfile)
 
-  b <- init_chrome()
+  b <- chromote::ChromoteSession$new()
   b$go_to(paste0("file://", outfile))
   svg_res <- b$Runtime$evaluate('document.querySelector(".spc svg").outerHTML')
   expect_equal(svg_res$result$type, "string")
