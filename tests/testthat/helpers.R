@@ -91,3 +91,23 @@ parse_dots <- function(nodeset) {
   dots_df$`stroke.opacity` <- as.numeric(dots_df$`stroke.opacity`)
   dots_df
 }
+
+parse_axis <- function(axis, nodeset) {
+  axis_node <-  xml2::xml_find_first(nodeset, paste0('.//*[@class="', axis, 'axisgroup"]'))
+  axis_ticks <- xml2::xml_find_all(axis_node, './/*[@class="tick"]')
+  axis_list <- lapply(axis_ticks, \(tickgroup) {
+    ticktextgroup <- xml2::xml_find_first(tickgroup, './/text')
+    ticktext_style <- parse_styles(xml2::xml_attr(ticktextgroup, "style"))
+
+    ticktext_style$fill = parse_rgb(ticktext_style$fill)
+    ticktext_style$opacity = xml2::xml_attr(tickgroup, "opacity")
+    ticktext_style$transform = xml2::xml_attr(tickgroup, "transform")
+    ticktext_style$x = as.numeric(gsub("translate\\((.*),(.*)\\)", "\\1", ticktext_style$transform))
+    ticktext_style$y = as.numeric(gsub("translate\\((.*),(.*)\\)", "\\2", ticktext_style$transform))
+    ticktext_style$rotation = xml2::xml_attr(ticktextgroup, "transform")
+    ticktext_style$value = xml2::xml_double(ticktextgroup)
+    data.frame(ticktext_style)
+  })
+  axis_df <- do.call(rbind.data.frame, axis_list)
+  axis_df
+}
