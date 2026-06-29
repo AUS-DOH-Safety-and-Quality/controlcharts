@@ -27,7 +27,8 @@ Suggests:
   knitr,
   rmarkdown,
   testthat (>= 3.0.0),
-  chromote
+  chromote,
+  xml2
 VignetteBuilder: knitr
 URL: https://aus-doh-safety-and-quality.github.io/controlcharts/
 Config/roxygen2/version: 8.0.0
