@@ -137,6 +137,11 @@ spc <- function(data,
     input_data <- data
   }
 
+  categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
+  cat_order <- order(categories)
+  crosstalk_identities <- crosstalk_identities[cat_order]
+  input_data <- input_data[cat_order, ]
+
   input_settings <- list(
     canvas = eval(substitute(canvas_settings), input_data, parent.frame()),
     spc = eval(substitute(spc_settings), input_data, parent.frame()),

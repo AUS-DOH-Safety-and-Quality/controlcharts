@@ -122,10 +122,15 @@ funnel <- function(data,
     crosstalk_group <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalk_identities <-  as.character(seq_len(nrow(data)))
+    crosstalk_identities <- as.character(seq_len(nrow(data)))
     crosstalk_group <- NULL
     input_data <- data
   }
+
+  categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
+  cat_order <- order(categories)
+  crosstalk_identities <- crosstalk_identities[cat_order]
+  input_data <- input_data[cat_order,]
 
   input_settings <- list(
     canvas = eval(substitute(canvas_settings), input_data, parent.frame()),
