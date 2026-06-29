@@ -5,7 +5,10 @@ init_chromote <- function() {
     if (.Platform$OS.type == "windows" && file.exists(edge_path)) {
       Sys.setenv(CHROMOTE_CHROME = edge_path)
     } else {
-      chromote::local_chrome_version(binary = "chrome-headless-shell")
+      local({chromote::local_chrome_version(binary = "chrome-headless-shell", quiet = TRUE)})
+      chrome_vers <- chromote::chrome_versions_list()
+      chrome_path <- chrome_vers[order(chrome_vers$revision, decreasing = TRUE), ]$path[1]
+      Sys.setenv(CHROMOTE_CHROME = chrome_path)
     }
   }
 
