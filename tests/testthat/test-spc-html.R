@@ -3,7 +3,7 @@ skip_on_cran()
 source("helpers.R")
 init_chromote()
 
-test_that("Example HTML plot rendered with defaults", {
+test_that("Example SPC HTML plot rendered with defaults", {
   dat <- data.frame(
     month = seq(as.Date('2024-01-01'), length.out = 24, by = "month"),
     y = rnorm(24)
