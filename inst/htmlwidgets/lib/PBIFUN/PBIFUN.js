@@ -180,7 +180,7 @@ const funnelSettings = {
             perc_labels: dropdownOption("Report as percentage", "Automatic", ["Automatic", "Yes", "No"]),
             transformation: dropdownOption("Transformation", "none", ["none", "ln", "log10", "sqrt"], "none", ["None", "Natural Log (y+1)", "Log10 (y+1)", "Square-Root"]),
             ttip_show_group: toggleOption("Show Group in Tooltip", true),
-            ttip_label_group: textOption("Group Tooltip Label", "Automatic"),
+            ttip_label_group: textOption("Group Tooltip Label", "Group"),
             ttip_show_numerator: toggleOption("Show Numerator in Tooltip", true),
             ttip_label_numerator: textOption("Numerator Tooltip Label", "Numerator"),
             ttip_show_denominator: toggleOption("Show Denominator in Tooltip", true),
