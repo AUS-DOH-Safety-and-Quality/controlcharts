@@ -103,6 +103,4 @@ jobs:
           --body "This PR was automatically created by GitHub Actions." \
           --base main \
           --head ${{ env.BRANCH }}
-
-        gh workflow run R-CMD-check.yaml --ref ${{ env.BRANCH }}
       shell: bash
