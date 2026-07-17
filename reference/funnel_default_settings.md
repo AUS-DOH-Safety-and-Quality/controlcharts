@@ -66,7 +66,7 @@ funnel_default_settings()
 #> [1] TRUE
 #> 
 #> $funnel$ttip_label_group
-#> [1] "Automatic"
+#> [1] "Group"
 #> 
 #> $funnel$ttip_show_numerator
 #> [1] TRUE
