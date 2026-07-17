@@ -488,16 +488,6 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       update_dataviews <- widget_data$update_values$dataViews
     }
 
-    compressed <- FALSE
-    if (getOption("controlcharts.compress_data", FALSE)) {
-      if (!("zlib" %in% utils::installed.packages()[,"Package"])) {
-        stop("The 'zlib' package is required for compressing stored data.",
-            call. = FALSE)
-      }
-      compressed <- TRUE
-      widget_data <- zlib::compress(serialize(widget_data, NULL))
-    }
-
     # Create interactive plot
     rtn$html_plot <- htmlwidgets::createWidget(
       name = type,
@@ -510,14 +500,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       height = height,
       package = "controlcharts",
       elementId = elementId,
-      dependencies = crosstalk::crosstalkLibs(),
-      # preRenderHook to decompress data before rendering
-      preRenderHook = function(instance) {
-        if (compressed) {
-          instance$x <- unserialize(zlib::decompress(instance$x))
-        }
-        instance
-      }
+      dependencies = crosstalk::crosstalkLibs()
     )
   }
 
