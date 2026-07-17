@@ -397,7 +397,7 @@ create_save_function <- function(type, rtn, data_views) {
       return(invisible(NULL))
     }
     if (!(file_ext %in% c("html", "svg"))) {
-      if (!requireNamespace("rsvg", quietly = TRUE)) {
+      if (!("rsvg" %in% utils::installed.packages()[,"Package"])) {
         stop("The 'rsvg' package is required for saving plots in ",
              "formats other than SVG or HTML but is not installed.",
              call. = FALSE)
@@ -488,16 +488,6 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       update_dataviews <- widget_data$update_values$dataViews
     }
 
-    compressed <- FALSE
-    if (getOption("controlcharts.compress_data", FALSE)) {
-      if (!requireNamespace("zlib", quietly = TRUE)) {
-        stop("The 'zlib' package is required for compressing stored data.",
-            call. = FALSE)
-      }
-      compressed <- TRUE
-      widget_data <- zlib::compress(serialize(widget_data, NULL))
-    }
-
     # Create interactive plot
     rtn$html_plot <- htmlwidgets::createWidget(
       name = type,
@@ -510,14 +500,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       height = height,
       package = "controlcharts",
       elementId = elementId,
-      dependencies = crosstalk::crosstalkLibs(),
-      # preRenderHook to decompress data before rendering
-      preRenderHook = function(instance) {
-        if (compressed) {
-          instance$x <- unserialize(zlib::decompress(instance$x))
-        }
-        instance
-      }
+      dependencies = crosstalk::crosstalkLibs()
     )
   }
 

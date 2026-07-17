@@ -36,7 +36,7 @@ knit_print.static_plot <- function(x, ...) {
   in_base_dir({
     dir.create(dirname(tmp), showWarnings = FALSE, recursive = TRUE)
     if (knitr::pandoc_to("pdf")) {
-      if (!requireNamespace("rsvg", quietly = TRUE)) {
+      if (!("rsvg" %in% utils::installed.packages()[,"Package"])) {
         stop("The 'rsvg' package is required for knitting to PDF.",
              call. = FALSE)
       }
