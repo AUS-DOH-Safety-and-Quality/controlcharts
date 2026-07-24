@@ -203,6 +203,7 @@ spc <- function(data,
 #'   is useful if you want to save an expression in a variable.
 #'
 #' @name spc-shiny
+#' @return Interactive Shiny widget for SPC chart
 #'
 #' @export
 spcOutput <- function(outputId, # nolint: object_name_linter.
@@ -212,6 +213,7 @@ spcOutput <- function(outputId, # nolint: object_name_linter.
 }
 
 #' @rdname spc-shiny
+#' @return Interactive Shiny widget for funnel plot
 #' @export
 renderSpc <- function(expr, # nolint: object_name_linter.
                       env = parent.frame(), quoted = FALSE) {

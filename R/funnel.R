@@ -181,6 +181,7 @@ funnel <- function(data,
 #'   is useful if you want to save an expression in a variable.
 #'
 #' @name funnel-shiny
+#' @return Interactive Shiny widget for funnel plot
 #'
 #' @export
 funnelOutput <- function(outputId, # nolint: object_name_linter.
@@ -190,6 +191,7 @@ funnelOutput <- function(outputId, # nolint: object_name_linter.
 }
 
 #' @rdname funnel-shiny
+#' @return Interactive Shiny widget for funnel plot
 #' @export
 renderfunnel <- function(expr, # nolint: object_name_linter.
                          env = parent.frame(), quoted = FALSE) {
