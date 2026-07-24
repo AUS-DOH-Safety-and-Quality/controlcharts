@@ -35,3 +35,9 @@ renderSpc(expr, env = parent.frame(), quoted = FALSE)
   Is `expr` a quoted expression (with
   [`quote()`](https://rdrr.io/r/base/substitute.html))? This is useful
   if you want to save an expression in a variable.
+
+## Value
+
+Interactive Shiny widget for SPC chart
+
+Interactive Shiny widget for funnel plot
