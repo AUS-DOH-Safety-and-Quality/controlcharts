@@ -22,6 +22,7 @@ function makeFactory(chartType) {
       // Change in data, so recalculate limits
       type: 2
     };
+    var updateValues;
 
     // Replace PowerBI selection manager (interactivity) functions with crosstalk equivalents
     visual.selectionManager.getSelectionIds = () => crosstalkSelectionHandle.value ?? []
@@ -45,9 +46,9 @@ function makeFactory(chartType) {
         updateChartTitle(visual.svg, x.title_settings);
 
         // Aggregate the raw data into the format expected by the visual
-        var updateValues = x.is_crosstalk
-                  ? makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories)
-                  : x.update_values;
+        updateValues = x.is_crosstalk
+          ? makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories)
+          : x.update_values;
         visualUpdateArgs.dataViews = updateValues.dataViews;
 
         // Initialise the dataset linkage for crosstalk highlighting and filtering
@@ -64,8 +65,8 @@ function makeFactory(chartType) {
         // filter the original dataset before re-aggregating and re-rendering the visual
         // (see the `makeUpdateValues` function)
         crosstalkFilterHandle.on("change", function(e) {
-          var filteredUpdateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories, e.value);
-          visualUpdateArgs.dataViews = filteredUpdateValues.dataViews;
+          updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories, e.value);
+          visualUpdateArgs.dataViews = updateValues.dataViews;
           visualUpdateArgs.type = 2; // Change in data, so recalculate limits
           visualUpdateArgs.frontend = true; // Enable additional compatibility for non-PBI rendering
 
@@ -76,7 +77,9 @@ function makeFactory(chartType) {
         // so that the visual will automatically assign the correct crosstalk identities
         visual.host.createSelectionIdBuilder = () => ({
           withCategory: (allCategories, categoryIndex) => ({
-            createSelectionId: () => updateValues.crosstalk_identities[allCategories.values[categoryIndex]]
+            createSelectionId: () => Array.isArray(updateValues.crosstalk_identities)
+              ? updateValues.crosstalk_identities[categoryIndex]
+              : updateValues.crosstalk_identities[allCategories.values[categoryIndex]]
           })
         })
 

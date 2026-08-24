@@ -173,6 +173,47 @@ validate_aggregations <- function(aggregations) {
   all_defaults
 }
 
+normalise_indicators <- function(indicators_expr, input_data, env) {
+  indicator_values <- eval(indicators_expr, input_data, env)
+  if (is.data.frame(indicator_values)) {
+    stop("indicators must be a vector or list of vectors.", call. = FALSE)
+  }
+  if (!is.list(indicator_values)) {
+    indicator_values <- list(indicator_values)
+  }
+  if (length(indicator_values) == 0) {
+    stop("indicators must contain at least one vector.", call. = FALSE)
+  }
+
+  expression_values <- list(indicators_expr)
+  if (is.call(indicators_expr) && identical(indicators_expr[[1]], quote(list))) {
+    expression_values <- as.list(indicators_expr)[-1]
+  }
+
+  indicator_names <- names(indicator_values)
+  if (is.null(indicator_names)) {
+    indicator_names <- rep("", length(indicator_values))
+  }
+  for (i in seq_along(indicator_values)) {
+    if (is.list(indicator_values[[i]]) || is.matrix(indicator_values[[i]]) ||
+        length(indicator_values[[i]]) != nrow(input_data)) {
+      stop("Each indicator must be a vector with one value per observation.",
+           call. = FALSE)
+    }
+    if (indicator_names[i] == "") {
+      if (length(expression_values) >= i) {
+        indicator_names[i] <- paste(deparse(expression_values[[i]]),
+                                    collapse = "")
+      } else {
+        indicator_names[i] <- paste0("Indicator ", i)
+      }
+    }
+    indicator_values[[i]] <- as.character(indicator_values[[i]])
+  }
+  names(indicator_values) <- make.unique(indicator_names)
+  indicator_values
+}
+
 title_padding <- function(title) {
   if (is.null(title$text)) {
     return(0)
@@ -286,28 +327,52 @@ create_static <- function(type, data_views, title_settings,
 
   limits <- NULL
   if (type == "spc") {
-    limits <- lapply(raw_ret$plotPoints, function(elem) elem$table_row)
-    # Depending on the chart type, the 'numerators' and 'denominators' may be
-    # empty, so we need to remove them from the list
-    limits <- lapply(limits, function(lim) {
-      data.frame(lim[!sapply(lim, is.null)])
-    })
-    limits <- do.call(rbind.data.frame, limits)
-    limits$date <- trimws(limits$date)
+    make_spc_limits <- function(rows) {
+      limits <- lapply(rows, function(elem) {
+        lim <- if ("table_row" %in% names(elem)) elem$table_row else elem
+        data.frame(lim[!sapply(lim, is.null)])
+      })
+      limits <- do.call(rbind.data.frame, limits)
+      limits$date <- trimws(limits$date)
 
-    # Remove columns for any outlier patterns that were not used
-    outlier_cols <- c("astronomical", "shift", "trend", "two_in_three")
-    if (!is.null(input_settings$outliers)) {
-      for (pattern in names(input_settings$outliers)) {
-        if ((pattern %in% outlier_cols) && input_settings$outliers[[pattern]]) {
-          outlier_cols <- setdiff(outlier_cols, pattern)
+      outlier_cols <- c("astronomical", "shift", "trend", "two_in_three")
+      if (!is.null(input_settings$outliers)) {
+        for (pattern in names(input_settings$outliers)) {
+          if ((pattern %in% outlier_cols) && input_settings$outliers[[pattern]]) {
+            outlier_cols <- setdiff(outlier_cols, pattern)
+          }
         }
       }
+      outlier_cols[outlier_cols == "astronomical"] <- "astpoint"
+      limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
     }
-    # Return table uses 'astpoint' while input settings use 'astronomical'
-    outlier_cols[outlier_cols == "astronomical"] <- "astpoint"
-    # Remove any outlier columns that were not used
-    limits <- limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
+
+    if (length(raw_ret$indicatorVarNames) == 0) {
+      limits <- make_spc_limits(raw_ret$plotPoints)
+    } else {
+      set_nested_limits <- function(x, group_names, group_limits) {
+        group_name <- group_names[1]
+        if (length(group_names) == 1) {
+          x[[group_name]] <- group_limits
+          return(x)
+        }
+        if (is.null(x[[group_name]])) {
+          x[[group_name]] <- list()
+        }
+        x[[group_name]] <- set_nested_limits(x[[group_name]],
+                                              group_names[-1], group_limits)
+        x
+      }
+
+      limits <- list()
+      for (i in seq_along(raw_ret$spcLimitRows)) {
+        group_names <- as.character(raw_ret$groupNames[[i]])
+        group_names[is.na(group_names) | group_names == ""] <- "<blank>"
+        group_limits <- make_spc_limits(raw_ret$spcLimitRows[[i]])
+        limits <- set_nested_limits(limits, group_names, group_limits)
+      }
+      attr(limits, "indicator_names") <- raw_ret$indicatorVarNames
+    }
   } else if (type == "funnel") {
     values <- lapply(raw_ret$plotPoints, function(obs) {
       data.frame(
