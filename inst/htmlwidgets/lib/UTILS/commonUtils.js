@@ -115,6 +115,13 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
     values: []
   }));
 
+  // Settings layout is the same for every group, so resolve it once up-front
+  var settingGroupEntries = has_conditional_formatting
+    ? Object.keys(inputSettings)
+        .filter(settingGroup => inputSettings[settingGroup] != null)
+        .map(settingGroup => [settingGroup, Object.entries(inputSettings[settingGroup])])
+    : [];
+
   for (var group of dataGrouped.values()) {
     args.categories[0].values.push(group.category);
     group.indicators.forEach((indicator, index) => {
@@ -127,17 +134,21 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       args.crosstalk_identities[group.category] = groupIdentities;
     }
     if (has_conditional_formatting) {
+      // Conditionally-formatted settings arrive as objects keyed by identity,
+      // so pick out this group's value rather than copying every group's value
       var firstIdentity = groupIdentities[0];
-      var settingsClone = JSON.parse(JSON.stringify(inputSettings));
-      for (var settingGroup in settingsClone) {
-        if (settingsClone[settingGroup] == null) {
-          continue;
+      var settingsClone = {};
+      for (var gi = 0; gi < settingGroupEntries.length; gi++) {
+        var settingGroupName = settingGroupEntries[gi][0];
+        var settingEntries = settingGroupEntries[gi][1];
+        var groupClone = {};
+        for (var si = 0; si < settingEntries.length; si++) {
+          var settingValue = settingEntries[si][1];
+          groupClone[settingEntries[si][0]] = isPlainObject(settingValue)
+            ? settingValue[firstIdentity]
+            : settingValue;
         }
-        for (var setting in settingsClone[settingGroup]) {
-          if (isPlainObject(settingsClone[settingGroup][setting])) {
-            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][firstIdentity];
-          }
-        }
+        settingsClone[settingGroupName] = groupClone;
       }
       args.categories[0].objects.push(settingsClone);
     } else {

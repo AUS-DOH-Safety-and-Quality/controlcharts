@@ -328,11 +328,20 @@ create_static <- function(type, data_views, title_settings,
   limits <- NULL
   if (type == "spc") {
     make_spc_limits <- function(rows) {
-      limits <- lapply(rows, function(elem) {
-        lim <- if ("table_row" %in% names(elem)) elem$table_row else elem
-        data.frame(lim[!sapply(lim, is.null)])
+      rows <- lapply(rows, function(elem) {
+        if ("table_row" %in% names(elem)) elem$table_row else elem
       })
-      limits <- do.call(rbind.data.frame, limits)
+      # Assemble column-wise, as building (and binding) a data frame per row
+      # is orders of magnitude slower for charts with many points
+      keep <- names(rows[[1]])[!vapply(rows[[1]], is.null, logical(1))]
+      cols <- lapply(keep, function(nm) {
+        unlist(lapply(rows, function(row) {
+          value <- row[[nm]]
+          if (is.null(value)) NA else value
+        }), use.names = FALSE)
+      })
+      names(cols) <- keep
+      limits <- list2DF(cols)
       limits$date <- trimws(limits$date)
 
       outlier_cols <- c("astronomical", "shift", "trend", "two_in_three")
