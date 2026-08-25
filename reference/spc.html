@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.19</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.20</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,7 @@
 <span>  <span class="va">numerators</span>,</span>
 <span>  <span class="va">denominators</span>,</span>
 <span>  <span class="va">groupings</span>,</span>
+<span>  indicators <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">xbar_sds</span>,</span>
 <span>  <span class="va">tooltips</span>,</span>
 <span>  <span class="va">labels</span>,</span>
@@ -101,6 +102,11 @@ denominators for each category.</p></dd>
 <dt id="arg-groupings">groupings<a class="anchor" aria-label="anchor" href="#arg-groupings"></a></dt>
 <dd><p>A vector or column name representing the grouping for
 each category.</p></dd>
+
+
+<dt id="arg-indicators">indicators<a class="anchor" aria-label="anchor" href="#arg-indicators"></a></dt>
+<dd><p>A vector or list of vectors representing indicator
+categories for the summary table.</p></dd>
 
 
 <dt id="arg-xbar-sds">xbar_sds<a class="anchor" aria-label="anchor" href="#arg-xbar-sds"></a></dt>
@@ -228,8 +234,8 @@ Valid values are:</p><ul><li><p><code>"html_plot"</code>: Interactive <code>html
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>controlchart</code> containing the
-interactive plot, static plot, limits data frame,
-and a function to save the plot.</p>
+interactive plot, static plot, limits, and a function to save the plot.
+When indicators are supplied, limits are a named nested list of data frames.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

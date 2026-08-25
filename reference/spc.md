@@ -11,6 +11,7 @@ spc(
   numerators,
   denominators,
   groupings,
+  indicators = NULL,
   xbar_sds,
   tooltips,
   labels,
@@ -59,6 +60,11 @@ spc(
 - groupings:
 
   A vector or column name representing the grouping for each category.
+
+- indicators:
+
+  A vector or list of vectors representing indicator categories for the
+  summary table.
 
 - xbar_sds:
 
@@ -201,4 +207,5 @@ spc(
 ## Value
 
 An object of class `controlchart` containing the interactive plot,
-static plot, limits data frame, and a function to save the plot.
+static plot, limits, and a function to save the plot. When indicators
+are supplied, limits are a named nested list of data frames.
