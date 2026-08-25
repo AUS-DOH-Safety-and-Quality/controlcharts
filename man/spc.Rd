@@ -10,6 +10,7 @@ spc(
   numerators,
   denominators,
   groupings,
+  indicators = NULL,
   xbar_sds,
   tooltips,
   labels,
@@ -47,6 +48,9 @@ denominators for each category.}
 
 \item{groupings}{A vector or column name representing the grouping for
 each category.}
+
+\item{indicators}{A vector or list of vectors representing indicator
+categories for the summary table.}
 
 \item{xbar_sds}{A numeric vector or column name representing the x-bar
 and standard deviation values for each category.}
@@ -138,8 +142,8 @@ Valid values are:
 }
 \value{
 An object of class \code{controlchart} containing the
-interactive plot, static plot, limits data frame,
-and a function to save the plot.
+interactive plot, static plot, limits, and a function to save the plot.
+When indicators are supplied, limits are a named nested list of data frames.
 }
 \description{
 Generate interactive SPC chart

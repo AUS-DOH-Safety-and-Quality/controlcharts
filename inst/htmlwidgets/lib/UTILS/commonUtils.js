@@ -68,25 +68,30 @@ function isPlainObject(value) {
 }
 
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
-  var cols = Object.keys(rawData);
-  var dataGrouped = {};
+  var indicatorColumns = Object.entries(rawData.indicators ?? {});
+  var hasIndicators = indicatorColumns.length > 0;
+  var valueNames = Object.keys(rawData).filter(k => ![
+    "categories", "crosstalk_identities", "indicators"
+  ].includes(k));
+  var dataGrouped = new Map();
   rawData.categories.forEach((cat, idx) => {
     if (crosstalkFilters && !(crosstalkFilters.includes(rawData.crosstalk_identities[idx]))) {
       return;
     }
-    var curr_vals = Object.fromEntries(cols.map(col => [col, rawData[col][idx]]));
-    if (dataGrouped[cat] === undefined) {
-      dataGrouped[cat] = [curr_vals]
-    } else {
-      dataGrouped[cat].push(curr_vals)
+    var indicators = indicatorColumns.map(([, values]) => values[idx]);
+    var groupKey = JSON.stringify([cat, ...indicators]);
+    if (!dataGrouped.has(groupKey)) {
+      dataGrouped.set(groupKey, {
+        category: cat,
+        indicators: indicators,
+        rows: []
+      });
     }
+    dataGrouped.get(groupKey).rows.push({
+      crosstalk_identity: rawData.crosstalk_identities[idx],
+      values: Object.fromEntries(valueNames.map(name => [name, rawData[name][idx]]))
+    });
   });
-  Object.freeze(dataGrouped);
-  var identitiesGrouped = [];
-  for (group in dataGrouped) {
-    // Group crosstalk identities for each category group
-    identitiesGrouped.push([group, dataGrouped[group].map(d => d.crosstalk_identities)]);
-  }
 
   var args = {
     categories: [{
@@ -95,34 +100,55 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       objects: []
     }],
     values: [],
-    crosstalk_identities: Object.fromEntries(identitiesGrouped)
+    crosstalk_identities: hasIndicators ? [] : {}
   };
 
-  var valueNames = cols.filter(k => !["categories", "crosstalk_identities"].includes(k));
+  indicatorColumns.forEach(([name]) => {
+    args.categories.push({
+      source: { displayName: name, roles: { indicator: true } },
+      values: []
+    });
+  });
 
   args.values = valueNames.map(name => ({
     source: { roles: {[name]: true} },
     values: []
   }));
 
-  // Convert unique_categories to strings for comparison
-  //   against string keys in dataGrouped
-  unique_categories = unique_categories.map(d => d.toString());
+  // Settings layout is the same for every group, so resolve it once up-front
+  var settingGroupEntries = has_conditional_formatting
+    ? Object.keys(inputSettings)
+        .filter(settingGroup => inputSettings[settingGroup] != null)
+        .map(settingGroup => [settingGroup, Object.entries(inputSettings[settingGroup])])
+    : [];
 
-  for (var category in dataGrouped) {
-    args.categories[0].values.push(category);
+  for (var group of dataGrouped.values()) {
+    args.categories[0].values.push(group.category);
+    group.indicators.forEach((indicator, index) => {
+      args.categories[index + 1].values.push(indicator);
+    });
+    var groupIdentities = group.rows.map(row => row.crosstalk_identity);
+    if (hasIndicators) {
+      args.crosstalk_identities.push(groupIdentities);
+    } else {
+      args.crosstalk_identities[group.category] = groupIdentities;
+    }
     if (has_conditional_formatting) {
-      // If there are multiple observations for the current category, only take settings from the first
-      var firstIdentity = args.crosstalk_identities[category][0];
-      // If multiple values are passed for a given setting, extract the one for the current category
-      // Deep-clone the input settings to avoid modifying the original object
-      var settingsClone = JSON.parse(JSON.stringify(inputSettings));
-      for (var settingGroup in settingsClone) {
-        for (var setting in settingsClone[settingGroup]) {
-          if (isPlainObject(settingsClone[settingGroup][setting])) {
-            settingsClone[settingGroup][setting] = settingsClone[settingGroup][setting][firstIdentity];
-          }
+      // Conditionally-formatted settings arrive as objects keyed by identity,
+      // so pick out this group's value rather than copying every group's value
+      var firstIdentity = groupIdentities[0];
+      var settingsClone = {};
+      for (var gi = 0; gi < settingGroupEntries.length; gi++) {
+        var settingGroupName = settingGroupEntries[gi][0];
+        var settingEntries = settingGroupEntries[gi][1];
+        var groupClone = {};
+        for (var si = 0; si < settingEntries.length; si++) {
+          var settingValue = settingEntries[si][1];
+          groupClone[settingEntries[si][0]] = isPlainObject(settingValue)
+            ? settingValue[firstIdentity]
+            : settingValue;
         }
+        settingsClone[settingGroupName] = groupClone;
       }
       args.categories[0].objects.push(settingsClone);
     } else {
@@ -131,7 +157,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
 
     for (var i = 0; i < valueNames.length; i++) {
       var name = valueNames[i];
-      var aggregatedValue = aggregateColumn(dataGrouped[category].map(dataRow => dataRow[name]), aggregations[name]);
+      var aggregatedValue = aggregateColumn(group.rows.map(row => row.values[name]), aggregations[name]);
       args.values[i].values.push(aggregatedValue);
     }
   }
@@ -143,10 +169,13 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
         values: args.values
       },
       metadata: {
-        columns: [
-          { roles: { key: true }},
-          { roles: { numerators: true }}
-        ]
+        columns: hasIndicators
+          ? args.categories.map(column => column.source)
+              .concat(args.values.map(column => column.source))
+          : [
+              { roles: { key: true }},
+              { roles: { numerators: true }}
+            ]
       }
     }],
     crosstalk_identities: args.crosstalk_identities

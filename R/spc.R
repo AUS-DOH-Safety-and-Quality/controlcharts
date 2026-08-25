@@ -9,6 +9,8 @@
 #' denominators for each category.
 #' @param groupings A vector or column name representing the grouping for
 #' each category.
+#' @param indicators A vector or list of vectors representing indicator
+#' categories for the summary table.
 #' @param xbar_sds A numeric vector or column name representing the x-bar
 #' and standard deviation values for each category.
 #' @param tooltips A vector or column name representing the tooltips for
@@ -79,8 +81,8 @@
 #' }
 #'
 #' @return An object of class \code{controlchart} containing the
-#' interactive plot, static plot, limits data frame,
-#' and a function to save the plot.
+#' interactive plot, static plot, limits, and a function to save the plot.
+#' When indicators are supplied, limits are a named nested list of data frames.
 #'
 #' @export
 spc <- function(data,
@@ -88,6 +90,7 @@ spc <- function(data,
                 numerators,
                 denominators,
                 groupings,
+                indicators = NULL,
                 xbar_sds,
                 tooltips,
                 labels,
@@ -138,9 +141,16 @@ spc <- function(data,
   }
 
   categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
-  cat_order <- order(categories)
-  crosstalk_identities <- crosstalk_identities[cat_order]
-  input_data <- input_data[cat_order, ]
+  indicator_values <- NULL
+  if (!missing(indicators) && !identical(substitute(indicators), quote(NULL))) {
+    indicator_values <- normalise_indicators(substitute(indicators), input_data,
+                                             parent.frame())
+  }
+
+  ordering_values <- c(indicator_values, list(categories))
+  row_order <- do.call(order, ordering_values)
+  crosstalk_identities <- crosstalk_identities[row_order]
+  input_data <- input_data[row_order, ]
 
   input_settings <- list(
     canvas = eval(substitute(canvas_settings), input_data, parent.frame()),
@@ -156,31 +166,35 @@ spc <- function(data,
   )
 
   categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
-  cat_order <- order(categories)
+  cat_order <- seq_len(nrow(input_data))
   data_raw <- list(
-    crosstalk_identities = crosstalk_identities[cat_order],
-    categories = categories[cat_order],
-    numerators = eval(substitute(numerators), input_data, parent.frame())[cat_order]
+    crosstalk_identities = crosstalk_identities,
+    categories = categories,
+    numerators = eval(substitute(numerators), input_data, parent.frame())
   )
 
+  if (!is.null(indicator_values)) {
+    data_raw$indicators <- lapply(indicator_values, function(x) x[row_order])
+  }
+
   if (!missing(denominators)) {
-    data_raw$denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))[cat_order]
+    data_raw$denominators <- as.numeric(eval(substitute(denominators), input_data, parent.frame()))
   }
 
   if (!missing(groupings)) {
-    data_raw$groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))[cat_order]
+    data_raw$groupings <- as.character(eval(substitute(groupings), input_data, parent.frame()))
   }
 
   if (!missing(xbar_sds)) {
-    data_raw$xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))[cat_order]
+    data_raw$xbar_sds <- as.numeric(eval(substitute(xbar_sds), input_data, parent.frame()))
   }
 
   if (!missing(tooltips)) {
-    data_raw$tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))[cat_order]
+    data_raw$tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))
   }
 
   if (!missing(labels)) {
-    data_raw$labels <- as.character(eval(substitute(labels), input_data, parent.frame()))[cat_order]
+    data_raw$labels <- as.character(eval(substitute(labels), input_data, parent.frame()))
   }
 
   create_controlchart("spc", data_raw, cat_order, is_crosstalk, crosstalk_group,
