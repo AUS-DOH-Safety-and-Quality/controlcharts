@@ -294,13 +294,14 @@ update_static_padding <- function(type, data_views) {
 
 create_static <- function(type, data_views, title_settings,
                           input_settings, width, height,
-                          rtn_static = TRUE, rtn_limits = TRUE
+                          rtn_static = TRUE, rtn_limits = TRUE,
+                          rtn_limit_lines = FALSE
                          ) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
   raw_ret <- ctx$call("updateHeadlessVisual", type, data_views,
                       title_settings, width, height,
-                      rtn_static, rtn_limits)
+                      rtn_static, rtn_limits || rtn_limit_lines)
 
   if ("error" %in% names(raw_ret)) {
     stop(raw_ret$error, call. = FALSE)
@@ -319,6 +320,26 @@ create_static <- function(type, data_views, title_settings,
       ),
       class = "static_plot"
     )
+  }
+
+  if (type == "funnel" && (rtn_limits || rtn_limit_lines)) {
+    limit_lines <-
+      lapply(raw_ret$calculatedLimits, function(limit_grp) {
+        limit_grp <- lapply(limit_grp, function(x) {
+          ifelse(is.null(x) || is.nan(x), NA, x)
+        })
+        data.frame(limit_grp)
+      })
+    limit_lines <- do.call(rbind.data.frame, limit_lines)
+    # Remove alt-target column if not used
+    if (is.null(input_settings$lines) ||
+          is.null(input_settings$lines$alt_target)) {
+      limit_lines$alt_target <- NULL
+    }
+    if (rtn_limit_lines) {
+      rtn$limit_lines <- limit_lines
+      names(rtn$limit_lines)[names(limit_lines) == "denominators"] <- "denominator"
+    }
   }
 
   if (!rtn_limits) {
@@ -396,15 +417,7 @@ create_static <- function(type, data_views, title_settings,
     })
     values <- do.call(rbind.data.frame, values)
 
-    limits <-
-      lapply(raw_ret$calculatedLimits, function(limit_grp) {
-        limit_grp <- lapply(limit_grp, function(x) {
-          ifelse(is.null(x) || is.nan(x), NA, x)
-        })
-        data.frame(limit_grp)
-      })
-    limits <- do.call(rbind.data.frame, limits)
-    limits <- merge(values, limits, by.x = "denominator", by.y = "denominators")
+    limits <- merge(values, limit_lines, by.x = "denominator", by.y = "denominators")
 
     #  Remove columns for any outlier patterns that were not used
     drop_cols <- c("two_sigma", "three_sigma")
@@ -414,11 +427,6 @@ create_static <- function(type, data_views, title_settings,
           drop_cols <- setdiff(drop_cols, pattern)
         }
       }
-    }
-    # Remove alt-target column if not used
-    if (is.null(input_settings$lines) ||
-          is.null(input_settings$lines$alt_target)) {
-      drop_cols <- c(drop_cols, "alt_target")
     }
     limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
   }
@@ -509,7 +517,8 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
                                 input_settings, aggregations, title, tooltip_settings,
                                 width, height, elementId, return_objs) {
   return_objs <- unique(return_objs)
-  invalid_objs <- return_objs[!(return_objs %in% c("html_plot", "static_plot", "limits"))]
+  valid_objs <- c("html_plot", "static_plot", "limits", if (type == "funnel") "limit_lines")
+  invalid_objs <- return_objs[!(return_objs %in% valid_objs)]
   if (length(invalid_objs) > 0) {
     stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
   }
@@ -536,6 +545,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
   rtn_html <- "html_plot" %in% return_objs
   rtn_static <- "static_plot" %in% return_objs
   rtn_limits <- "limits" %in% return_objs
+  rtn_limit_lines <- "limit_lines" %in% return_objs
   rtn <- list()
   update_dataviews <- NULL
 
@@ -578,7 +588,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
     )
   }
 
-  if (rtn_static || rtn_limits) {
+  if (rtn_static || rtn_limits || rtn_limit_lines) {
     # Special characters to be escaped for headless use only,
     # as is automatically done by htmlwidgets
     input_settings <- escape_labels(input_settings)
@@ -617,7 +627,8 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       width = width,
       height = height,
       rtn_static = rtn_static,
-      rtn_limits = rtn_limits
+      rtn_limits = rtn_limits,
+      rtn_limit_lines = rtn_limit_lines
     )
     rtn <- append(rtn, static)
   }

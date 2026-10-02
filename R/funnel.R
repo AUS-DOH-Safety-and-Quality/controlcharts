@@ -69,6 +69,8 @@
 #'  \item \code{"html_plot"}: Interactive `htmlwidgets` plot
 #'  \item \code{"static_plot"}: Non-interactive SVG plot
 #'  \item \code{"limits"}: Calculated control limits
+#'  \item \code{"limit_lines"}: Control limits across the full range of
+#'  denominators, for drawing the limit lines (not returned by default)
 #' }
 #'
 #' @return An object of class \code{controlchart} containing the

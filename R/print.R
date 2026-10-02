@@ -1,6 +1,6 @@
 #' @exportS3Method
 print.controlchart <- function(x, ...) {
-  types <- c("html_plot", "static_plot", "limits")
+  types <- c("html_plot", "static_plot", "limits", "limit_lines")
   to_print <- types[types %in% names(x)][1]
   print(x[[to_print]])
 }
@@ -70,7 +70,9 @@ knit_print.controlchart <- function(x, ...) {
     knitr::knit_print(x$html_plot, ...)
   } else if ("static_plot" %in% (types_present)) {
     knit_print.static_plot(x$static_plot, ...)
-  } else {
+  } else if ("limits" %in% (types_present)) {
     knitr::knit_print(x$limits, ...)
+  } else {
+    knitr::knit_print(x$limit_lines, ...)
   }
 }
