@@ -174,6 +174,9 @@ funnel(
 
   - `"limits"`: Calculated control limits
 
+  - `"limit_lines"`: Control limits across the full range of
+    denominators, for drawing the limit lines (not returned by default)
+
 ## Value
 
 An object of class `controlchart` containing the interactive plot,
