@@ -5,6 +5,7 @@
     - ./commonUtils.js
     - ../PBISPC/PBISPC.js
     - ../PBIFUN/PBIFUN.js
+    - ../MISC/MISC.js
 */
 
 function initialiseHeadless() {
@@ -18,6 +19,9 @@ function initialiseHeadless() {
 
   var funnelDiv = ccD3.select(document.body).append('div').classed('funnel-container', true).node();
   globalThis.funnelVisual = new funnel.Visual(makeConstructorArgs(funnelDiv));
+
+  var miscDiv = ccD3.select(document.body).append('div').classed('misc-container', true).node();
+  globalThis.miscVisual = new misc.Visual(makeConstructorArgs(miscDiv));
 }
 
 function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height,
@@ -61,7 +65,7 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
     if (chartType === "funnel") {
       rtn.plotPoints = visual.viewModel.plotPoints;
       rtn.calculatedLimits = visual.viewModel.calculatedLimits;
-    } else {
+    } else if (chartType === "spc") {
       rtn.plotPoints = visual.viewModel.plotPoints[0];
       rtn.spcLimitRows = visual.viewModel.controlLimits.map((limits, index) => {
         var outliers = visual.viewModel.outliers[index];
@@ -89,6 +93,8 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
       });
       rtn.groupNames = visual.viewModel.groupNames;
       rtn.indicatorVarNames = visual.viewModel.indicatorVarNames;
+    } else {
+      rtn.plotPoints = visual.viewModel.plotPoints;
     }
   }
 

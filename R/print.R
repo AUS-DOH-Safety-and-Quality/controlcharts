@@ -31,11 +31,12 @@ knit_print.static_plot <- function(x, ...) {
   # Adapted from magick::knit_print.magick-image
   plot_counter <- utils::getFromNamespace("plot_counter", "knitr")
   in_base_dir <- utils::getFromNamespace("in_base_dir", "knitr")
-  tmp <- knitr::fig_path(ifelse(knitr::pandoc_to("pdf"), "pdf", "svg"),
+  is_pdf <- knitr::pandoc_to(c("latex", "beamer", "pdf"))
+  tmp <- knitr::fig_path(ifelse(is_pdf, "pdf", "svg"),
                          number = plot_counter())
   in_base_dir({
     dir.create(dirname(tmp), showWarnings = FALSE, recursive = TRUE)
-    if (knitr::pandoc_to("pdf")) {
+    if (is_pdf) {
       if (!("rsvg" %in% utils::installed.packages()[,"Package"])) {
         stop("The 'rsvg' package is required for knitting to PDF.",
              call. = FALSE)

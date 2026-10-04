@@ -67,16 +67,27 @@ function isPlainObject(value) {
   return Object.prototype.toString.call(value) === '[object Object]';
 }
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
-  var indicatorColumns = Object.entries(rawData.indicators ?? {});
+  var indicatorColumns = Object.entries(rawData.indicators ?? {})
+    .map(([name, values]) => [name, asArray(values)]);
   var hasIndicators = indicatorColumns.length > 0;
-  var tooltipColumns = Object.entries(rawData.tooltips ?? {});
+  var tooltipColumns = Object.entries(rawData.tooltips ?? {})
+    .map(([name, values]) => [name, asArray(values)]);
   var valueNames = Object.keys(rawData).filter(k => ![
     "categories", "crosstalk_identities", "indicators", "tooltips"
   ].includes(k));
+  var categories = asArray(rawData.categories);
+  var crosstalkIdentities = asArray(rawData.crosstalk_identities);
+  var valueColumns = Object.fromEntries(
+    valueNames.map(name => [name, asArray(rawData[name])])
+  );
   var dataGrouped = new Map();
-  rawData.categories.forEach((cat, idx) => {
-    if (crosstalkFilters && !(crosstalkFilters.includes(rawData.crosstalk_identities[idx]))) {
+  categories.forEach((cat, idx) => {
+    if (crosstalkFilters && !(crosstalkFilters.includes(crosstalkIdentities[idx]))) {
       return;
     }
     var indicators = indicatorColumns.map(([, values]) => values[idx]);
@@ -89,8 +100,8 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       });
     }
     dataGrouped.get(groupKey).rows.push({
-      crosstalk_identity: rawData.crosstalk_identities[idx],
-      values: Object.fromEntries(valueNames.map(name => [name, rawData[name][idx]])),
+      crosstalk_identity: crosstalkIdentities[idx],
+      values: Object.fromEntries(valueNames.map(name => [name, valueColumns[name][idx]])),
       tooltips: tooltipColumns.map(([, values]) => values[idx])
     });
   });

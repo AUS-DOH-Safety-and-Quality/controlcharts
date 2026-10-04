@@ -3,6 +3,7 @@
     - ./commonUtils.js
     - ../PBISPC/PBISPC.js
     - ../PBIFUN/PBIFUN.js
+    - ../MISC/MISC.js
 */
 
 function makeFactory(chartType) {
@@ -13,6 +14,7 @@ function makeFactory(chartType) {
 
     // Initialise the chart object for calculating limits and rendering
     var visual = new window[chartType].Visual(makeConstructorArgs(el));
+    addExportControl(el, visual.svg.node(), chartType);
 
     // Initialise the arguments for the visual update function
     // so that they can be reused across rendering, resizing, and filtering
@@ -86,6 +88,7 @@ function makeFactory(chartType) {
         visual.host.tooltipService.show = (tooltipArgs) => {
           var boundRect = visual.svg.node().getBoundingClientRect();
           var tooltipGroup = visual.svg.select(".chart-tooltip-group");
+          tooltipGroup.raise();
           var maxTextLength = 0;
 
           var rectGroup = tooltipGroup.selectAll("rect")
@@ -156,4 +159,111 @@ function makeFactory(chartType) {
       }
     };
   }
+}
+
+function chartSvgBlob(svg) {
+  const copy = svg.cloneNode(true);
+  const width = svg.width.baseVal.value;
+  const height = svg.height.baseVal.value;
+  const properties = [
+    "fill", "fill-opacity", "stroke", "stroke-width", "stroke-opacity", "stroke-dasharray",
+    "font-family", "font-size", "font-weight", "font-style", "text-anchor",
+    "dominant-baseline", "opacity", "visibility", "display"
+  ];
+  const originals = [svg, ...svg.querySelectorAll("*")];
+  const copies = [copy, ...copy.querySelectorAll("*")];
+  originals.forEach((node, index) => {
+    const style = getComputedStyle(node);
+    properties.forEach(property => copies[index].style.setProperty(property, style.getPropertyValue(property)));
+  });
+  copy.querySelectorAll(".chart-tooltip-group").forEach(node => node.remove());
+  copy.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  copy.setAttribute("width", width);
+  copy.setAttribute("height", height);
+  if (!copy.hasAttribute("viewBox")) copy.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+  const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+  const backgroundColour = getComputedStyle(svg).backgroundColor;
+  background.setAttribute("width", "100%");
+  background.setAttribute("height", "100%");
+  background.setAttribute("fill", backgroundColour === "rgba(0, 0, 0, 0)" ? "white" : backgroundColour);
+  copy.prepend(background);
+  return new Blob([new XMLSerializer().serializeToString(copy)], { type: "image/svg+xml;charset=utf-8" });
+}
+
+async function chartPngBlob(svgBlob, width, height) {
+  const url = URL.createObjectURL(svgBlob);
+  try {
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(width * 2);
+    canvas.height = Math.ceil(height * 2);
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("PNG export failed")), "image/png");
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+function addExportControl(el, svg, chartType) {
+  el.classList.add("controlcharts-widget");
+  const control = document.createElement("details");
+  control.className = "controlcharts-export";
+  control.innerHTML = `
+    <summary aria-label="Export chart" title="Export chart">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </summary>
+    <div class="controlcharts-export-options" role="group" aria-label="Export image">
+      <button type="button" data-format="svg">SVG</button>
+      <button type="button" data-format="png">PNG</button>
+      <span class="controlcharts-export-status" role="status"></span>
+    </div>`;
+  el.appendChild(control);
+  const summary = control.querySelector("summary");
+  const buttons = control.querySelectorAll("button");
+  const status = control.querySelector(".controlcharts-export-status");
+  control.addEventListener("click", event => event.stopPropagation());
+  control.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      control.open = false;
+      summary.focus();
+      event.stopPropagation();
+    }
+  });
+  control.addEventListener("focusout", event => {
+    if (!control.contains(event.relatedTarget)) control.open = false;
+  });
+  buttons.forEach(button => button.addEventListener("click", async () => {
+    const format = button.dataset.format;
+    const title = svg.querySelector(".chart-title")?.textContent || chartType;
+    const filename = title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").trim().replace(/[. ]+$/, "") || chartType;
+    status.textContent = "";
+    buttons.forEach(item => item.disabled = true);
+    control.setAttribute("aria-busy", "true");
+    try {
+      let blob = chartSvgBlob(svg);
+      if (format === "png") blob = await chartPngBlob(blob, svg.width.baseVal.value, svg.height.baseVal.value);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${filename}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      control.open = false;
+      summary.focus();
+    } catch (error) {
+      status.textContent = "Could not export image. Please try again.";
+    } finally {
+      buttons.forEach(item => item.disabled = false);
+      control.removeAttribute("aria-busy");
+    }
+  }));
 }

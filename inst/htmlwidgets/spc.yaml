@@ -3,6 +3,7 @@ dependencies:
   - name: UTILS
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
+    stylesheet: interactiveUtils.css
     script:
       - ccD3.min.js
       - commonUtils.min.js

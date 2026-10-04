@@ -1,4 +1,3 @@
-
 dependencies:
   - name: UTILS
     version: 1.0.0
@@ -8,8 +7,8 @@ dependencies:
       - ccD3.min.js
       - commonUtils.min.js
       - interactiveUtils.min.js
-  - name: PBIFUN
-    version: 1.7.0.19
-    src: htmlwidgets/lib/PBIFUN
+  - name: MISC
+    version: 1.0.0
+    src: htmlwidgets/lib/MISC
     script:
-      - PBIFUN.min.js
+      - MISC.min.js

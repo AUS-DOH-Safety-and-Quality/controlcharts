@@ -22,6 +22,8 @@ minify_deps(system.file("htmlwidgets", "lib", "PBIFUN", "PBIFUN.js",
                         package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "PBISPC", "PBISPC.js",
                         package = "controlcharts"))
+minify_deps(system.file("htmlwidgets", "lib", "MISC", "MISC.js",
+                        package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "UTILS", "commonUtils.js",
                         package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "UTILS", "headlessUtils.js",

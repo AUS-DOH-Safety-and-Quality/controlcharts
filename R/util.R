@@ -29,7 +29,9 @@ validate_tooltips <- function(tooltip_settings) {
     spc = append(.spc_default_settings_internal,
                  list(tooltips = .default_tooltip_settings)),
     funnel = append(.funnel_default_settings_internal,
-                    list(tooltips = .default_tooltip_settings))
+                    list(tooltips = .default_tooltip_settings)),
+    misc = append(.misc_default_settings_internal,
+                  list(tooltips = .default_tooltip_settings))
   )
   if (is.null(group)) {
     return(settings)
@@ -74,11 +76,21 @@ funnel_default_settings <- function(group = NULL) {
   .default_settings_impl("funnel", group)
 }
 
+#' Get default settings for multi-indicator sigma charts
+#'
+#' @param group Optional settings group. If `NULL`, all groups are returned.
+#' @return A list of MISC settings.
+#' @export
+misc_default_settings <- function(group = NULL) {
+  .default_settings_impl("misc", group)
+}
+
 validate_settings <- function(type, input_settings, crosstalk_identities, cat_order) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
-    funnel = funnel_default_settings()
+    funnel = funnel_default_settings(),
+    misc = misc_default_settings()
   )
   has_conditional_formatting <- FALSE
   for (group in names(default_settings)) {
@@ -139,7 +151,7 @@ escape_labels <- function(input_settings, type) {
   input_settings
 }
 
-validate_aggregations <- function(aggregations) {
+validate_aggregations <- function(aggregations, data_raw) {
   if (is.null(aggregations)) {
     return(NULL)
   }
@@ -155,6 +167,13 @@ validate_aggregations <- function(aggregations) {
     tooltips = "first",
     labels = "first"
   )
+  value_names <- setdiff(
+    names(data_raw),
+    c("categories", "crosstalk_identities", "indicators", "tooltips")
+  )
+  for (value_name in setdiff(value_names, names(all_defaults))) {
+    all_defaults[[value_name]] <- "first"
+  }
   valid_aggregations <- c("first", "last", "sum", "mean",
                           "min", "max", "median", "count")
   for (new_agg in names(aggregations)) {
@@ -326,6 +345,7 @@ create_static <- function(type, data_views, title_settings,
         type = type,
         dataViews = data_views,
         svg = raw_ret$svg,
+        title_settings = title_settings,
         # Set to non-null values, will be updated when printed
         width = width,
         height = height
@@ -441,6 +461,25 @@ create_static <- function(type, data_views, title_settings,
       }
     }
     limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
+  } else if (type == "misc") {
+    values <- lapply(raw_ret$plotPoints, function(obs) {
+      data.frame(
+        indicator = obs$indicator,
+        grouping = obs$grouping,
+        group = obs$group,
+        z = obs$z,
+        score = obs$score,
+        outlier = obs$outlier,
+        numerator = obs$numerator,
+        denominator = obs$denominator,
+        value = obs$value,
+        ll99 = obs$ll99,
+        target = obs$target,
+        ul99 = obs$ul99,
+        stringsAsFactors = FALSE
+      )
+    })
+    limits <- do.call(rbind.data.frame, values)
   }
 
   rtn$limits <- limits
@@ -502,7 +541,16 @@ create_save_function <- function(type, rtn, data_views) {
     width <- ifelse(is.null(width), static_plot$width, width)
     height <- ifelse(is.null(height), static_plot$height, height)
 
-    svg <- ctx$call("updateHeadlessVisual", type, data_views, width, height)$svg
+    svg <- ctx$call(
+      "updateHeadlessVisual",
+      type,
+      data_views,
+      static_plot$title_settings,
+      width,
+      height,
+      TRUE,
+      FALSE
+    )$svg
     svg_resized <- svg_string(svg, width, height)
 
     if (file_ext == "svg") {
@@ -540,7 +588,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
                                                 cat_order)
   input_settings <- input_settings_processed$input_settings
   has_conditional_formatting <- input_settings_processed$has_conditional_formatting
-  aggregations <- validate_aggregations(aggregations)
+  aggregations <- validate_aggregations(aggregations, data_raw)
   title_settings <- validate_chart_title(title)
 
   # If rendering a title, adjust the upper padding so that title
@@ -560,6 +608,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
   rtn_limit_lines <- "limit_lines" %in% return_objs
   rtn <- list()
   update_dataviews <- NULL
+  data_views <- NULL
 
   if (rtn_html) {
     widget_data <- list(
@@ -623,7 +672,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
     labels_escaped <- FALSE
     if ("labels" %in% names(data_raw)) {
       labels_clean <- sapply(data_raw$labels, htmltools::htmlEscape)
-      if (any(labels_clean != data_raw$labels)) {
+      if (any(labels_clean != data_raw$labels, na.rm = TRUE)) {
         labels_escaped <- TRUE
         data_raw$labels <- labels_clean
       }
