@@ -173,60 +173,69 @@ validate_aggregations <- function(aggregations) {
   all_defaults
 }
 
-normalise_indicators <- function(indicators_expr, input_data, env) {
-  indicator_values <- eval(indicators_expr, input_data, env)
-  if (is.data.frame(indicator_values)) {
-    stop("indicators must be a vector or list of vectors.", call. = FALSE)
+# Named list of character vectors from an argument given as a vector or list of
+# vectors, named by the list names or the expressions supplied
+normalise_columns <- function(columns_quo, input_data, arg, item) {
+  column_values <- rlang::eval_tidy(columns_quo, input_data)
+  columns_expr <- rlang::quo_get_expr(columns_quo)
+  if (is.data.frame(column_values)) {
+    stop(arg, " must be a vector or list of vectors.", call. = FALSE)
   }
-  if (!is.list(indicator_values)) {
-    indicator_values <- list(indicator_values)
+  if (!is.list(column_values)) {
+    column_values <- list(column_values)
   }
-  if (length(indicator_values) == 0) {
-    stop("indicators must contain at least one vector.", call. = FALSE)
-  }
-
-  expression_values <- list(indicators_expr)
-  if (is.call(indicators_expr) && identical(indicators_expr[[1]], quote(list))) {
-    expression_values <- as.list(indicators_expr)[-1]
+  if (length(column_values) == 0) {
+    stop(arg, " must contain at least one vector.", call. = FALSE)
   }
 
-  indicator_names <- names(indicator_values)
-  if (is.null(indicator_names)) {
-    indicator_names <- rep("", length(indicator_values))
+  expression_values <- list(columns_expr)
+  if (is.call(columns_expr) && identical(columns_expr[[1]], quote(list))) {
+    expression_values <- as.list(columns_expr)[-1]
   }
-  for (i in seq_along(indicator_values)) {
-    if (is.list(indicator_values[[i]]) || is.matrix(indicator_values[[i]]) ||
-        length(indicator_values[[i]]) != nrow(input_data)) {
-      stop("Each indicator must be a vector with one value per observation.",
+
+  column_names <- names(column_values)
+  if (is.null(column_names)) {
+    column_names <- rep("", length(column_values))
+  }
+  for (i in seq_along(column_values)) {
+    if (is.list(column_values[[i]]) || is.matrix(column_values[[i]]) ||
+        length(column_values[[i]]) != nrow(input_data)) {
+      stop("Each ", item, " must be a vector with one value per observation.",
            call. = FALSE)
     }
-    if (indicator_names[i] == "") {
+    if (column_names[i] == "") {
       if (length(expression_values) >= i) {
-        indicator_names[i] <- paste(deparse(expression_values[[i]]),
-                                    collapse = "")
+        column_names[i] <- paste(deparse(expression_values[[i]]),
+                                 collapse = "")
       } else {
-        indicator_names[i] <- paste0("Indicator ", i)
+        column_names[i] <- paste0(tools::toTitleCase(item), " ", i)
       }
     }
-    indicator_values[[i]] <- as.character(indicator_values[[i]])
+    column_values[[i]] <- as.character(column_values[[i]])
   }
-  names(indicator_values) <- make.unique(indicator_names)
-  indicator_values
+  names(column_values) <- make.unique(column_names)
+  column_values
+}
+
+title_font_size <- function(font_size) {
+  # If the size is provided as `{}px`, extract the numeric values
+  if (is.character(font_size) && grepl("px$", font_size)) {
+    font_size <- as.numeric(gsub("(^\\d+)px", "\\1", font_size))
+  }
+  font_size
 }
 
 title_padding <- function(title) {
   if (is.null(title$text)) {
     return(0)
   }
-  title_size <- title$font_size
-
-  # If the size is provided as `{}px`, extract the numeric values
-  if (is.character(title_size) && grepl("px$", title_size)) {
-    title_size <- as.numeric(gsub("(^\\d+)px", "\\1", title_size))
-  }
   # Return total padding as font size (as rough proxy for text height) and
   #  y render value
-  title_size + title$y
+  padding <- title_font_size(title$font_size) + title$y
+  if (!is.null(title$subtitle)) {
+    padding <- padding + title_font_size(title$subtitle_font_size)
+  }
+  padding
 }
 
 validate_chart_title <- function(title) {
@@ -239,7 +248,10 @@ validate_chart_title <- function(title) {
     x = "50%",
     y = 5,
     text_anchor = "middle",
-    dominant_baseline = "hanging"
+    dominant_baseline = "hanging",
+    subtitle = NULL,
+    subtitle_font_size = "12px",
+    subtitle_font_weight = "normal"
   )
   if (is.null(title)) {
     return(title_settings)
@@ -598,6 +610,13 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       if (title_clean != title_settings$text) {
         title_escaped <- TRUE
         title_settings$text <- title_clean
+      }
+    }
+    if (!is.null(title_settings$subtitle)) {
+      subtitle_clean <- htmltools::htmlEscape(title_settings$subtitle)
+      if (subtitle_clean != title_settings$subtitle) {
+        title_escaped <- TRUE
+        title_settings$subtitle <- subtitle_clean
       }
     }
 

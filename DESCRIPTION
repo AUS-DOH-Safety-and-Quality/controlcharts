@@ -21,7 +21,8 @@ Imports:
   htmltools,
   crosstalk,
   QuickJSR,
-  jsutils
+  jsutils,
+  rlang
 Suggests:
   rsvg,
   knitr,

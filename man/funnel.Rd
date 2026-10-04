@@ -40,8 +40,9 @@ for each category.}
 \item{denominators}{A numeric vector or column name representing the
 denominators for each category.}
 
-\item{tooltips}{A vector or column name representing the tooltips
-for each category.}
+\item{tooltips}{A vector or column name, or a list of them, representing
+additional tooltips for each category. Each is labelled by its name in the
+list, or else by the expression supplied.}
 
 \item{labels}{A vector or column name representing the labels
 for each category.}
@@ -76,6 +77,10 @@ or a list with the following options:
 \item \code{text_anchor}: Text anchor of the title (default: "middle")
 \item \code{dominant_baseline}: Dominant baseline of the title
 (default: "hanging")
+\item \code{subtitle}: Subtitle text, drawn below the title (default: NULL)
+\item \code{subtitle_font_size}: Font size of the subtitle (default: "12px")
+\item \code{subtitle_font_weight}: Font weight of the subtitle
+(default: "normal")
 }}
 
 \item{canvas_settings}{Optional list of settings for the canvas,

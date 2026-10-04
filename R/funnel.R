@@ -6,8 +6,9 @@
 #' for each category.
 #' @param denominators A numeric vector or column name representing the
 #' denominators for each category.
-#' @param tooltips A vector or column name representing the tooltips
-#' for each category.
+#' @param tooltips A vector or column name, or a list of them, representing
+#' additional tooltips for each category. Each is labelled by its name in the
+#' list, or else by the expression supplied.
 #' @param labels A vector or column name representing the labels
 #' for each category.
 #' @param aggregations A list of aggregation function names
@@ -39,6 +40,10 @@
 #'  \item \code{text_anchor}: Text anchor of the title (default: "middle")
 #'  \item \code{dominant_baseline}: Dominant baseline of the title
 #' (default: "hanging")
+#'  \item \code{subtitle}: Subtitle text, drawn below the title (default: NULL)
+#'  \item \code{subtitle_font_size}: Font size of the subtitle (default: "12px")
+#'  \item \code{subtitle_font_weight}: Font weight of the subtitle
+#' (default: "normal")
 #' }
 #' @param canvas_settings Optional list of settings for the canvas,
 #' see \code{funnel_default_settings('canvas')} for valid options.
@@ -129,38 +134,39 @@ funnel <- function(data,
     input_data <- data
   }
 
-  categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
+  categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
   cat_order <- order(categories)
   crosstalk_identities <- crosstalk_identities[cat_order]
   input_data <- input_data[cat_order,]
 
   input_settings <- list(
-    canvas = eval(substitute(canvas_settings), input_data, parent.frame()),
-    funnel = eval(substitute(funnel_settings), input_data, parent.frame()),
-    outliers = eval(substitute(outlier_settings), input_data, parent.frame()),
-    scatter = eval(substitute(scatter_settings), input_data, parent.frame()),
-    lines = eval(substitute(line_settings), input_data, parent.frame()),
-    x_axis = eval(substitute(x_axis_settings), input_data, parent.frame()),
-    y_axis = eval(substitute(y_axis_settings), input_data, parent.frame()),
-    labels = eval(substitute(label_settings), input_data, parent.frame())
+    canvas = rlang::eval_tidy(rlang::enquo(canvas_settings), input_data),
+    funnel = rlang::eval_tidy(rlang::enquo(funnel_settings), input_data),
+    outliers = rlang::eval_tidy(rlang::enquo(outlier_settings), input_data),
+    scatter = rlang::eval_tidy(rlang::enquo(scatter_settings), input_data),
+    lines = rlang::eval_tidy(rlang::enquo(line_settings), input_data),
+    x_axis = rlang::eval_tidy(rlang::enquo(x_axis_settings), input_data),
+    y_axis = rlang::eval_tidy(rlang::enquo(y_axis_settings), input_data),
+    labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
   )
 
-  categories <- as.character(eval(substitute(keys), input_data, parent.frame()))
+  categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
   cat_order <- order(categories)
 
   data_raw <- list(
     crosstalk_identities = crosstalk_identities[cat_order],
     categories = categories[cat_order],
-    numerators = eval(substitute(numerators), input_data, parent.frame())[cat_order],
-    denominators = eval(substitute(denominators), input_data, parent.frame())[cat_order]
+    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data)[cat_order],
+    denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)[cat_order]
   )
 
   if (!missing(tooltips)) {
-    data_raw$tooltips <- as.character(eval(substitute(tooltips), input_data, parent.frame()))[cat_order]
+    data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip") |>
+      lapply(function(x) x[cat_order])
   }
 
   if (!missing(labels)) {
-    data_raw$labels <- as.character(eval(substitute(labels), input_data, parent.frame()))[cat_order]
+    data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))[cat_order]
   }
 
   create_controlchart("funnel", data_raw, cat_order, is_crosstalk, crosstalk_group,

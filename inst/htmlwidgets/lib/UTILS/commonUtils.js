@@ -70,8 +70,9 @@ function isPlainObject(value) {
 function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_formatting, unique_categories, crosstalkFilters) {
   var indicatorColumns = Object.entries(rawData.indicators ?? {});
   var hasIndicators = indicatorColumns.length > 0;
+  var tooltipColumns = Object.entries(rawData.tooltips ?? {});
   var valueNames = Object.keys(rawData).filter(k => ![
-    "categories", "crosstalk_identities", "indicators"
+    "categories", "crosstalk_identities", "indicators", "tooltips"
   ].includes(k));
   var dataGrouped = new Map();
   rawData.categories.forEach((cat, idx) => {
@@ -89,7 +90,8 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
     }
     dataGrouped.get(groupKey).rows.push({
       crosstalk_identity: rawData.crosstalk_identities[idx],
-      values: Object.fromEntries(valueNames.map(name => [name, rawData[name][idx]]))
+      values: Object.fromEntries(valueNames.map(name => [name, rawData[name][idx]])),
+      tooltips: tooltipColumns.map(([, values]) => values[idx])
     });
   });
 
@@ -114,6 +116,14 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
     source: { roles: {[name]: true} },
     values: []
   }));
+
+  // The visuals format tooltip values by type, and label them by name
+  tooltipColumns.forEach(([name]) => {
+    args.values.push({
+      source: { displayName: name, roles: { tooltips: true }, type: { text: true } },
+      values: []
+    });
+  });
 
   // Settings layout is the same for every group, so resolve it once up-front
   var settingGroupEntries = has_conditional_formatting
@@ -160,6 +170,10 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
       var aggregatedValue = aggregateColumn(group.rows.map(row => row.values[name]), aggregations[name]);
       args.values[i].values.push(aggregatedValue);
     }
+    tooltipColumns.forEach((_, index) => {
+      var aggregatedTooltip = aggregateColumn(group.rows.map(row => row.tooltips[index]), aggregations.tooltips);
+      args.values[valueNames.length + index].values.push(aggregatedTooltip);
+    });
   }
 
   return {
@@ -184,7 +198,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
 
 function updateChartTitle(svg, title_settings) {
   // Remove any existing titles
-  svg.selectAll(".chart-title").remove();
+  svg.selectAll(".chart-title, .chart-subtitle").remove();
   // Add chart title if provided
   if (title_settings.text !== null) {
     // Append the title to the SVG
@@ -198,6 +212,19 @@ function updateChartTitle(svg, title_settings) {
       .attr("font-weight", title_settings.font_weight)
       .attr("font-family", title_settings.font_family)
       .text(title_settings.text);
+    // Add subtitle below the title if provided
+    if (title_settings.subtitle !== null && title_settings.subtitle !== undefined) {
+      svg.append("text")
+        .classed("chart-subtitle", true)
+        .attr("x", title_settings.x)
+        .attr("y", title_settings.y + parseFloat(title_settings.font_size))
+        .attr("text-anchor", title_settings.text_anchor)
+        .attr("dominant-baseline", title_settings.dominant_baseline)
+        .attr("font-size", title_settings.subtitle_font_size)
+        .attr("font-weight", title_settings.subtitle_font_weight)
+        .attr("font-family", title_settings.font_family)
+        .text(title_settings.subtitle);
+    }
   }
   return svg;
 }
