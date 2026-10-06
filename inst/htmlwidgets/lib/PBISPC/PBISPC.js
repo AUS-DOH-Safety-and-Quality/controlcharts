@@ -235,6 +235,7 @@ const spcSettings = {
             split_on_click: toggleOption("Split Limits on Click", false),
             num_points_subset: numberOption("Subset Number of Points for Limit Calculations", undefined),
             subset_points_from: dropdownOption("Subset Points From", "Start", ["Start", "End"]),
+            subset_rebaselines: toggleOption("Subset Points After Each Re-Baseline", false),
             ttip_show_date: toggleOption("Show Date in Tooltip", true),
             ttip_label_date: textOption("Date Tooltip Label", "Automatic"),
             ttip_show_numerator: toggleOption("Show Numerator in Tooltip", true),
@@ -526,6 +527,7 @@ const xAxisSettings = {
         },
         "Ticks": {
             xlimit_ticks: toggleOption("Draw Ticks", true),
+            xlimit_tick_marks: toggleOption("Draw Tick Marks", true),
             xlimit_tick_count: numberOption("Maximum Ticks", 10, { min: 0, max: 100 }),
             xlimit_tick_font: fontOption("Tick Font"),
             xlimit_tick_size: fontSizeOption("Tick Font Size"),
@@ -536,7 +538,14 @@ const xAxisSettings = {
             xlimit_label: textOption("Label", ""),
             xlimit_label_font: fontOption("Label Font"),
             xlimit_label_size: fontSizeOption("Label Font Size"),
-            xlimit_label_colour: colourOption("Label Font Colour", "standard")
+            xlimit_label_colour: colourOption("Label Font Colour", "standard"),
+            xlimit_label_style: dropdownOption("Label Font Style", "normal", ["normal", "italic"], "sentence"),
+            xlimit_label_align: dropdownOption("Label Alignment", "center", ["left", "center", "right"], "sentence")
+        },
+        "Gridlines": {
+            xlimit_grid_show: toggleOption("Show Gridlines", false),
+            xlimit_grid_colour: colourOption("Gridline Colour", "lightgray"),
+            xlimit_grid_width: numberOption("Gridline Width", 1, { min: 0 })
         }
     }
 };
@@ -555,6 +564,7 @@ const yAxisSettings = {
         },
         "Ticks": {
             ylimit_ticks: toggleOption("Draw Ticks", true),
+            ylimit_tick_marks: toggleOption("Draw Tick Marks", true),
             ylimit_tick_count: numberOption("Maximum Ticks", 10, { min: 0, max: 100 }),
             ylimit_tick_font: fontOption("Tick Font"),
             ylimit_tick_size: fontSizeOption("Tick Font Size"),
@@ -565,7 +575,14 @@ const yAxisSettings = {
             ylimit_label: textOption("Label", ""),
             ylimit_label_font: fontOption("Label Font"),
             ylimit_label_size: fontSizeOption("Label Font Size"),
-            ylimit_label_colour: colourOption("Label Font Colour", "standard")
+            ylimit_label_colour: colourOption("Label Font Colour", "standard"),
+            ylimit_label_style: dropdownOption("Label Font Style", "normal", ["normal", "italic"], "sentence"),
+            ylimit_label_align: dropdownOption("Label Alignment", "center", ["bottom", "center", "top"], "sentence")
+        },
+        "Gridlines": {
+            ylimit_grid_show: toggleOption("Show Gridlines", false),
+            ylimit_grid_colour: colourOption("Gridline Colour", "lightgray"),
+            ylimit_grid_width: numberOption("Gridline Width", 1, { min: 0 })
         }
     }
 };
@@ -712,6 +729,7 @@ function drawXAxis(selection, visualObj) {
     if (!visualObj.viewModel.inputSettings.settings[0].x_axis.xlimit_show) {
         xAxisGroup.remove();
         xAxisLabel.remove();
+        selection.selectAll(".xgridline").remove();
         return;
     }
     if (xAxisGroup.empty()) {
@@ -722,6 +740,7 @@ function drawXAxis(selection, visualObj) {
     }
     const xAxisProperties = visualObj.plotProperties.xAxis;
     const xAxis = ccD3.axisBottom(visualObj.plotProperties.xScale);
+    xAxis.tickSizeOuter(xAxisProperties.tick_marks ? 6 : 0);
     if (xAxisProperties.ticks) {
         if (xAxisProperties.tick_count) {
             xAxis.ticks(xAxisProperties.tick_count);
@@ -739,19 +758,44 @@ function drawXAxis(selection, visualObj) {
     const plotHeight = visualObj.viewModel.svgHeight;
     const xAxisHeight = plotHeight - visualObj.plotProperties.yAxis.start_padding;
     const displayPlot = visualObj.plotProperties.displayPlot;
+    const tickOffsets = {
+        "-1": { anchor: "end", dx: "-.8em", dy: "-.15em" },
+        "0": { anchor: "middle", dx: "0em", dy: ".71em" },
+        "1": { anchor: "start", dx: ".8em", dy: ".15em" }
+    };
+    const tickOffset = tickOffsets[Math.sign(xAxisProperties.tick_rotation)];
     xAxisGroup
         .call(xAxis)
         .attr("color", displayPlot ? xAxisProperties.colour : "#FFFFFF")
         .attr("transform", `translate(0, ${xAxisHeight})`)
         .selectAll(".tick text")
-        .style("text-anchor", xAxisProperties.tick_rotation < 0.0 ? "end" : "start")
-        .attr("dx", xAxisProperties.tick_rotation < 0.0 ? "-.8em" : ".8em")
-        .attr("dy", xAxisProperties.tick_rotation < 0.0 ? "-.15em" : ".15em")
+        .style("text-anchor", tickOffset.anchor)
+        .attr("dx", tickOffset.dx)
+        .attr("dy", tickOffset.dy)
         .attr("transform", "rotate(" + xAxisProperties.tick_rotation + ")")
         .style("font-size", xAxisProperties.tick_size)
         .style("font-family", xAxisProperties.tick_font)
         .style("fill", displayPlot ? xAxisProperties.tick_colour : "#FFFFFF");
-    const textX = visualObj.viewModel.svgWidth / 2;
+    xAxisGroup.selectAll(".tick line")
+        .style("stroke", xAxisProperties.tick_marks ? "currentColor" : "none");
+    const xTicks = xAxisProperties.grid_show ? xAxisGroup.selectAll(".tick").data() : [];
+    selection.select(".gridgroup")
+        .selectAll(".xgridline")
+        .data(xTicks)
+        .join("line")
+        .classed("xgridline", true)
+        .attr("x1", d => visualObj.plotProperties.xScale(d))
+        .attr("x2", d => visualObj.plotProperties.xScale(d))
+        .attr("y1", xAxisHeight)
+        .attr("y2", visualObj.plotProperties.yAxis.end_padding)
+        .style("stroke", displayPlot ? xAxisProperties.grid_colour : "#FFFFFF")
+        .style("stroke-width", xAxisProperties.grid_width);
+    const labelPosition = {
+        left: { x: visualObj.plotProperties.xAxis.start_padding, anchor: "start" },
+        center: { x: visualObj.viewModel.svgWidth / 2, anchor: "middle" },
+        right: { x: visualObj.viewModel.svgWidth - visualObj.plotProperties.xAxis.end_padding, anchor: "end" }
+    };
+    const textX = labelPosition[xAxisProperties.label_align].x;
     let textY;
     if (visualObj.viewModel.frontend) {
         textY = plotHeight - (visualObj.plotProperties.yAxis.start_padding / 3);
@@ -763,15 +807,17 @@ function drawXAxis(selection, visualObj) {
                 .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
             return;
         }
-        const xAxisCoordinates = xAxisNode.getBoundingClientRect();
-        textY = plotHeight - ((plotHeight - xAxisCoordinates.bottom) / 2);
+        const svgTop = visualObj.svg.node().getBoundingClientRect().top;
+        const xAxisBottom = xAxisNode.getBoundingClientRect().bottom - svgTop;
+        textY = plotHeight - ((plotHeight - xAxisBottom) / 2);
     }
     selection.select(".xaxislabel")
         .attr("x", textX)
         .attr("y", textY)
-        .style("text-anchor", "middle")
+        .style("text-anchor", labelPosition[xAxisProperties.label_align].anchor)
         .text(xAxisProperties.label)
         .style("font-size", xAxisProperties.label_size)
+        .style("font-style", xAxisProperties.label_style)
         .style("font-family", xAxisProperties.label_font)
         .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
 }
@@ -782,6 +828,7 @@ function drawYAxis(selection, visualObj) {
     if (!visualObj.viewModel.inputSettings.settings[0].y_axis.ylimit_show) {
         yAxisGroup.remove();
         yAxisLabel.remove();
+        selection.selectAll(".ygridline").remove();
         return;
     }
     if (yAxisGroup.empty()) {
@@ -792,6 +839,7 @@ function drawYAxis(selection, visualObj) {
     }
     const yAxisProperties = visualObj.plotProperties.yAxis;
     const yAxis = ccD3.axisLeft(visualObj.plotProperties.yScale);
+    yAxis.tickSizeOuter(yAxisProperties.tick_marks ? 6 : 0);
     const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings[0].y_axis.ylimit_sig_figs;
     const sig_figs = isNullOrUndefined(yaxis_sig_figs) ? visualObj.viewModel.inputSettings.settings[0].spc.sig_figs : yaxis_sig_figs;
     const displayPlot = visualObj.plotProperties.displayPlot;
@@ -821,8 +869,27 @@ function drawYAxis(selection, visualObj) {
         .style("font-size", yAxisProperties.tick_size)
         .style("font-family", yAxisProperties.tick_font)
         .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
+    yAxisGroup.selectAll(".tick line")
+        .style("stroke", yAxisProperties.tick_marks ? "currentColor" : "none");
+    const yTicks = yAxisProperties.grid_show ? yAxisGroup.selectAll(".tick").data() : [];
+    selection.select(".gridgroup")
+        .selectAll(".ygridline")
+        .data(yTicks)
+        .join("line")
+        .classed("ygridline", true)
+        .attr("x1", visualObj.plotProperties.xAxis.start_padding)
+        .attr("x2", visualObj.viewModel.svgWidth - visualObj.plotProperties.xAxis.end_padding)
+        .attr("y1", d => visualObj.plotProperties.yScale(d))
+        .attr("y2", d => visualObj.plotProperties.yScale(d))
+        .style("stroke", displayPlot ? yAxisProperties.grid_colour : "#FFFFFF")
+        .style("stroke-width", yAxisProperties.grid_width);
     let textX;
-    const textY = visualObj.viewModel.svgHeight / 2;
+    const labelPosition = {
+        bottom: { y: visualObj.viewModel.svgHeight - yAxisProperties.start_padding, anchor: "start" },
+        center: { y: visualObj.viewModel.svgHeight / 2, anchor: "middle" },
+        top: { y: yAxisProperties.end_padding, anchor: "end" }
+    };
+    const textY = labelPosition[yAxisProperties.label_align].y;
     if (visualObj.viewModel.frontend) {
         textX = visualObj.plotProperties.xAxis.start_padding / 2;
     }
@@ -833,16 +900,17 @@ function drawYAxis(selection, visualObj) {
                 .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
             return;
         }
-        const yAxisCoordinates = yAxisNode.getBoundingClientRect();
-        textX = yAxisCoordinates.x * 0.7;
+        const svgLeft = visualObj.svg.node().getBoundingClientRect().left;
+        textX = (yAxisNode.getBoundingClientRect().x - svgLeft) * 0.7;
     }
     selection.select(".yaxislabel")
         .attr("x", textX)
         .attr("y", textY)
         .attr("transform", `rotate(-90, ${textX}, ${textY})`)
         .text(yAxisProperties.label)
-        .style("text-anchor", "middle")
+        .style("text-anchor", labelPosition[yAxisProperties.label_align].anchor)
         .style("font-size", yAxisProperties.label_size)
+        .style("font-style", yAxisProperties.label_style)
         .style("font-family", yAxisProperties.label_font)
         .style("fill", displayPlot ? yAxisProperties.label_colour : "#FFFFFF");
 }
@@ -917,7 +985,7 @@ function drawTooltipLine(selection, visualObj) {
     });
 }
 
-function get(obj, key1, key2) {
+function getNested(obj, key1, key2) {
     return obj[key1][key2];
 }
 
@@ -938,7 +1006,7 @@ const lineNameMap = {
 function getAesthetic(type, group, aesthetic, inputSettings) {
     const mapName = group.includes("line") ? lineNameMap[type] : type;
     const settingName = aesthetic + "_" + mapName;
-    return get(inputSettings, group, settingName);
+    return getNested(inputSettings, group, settingName);
 }
 
 function between(x, lower, upper) {
@@ -2054,8 +2122,11 @@ function addContextMenu(selection, visualObj) {
     }
     selection.on('contextmenu', (event) => {
         const eventTarget = event.target;
-        const dataPoint = (ccD3.select(eventTarget).datum());
-        visualObj.selectionManager.showContextMenu(dataPoint ? dataPoint.identity : {}, {
+        const dataPoint = ccD3.select(eventTarget).datum();
+        const identity = !dataPoint
+            ? {}
+            : (Array.isArray(dataPoint.identity) ? dataPoint.identity[0] : dataPoint.identity);
+        visualObj.selectionManager.showContextMenu(identity, {
             x: event.clientX,
             y: event.clientY
         });
@@ -2069,6 +2140,7 @@ function initialiseSVG(selection, removeAll = false) {
     }
     selection.append('line').classed("ttip-line-x", true);
     selection.append('line').classed("ttip-line-y", true);
+    selection.append('g').classed("gridgroup", true);
     selection.append('g').classed("xaxisgroup", true);
     selection.append('text').classed('xaxislabel', true);
     selection.append('g').classed("yaxisgroup", true);
@@ -2124,6 +2196,30 @@ function identitySelected(identity, selectionManager) {
     return identity_selected;
 }
 
+const formatValues = function (value, name, inputSettings, derivedSettings) {
+    const suffix = derivedSettings.percentLabels ? "%" : "";
+    const sig_figs = inputSettings.spc.sig_figs;
+    if (isNullOrUndefined(value)) {
+        return "";
+    }
+    switch (name) {
+        case "date":
+            return value;
+        case "integer": {
+            return value.toFixed(derivedSettings.chart_type_props.integer_num_den ? 0 : sig_figs);
+        }
+        default:
+            return value.toFixed(sig_figs) + suffix;
+    }
+};
+function valueFormatter(inputSettings, derivedSettings) {
+    const formatValuesImpl = function (value, name) {
+        return formatValues(value, name, inputSettings, derivedSettings);
+    };
+    return formatValuesImpl;
+}
+
+const integerFormattedColumns = new Set(["numerator", "denominator"]);
 function drawTableHeaders(selection, cols, tableSettings, maxWidth) {
     const tableHeaders = selection.select(".table-header")
         .selectAll("th")
@@ -2229,7 +2325,7 @@ function drawOuterBorder(selection, tableSettings) {
         .selectAll("td")
         .style("border-bottom", "inherit");
 }
-function drawTableCells(selection, cols, inputSettings, showGrouped) {
+function drawTableCells(selection, cols, inputSettings, showGrouped, formatValues) {
     const tableCells = selection.select(".table-body")
         .selectAll('tr')
         .selectAll('td')
@@ -2259,7 +2355,7 @@ function drawTableCells(selection, cols, inputSettings, showGrouped) {
         }
         else {
             const value = typeof d.value === "number"
-                ? d.value.toFixed(inputSettings.spc.sig_figs)
+                ? formatValues(d.value, integerFormattedColumns.has(d.column) ? "integer" : "value")
                 : (d.value ?? "");
             currNode.text(value).classed("cell-text", true);
         }
@@ -2306,7 +2402,8 @@ function drawSummaryTable(selection, visualObj) {
     selection.call(drawTableHeaders, cols, tableSettings, maxWidth)
         .call(drawTableRows, visualObj, plotPoints, tableSettings, maxWidth);
     if (plotPoints.length > 0) {
-        selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings[0], visualObj.viewModel.showGrouped);
+        const formatValues = valueFormatter(visualObj.viewModel.inputSettings.settings[0], visualObj.viewModel.inputSettings.derivedSettings[0]);
+        selection.call(drawTableCells, cols, visualObj.viewModel.inputSettings.settings[0], visualObj.viewModel.showGrouped, formatValues);
     }
     selection.call(drawOuterBorder, tableSettings);
     selection.on('click', () => {
@@ -2471,29 +2568,6 @@ function drawLabels(selection, visualObj) {
             });
         }
     });
-}
-
-const formatValues = function (value, name, inputSettings, derivedSettings) {
-    const suffix = derivedSettings.percentLabels ? "%" : "";
-    const sig_figs = inputSettings.spc.sig_figs;
-    if (isNullOrUndefined(value)) {
-        return "";
-    }
-    switch (name) {
-        case "date":
-            return value;
-        case "integer": {
-            return value.toFixed(derivedSettings.chart_type_props.integer_num_den ? 0 : sig_figs);
-        }
-        default:
-            return value.toFixed(sig_figs) + suffix;
-    }
-};
-function valueFormatter(inputSettings, derivedSettings) {
-    const formatValuesImpl = function (value, name) {
-        return formatValues(value, name, inputSettings, derivedSettings);
-    };
-    return formatValuesImpl;
 }
 
 const positionOffsetMap = {
@@ -2690,7 +2764,7 @@ function scaleLinear() {
     function scale(x) {
         const [d0, d1] = domain;
         const [r0, r1] = range;
-        return r0 + (r1 - r0) * ((x - d0) / (d1 - d0));
+        return r0 + (r1 - r0) * (d0 === d1 ? 0.5 : (x - d0) / (d1 - d0));
     }
     scale.domain = function (newDomain) {
         if (!newDomain) {
@@ -2758,6 +2832,7 @@ class plotPropertiesClass {
             end_padding: 0,
             colour: "#000000",
             ticks: true,
+            tick_marks: true,
             tick_size: "5px",
             tick_font: "sans-serif",
             tick_colour: "#000000",
@@ -2766,7 +2841,12 @@ class plotPropertiesClass {
             label: "",
             label_size: "12px",
             label_font: "sans-serif",
-            label_colour: "#000000"
+            label_colour: "#000000",
+            label_style: "normal",
+            label_align: "center",
+            grid_show: false,
+            grid_colour: "#D3D3D3",
+            grid_width: 1
         };
         this.displayPlot = false;
         this.xAxis = dummyAxisProperties;
@@ -2839,6 +2919,7 @@ class plotPropertiesClass {
             end_padding: inputSettings.canvas.right_padding,
             colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_colour,
             ticks: inputSettings.x_axis.xlimit_ticks,
+            tick_marks: inputSettings.x_axis.xlimit_tick_marks,
             tick_size: `${xTickSize}px`,
             tick_font: inputSettings.x_axis.xlimit_tick_font,
             tick_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_tick_colour,
@@ -2847,7 +2928,12 @@ class plotPropertiesClass {
             label: inputSettings.x_axis.xlimit_label,
             label_size: `${inputSettings.x_axis.xlimit_label_size}px`,
             label_font: inputSettings.x_axis.xlimit_label_font,
-            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_label_colour
+            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_label_colour,
+            label_style: inputSettings.x_axis.xlimit_label_style,
+            label_align: inputSettings.x_axis.xlimit_label_align,
+            grid_show: inputSettings.x_axis.xlimit_grid_show,
+            grid_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_grid_colour,
+            grid_width: inputSettings.x_axis.xlimit_grid_width
         };
         this.yAxis = {
             lower: yLowerLimit,
@@ -2856,6 +2942,7 @@ class plotPropertiesClass {
             end_padding: inputSettings.canvas.upper_padding,
             colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_colour,
             ticks: inputSettings.y_axis.ylimit_ticks,
+            tick_marks: inputSettings.y_axis.ylimit_tick_marks,
             tick_size: `${yTickSize}px`,
             tick_font: inputSettings.y_axis.ylimit_tick_font,
             tick_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_tick_colour,
@@ -2864,7 +2951,12 @@ class plotPropertiesClass {
             label: inputSettings.y_axis.ylimit_label,
             label_size: `${inputSettings.y_axis.ylimit_label_size}px`,
             label_font: inputSettings.y_axis.ylimit_label_font,
-            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_label_colour
+            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_label_colour,
+            label_style: inputSettings.y_axis.ylimit_label_style,
+            label_align: inputSettings.y_axis.ylimit_label_align,
+            grid_show: inputSettings.y_axis.ylimit_grid_show,
+            grid_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_grid_colour,
+            grid_width: inputSettings.y_axis.ylimit_grid_width
         };
         this.initialiseScale(options.viewport.width, options.viewport.height);
     }
@@ -2989,7 +3081,7 @@ function iLimits(args) {
     }
     cl /= n_sub;
     amr /= (n_sub - 1);
-    if (!args.outliers_in_limits) {
+    if (!args.outliers_in_limits && amr > 0) {
         const consec_diff_ulim = amr * 3.267;
         let screened_amr = 0;
         let screened_count = 0;
@@ -3063,7 +3155,7 @@ function imLimits(args) {
         amr += consec_diff[i - 1];
     }
     amr /= (n_sub - 1);
-    if (!args.outliers_in_limits) {
+    if (!args.outliers_in_limits && amr > 0) {
         const consec_diff_ulim = amr * 3.267;
         let screened_amr = 0;
         let screened_count = 0;
@@ -3303,6 +3395,32 @@ function pprimeLimits(args) {
         sum_denominators += denominators[idx];
     }
     const cl = sum_numerators / sum_denominators;
+    if (cl === 0 || cl === 1) {
+        const rtn = {
+            keys: args.keys,
+            values: new Array(n),
+            numerators: args.numerators,
+            denominators: args.denominators,
+            targets: new Array(n),
+            ll99: new Array(n),
+            ll95: new Array(n),
+            ll68: new Array(n),
+            ul68: new Array(n),
+            ul95: new Array(n),
+            ul99: new Array(n)
+        };
+        for (let i = 0; i < n; i++) {
+            rtn.values[i] = numerators[i] / denominators[i];
+            rtn.targets[i] = cl;
+            rtn.ll99[i] = cl;
+            rtn.ll95[i] = cl;
+            rtn.ll68[i] = cl;
+            rtn.ul68[i] = cl;
+            rtn.ul95[i] = cl;
+            rtn.ul99[i] = cl;
+        }
+        return rtn;
+    }
     const cl_mult = cl * (1 - cl);
     let val = new Array(n);
     let sd = new Array(n);
@@ -3320,7 +3438,7 @@ function pprimeLimits(args) {
         prevZ = currZ;
     }
     amr /= (n_sub - 1);
-    if (!args.outliers_in_limits) {
+    if (!args.outliers_in_limits && amr > 0) {
         const consec_diff_ulim = amr * 3.267;
         let screened_amr = 0;
         let screened_count = 0;
@@ -3997,6 +4115,32 @@ function uprimeLimits(args) {
         sum_denominators += denominators[idx];
     }
     const cl = sum_numerators / sum_denominators;
+    if (cl === 0) {
+        const rtn = {
+            keys: args.keys,
+            values: new Array(n),
+            numerators: args.numerators,
+            denominators: args.denominators,
+            targets: new Array(n),
+            ll99: new Array(n),
+            ll95: new Array(n),
+            ll68: new Array(n),
+            ul68: new Array(n),
+            ul95: new Array(n),
+            ul99: new Array(n)
+        };
+        for (let i = 0; i < n; i++) {
+            rtn.values[i] = numerators[i] / denominators[i];
+            rtn.targets[i] = cl;
+            rtn.ll99[i] = cl;
+            rtn.ll95[i] = cl;
+            rtn.ll68[i] = cl;
+            rtn.ul68[i] = cl;
+            rtn.ul95[i] = cl;
+            rtn.ul99[i] = cl;
+        }
+        return rtn;
+    }
     let sd = new Array(n);
     let val = new Array(n);
     for (let i = 0; i < n; i++) {
@@ -4013,7 +4157,7 @@ function uprimeLimits(args) {
         prevZ = currZ;
     }
     amr /= (n_sub - 1);
-    if (!args.outliers_in_limits) {
+    if (!args.outliers_in_limits && amr > 0) {
         const consec_diff_ulim = amr * 3.267;
         let screened_amr = 0;
         let screened_count = 0;
@@ -4147,24 +4291,36 @@ function extractConditionalFormatting(categoricalView, settingGroupName, inputSe
     }
     const inputCategories = categoricalView.categories[0];
     const settingNames = Object.keys(inputSettings[settingGroupName]);
-    const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
+    const settingSpecs = new Array(settingNames.length);
+    for (let j = 0; j < settingNames.length; j++) {
+        const settingName = settingNames[j];
+        const defaultSetting = getNested(defaultSettings, settingGroupName, settingName);
+        const settingEntry = getNested(settingsModel, settingGroupName, settingName);
+        const valid = "valid" in settingEntry ? settingEntry.valid : "options" in settingEntry ? settingEntry.options : undefined;
+        settingSpecs[j] = { settingName, defaultSetting, valid, defaultIsUndefined: isNullOrUndefined(defaultSetting) };
+    }
     const n = idxs.length;
-    let rtn = new Array(n);
+    const validationRtn = { status: 0, messages: new Array(n) };
+    const rtn = new Array(n);
+    let allInvalid = n > 0;
+    let defaultFormatting;
     for (let i = 0; i < n; i++) {
         const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
-        rtn[i] = Object.fromEntries(settingNames.map(settingName => {
-            const defaultSetting = get(defaultSettings, settingGroupName, settingName);
+        const usesDefaults = !inpObjects?.[settingGroupName];
+        if (usesDefaults && defaultFormatting) {
+            rtn[i] = { ...defaultFormatting.values };
+            validationRtn.messages[i] = defaultFormatting.messages.slice();
+            if (defaultFormatting.messages.length === 0)
+                allInvalid = false;
+            continue;
+        }
+        const messages = [];
+        validationRtn.messages[i] = messages;
+        const row = {};
+        for (let j = 0; j < settingSpecs.length; j++) {
+            const { settingName, defaultSetting, valid, defaultIsUndefined } = settingSpecs[j];
             let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
             extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
-            const settingEntry = get(settingsModel, settingGroupName, settingName);
-            let valid = undefined;
-            if ("valid" in settingEntry) {
-                valid = settingEntry.valid;
-            }
-            else if ("options" in settingEntry) {
-                valid = settingEntry.options;
-            }
-            const defaultIsUndefined = isNullOrUndefined(defaultSetting);
             if (valid && !defaultIsUndefined) {
                 let message = "";
                 if (valid instanceof Array) {
@@ -4172,21 +4328,25 @@ function extractConditionalFormatting(categoricalView, settingGroupName, inputSe
                         message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
                     }
                 }
-                else if ((!isNullOrUndefined(valid?.minValue) || !isNullOrUndefined(valid?.maxValue)) && !between(extractedSetting, valid?.minValue?.value, valid?.maxValue?.value)) {
-                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${valid?.minValue?.value} and ${valid?.maxValue?.value}`;
+                else if ((!isNullOrUndefined(valid.minValue) || !isNullOrUndefined(valid.maxValue)) && !between(extractedSetting, valid.minValue?.value, valid.maxValue?.value)) {
+                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${valid.minValue?.value} and ${valid.maxValue?.value}`;
                 }
                 if (message !== "") {
                     extractedSetting = defaultSetting;
-                    validationRtn.messages[i].push(message);
+                    messages.push(message);
                 }
             }
-            return [settingName, extractedSetting];
-        }));
+            row[settingName] = extractedSetting;
+        }
+        if (usesDefaults)
+            defaultFormatting = { values: row, messages };
+        rtn[i] = row;
+        if (messages.length === 0)
+            allInvalid = false;
     }
-    const validationMessages = validationRtn.messages.filter(d => d.length > 0);
-    if (!validationRtn.messages.some(d => d.length === 0)) {
+    if (allInvalid) {
         validationRtn.status = 1;
-        validationRtn.error = `${validationMessages[0][0]}`;
+        validationRtn.error = validationRtn.messages[0][0];
     }
     return { values: rtn, validation: validationRtn };
 }
@@ -4259,6 +4419,8 @@ class settingsClass {
             this.derivedSettings.push(new derivedSettingsClass(this.settings[0].spc));
         });
         const all_idxs = groupIdxs.flat();
+        const positionInAllIdxs = new Map();
+        all_idxs.forEach((rawRowIdx, position) => positionInAllIdxs.set(rawRowIdx, position));
         const allSettingGroups = Object.keys(this.settings[0]);
         allSettingGroups.forEach((settingGroup) => {
             const condFormatting = extractConditionalFormatting(inputView.categorical, settingGroup, this.settings[0], all_idxs);
@@ -4281,8 +4443,8 @@ class settingsClass {
                 groupIdxs.forEach((idx, idx_idx) => {
                     this.settings[idx_idx][settingGroup][settingName]
                         = condFormatting?.values
-                            ? condFormatting?.values[idx[0]][settingName]
-                            : get(defaultSettings, settingGroup, settingName);
+                            ? condFormatting?.values[positionInAllIdxs.get(idx[0])][settingName]
+                            : getNested(defaultSettings, settingGroup, settingName);
                 });
             });
         });
@@ -4342,7 +4504,7 @@ class settingsClass {
                             }
                         }
                     };
-                    const currSettingValue = get(this.settings[0], currCardName, currSettingName);
+                    const currSettingValue = getNested(this.settings[0], currCardName, currSettingName);
                     if (currSettings[currSettingName].type === FormattingComponent.ColorPicker) {
                         curr_slice.control.properties.value
                             = { value: currSettingValue };
@@ -4432,7 +4594,7 @@ function buildTooltip(table_row, inputTooltips, inputSettings, derivedSettings) 
         }
     }
     if (derivedSettings.chart_type_props.has_control_limits) {
-        ["99", "95", "65"].forEach(limit => {
+        ["99", "95", "68"].forEach(limit => {
             if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
                 tooltip.push({
                     displayName: `${inputSettings.lines[`ttip_label_${limit}_prefix_upper`]}${inputSettings.lines[`ttip_label_${limit}`]}`,
@@ -4980,15 +5142,6 @@ function validateInputData(keys, numerators, denominators, xbar_sds, chart_type_
     return validationRtn;
 }
 
-function seq(start, end) {
-    const n = end - start + 1;
-    const result = new Array(n);
-    for (let i = start; i <= end; i++) {
-        result[i - start] = i;
-    }
-    return result;
-}
-
 function invalidInputData(inputValidStatus) {
     return {
         limitInputArgs: {},
@@ -5011,7 +5164,7 @@ function invalidInputData(inputValidStatus) {
         validationStatus: inputValidStatus
     };
 }
-function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs) {
+function extractInputData(inputView, inputSettings, derivedSettings, validationMessages, idxs, messagePositionByRowIndex) {
     const numerators = extractDataColumn(inputView, "numerators", inputSettings, idxs);
     const denominators = extractDataColumn(inputView, "denominators", inputSettings, idxs);
     const xbar_sds = extractDataColumn(inputView, "xbar_sds", inputSettings, idxs);
@@ -5043,8 +5196,9 @@ function extractInputData(inputView, inputSettings, derivedSettings, validationM
             valid_ids.push(idx);
             valid_keys.push({ x: valid_x, id: i, label: x_axis_use_date ? keys[idx] : valid_x.toString() });
             valid_x += 1;
-            if (settingsMessages[i].length > 0) {
-                settingsMessages[i].forEach(setting_removal_message => {
+            const messagePosition = messagePositionByRowIndex.get(i);
+            if (settingsMessages[messagePosition].length > 0) {
+                settingsMessages[messagePosition].forEach(setting_removal_message => {
                     removalMessages.push(`Conditional formatting for ${groupVarName} ${keys[idx]} ignored due to: ${setting_removal_message}.`);
                 });
             }
@@ -5079,19 +5233,6 @@ function extractInputData(inputView, inputSettings, derivedSettings, validationM
         }
     }
     const curr_highlights = isNullOrUndefined(highlights) ? undefined : extractValues(highlights, valid_ids);
-    const num_points_subset = spcSettings[0].num_points_subset;
-    let subset_points;
-    if (isNullOrUndefined(num_points_subset) || !between(num_points_subset, 1, valid_ids.length)) {
-        subset_points = seq(0, valid_ids.length - 1);
-    }
-    else {
-        if (spcSettings[0].subset_points_from === "Start") {
-            subset_points = seq(0, spcSettings[0].num_points_subset - 1);
-        }
-        else {
-            subset_points = seq(valid_ids.length - spcSettings[0].num_points_subset, valid_ids.length - 1);
-        }
-    }
     const valid_labels = isNullOrUndefined(labels) ? undefined : extractValues(labels, valid_ids);
     return {
         limitInputArgs: {
@@ -5099,8 +5240,7 @@ function extractInputData(inputView, inputSettings, derivedSettings, validationM
             numerators: extractValues(numerators, valid_ids),
             denominators: isNullOrUndefined(denominators) ? undefined : extractValues(denominators, valid_ids),
             xbar_sds: isNullOrUndefined(xbar_sds) ? undefined : extractValues(xbar_sds, valid_ids),
-            outliers_in_limits: spcSettings[0].outliers_in_limits,
-            subset_points: subset_points
+            outliers_in_limits: spcSettings[0].outliers_in_limits
         },
         spcSettings: spcSettings[0],
         tooltips: isNullOrUndefined(tooltips) ? undefined : extractValues(tooltips, valid_ids),
@@ -5305,6 +5445,15 @@ function shift(val, targets, n) {
     return shift_detected;
 }
 
+function seq(start, end) {
+    const n = end - start + 1;
+    const result = new Array(n);
+    for (let i = start; i <= end; i++) {
+        result[i - start] = i;
+    }
+    return result;
+}
+
 function updateOptionsUndefined(options) {
     if (isNullOrUndefined(options?.dataViews)
         || (options.dataViews.length === 0)
@@ -5349,6 +5498,13 @@ class viewModelClass {
         this.groupNames = [];
     }
     update(options, host) {
+        this.colourPalette = {
+            isHighContrast: host.colorPalette.isHighContrast,
+            foregroundColour: host.colorPalette.foreground.value,
+            backgroundColour: host.colorPalette.background.value,
+            foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
+            hyperlinkColour: host.colorPalette.hyperlink.value
+        };
         const updateOptionsStatus = updateOptionsUndefined(options);
         if (updateOptionsStatus === 2) {
             return { status: false, error: "" };
@@ -5356,42 +5512,28 @@ class viewModelClass {
         else if (updateOptionsStatus === 3) {
             return { status: false, error: "No Numerators passed!" };
         }
-        if (isNullOrUndefined(this.colourPalette)) {
-            this.colourPalette = {
-                isHighContrast: host.colorPalette.isHighContrast,
-                foregroundColour: host.colorPalette.foreground.value,
-                backgroundColour: host.colorPalette.background.value,
-                foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
-                hyperlinkColour: host.colorPalette.hyperlink.value
-            };
-        }
         this.svgWidth = options.viewport.width;
         this.svgHeight = options.viewport.height;
         this.headless = options?.headless ?? false;
         this.frontend = options?.frontend ?? false;
         const indicator_cols = options.dataViews[0]?.categorical?.categories?.filter(d => d.source.roles.indicator) ?? [];
         this.indicatorVarNames = indicator_cols?.map(d => d.source.displayName) ?? [];
-        const n_indicators = indicator_cols?.length;
         const n_values = options.dataViews[0]?.categorical?.categories?.[0]?.values?.length ?? 1;
         const res = { status: true };
         const idx_per_indicator = new Array();
-        idx_per_indicator.push([0]);
         this.groupNames = new Array();
-        this.groupNames.push(indicator_cols?.map(d => d.values[0]) ?? []);
-        let curr_grp = 0;
-        for (let i = 1; i < n_values; i++) {
-            let same_indicator = true;
-            for (let j = 0; j < n_indicators; j++) {
-                same_indicator = same_indicator && (indicator_cols?.[j].values[i] === indicator_cols?.[j].values[i - 1]);
+        const groupIndexByKey = new Map();
+        for (let i = 0; i < n_values; i++) {
+            const rowValues = indicator_cols?.map(d => d.values[i]) ?? [];
+            const key = rowValues.map(v => String(v)).join("");
+            let grp = groupIndexByKey.get(key);
+            if (grp === undefined) {
+                grp = idx_per_indicator.length;
+                groupIndexByKey.set(key, grp);
+                idx_per_indicator.push([]);
+                this.groupNames.push(rowValues);
             }
-            if (same_indicator) {
-                idx_per_indicator[curr_grp].push(i);
-            }
-            else {
-                idx_per_indicator.push([i]);
-                this.groupNames.push(indicator_cols?.map(d => d.values[i]) ?? []);
-                curr_grp += 1;
-            }
+            idx_per_indicator[grp].push(i);
         }
         if (options.type === 2 || this.firstRun) {
             this.inputSettings.update(options.dataViews[0], idx_per_indicator);
@@ -5420,10 +5562,12 @@ class viewModelClass {
             this.outliers = new Array();
             this.identities = new Array();
             this.tableColumns = new Array();
+            const messagePositionByRowIndex = new Map();
+            idx_per_indicator.flat().forEach((rawRowIdx, position) => messagePositionByRowIndex.set(rawRowIdx, position));
             idx_per_indicator.forEach((group_idxs, idx) => {
                 const settings = this.inputSettings.settings[idx];
                 const derivedSettings = this.inputSettings.derivedSettings[idx];
-                const inpData = extractInputData(options.dataViews[0].categorical, settings, derivedSettings, this.inputSettings.validationStatus.messages, group_idxs);
+                const inpData = extractInputData(options.dataViews[0].categorical, settings, derivedSettings, this.inputSettings.validationStatus.messages, group_idxs, messagePositionByRowIndex);
                 this.inputData.push(inpData);
                 if (inpData.validationStatus.status !== 0) {
                     invalidData = true;
@@ -5485,44 +5629,36 @@ class viewModelClass {
     }
     calculateLimits(inputData, groupStartEndIndexes, inputSettings) {
         const limitFunction = limitFunctions[inputSettings.spc.chart_type];
-        inputData.limitInputArgs.outliers_in_limits = inputSettings.spc.outliers_in_limits;
-        let controlLimits;
-        if (groupStartEndIndexes.length > 1) {
-            const groupedData = groupStartEndIndexes.map((indexes) => {
-                let data = JSON.parse(JSON.stringify(inputData));
-                let limitKeys = Object.keys(data.limitInputArgs);
-                limitKeys.forEach(key => {
-                    if (Array.isArray(data.limitInputArgs[key])) {
-                        const groupVal = data.limitInputArgs[key].slice(indexes[0], indexes[1]);
-                        data.limitInputArgs[key] = groupVal;
-                        if (key === "subset_points") {
-                            data.limitInputArgs[key] = data.limitInputArgs[key].map((d) => d - indexes[0]);
-                        }
-                    }
-                });
-                return data;
+        const { num_points_subset, subset_points_from, subset_rebaselines } = inputSettings.spc;
+        const args = inputData.limitInputArgs;
+        const calcLimitsGrouped = groupStartEndIndexes.map(([start, end], groupIndex) => {
+            const n = end - start;
+            const applySubset = groupIndex === 0 || subset_rebaselines;
+            const subsetCount = applySubset && !isNullOrUndefined(num_points_subset) && between(num_points_subset, 1, n)
+                ? num_points_subset : n;
+            const subsetStart = subset_points_from === "Start" ? 0 : n - subsetCount;
+            const currLimits = limitFunction({
+                keys: args.keys.slice(start, end),
+                numerators: args.numerators.slice(start, end),
+                denominators: args.denominators?.slice(start, end),
+                xbar_sds: args.xbar_sds?.slice(start, end),
+                outliers_in_limits: inputSettings.spc.outliers_in_limits,
+                subset_points: seq(subsetStart, subsetStart + subsetCount - 1)
             });
-            const calcLimitsGrouped = groupedData.map(d => {
-                const currLimits = limitFunction(d.limitInputArgs);
-                currLimits.trend_line = calculateTrendLine(currLimits.values);
-                return currLimits;
+            currLimits.trend_line = calculateTrendLine(currLimits.values);
+            return currLimits;
+        });
+        const controlLimits = calcLimitsGrouped.reduce((all, curr) => {
+            const allInner = all;
+            Object.entries(all).forEach((entry, idx) => {
+                if (isNullOrUndefined(entry[1])) {
+                    return;
+                }
+                const newValues = entry[1].concat(Object.entries(curr)[idx][1]);
+                allInner[entry[0]] = newValues;
             });
-            controlLimits = calcLimitsGrouped.reduce((all, curr) => {
-                const allInner = all;
-                Object.entries(all).forEach((entry, idx) => {
-                    if (isNullOrUndefined(entry[1])) {
-                        return;
-                    }
-                    const newValues = entry[1].concat(Object.entries(curr)[idx][1]);
-                    allInner[entry[0]] = newValues;
-                });
-                return allInner;
-            });
-        }
-        else {
-            controlLimits = limitFunction(inputData.limitInputArgs);
-            controlLimits.trend_line = calculateTrendLine(controlLimits.values);
-        }
+            return allInner;
+        });
         controlLimits.alt_targets = inputData.alt_targets;
         controlLimits.speclimits_lower = inputData.speclimits_lower;
         controlLimits.speclimits_upper = inputData.speclimits_upper;
@@ -5588,6 +5724,7 @@ class viewModelClass {
                 tableColumnsDef.push({ name: tooltip.displayName, label: tooltip.displayName });
             });
         }
+        this.tableColumns[0] = tableColumnsDef;
         for (let i = 0; i < this.groupNames.length; i++) {
             if (isNullOrUndefined(this.inputData[i]?.categories)) {
                 continue;
@@ -5666,7 +5803,6 @@ class viewModelClass {
                 aesthetics: this.inputSettings.settings[i].summary_table,
                 highlighted: this.inputData[i].anyHighlights
             });
-            this.tableColumns[i] = tableColumnsDef;
         }
     }
     initialisePlotData(host) {

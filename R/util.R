@@ -29,7 +29,9 @@ validate_tooltips <- function(tooltip_settings) {
     spc = append(.spc_default_settings_internal,
                  list(tooltips = .default_tooltip_settings)),
     funnel = append(.funnel_default_settings_internal,
-                    list(tooltips = .default_tooltip_settings))
+                    list(tooltips = .default_tooltip_settings)),
+    misc = append(.misc_default_settings_internal,
+                  list(tooltips = .default_tooltip_settings))
   )
   if (is.null(group)) {
     return(settings)
@@ -74,11 +76,21 @@ funnel_default_settings <- function(group = NULL) {
   .default_settings_impl("funnel", group)
 }
 
+#' Get default settings for multi-indicator sigma charts
+#'
+#' @param group Optional settings group. If `NULL`, all groups are returned.
+#' @return A list of MISC settings.
+#' @export
+misc_default_settings <- function(group = NULL) {
+  .default_settings_impl("misc", group)
+}
+
 validate_settings <- function(type, input_settings, crosstalk_identities, cat_order) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
-    funnel = funnel_default_settings()
+    funnel = funnel_default_settings(),
+    misc = misc_default_settings()
   )
   has_conditional_formatting <- FALSE
   for (group in names(default_settings)) {
@@ -139,7 +151,7 @@ escape_labels <- function(input_settings, type) {
   input_settings
 }
 
-validate_aggregations <- function(aggregations) {
+validate_aggregations <- function(aggregations, data_raw) {
   if (is.null(aggregations)) {
     return(NULL)
   }
@@ -155,6 +167,13 @@ validate_aggregations <- function(aggregations) {
     tooltips = "first",
     labels = "first"
   )
+  value_names <- setdiff(
+    names(data_raw),
+    c("categories", "crosstalk_identities", "indicators", "tooltips")
+  )
+  for (value_name in setdiff(value_names, names(all_defaults))) {
+    all_defaults[[value_name]] <- "first"
+  }
   valid_aggregations <- c("first", "last", "sum", "mean",
                           "min", "max", "median", "count")
   for (new_agg in names(aggregations)) {
@@ -173,60 +192,69 @@ validate_aggregations <- function(aggregations) {
   all_defaults
 }
 
-normalise_indicators <- function(indicators_expr, input_data, env) {
-  indicator_values <- eval(indicators_expr, input_data, env)
-  if (is.data.frame(indicator_values)) {
-    stop("indicators must be a vector or list of vectors.", call. = FALSE)
+# Named list of character vectors from an argument given as a vector or list of
+# vectors, named by the list names or the expressions supplied
+normalise_columns <- function(columns_quo, input_data, arg, item) {
+  column_values <- rlang::eval_tidy(columns_quo, input_data)
+  columns_expr <- rlang::quo_get_expr(columns_quo)
+  if (is.data.frame(column_values)) {
+    stop(arg, " must be a vector or list of vectors.", call. = FALSE)
   }
-  if (!is.list(indicator_values)) {
-    indicator_values <- list(indicator_values)
+  if (!is.list(column_values)) {
+    column_values <- list(column_values)
   }
-  if (length(indicator_values) == 0) {
-    stop("indicators must contain at least one vector.", call. = FALSE)
-  }
-
-  expression_values <- list(indicators_expr)
-  if (is.call(indicators_expr) && identical(indicators_expr[[1]], quote(list))) {
-    expression_values <- as.list(indicators_expr)[-1]
+  if (length(column_values) == 0) {
+    stop(arg, " must contain at least one vector.", call. = FALSE)
   }
 
-  indicator_names <- names(indicator_values)
-  if (is.null(indicator_names)) {
-    indicator_names <- rep("", length(indicator_values))
+  expression_values <- list(columns_expr)
+  if (is.call(columns_expr) && identical(columns_expr[[1]], quote(list))) {
+    expression_values <- as.list(columns_expr)[-1]
   }
-  for (i in seq_along(indicator_values)) {
-    if (is.list(indicator_values[[i]]) || is.matrix(indicator_values[[i]]) ||
-        length(indicator_values[[i]]) != nrow(input_data)) {
-      stop("Each indicator must be a vector with one value per observation.",
+
+  column_names <- names(column_values)
+  if (is.null(column_names)) {
+    column_names <- rep("", length(column_values))
+  }
+  for (i in seq_along(column_values)) {
+    if (is.list(column_values[[i]]) || is.matrix(column_values[[i]]) ||
+        length(column_values[[i]]) != nrow(input_data)) {
+      stop("Each ", item, " must be a vector with one value per observation.",
            call. = FALSE)
     }
-    if (indicator_names[i] == "") {
+    if (column_names[i] == "") {
       if (length(expression_values) >= i) {
-        indicator_names[i] <- paste(deparse(expression_values[[i]]),
-                                    collapse = "")
+        column_names[i] <- paste(deparse(expression_values[[i]]),
+                                 collapse = "")
       } else {
-        indicator_names[i] <- paste0("Indicator ", i)
+        column_names[i] <- paste0(tools::toTitleCase(item), " ", i)
       }
     }
-    indicator_values[[i]] <- as.character(indicator_values[[i]])
+    column_values[[i]] <- as.character(column_values[[i]])
   }
-  names(indicator_values) <- make.unique(indicator_names)
-  indicator_values
+  names(column_values) <- make.unique(column_names)
+  column_values
+}
+
+title_font_size <- function(font_size) {
+  # If the size is provided as `{}px`, extract the numeric values
+  if (is.character(font_size) && grepl("px$", font_size)) {
+    font_size <- as.numeric(gsub("(^\\d+)px", "\\1", font_size))
+  }
+  font_size
 }
 
 title_padding <- function(title) {
   if (is.null(title$text)) {
     return(0)
   }
-  title_size <- title$font_size
-
-  # If the size is provided as `{}px`, extract the numeric values
-  if (is.character(title_size) && grepl("px$", title_size)) {
-    title_size <- as.numeric(gsub("(^\\d+)px", "\\1", title_size))
-  }
   # Return total padding as font size (as rough proxy for text height) and
   #  y render value
-  title_size + title$y
+  padding <- title_font_size(title$font_size) + title$y
+  if (!is.null(title$subtitle)) {
+    padding <- padding + title_font_size(title$subtitle_font_size)
+  }
+  padding
 }
 
 validate_chart_title <- function(title) {
@@ -239,7 +267,10 @@ validate_chart_title <- function(title) {
     x = "50%",
     y = 5,
     text_anchor = "middle",
-    dominant_baseline = "hanging"
+    dominant_baseline = "hanging",
+    subtitle = NULL,
+    subtitle_font_size = "12px",
+    subtitle_font_weight = "normal"
   )
   if (is.null(title)) {
     return(title_settings)
@@ -314,6 +345,7 @@ create_static <- function(type, data_views, title_settings,
         type = type,
         dataViews = data_views,
         svg = raw_ret$svg,
+        title_settings = title_settings,
         # Set to non-null values, will be updated when printed
         width = width,
         height = height
@@ -429,6 +461,25 @@ create_static <- function(type, data_views, title_settings,
       }
     }
     limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
+  } else if (type == "misc") {
+    values <- lapply(raw_ret$plotPoints, function(obs) {
+      data.frame(
+        indicator = obs$indicator,
+        grouping = obs$grouping,
+        group = obs$group,
+        z = obs$z,
+        score = obs$score,
+        outlier = obs$outlier,
+        numerator = obs$numerator,
+        denominator = obs$denominator,
+        value = obs$value,
+        ll99 = obs$ll99,
+        target = obs$target,
+        ul99 = obs$ul99,
+        stringsAsFactors = FALSE
+      )
+    })
+    limits <- do.call(rbind.data.frame, values)
   }
 
   rtn$limits <- limits
@@ -490,7 +541,16 @@ create_save_function <- function(type, rtn, data_views) {
     width <- ifelse(is.null(width), static_plot$width, width)
     height <- ifelse(is.null(height), static_plot$height, height)
 
-    svg <- ctx$call("updateHeadlessVisual", type, data_views, width, height)$svg
+    svg <- ctx$call(
+      "updateHeadlessVisual",
+      type,
+      data_views,
+      static_plot$title_settings,
+      width,
+      height,
+      TRUE,
+      FALSE
+    )$svg
     svg_resized <- svg_string(svg, width, height)
 
     if (file_ext == "svg") {
@@ -528,7 +588,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
                                                 cat_order)
   input_settings <- input_settings_processed$input_settings
   has_conditional_formatting <- input_settings_processed$has_conditional_formatting
-  aggregations <- validate_aggregations(aggregations)
+  aggregations <- validate_aggregations(aggregations, data_raw)
   title_settings <- validate_chart_title(title)
 
   # If rendering a title, adjust the upper padding so that title
@@ -548,6 +608,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
   rtn_limit_lines <- "limit_lines" %in% return_objs
   rtn <- list()
   update_dataviews <- NULL
+  data_views <- NULL
 
   if (rtn_html) {
     widget_data <- list(
@@ -600,11 +661,18 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
         title_settings$text <- title_clean
       }
     }
+    if (!is.null(title_settings$subtitle)) {
+      subtitle_clean <- htmltools::htmlEscape(title_settings$subtitle)
+      if (subtitle_clean != title_settings$subtitle) {
+        title_escaped <- TRUE
+        title_settings$subtitle <- subtitle_clean
+      }
+    }
 
     labels_escaped <- FALSE
     if ("labels" %in% names(data_raw)) {
       labels_clean <- sapply(data_raw$labels, htmltools::htmlEscape)
-      if (any(labels_clean != data_raw$labels)) {
+      if (any(labels_clean != data_raw$labels, na.rm = TRUE)) {
         labels_escaped <- TRUE
         data_raw$labels <- labels_clean
       }

@@ -3,12 +3,13 @@ dependencies:
   - name: UTILS
     version: 1.0.0
     src: htmlwidgets/lib/UTILS
+    stylesheet: interactiveUtils.css
     script:
       - ccD3.min.js
       - commonUtils.min.js
       - interactiveUtils.min.js
   - name: PBISPC
-    version: 1.7.4.28
+    version: 1.8.0.3
     src: htmlwidgets/lib/PBISPC
     script:
       - PBISPC.min.js
