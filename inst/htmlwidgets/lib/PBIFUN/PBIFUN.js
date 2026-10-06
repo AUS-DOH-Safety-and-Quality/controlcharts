@@ -1671,8 +1671,9 @@ function extractConditionalFormatting(categoricalView, settingGroupName, inputSe
     }
     const inputCategories = categoricalView.categories[0];
     const settingNames = Object.keys(inputSettings[settingGroupName]);
-    const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
+    const validationRtn = { status: 0, messages: new Array(inputCategories.values.length) };
     const rtn = inputCategories.values.map((_, idx) => {
+        validationRtn.messages[idx] = [];
         const inpObjects = (inputCategories.objects ? inputCategories.objects[idx] : null);
         return Object.fromEntries(settingNames.map(settingName => {
             const defaultSetting = defaultSettings[settingGroupName][settingName];

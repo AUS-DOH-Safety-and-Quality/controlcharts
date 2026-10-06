@@ -4291,24 +4291,36 @@ function extractConditionalFormatting(categoricalView, settingGroupName, inputSe
     }
     const inputCategories = categoricalView.categories[0];
     const settingNames = Object.keys(inputSettings[settingGroupName]);
-    const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
+    const settingSpecs = new Array(settingNames.length);
+    for (let j = 0; j < settingNames.length; j++) {
+        const settingName = settingNames[j];
+        const defaultSetting = getNested(defaultSettings, settingGroupName, settingName);
+        const settingEntry = getNested(settingsModel, settingGroupName, settingName);
+        const valid = "valid" in settingEntry ? settingEntry.valid : "options" in settingEntry ? settingEntry.options : undefined;
+        settingSpecs[j] = { settingName, defaultSetting, valid, defaultIsUndefined: isNullOrUndefined(defaultSetting) };
+    }
     const n = idxs.length;
-    let rtn = new Array(n);
+    const validationRtn = { status: 0, messages: new Array(n) };
+    const rtn = new Array(n);
+    let allInvalid = n > 0;
+    let defaultFormatting;
     for (let i = 0; i < n; i++) {
         const inpObjects = inputCategories.objects ? inputCategories.objects[idxs[i]] : null;
-        rtn[i] = Object.fromEntries(settingNames.map(settingName => {
-            const defaultSetting = getNested(defaultSettings, settingGroupName, settingName);
+        const usesDefaults = !inpObjects?.[settingGroupName];
+        if (usesDefaults && defaultFormatting) {
+            rtn[i] = { ...defaultFormatting.values };
+            validationRtn.messages[i] = defaultFormatting.messages.slice();
+            if (defaultFormatting.messages.length === 0)
+                allInvalid = false;
+            continue;
+        }
+        const messages = [];
+        validationRtn.messages[i] = messages;
+        const row = {};
+        for (let j = 0; j < settingSpecs.length; j++) {
+            const { settingName, defaultSetting, valid, defaultIsUndefined } = settingSpecs[j];
             let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
             extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
-            const settingEntry = getNested(settingsModel, settingGroupName, settingName);
-            let valid = undefined;
-            if ("valid" in settingEntry) {
-                valid = settingEntry.valid;
-            }
-            else if ("options" in settingEntry) {
-                valid = settingEntry.options;
-            }
-            const defaultIsUndefined = isNullOrUndefined(defaultSetting);
             if (valid && !defaultIsUndefined) {
                 let message = "";
                 if (valid instanceof Array) {
@@ -4316,21 +4328,25 @@ function extractConditionalFormatting(categoricalView, settingGroupName, inputSe
                         message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
                     }
                 }
-                else if ((!isNullOrUndefined(valid?.minValue) || !isNullOrUndefined(valid?.maxValue)) && !between(extractedSetting, valid?.minValue?.value, valid?.maxValue?.value)) {
-                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${valid?.minValue?.value} and ${valid?.maxValue?.value}`;
+                else if ((!isNullOrUndefined(valid.minValue) || !isNullOrUndefined(valid.maxValue)) && !between(extractedSetting, valid.minValue?.value, valid.maxValue?.value)) {
+                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${valid.minValue?.value} and ${valid.maxValue?.value}`;
                 }
                 if (message !== "") {
                     extractedSetting = defaultSetting;
-                    validationRtn.messages[i].push(message);
+                    messages.push(message);
                 }
             }
-            return [settingName, extractedSetting];
-        }));
+            row[settingName] = extractedSetting;
+        }
+        if (usesDefaults)
+            defaultFormatting = { values: row, messages };
+        rtn[i] = row;
+        if (messages.length === 0)
+            allInvalid = false;
     }
-    const validationMessages = validationRtn.messages.filter(d => d.length > 0);
-    if (!validationRtn.messages.some(d => d.length === 0)) {
+    if (allInvalid) {
         validationRtn.status = 1;
-        validationRtn.error = `${validationMessages[0][0]}`;
+        validationRtn.error = validationRtn.messages[0][0];
     }
     return { values: rtn, validation: validationRtn };
 }
@@ -5482,21 +5498,19 @@ class viewModelClass {
         this.groupNames = [];
     }
     update(options, host) {
+        this.colourPalette = {
+            isHighContrast: host.colorPalette.isHighContrast,
+            foregroundColour: host.colorPalette.foreground.value,
+            backgroundColour: host.colorPalette.background.value,
+            foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
+            hyperlinkColour: host.colorPalette.hyperlink.value
+        };
         const updateOptionsStatus = updateOptionsUndefined(options);
         if (updateOptionsStatus === 2) {
             return { status: false, error: "" };
         }
         else if (updateOptionsStatus === 3) {
             return { status: false, error: "No Numerators passed!" };
-        }
-        if (isNullOrUndefined(this.colourPalette)) {
-            this.colourPalette = {
-                isHighContrast: host.colorPalette.isHighContrast,
-                foregroundColour: host.colorPalette.foreground.value,
-                backgroundColour: host.colorPalette.background.value,
-                foregroundSelectedColour: host.colorPalette.foregroundSelected.value,
-                hyperlinkColour: host.colorPalette.hyperlink.value
-            };
         }
         this.svgWidth = options.viewport.width;
         this.svgHeight = options.viewport.height;
