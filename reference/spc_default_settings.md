@@ -68,6 +68,9 @@ spc_default_settings()
 #> $spc$subset_points_from
 #> [1] "Start"
 #> 
+#> $spc$subset_rebaselines
+#> [1] FALSE
+#> 
 #> $spc$ttip_show_date
 #> [1] TRUE
 #> 
@@ -741,6 +744,9 @@ spc_default_settings()
 #> $x_axis$xlimit_ticks
 #> [1] TRUE
 #> 
+#> $x_axis$xlimit_tick_marks
+#> [1] TRUE
+#> 
 #> $x_axis$xlimit_tick_count
 #> [1] 10
 #> 
@@ -768,6 +774,21 @@ spc_default_settings()
 #> $x_axis$xlimit_label_colour
 #> [1] "#000000"
 #> 
+#> $x_axis$xlimit_label_style
+#> [1] "normal"
+#> 
+#> $x_axis$xlimit_label_align
+#> [1] "center"
+#> 
+#> $x_axis$xlimit_grid_show
+#> [1] FALSE
+#> 
+#> $x_axis$xlimit_grid_colour
+#> [1] "#D3D3D3"
+#> 
+#> $x_axis$xlimit_grid_width
+#> [1] 1
+#> 
 #> 
 #> $y_axis
 #> $y_axis$ylimit_show
@@ -789,6 +810,9 @@ spc_default_settings()
 #> NULL
 #> 
 #> $y_axis$ylimit_ticks
+#> [1] TRUE
+#> 
+#> $y_axis$ylimit_tick_marks
 #> [1] TRUE
 #> 
 #> $y_axis$ylimit_tick_count
@@ -817,6 +841,21 @@ spc_default_settings()
 #> 
 #> $y_axis$ylimit_label_colour
 #> [1] "#000000"
+#> 
+#> $y_axis$ylimit_label_style
+#> [1] "normal"
+#> 
+#> $y_axis$ylimit_label_align
+#> [1] "center"
+#> 
+#> $y_axis$ylimit_grid_show
+#> [1] FALSE
+#> 
+#> $y_axis$ylimit_grid_colour
+#> [1] "#D3D3D3"
+#> 
+#> $y_axis$ylimit_grid_width
+#> [1] 1
 #> 
 #> 
 #> $dates
@@ -1059,6 +1098,9 @@ spc_default_settings("x_axis")
 #> $xlimit_ticks
 #> [1] TRUE
 #> 
+#> $xlimit_tick_marks
+#> [1] TRUE
+#> 
 #> $xlimit_tick_count
 #> [1] 10
 #> 
@@ -1085,5 +1127,20 @@ spc_default_settings("x_axis")
 #> 
 #> $xlimit_label_colour
 #> [1] "#000000"
+#> 
+#> $xlimit_label_style
+#> [1] "normal"
+#> 
+#> $xlimit_label_align
+#> [1] "center"
+#> 
+#> $xlimit_grid_show
+#> [1] FALSE
+#> 
+#> $xlimit_grid_colour
+#> [1] "#D3D3D3"
+#> 
+#> $xlimit_grid_width
+#> [1] 1
 #> 
 ```

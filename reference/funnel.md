@@ -53,7 +53,9 @@ funnel(
 
 - tooltips:
 
-  A vector or column name representing the tooltips for each category.
+  A vector or column name, or a list of them, representing additional
+  tooltips for each category. Each is labelled by its name in the list,
+  or else by the expression supplied.
 
 - labels:
 
@@ -104,6 +106,13 @@ funnel(
 
   - `dominant_baseline`: Dominant baseline of the title (default:
     "hanging")
+
+  - `subtitle`: Subtitle text, drawn below the title (default: NULL)
+
+  - `subtitle_font_size`: Font size of the subtitle (default: "12px")
+
+  - `subtitle_font_weight`: Font weight of the subtitle (default:
+    "normal")
 
 - canvas_settings:
 

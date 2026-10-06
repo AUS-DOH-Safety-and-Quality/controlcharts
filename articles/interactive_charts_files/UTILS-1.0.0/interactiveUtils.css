@@ -1,0 +1,90 @@
+.controlcharts-widget {
+  position: relative;
+}
+
+.controlcharts-export {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 10;
+  font: 12px/1.4 system-ui, sans-serif;
+  color: #334155;
+  opacity: 0.45;
+  transition: opacity 120ms ease;
+}
+
+.controlcharts-widget:hover > .controlcharts-export,
+.controlcharts-export:focus-within,
+.controlcharts-export[open] {
+  opacity: 1;
+}
+
+.controlcharts-export summary,
+.controlcharts-export-options {
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.controlcharts-export summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  cursor: pointer;
+  list-style: none;
+}
+
+.controlcharts-export summary::-webkit-details-marker {
+  display: none;
+}
+
+.controlcharts-export-options {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  display: flex;
+  flex-wrap: wrap;
+  width: 112px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.controlcharts-export button {
+  flex: 1;
+  border: 0;
+  border-radius: 3px;
+  padding: 5px 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.controlcharts-export button:hover {
+  background: rgba(100, 116, 139, 0.12);
+}
+
+.controlcharts-export summary:focus-visible,
+.controlcharts-export button:focus-visible {
+  outline: 2px solid #00667b;
+  outline-offset: 2px;
+}
+
+.controlcharts-export button:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.controlcharts-export-status:empty {
+  display: none;
+}
+
+@media print {
+  .controlcharts-export {
+    display: none;
+  }
+}

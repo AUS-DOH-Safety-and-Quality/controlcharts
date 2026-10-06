@@ -192,6 +192,13 @@ for more details and examples.
 - [`funnel_default_settings()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/funnel_default_settings.md)
   : Get default settings for Funnel charts Retrieve the default settings
   for Funnel charts or a specific settings group.
+- [`miscOutput()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/misc-shiny.md)
+  [`renderMisc()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/misc-shiny.md)
+  : Shiny bindings for multi-indicator sigma charts
+- [`misc()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/misc.md)
+  : Generate a multi-indicator sigma chart
+- [`misc_default_settings()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/misc_default_settings.md)
+  : Get default settings for multi-indicator sigma charts
 - [`spcOutput()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/spc-shiny.md)
   [`renderSpc()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/spc-shiny.md)
   : Shiny bindings for wrapper

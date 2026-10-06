@@ -70,6 +70,14 @@ controlcharts::funnel(data = dat,
                       denominators = denominators)
 ```
 
+### Exporting images
+
+Open the download control at the top right of any SPC, funnel or MISC
+chart to save an SVG or PNG. Exports retain the current filters,
+highlighting and chart styling, and omit tooltips. Transparent chart
+backgrounds export as white. PNGs use twice the displayed chart
+dimensions.
+
 ### Cross-plot Reactivity and Dynamic Calculations: Crosstalk
 
 By converting the data to a

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.20</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.21</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,8 +115,9 @@ and standard deviation values for each category.</p></dd>
 
 
 <dt id="arg-tooltips">tooltips<a class="anchor" aria-label="anchor" href="#arg-tooltips"></a></dt>
-<dd><p>A vector or column name representing the tooltips for
-each category.</p></dd>
+<dd><p>A vector or column name, or a list of them, representing
+additional tooltips for each category. Each is labelled by its name in the
+list, or else by the expression supplied.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
@@ -151,6 +152,10 @@ as a percentage (default: "50%")</p></li>
 <li><p><code>text_anchor</code>: Text anchor of the title (default: "middle")</p></li>
 <li><p><code>dominant_baseline</code>: Dominant baseline of the
 title (default: "hanging")</p></li>
+<li><p><code>subtitle</code>: Subtitle text, drawn below the title (default: NULL)</p></li>
+<li><p><code>subtitle_font_size</code>: Font size of the subtitle (default: "12px")</p></li>
+<li><p><code>subtitle_font_weight</code>: Font weight of the subtitle
+(default: "normal")</p></li>
 </ul></dd>
 
 

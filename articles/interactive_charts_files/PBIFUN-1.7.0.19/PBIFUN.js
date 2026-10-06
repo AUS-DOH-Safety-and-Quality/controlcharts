@@ -354,6 +354,7 @@ const xAxisSettings = {
         },
         "Ticks": {
             xlimit_ticks: toggleOption("Draw Ticks", true),
+            xlimit_tick_marks: toggleOption("Draw Tick Marks", true),
             xlimit_tick_count: numberOption("Maximum Ticks", 10, { min: 0, max: 100 }),
             xlimit_tick_font: fontOption("Tick Font"),
             xlimit_tick_size: fontSizeOption("Tick Font Size"),
@@ -364,7 +365,14 @@ const xAxisSettings = {
             xlimit_label: textOption("Label", ""),
             xlimit_label_font: fontOption("Label Font"),
             xlimit_label_size: fontSizeOption("Label Font Size"),
-            xlimit_label_colour: colourOption("Label Font Colour", "standard")
+            xlimit_label_colour: colourOption("Label Font Colour", "standard"),
+            xlimit_label_style: dropdownOption("Label Font Style", "normal", ["normal", "italic"], "sentence"),
+            xlimit_label_align: dropdownOption("Label Alignment", "center", ["left", "center", "right"], "sentence")
+        },
+        "Gridlines": {
+            xlimit_grid_show: toggleOption("Show Gridlines", false),
+            xlimit_grid_colour: colourOption("Gridline Colour", "lightgray"),
+            xlimit_grid_width: numberOption("Gridline Width", 1, { min: 0 })
         }
     }
 };
@@ -381,6 +389,7 @@ const yAxisSettings = {
         },
         "Ticks": {
             ylimit_ticks: toggleOption("Draw Ticks", true),
+            ylimit_tick_marks: toggleOption("Draw Tick Marks", true),
             ylimit_tick_count: numberOption("Maximum Ticks", 10, { min: 0, max: 100 }),
             ylimit_tick_font: fontOption("Tick Font"),
             ylimit_tick_size: fontSizeOption("Tick Font Size"),
@@ -391,7 +400,14 @@ const yAxisSettings = {
             ylimit_label: textOption("Label", ""),
             ylimit_label_font: fontOption("Label Font"),
             ylimit_label_size: fontSizeOption("Label Font Size"),
-            ylimit_label_colour: colourOption("Label Font Colour", "standard")
+            ylimit_label_colour: colourOption("Label Font Colour", "standard"),
+            ylimit_label_style: dropdownOption("Label Font Style", "normal", ["normal", "italic"], "sentence"),
+            ylimit_label_align: dropdownOption("Label Alignment", "center", ["bottom", "center", "top"], "sentence")
+        },
+        "Gridlines": {
+            ylimit_grid_show: toggleOption("Show Gridlines", false),
+            ylimit_grid_colour: colourOption("Gridline Colour", "lightgray"),
+            ylimit_grid_width: numberOption("Gridline Width", 1, { min: 0 })
         }
     }
 };
@@ -493,608 +509,6 @@ function between(x, lower, upper) {
     return is_between;
 }
 
-function broadcast_binary(fun) {
-    return function (x, y) {
-        if (Array.isArray(x) && Array.isArray(y)) {
-            return x.map((d, idx) => fun(d, y[idx]));
-        }
-        else if (Array.isArray(x) && !Array.isArray(y)) {
-            return x.map(d => fun(d, y));
-        }
-        else if (!Array.isArray(x) && Array.isArray(y)) {
-            return y.map(d => fun(x, d));
-        }
-        else {
-            return fun(x, y);
-        }
-    };
-}
-const add = broadcast_binary((x, y) => x + y);
-const subtract = broadcast_binary((x, y) => x - y);
-const divide = broadcast_binary((x, y) => x / y);
-const multiply = broadcast_binary((x, y) => x * y);
-
-function getTransformation(setting_name) {
-    if (setting_name == "none") {
-        return function (x) { return x; };
-    }
-    else if (setting_name == "ln") {
-        return function (x) { return Math.log(x + 1); };
-    }
-    else if (setting_name == "log10") {
-        return function (x) { return Math.log10(x + 1); };
-    }
-    else if (setting_name == "sqrt") {
-        return Math.sqrt;
-    }
-    else {
-        return function (x) { return x; };
-    }
-}
-
-function buildTooltip(index, calculatedLimits, outliers, inputData, inputSettings, derivedSettings) {
-    const data_type = inputSettings.funnel.chart_type;
-    const multiplier = derivedSettings.multiplier;
-    const transform_text = inputSettings.funnel.transformation;
-    const transform = getTransformation(transform_text);
-    const group = inputData.keys[index].label;
-    const numerator = inputData.numerators[index];
-    const denominator = inputData.denominators[index];
-    const limits = calculatedLimits.filter(d => d.denominators === denominator && d.ll99 !== null && d.ul99 !== null)[0];
-    const ratio = transform((numerator / denominator) * multiplier);
-    const suffix = derivedSettings.percentLabels ? "%" : "";
-    const prop_labels = derivedSettings.percentLabels;
-    const sig_figs = inputSettings.funnel.sig_figs;
-    const valueLabel = {
-        "PR": "Proportion",
-        "SR": "Standardised Ratio",
-        "RC": "Rate"
-    };
-    const tooltip = new Array();
-    if (inputSettings.funnel.ttip_show_group) {
-        tooltip.push({
-            displayName: inputSettings.funnel.ttip_label_group,
-            value: group
-        });
-    }
-    if (inputSettings.funnel.ttip_show_value) {
-        const ttip_label_value = inputSettings.funnel.ttip_label_value;
-        tooltip.push({
-            displayName: ttip_label_value === "Automatic" ? valueLabel[data_type] : ttip_label_value,
-            value: ratio.toFixed(sig_figs) + suffix
-        });
-    }
-    if (inputSettings.funnel.ttip_show_numerator && !(numerator === null || numerator === undefined)) {
-        tooltip.push({
-            displayName: inputSettings.funnel.ttip_label_numerator,
-            value: (numerator).toFixed(prop_labels ? 0 : sig_figs)
-        });
-    }
-    if (inputSettings.funnel.ttip_show_denominator && !(denominator === null || denominator === undefined)) {
-        tooltip.push({
-            displayName: inputSettings.funnel.ttip_label_denominator,
-            value: (denominator).toFixed(prop_labels ? 0 : sig_figs)
-        });
-    }
-    ["68", "95", "99"].forEach(limit => {
-        if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
-            tooltip.push({
-                displayName: `Upper ${inputSettings.lines[`ttip_label_${limit}`]}`,
-                value: (limits[`ul${limit}`]).toFixed(sig_figs) + suffix
-            });
-        }
-    });
-    if (inputSettings.lines.show_target && inputSettings.lines.ttip_show_target) {
-        tooltip.push({
-            displayName: inputSettings.lines.ttip_label_target,
-            value: (limits.target).toFixed(sig_figs) + suffix
-        });
-    }
-    if (inputSettings.lines.show_alt_target && inputSettings.lines.ttip_show_alt_target && !(limits.alt_target === null || limits.alt_target === undefined)) {
-        tooltip.push({
-            displayName: inputSettings.lines.ttip_label_alt_target,
-            value: (limits.alt_target).toFixed(sig_figs) + suffix
-        });
-    }
-    ["68", "95", "99"].forEach(limit => {
-        if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
-            tooltip.push({
-                displayName: `Lower ${inputSettings.lines[`ttip_label_${limit}`]}`,
-                value: (limits[`ll${limit}`]).toFixed(sig_figs) + suffix
-            });
-        }
-    });
-    if (transform_text !== "none") {
-        tooltip.push({
-            displayName: "Plot Scaling",
-            value: transform_text
-        });
-    }
-    if (outliers.two_sigma || outliers.three_sigma) {
-        const patterns = new Array();
-        if (outliers.three_sigma) {
-            patterns.push("Three Sigma Outlier");
-        }
-        if (outliers.two_sigma) {
-            patterns.push("Two Sigma Outlier");
-        }
-        tooltip.push({
-            displayName: "Pattern(s)",
-            value: patterns.join("\n")
-        });
-    }
-    if (inputData.tooltips.length > 0) {
-        inputData.tooltips[index].forEach(customTooltip => tooltip.push(customTooltip));
-    }
-    return tooltip;
-}
-
-function rep(x, n) {
-    let result = new Array(n);
-    for (let i = 0; i < n; i++) {
-        result[i] = x;
-    }
-    return result;
-}
-
-function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
-    const propertyValue = settingObject?.[settingGroup]?.[settingName];
-    if (isNullOrUndefined(propertyValue)) {
-        return defaultValue;
-    }
-    return propertyValue?.solid ? propertyValue.solid.color
-        : propertyValue;
-}
-function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings) {
-    if (isNullOrUndefined(categoricalView)) {
-        return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
-    }
-    if (isNullOrUndefined(categoricalView?.categories)) {
-        return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
-    }
-    const inputCategories = categoricalView.categories[0];
-    const settingNames = Object.keys(inputSettings[settingGroupName]);
-    const validationRtn = JSON.parse(JSON.stringify({ status: 0, messages: rep([], inputCategories.values.length) }));
-    const rtn = inputCategories.values.map((_, idx) => {
-        const inpObjects = (inputCategories.objects ? inputCategories.objects[idx] : null);
-        return Object.fromEntries(settingNames.map(settingName => {
-            const defaultSetting = defaultSettings[settingGroupName][settingName];
-            let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
-            extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
-            const valid = defaultSettings[settingGroupName][settingName]?.["valid"] ?? defaultSettings[settingGroupName][settingName]?.["options"];
-            const isNumericRange = !isNullOrUndefined(valid?.minValue) || !isNullOrUndefined(valid?.maxValue);
-            const defaultIsUndefined = isNullOrUndefined(defaultSetting);
-            if (valid && !defaultIsUndefined) {
-                let message = "";
-                if (valid instanceof Array && !valid.includes(extractedSetting)) {
-                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
-                }
-                else if (isNumericRange && !between(extractedSetting, valid?.minValue?.value, valid?.maxValue?.value)) {
-                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${valid?.minValue?.value} and ${valid?.maxValue?.value}`;
-                }
-                if (message !== "") {
-                    extractedSetting = defaultSettings[settingGroupName][settingName];
-                    validationRtn.messages[idx].push(message);
-                }
-            }
-            return [settingName, extractedSetting];
-        }));
-    });
-    const validationMessages = validationRtn.messages.filter(d => d.length > 0);
-    if (!validationRtn.messages.some(d => d.length === 0)) {
-        validationRtn.status = 1;
-        validationRtn.error = `${validationMessages[0][0]}`;
-    }
-    return { values: rtn, validation: validationRtn };
-}
-
-const formatPrimitiveValue = broadcast_binary((rawValue, valueType) => {
-    if (rawValue === null || rawValue === undefined) {
-        return null;
-    }
-    if (valueType.numeric) {
-        return rawValue.toString();
-    }
-    else {
-        return rawValue;
-    }
-});
-
-function extractKeys(inputView) {
-    const primitiveKeyColumns = inputView.categories.filter(viewColumn => viewColumn.source?.roles?.["key"]);
-    const primitiveKeyValues = primitiveKeyColumns?.[0]?.values;
-    const primitiveKeyTypes = primitiveKeyColumns?.[0]?.source?.type;
-    return formatPrimitiveValue(primitiveKeyValues, primitiveKeyTypes);
-}
-function extractTooltips(inputView) {
-    const tooltipColumns = inputView.values.filter(viewColumn => viewColumn.source.roles.tooltips);
-    return tooltipColumns?.[0]?.values?.map((_, idx) => {
-        return tooltipColumns.map(viewColumn => {
-            const tooltipValueFormatted = formatPrimitiveValue(viewColumn?.values?.[idx], viewColumn.source.type);
-            return {
-                displayName: viewColumn.source.displayName,
-                value: tooltipValueFormatted
-            };
-        });
-    });
-}
-function extractDataColumn(inputView, name) {
-    const columnRaw = inputView.values.filter(viewColumn => viewColumn?.source?.roles?.[name]);
-    if (name === "key") {
-        return extractKeys(inputView);
-    }
-    else if (name === "tooltips") {
-        return extractTooltips(inputView);
-    }
-    else if (name === "labels") {
-        return columnRaw?.[0]?.values?.map(d => isNullOrUndefined(d) ? null : String(d));
-    }
-    else {
-        return columnRaw?.[0]?.values?.map(d => isNullOrUndefined(d) ? null : Number(d));
-    }
-}
-
-function extractInputData(inputView, inputSettingsClass) {
-    const inputSettings = inputSettingsClass.settings;
-    const numerators = extractDataColumn(inputView, "numerators");
-    const denominators = extractDataColumn(inputView, "denominators");
-    const keys = extractDataColumn(inputView, "key");
-    const labels = extractDataColumn(inputView, "labels");
-    let scatter_cond = extractConditionalFormatting(inputView, "scatter", inputSettings)?.values;
-    scatter_cond = scatter_cond === null ? rep(inputSettings.scatter, numerators.length) : scatter_cond;
-    let labels_cond = extractConditionalFormatting(inputView, "labels", inputSettings)?.values;
-    labels_cond = labels_cond === null ? rep(inputSettings.labels, numerators.length) : labels_cond;
-    const tooltips = extractDataColumn(inputView, "tooltips");
-    const highlights = inputView.values[0].highlights;
-    const inputValidStatus = validateInputData(keys, numerators, denominators, inputSettings.funnel.chart_type);
-    if (inputValidStatus.status !== 0) {
-        return {
-            keys: null,
-            id: null,
-            numerators: null,
-            denominators: null,
-            highlights: null,
-            anyHighlights: null,
-            categories: null,
-            scatter_formatting: null,
-            label_formatting: null,
-            tooltips: null,
-            labels: null,
-            anyLabels: false,
-            warningMessage: inputValidStatus.error,
-            validationStatus: inputValidStatus
-        };
-    }
-    const valid_ids = new Array();
-    const valid_keys = new Array();
-    const removalMessages = new Array();
-    const groupVarName = inputView.categories[0].source.displayName;
-    const settingsMessages = inputSettingsClass.validationStatus.messages;
-    let valid_x = 0;
-    for (let i = 0; i < numerators.length; i++) {
-        if (inputValidStatus.messages[i] === "") {
-            valid_ids.push(i);
-            valid_keys.push({ x: valid_x, id: i, label: keys[i] });
-            valid_x += 1;
-            if (settingsMessages[i].length > 0) {
-                settingsMessages[i].forEach(setting_removal_message => {
-                    removalMessages.push(`Conditional formatting for ${groupVarName} ${keys[i]} ignored due to: ${setting_removal_message}.`);
-                });
-            }
-        }
-        else {
-            removalMessages.push(`${groupVarName} ${keys[i]} removed due to: ${inputValidStatus.messages[i]}.`);
-        }
-    }
-    const valid_labels = extractValues(labels, valid_ids);
-    return {
-        keys: valid_keys,
-        id: valid_ids,
-        numerators: extractValues(numerators, valid_ids),
-        denominators: extractValues(denominators, valid_ids),
-        tooltips: extractValues(tooltips, valid_ids),
-        labels: valid_labels,
-        anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
-        highlights: extractValues(highlights, valid_ids),
-        anyHighlights: highlights != null,
-        categories: inputView.categories[0],
-        scatter_formatting: extractValues(scatter_cond, valid_ids),
-        label_formatting: extractValues(labels_cond, valid_ids),
-        warningMessage: removalMessages.length > 0 ? removalMessages.join("\n") : "",
-        validationStatus: inputValidStatus
-    };
-}
-
-function extractValues(valuesArray, indexArray) {
-    if (valuesArray) {
-        const n = indexArray.length;
-        let result = new Array(n);
-        for (let i = 0; i < n; i++) {
-            result[i] = valuesArray[indexArray[i]];
-        }
-        return result;
-    }
-    else {
-        return [];
-    }
-}
-
-const lineNameMap = {
-    "ll99": "99",
-    "ll95": "95",
-    "ll68": "68",
-    "ul68": "68",
-    "ul95": "95",
-    "ul99": "99",
-    "target": "target",
-    "alt_target": "alt_target"
-};
-function getAesthetic(type, group, aesthetic, inputSettings) {
-    const mapName = group.includes("line") ? lineNameMap[type] : type;
-    const settingName = aesthetic + "_" + mapName;
-    return inputSettings[group][settingName];
-}
-
-function seq(from, to, by) {
-    const n_iter = Math.floor((to - from) / by);
-    const res = new Array(n_iter);
-    res[0] = from;
-    for (let i = 1; i < n_iter; i++) {
-        res[i] = res[i - 1] + by;
-    }
-    return res;
-}
-
-function broadcast_unary(fun) {
-    return function (y) {
-        if (Array.isArray(y)) {
-            return y.map((d) => fun(d));
-        }
-        else {
-            return fun(y);
-        }
-    };
-}
-const sqrt = broadcast_unary(Math.sqrt);
-const exp = broadcast_unary(Math.exp);
-const log = broadcast_unary(Math.log);
-const asin = broadcast_unary(Math.asin);
-const square = broadcast_unary((x) => Math.pow(x, 2));
-const inv = broadcast_unary((x) => 1.0 / x);
-
-function winsorise(val, limits) {
-    let rtn = val;
-    if (limits.lower) {
-        if (Array.isArray(rtn)) {
-            rtn = rtn.map(d => d < limits.lower ? limits.lower : d);
-        }
-        else if (typeof rtn === "number") {
-            rtn = rtn < limits.lower ? limits.lower : rtn;
-        }
-    }
-    if (limits.upper) {
-        if (Array.isArray(rtn)) {
-            rtn = rtn.map(d => d > limits.upper ? limits.upper : d);
-        }
-        else if (typeof rtn === "number") {
-            rtn = rtn > limits.upper ? limits.upper : rtn;
-        }
-    }
-    return rtn;
-}
-
-function validateDataView(inputDV) {
-    if (!(inputDV?.[0])) {
-        return "No data present";
-    }
-    if (!(inputDV[0]?.categorical?.categories)) {
-        return "No grouping/ID variable passed!";
-    }
-    const numeratorsPresent = inputDV[0].categorical
-        ?.values
-        ?.some(d => d.source?.roles?.numerators);
-    if (!numeratorsPresent) {
-        return "No Numerators passed!";
-    }
-    const denominatorsPresent = inputDV[0].categorical
-        ?.values
-        ?.some(d => d.source?.roles?.denominators);
-    if (!denominatorsPresent) {
-        return "No denominators passed!";
-    }
-    return "valid";
-}
-
-function validateInputData(keys, numerators, denominators, data_type) {
-    const validationRtn = { status: 0, messages: rep("", keys.length) };
-    keys.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? ((d != null) ? "" : "Group missing")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All Groups/IDs are missing or null!";
-        return validationRtn;
-    }
-    numerators.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? ((d != null) ? "" : "Numerator missing")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All numerators are missing or null!";
-        return validationRtn;
-    }
-    numerators.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? (!isNaN(d) ? "" : "Numerator is not a number")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All numerators are not numbers!";
-        return validationRtn;
-    }
-    numerators.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? ((d >= 0) ? "" : "Numerator negative")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All numerators are negative!";
-        return validationRtn;
-    }
-    denominators.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? ((d != null) ? "" : "Denominator missing")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All denominators missing or null!";
-        return validationRtn;
-    }
-    denominators.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? (!isNaN(d) ? "" : "Denominator is not a number")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All denominators are not numbers!";
-        return validationRtn;
-    }
-    denominators.forEach((d, idx) => {
-        validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-            ? ((d >= 0) ? "" : "Denominator negative")
-            : validationRtn.messages[idx];
-    });
-    if (!validationRtn.messages.some(d => d == "")) {
-        validationRtn.status = 1;
-        validationRtn.error = "All denominators are negative!";
-        return validationRtn;
-    }
-    if (data_type === "PR") {
-        denominators.forEach((d, idx) => {
-            validationRtn.messages[idx] = validationRtn.messages[idx] === ""
-                ? ((d >= numerators[idx]) ? "" : "Denominator < numerator")
-                : validationRtn.messages[idx];
-        });
-        if (!validationRtn.messages.some(d => d == "")) {
-            validationRtn.status = 1;
-            validationRtn.error = "All denominators are smaller than numerators!";
-            return validationRtn;
-        }
-    }
-    return validationRtn;
-}
-
-function checkFlagDirection(outlierStatus, flagSettings) {
-    if (outlierStatus === "none") {
-        return outlierStatus;
-    }
-    const increaseDirectionMap = {
-        "upper": "improvement",
-        "lower": "deterioration"
-    };
-    const decreaseDirectionMap = {
-        "lower": "improvement",
-        "upper": "deterioration"
-    };
-    const neutralDirectionMap = {
-        "lower": "neutral_low",
-        "upper": "neutral_high"
-    };
-    const flagDirectionMap = {
-        "increase": increaseDirectionMap[outlierStatus],
-        "decrease": decreaseDirectionMap[outlierStatus],
-        "neutral": neutralDirectionMap[outlierStatus]
-    };
-    const mappedFlag = flagDirectionMap[flagSettings.improvement_direction];
-    if (flagSettings.process_flag_type !== "both") {
-        return mappedFlag === flagSettings.process_flag_type ? mappedFlag : "none";
-    }
-    else {
-        return mappedFlag;
-    }
-}
-
-const truncate = broadcast_binary((val, limits) => {
-    let rtn = val;
-    if (limits.lower || limits.lower == 0) {
-        rtn = (rtn < limits.lower ? limits.lower : rtn);
-    }
-    if (limits.upper) {
-        rtn = (rtn > limits.upper ? limits.upper : rtn);
-    }
-    return rtn;
-});
-
-function identitySelected(identity, selectionManager) {
-    const allSelectedIdentities = selectionManager.getSelectionIds();
-    var identity_selected = false;
-    for (const selected of allSelectedIdentities) {
-        if (Array.isArray(identity)) {
-            for (const d of identity) {
-                if (selected === d) {
-                    identity_selected = true;
-                    break;
-                }
-            }
-        }
-        else {
-            if (selected === identity) {
-                identity_selected = true;
-                break;
-            }
-        }
-    }
-    return identity_selected;
-}
-
-const formatValues = function (value, name, inputSettings, derivedSettings) {
-    const suffix = derivedSettings.percentLabels ? "%" : "";
-    const sig_figs = inputSettings.funnel.sig_figs;
-    if (isNullOrUndefined(value)) {
-        return "";
-    }
-    switch (name) {
-        case "date":
-            return value;
-        case "integer": {
-            return value.toFixed(0);
-        }
-        default:
-            return value.toFixed(sig_figs) + suffix;
-    }
-};
-function valueFormatter(inputSettings, derivedSettings) {
-    const formatValuesImpl = function (value, name) {
-        return formatValues(value, name, inputSettings, derivedSettings);
-    };
-    return formatValuesImpl;
-}
-
-function isValidNumber(value) {
-    return !isNullOrUndefined(value) && !Number.isNaN(value) && Number.isFinite(value);
-}
-
-function groupBy(data, key) {
-    const groupedData = new Map();
-    for (let i = 0; i < data.length; i++) {
-        const item = data[i];
-        const keyValue = item[key];
-        if (!groupedData.has(keyValue)) {
-            groupedData.set(keyValue, []);
-        }
-        groupedData.get(keyValue)?.push(item);
-    }
-    return Array.from(groupedData);
-}
-
 function drawDots(selection, visualObj) {
     const use_group_text = visualObj.viewModel.inputSettings.settings.scatter.use_group_text;
     selection
@@ -1131,6 +545,9 @@ function drawDots(selection, visualObj) {
         return update;
     });
     selection.on('click', () => {
+        if (!visualObj.plotProperties.displayPlot || !visualObj.host.hostCapabilities.allowInteractions) {
+            return;
+        }
         visualObj.selectionManager.clear();
         visualObj.updateHighlighting();
     });
@@ -1138,6 +555,9 @@ function drawDots(selection, visualObj) {
 function dot_tooltips(selection, visualObj) {
     selection
         .on("click", (event, d) => {
+        if (!visualObj.plotProperties.displayPlot || !visualObj.host.hostCapabilities.allowInteractions) {
+            return;
+        }
         visualObj
             .selectionManager
             .select(d.identity, (event.ctrlKey || event.metaKey))
@@ -1204,6 +624,26 @@ function text_attributes(selection, visualObj) {
         .style("font-size", (d) => `${d.aesthetics.scatter_text_size}px`)
         .style("font-family", (d) => d.aesthetics.scatter_text_font)
         .style("fill", (d) => d.aesthetics.scatter_text_colour);
+}
+
+function getNested(obj, key1, key2) {
+    return obj[key1][key2];
+}
+
+const lineNameMap = {
+    "ll99": "99",
+    "ll95": "95",
+    "ll68": "68",
+    "ul68": "68",
+    "ul95": "95",
+    "ul99": "99",
+    "target": "target",
+    "alt_target": "alt_target"
+};
+function getAesthetic(type, group, aesthetic, inputSettings) {
+    const mapName = group.includes("line") ? lineNameMap[type] : type;
+    const settingName = aesthetic + "_" + mapName;
+    return getNested(inputSettings, group, settingName);
 }
 
 function drawLines(selection, visualObj) {
@@ -1283,6 +723,9 @@ function drawTooltipLine(selection, visualObj) {
                 y_coord = curr_y;
             }
         }
+        if (indexNearestValue === undefined) {
+            return;
+        }
         visualObj.host.tooltipService.show({
             dataItems: plotPoints[indexNearestValue].tooltip,
             identities: [plotPoints[indexNearestValue].identity],
@@ -1309,6 +752,7 @@ function drawTooltipLine(selection, visualObj) {
 function drawXAxis(selection, visualObj, refresh) {
     const xAxisProperties = visualObj.plotProperties.xAxis;
     const xAxis = ccD3.axisBottom(visualObj.plotProperties.xScale);
+    xAxis.tickSizeOuter(xAxisProperties.tick_marks ? 6 : 0);
     if (xAxisProperties.ticks) {
         if (xAxisProperties.tick_count) {
             xAxis.ticks(xAxisProperties.tick_count);
@@ -1339,13 +783,32 @@ function drawXAxis(selection, visualObj, refresh) {
         tickGroup.attr("text-anchor", textAnchor)
             .attr("dx", dx);
     }
+    xAxisGroup.selectAll(".tick line")
+        .style("stroke", xAxisProperties.tick_marks ? "currentColor" : "none");
+    const xTicks = xAxisProperties.grid_show ? xAxisGroup.selectAll(".tick").data() : [];
+    selection.select(".gridgroup")
+        .selectAll(".xgridline")
+        .data(xTicks)
+        .join("line")
+        .classed("xgridline", true)
+        .attr("x1", d => visualObj.plotProperties.xScale(d))
+        .attr("x2", d => visualObj.plotProperties.xScale(d))
+        .attr("y1", xAxisHeight)
+        .attr("y2", visualObj.plotProperties.yAxis.end_padding)
+        .style("stroke", displayPlot ? xAxisProperties.grid_colour : "#FFFFFF")
+        .style("stroke-width", xAxisProperties.grid_width);
     const xAxisNode = selection.selectAll(".xaxisgroup").node();
     if (!xAxisNode) {
         selection.select(".xaxislabel")
             .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
         return;
     }
-    const textX = visualObj.viewModel.svgWidth / 2;
+    const labelPosition = {
+        left: { x: xAxisProperties.start_padding, anchor: "start" },
+        center: { x: visualObj.viewModel.svgWidth / 2, anchor: "middle" },
+        right: { x: visualObj.viewModel.svgWidth - xAxisProperties.end_padding, anchor: "end" }
+    };
+    const textX = labelPosition[xAxisProperties.label_align].x;
     const textY = visualObj.plotProperties.yAxis.start_padding - visualObj.viewModel.inputSettings.settings.x_axis.xlimit_label_size * 0.5;
     xAxisGroup.select(".xaxislabel")
         .selectAll("text")
@@ -1354,9 +817,10 @@ function drawXAxis(selection, visualObj, refresh) {
         .attr("x", 0)
         .attr("y", 0)
         .attr("transform", `translate(${textX}, ${textY})`)
-        .style("text-anchor", "middle")
+        .style("text-anchor", labelPosition[xAxisProperties.label_align].anchor)
         .text(d => d)
         .style("font-size", xAxisProperties.label_size)
+        .style("font-style", xAxisProperties.label_style)
         .style("font-family", xAxisProperties.label_font)
         .style("fill", displayPlot ? xAxisProperties.label_colour : "#FFFFFF");
 }
@@ -1364,8 +828,9 @@ function drawXAxis(selection, visualObj, refresh) {
 function drawYAxis(selection, visualObj, refresh) {
     const yAxisProperties = visualObj.plotProperties.yAxis;
     const yAxis = ccD3.axisLeft(visualObj.plotProperties.yScale);
+    yAxis.tickSizeOuter(yAxisProperties.tick_marks ? 6 : 0);
     const yaxis_sig_figs = visualObj.viewModel.inputSettings.settings.y_axis.ylimit_sig_figs;
-    const sig_figs = yaxis_sig_figs === null ? visualObj.viewModel.inputSettings.settings.funnel.sig_figs : yaxis_sig_figs;
+    const sig_figs = yaxis_sig_figs ?? visualObj.viewModel.inputSettings.settings.funnel.sig_figs;
     const displayPlot = visualObj.plotProperties.displayPlot;
     if (yAxisProperties.ticks) {
         if (yAxisProperties.tick_count) {
@@ -1393,8 +858,27 @@ function drawYAxis(selection, visualObj, refresh) {
         .style("font-size", yAxisProperties.tick_size)
         .style("font-family", yAxisProperties.tick_font)
         .style("fill", displayPlot ? yAxisProperties.tick_colour : "#FFFFFF");
+    yAxisGroup.selectAll(".tick line")
+        .style("stroke", yAxisProperties.tick_marks ? "currentColor" : "none");
+    const yTicks = yAxisProperties.grid_show ? yAxisGroup.selectAll(".tick").data() : [];
+    selection.select(".gridgroup")
+        .selectAll(".ygridline")
+        .data(yTicks)
+        .join("line")
+        .classed("ygridline", true)
+        .attr("x1", visualObj.plotProperties.xAxis.start_padding)
+        .attr("x2", visualObj.viewModel.svgWidth - visualObj.plotProperties.xAxis.end_padding)
+        .attr("y1", d => visualObj.plotProperties.yScale(d))
+        .attr("y2", d => visualObj.plotProperties.yScale(d))
+        .style("stroke", displayPlot ? yAxisProperties.grid_colour : "#FFFFFF")
+        .style("stroke-width", yAxisProperties.grid_width);
     const textX = -(visualObj.plotProperties.xAxis.start_padding - visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label_size * 1.5);
-    const textY = visualObj.viewModel.svgHeight / 2;
+    const labelPosition = {
+        bottom: { y: visualObj.viewModel.svgHeight - yAxisProperties.start_padding, anchor: "start" },
+        center: { y: visualObj.viewModel.svgHeight / 2, anchor: "middle" },
+        top: { y: yAxisProperties.end_padding, anchor: "end" }
+    };
+    const textY = labelPosition[yAxisProperties.label_align].y;
     yAxisGroup.select(".yaxislabel")
         .selectAll("text")
         .data([visualObj.viewModel.inputSettings.settings.y_axis.ylimit_label])
@@ -1402,9 +886,10 @@ function drawYAxis(selection, visualObj, refresh) {
         .attr("x", textX)
         .attr("y", textY)
         .attr("transform", `rotate(-90, ${textX}, ${textY})`)
-        .style("text-anchor", "middle")
+        .style("text-anchor", labelPosition[yAxisProperties.label_align].anchor)
         .text(d => d)
         .style("font-size", yAxisProperties.label_size)
+        .style("font-style", yAxisProperties.label_style)
         .style("font-family", yAxisProperties.label_font)
         .style("fill", yAxisProperties.label_colour);
 }
@@ -1415,6 +900,7 @@ function initialiseSVG(selection, removeAll = false) {
     }
     selection.append('line').classed("ttip-line-x", true);
     selection.append('line').classed("ttip-line-y", true);
+    selection.append('g').classed("gridgroup", true);
     selection.append('g').classed("xaxisgroup", true).append('g').classed('xaxislabel', true);
     selection.append('g').classed("yaxisgroup", true).append('g').classed('yaxislabel', true);
     selection.append('g').classed("linesgroup", true);
@@ -1443,6 +929,10 @@ function drawErrors(selection, options, message, type = null) {
         .style("text-anchor", "middle")
         .text(message)
         .style("font-size", "10px");
+}
+
+function isValidNumber(value) {
+    return !isNullOrUndefined(value) && !Number.isNaN(value) && Number.isFinite(value);
 }
 
 function getLabelAttributes(d, visualObj) {
@@ -1599,6 +1089,29 @@ function drawLabels(selection, visualObj) {
     });
 }
 
+const formatValues = function (value, name, inputSettings, derivedSettings) {
+    const suffix = derivedSettings.percentLabels ? "%" : "";
+    const sig_figs = inputSettings.funnel.sig_figs;
+    if (isNullOrUndefined(value)) {
+        return "";
+    }
+    switch (name) {
+        case "date":
+            return value;
+        case "integer": {
+            return value.toFixed(0);
+        }
+        default:
+            return value.toFixed(sig_figs) + suffix;
+    }
+};
+function valueFormatter(inputSettings, derivedSettings) {
+    const formatValuesImpl = function (value, name) {
+        return formatValues(value, name, inputSettings, derivedSettings);
+    };
+    return formatValuesImpl;
+}
+
 const positionOffsetMap = {
     "above": -1,
     "below": 1,
@@ -1621,6 +1134,10 @@ const insideMap = {
     "ul99": "below"
 };
 function drawLineLabels(selection, visualObj) {
+    if (visualObj.viewModel.groupedLines.length === 0) {
+        selection.select(".linesgroup").selectAll("text").remove();
+        return;
+    }
     const lineSettings = visualObj.viewModel.inputSettings.settings.lines;
     const rebaselinePoints = new Array();
     visualObj.viewModel.groupedLines[0][1].forEach((d, idx) => {
@@ -1705,12 +1222,48 @@ function drawLineLabels(selection, visualObj) {
     });
 }
 
+function seq(from, to, by) {
+    const n_iter = Math.floor((to - from) / by);
+    const res = new Array(n_iter);
+    res[0] = from;
+    for (let i = 1; i < n_iter; i++) {
+        res[i] = res[i - 1] + by;
+    }
+    return res;
+}
+
 function max(values) {
     return Math.max(...values);
 }
 
 function getZScores(y, SE, target) {
-    return divide(subtract(y, target), SE);
+    const n = y.length;
+    const rtn = new Array(n);
+    for (let i = 0; i < n; i++) {
+        rtn[i] = (y[i] - target) / SE[i];
+    }
+    return rtn;
+}
+
+function winsorise(val, limits) {
+    let rtn = val;
+    if (!isNullOrUndefined(limits.lower)) {
+        if (Array.isArray(rtn)) {
+            rtn = rtn.map(d => d < limits.lower ? limits.lower : d);
+        }
+        else if (typeof rtn === "number") {
+            rtn = rtn < limits.lower ? limits.lower : rtn;
+        }
+    }
+    if (!isNullOrUndefined(limits.upper)) {
+        if (Array.isArray(rtn)) {
+            rtn = rtn.map(d => d > limits.upper ? limits.upper : d);
+        }
+        else if (typeof rtn === "number") {
+            rtn = rtn > limits.upper ? limits.upper : rtn;
+        }
+    }
+    return rtn;
 }
 
 function quantile(values, q) {
@@ -1735,16 +1288,13 @@ function winsoriseZScores(z) {
     return winsorise(z, { lower: lower_z, upper: upper_z });
 }
 
-function sum(values) {
-    let total = 0;
-    for (let i = 0; i < values.length; i++) {
-        total += values[i];
-    }
-    return total;
-}
-
 function getPhi(z_adj) {
-    return sum(square(z_adj)) / z_adj.length;
+    let sq_sum = 0;
+    let n = z_adj.length;
+    for (let i = 0; i < n; i++) {
+        sq_sum += z_adj[i] * z_adj[i];
+    }
+    return sq_sum / n;
 }
 
 function getTau2(phi, SE) {
@@ -1752,10 +1302,14 @@ function getTau2(phi, SE) {
     if (N * phi < N - 1) {
         return 0.0;
     }
-    const w = inv(square(SE));
-    const w_sq = square(w);
-    const w_sum = sum(w);
-    const w_sq_sum = sum(w_sq);
+    let w_sum = 0;
+    let w_sq_sum = 0;
+    for (let i = 0; i < N; i++) {
+        const w = 1 / (SE[i] * SE[i]);
+        const w_sq = w * w;
+        w_sum += w;
+        w_sq_sum += w_sq;
+    }
     const tau_num = (N * phi) - (N - 1.0);
     const tau_denom = w_sum - (w_sq_sum / w_sum);
     return tau_num / tau_denom;
@@ -2018,13 +1572,10 @@ class plotPropertiesClass {
         const plotPoints = viewModel.plotPoints;
         const inputData = viewModel.inputData;
         const inputSettings = viewModel.inputSettings.settings;
-        const derivedSettings = viewModel.inputSettings.derivedSettings;
         const colorPalette = viewModel.colourPalette;
         this.width = options.viewport.width;
         this.height = options.viewport.height;
-        this.displayPlot = plotPoints
-            ? plotPoints.length > 1
-            : null;
+        this.displayPlot = plotPoints.length > 0;
         const xTickSize = inputSettings.x_axis.xlimit_tick_size;
         const yTickSize = inputSettings.y_axis.ylimit_tick_size;
         const xTicksCount = inputSettings.x_axis.xlimit_tick_count;
@@ -2032,7 +1583,7 @@ class plotPropertiesClass {
         const xLowerLimit = inputSettings.x_axis.xlimit_l;
         let xUpperLimit = inputSettings.x_axis.xlimit_u;
         if (!isNullOrUndefined(inputData?.denominators)) {
-            xUpperLimit = xUpperLimit ? xUpperLimit : max(inputData.denominators) * 1.1;
+            xUpperLimit ?? (xUpperLimit = max(inputData.denominators) * 1.1);
         }
         const leftLabelPadding = inputSettings.y_axis.ylimit_label
             ? inputSettings.y_axis.ylimit_label_size
@@ -2046,7 +1597,8 @@ class plotPropertiesClass {
             start_padding: inputSettings.canvas.left_padding + leftLabelPadding,
             end_padding: inputSettings.canvas.right_padding,
             colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_colour,
-            ticks: (xTicksCount !== null) ? (xTicksCount > 0) : inputSettings.x_axis.xlimit_ticks,
+            ticks: inputSettings.x_axis.xlimit_ticks && xTicksCount !== 0,
+            tick_marks: inputSettings.x_axis.xlimit_tick_marks,
             tick_size: `${xTickSize}px`,
             tick_font: inputSettings.x_axis.xlimit_tick_font,
             tick_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_tick_colour,
@@ -2055,13 +1607,20 @@ class plotPropertiesClass {
             label: inputSettings.x_axis.xlimit_label,
             label_size: `${inputSettings.x_axis.xlimit_label_size}px`,
             label_font: inputSettings.x_axis.xlimit_label_font,
-            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_label_colour
+            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_label_colour,
+            label_style: inputSettings.x_axis.xlimit_label_style,
+            label_align: inputSettings.x_axis.xlimit_label_align,
+            grid_show: inputSettings.x_axis.xlimit_grid_show,
+            grid_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.x_axis.xlimit_grid_colour,
+            grid_width: inputSettings.x_axis.xlimit_grid_width
         };
         const yLowerLimit = inputSettings.y_axis.ylimit_l;
         let yUpperLimit = inputSettings.y_axis.ylimit_u;
-        if (!isNullOrUndefined(inputData?.numerators) && !isNullOrUndefined(inputData?.denominators)) {
-            const maxRatio = max(divide(inputData.numerators, inputData.denominators));
-            yUpperLimit ?? (yUpperLimit = maxRatio * derivedSettings.multiplier);
+        if (isNullOrUndefined(yUpperLimit) && plotPoints.length > 0) {
+            yUpperLimit = -Infinity;
+            for (let i = 0; i < plotPoints.length; i++) {
+                yUpperLimit = Math.max(yUpperLimit, plotPoints[i].value);
+            }
         }
         this.yAxis = {
             lower: yLowerLimit ?? 0,
@@ -2069,7 +1628,8 @@ class plotPropertiesClass {
             start_padding: inputSettings.canvas.lower_padding + lowerLabelPadding,
             end_padding: inputSettings.canvas.upper_padding,
             colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_colour,
-            ticks: (yTicksCount !== null) ? (yTicksCount > 0) : inputSettings.y_axis.ylimit_ticks,
+            ticks: inputSettings.y_axis.ylimit_ticks && yTicksCount !== 0,
+            tick_marks: inputSettings.y_axis.ylimit_tick_marks,
             tick_size: `${yTickSize}px`,
             tick_font: inputSettings.y_axis.ylimit_tick_font,
             tick_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_tick_colour,
@@ -2078,10 +1638,73 @@ class plotPropertiesClass {
             label: inputSettings.y_axis.ylimit_label,
             label_size: `${inputSettings.y_axis.ylimit_label_size}px`,
             label_font: inputSettings.y_axis.ylimit_label_font,
-            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_label_colour
+            label_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_label_colour,
+            label_style: inputSettings.y_axis.ylimit_label_style,
+            label_align: inputSettings.y_axis.ylimit_label_align,
+            grid_show: inputSettings.y_axis.ylimit_grid_show,
+            grid_colour: colorPalette.isHighContrast ? colorPalette.foregroundColour : inputSettings.y_axis.ylimit_grid_colour,
+            grid_width: inputSettings.y_axis.ylimit_grid_width
         };
         this.initialiseScale(options.viewport.width, options.viewport.height);
     }
+}
+
+function rep(x, n) {
+    let result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = x;
+    }
+    return result;
+}
+
+function getSettingValue(settingObject, settingGroup, settingName, defaultValue) {
+    const propertyValue = settingObject?.[settingGroup]?.[settingName];
+    if (isNullOrUndefined(propertyValue)) {
+        return defaultValue;
+    }
+    return propertyValue?.solid ? propertyValue.solid.color
+        : propertyValue;
+}
+function extractConditionalFormatting(categoricalView, settingGroupName, inputSettings) {
+    if (!categoricalView?.categories?.[0]?.values?.length) {
+        return { values: null, validation: { status: 0, messages: rep(new Array(), 1) } };
+    }
+    const inputCategories = categoricalView.categories[0];
+    const settingNames = Object.keys(inputSettings[settingGroupName]);
+    const validationRtn = { status: 0, messages: new Array(inputCategories.values.length) };
+    const rtn = inputCategories.values.map((_, idx) => {
+        validationRtn.messages[idx] = [];
+        const inpObjects = (inputCategories.objects ? inputCategories.objects[idx] : null);
+        return Object.fromEntries(settingNames.map(settingName => {
+            const defaultSetting = defaultSettings[settingGroupName][settingName];
+            let extractedSetting = getSettingValue(inpObjects, settingGroupName, settingName, defaultSetting);
+            extractedSetting = extractedSetting === "" ? defaultSetting : extractedSetting;
+            const settingEntry = getNested(settingsModel, settingGroupName, settingName);
+            const valid = "valid" in settingEntry ? settingEntry.valid : undefined;
+            const options = "options" in settingEntry ? settingEntry.options : undefined;
+            if (!isNullOrUndefined(extractedSetting)) {
+                let message = "";
+                if (valid && !valid.includes(extractedSetting)) {
+                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are: ${valid.join(", ")}`;
+                }
+                else if (options && (typeof extractedSetting !== "number" || !Number.isFinite(extractedSetting)
+                    || !between(extractedSetting, options.minValue?.value, options.maxValue?.value))) {
+                    message = `${extractedSetting} is not a valid value for ${settingName}. Valid values are between ${options.minValue?.value} and ${options.maxValue?.value}`;
+                }
+                if (message !== "") {
+                    extractedSetting = defaultSettings[settingGroupName][settingName];
+                    validationRtn.messages[idx].push(message);
+                }
+            }
+            return [settingName, extractedSetting];
+        }));
+    });
+    const validationMessages = validationRtn.messages.filter(d => d.length > 0);
+    if (!validationRtn.messages.some(d => d.length === 0)) {
+        validationRtn.status = 1;
+        validationRtn.error = `${validationMessages[0][0]}`;
+    }
+    return { values: rtn, validation: validationRtn };
 }
 
 class derivedSettingsClass {
@@ -2206,6 +1829,409 @@ class settingsClass {
         this.settings = settingsModel.defaultValues;
         this.derivedSettings = new derivedSettingsClass();
     }
+}
+
+function validateDataView(inputDV) {
+    if (!(inputDV?.[0])) {
+        return "No data present";
+    }
+    const categories = inputDV[0]?.categorical?.categories;
+    const key = categories?.find(d => d.source?.roles?.key);
+    if (!key) {
+        return "No grouping/ID variable passed!";
+    }
+    if (!key.values?.length) {
+        return "No data present";
+    }
+    const numeratorsPresent = inputDV[0].categorical
+        ?.values
+        ?.some(d => d.source?.roles?.numerators) ?? false;
+    if (!numeratorsPresent) {
+        return "No Numerators passed!";
+    }
+    const denominatorsPresent = inputDV[0].categorical
+        ?.values
+        ?.some(d => d.source?.roles?.denominators) ?? false;
+    if (!denominatorsPresent) {
+        return "No denominators passed!";
+    }
+    return "valid";
+}
+
+function extractValues(valuesArray, indexArray) {
+    if (valuesArray) {
+        const validIndexArray = indexArray.filter(idx => {
+            return idx >= 0 && idx < valuesArray.length && !isNullOrUndefined(idx);
+        });
+        const n = validIndexArray.length;
+        let result = new Array(n);
+        for (let i = 0; i < n; i++) {
+            result[i] = valuesArray[validIndexArray[i]];
+        }
+        return result;
+    }
+    else {
+        return [];
+    }
+}
+
+const allInvalidErrors = {
+    "Group missing": "All Groups/IDs are missing or null!",
+    "Numerator missing": "All numerators are missing or null!",
+    "Numerator is not a number": "All numerators are not numbers!",
+    "Numerator negative": "All numerators are negative!",
+    "Denominator missing": "All denominators missing or null!",
+    "Denominator is not a number": "All denominators are not numbers!",
+    "Denominator negative": "All denominators are negative!",
+    "Denominator zero": "All denominators are zero!",
+    "Denominator < numerator": "All denominators are smaller than numerators!"
+};
+function validateRow(key, numerator, denominator, data_type) {
+    if (key == null)
+        return "Group missing";
+    if (numerator == null)
+        return "Numerator missing";
+    if (!Number.isFinite(numerator))
+        return "Numerator is not a number";
+    if (numerator < 0)
+        return "Numerator negative";
+    if (denominator == null)
+        return "Denominator missing";
+    if (!Number.isFinite(denominator))
+        return "Denominator is not a number";
+    if (denominator < 0)
+        return "Denominator negative";
+    if (denominator === 0)
+        return "Denominator zero";
+    if (data_type === "PR" && denominator < numerator)
+        return "Denominator < numerator";
+    return "";
+}
+function validateInputData(keys, numerators, denominators, data_type) {
+    const n = keys.length;
+    const messages = new Array(n);
+    let anyValid = false;
+    let sameError = n > 0;
+    for (let i = 0; i < n; i++) {
+        const message = validateRow(keys[i], numerators[i], denominators[i], data_type);
+        messages[i] = message;
+        anyValid = anyValid || message === "";
+        sameError = sameError && message === messages[0];
+    }
+    if (anyValid) {
+        return { status: 0, messages };
+    }
+    return {
+        status: 1,
+        messages,
+        error: sameError ? allInvalidErrors[messages[0]] : "No valid data found!"
+    };
+}
+
+function formatPrimitiveValue(rawValue, valueType) {
+    if (isNullOrUndefined(rawValue)) {
+        return "";
+    }
+    if (valueType.numeric) {
+        return rawValue.toString();
+    }
+    else {
+        return rawValue;
+    }
+}
+
+function extractKeys(inputView) {
+    const primitiveKeyColumns = inputView.categories.filter(viewColumn => viewColumn.source?.roles?.["key"]);
+    const primitiveKeyValues = primitiveKeyColumns?.[0]?.values;
+    const primitiveKeyTypes = primitiveKeyColumns?.[0]?.source?.type;
+    const n = primitiveKeyValues.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        const value = primitiveKeyValues[i];
+        result[i] = isNullOrUndefined(value) ? undefined : formatPrimitiveValue(value, primitiveKeyTypes);
+    }
+    return result;
+}
+function extractTooltips(inputView) {
+    const tooltipColumns = inputView.values.filter(viewColumn => viewColumn.source.roles.tooltips);
+    return tooltipColumns?.[0]?.values?.map((_, idx) => {
+        return tooltipColumns.map(viewColumn => {
+            const tooltipValueFormatted = formatPrimitiveValue(viewColumn?.values?.[idx], viewColumn.source.type);
+            return {
+                displayName: viewColumn.source.displayName,
+                value: tooltipValueFormatted
+            };
+        });
+    });
+}
+function extractDataColumn(inputView, name) {
+    const columnRaw = inputView.values.filter(viewColumn => viewColumn?.source?.roles?.[name]);
+    if (name === "key") {
+        return extractKeys(inputView);
+    }
+    else if (name === "tooltips") {
+        return extractTooltips(inputView);
+    }
+    else if (name === "labels") {
+        return columnRaw?.[0]?.values?.map(d => isNullOrUndefined(d) ? null : String(d));
+    }
+    else {
+        return columnRaw?.[0]?.values?.map(d => isNullOrUndefined(d) ? null : Number(d));
+    }
+}
+
+function extractInputData(inputView, inputSettingsClass) {
+    const inputSettings = inputSettingsClass.settings;
+    const numerators = extractDataColumn(inputView, "numerators");
+    const denominators = extractDataColumn(inputView, "denominators");
+    const keys = extractDataColumn(inputView, "key");
+    const labels = extractDataColumn(inputView, "labels");
+    let scatter_cond = extractConditionalFormatting(inputView, "scatter", inputSettings)?.values;
+    scatter_cond = scatter_cond === null ? rep(inputSettings.scatter, numerators.length) : scatter_cond;
+    let labels_cond = extractConditionalFormatting(inputView, "labels", inputSettings)?.values;
+    labels_cond = labels_cond === null ? rep(inputSettings.labels, numerators.length) : labels_cond;
+    const tooltips = extractDataColumn(inputView, "tooltips");
+    const highlights = inputView.values[0].highlights;
+    const inputValidStatus = validateInputData(keys, numerators, denominators, inputSettings.funnel.chart_type);
+    if (inputValidStatus.status !== 0) {
+        return {
+            keys: null,
+            id: null,
+            numerators: null,
+            denominators: null,
+            highlights: null,
+            anyHighlights: null,
+            categories: null,
+            scatter_formatting: null,
+            label_formatting: null,
+            tooltips: null,
+            labels: null,
+            anyLabels: false,
+            warningMessage: inputValidStatus.error,
+            validationStatus: inputValidStatus
+        };
+    }
+    const valid_ids = new Array();
+    const valid_keys = new Array();
+    const removalMessages = new Array();
+    const groupVarName = inputView.categories[0].source.displayName;
+    const settingsMessages = inputSettingsClass.validationStatus.messages;
+    let valid_x = 0;
+    for (let i = 0; i < numerators.length; i++) {
+        if (inputValidStatus.messages[i] === "") {
+            valid_ids.push(i);
+            valid_keys.push({ x: valid_x, id: i, label: keys[i] });
+            valid_x += 1;
+            if (settingsMessages[i].length > 0) {
+                settingsMessages[i].forEach(setting_removal_message => {
+                    removalMessages.push(`Conditional formatting for ${groupVarName} ${keys[i]} ignored due to: ${setting_removal_message}.`);
+                });
+            }
+        }
+        else {
+            removalMessages.push(`${groupVarName} ${keys[i]} removed due to: ${inputValidStatus.messages[i]}.`);
+        }
+    }
+    const valid_labels = extractValues(labels, valid_ids);
+    return {
+        keys: valid_keys,
+        id: valid_ids,
+        numerators: extractValues(numerators, valid_ids),
+        denominators: extractValues(denominators, valid_ids),
+        tooltips: extractValues(tooltips, valid_ids),
+        labels: valid_labels,
+        anyLabels: valid_labels.filter(d => !isNullOrUndefined(d) && d !== "").length > 0,
+        highlights: extractValues(highlights, valid_ids),
+        anyHighlights: highlights != null,
+        categories: inputView.categories[0],
+        scatter_formatting: extractValues(scatter_cond, valid_ids),
+        label_formatting: extractValues(labels_cond, valid_ids),
+        warningMessage: removalMessages.length > 0 ? removalMessages.join("\n") : "",
+        validationStatus: inputValidStatus
+    };
+}
+
+function getTransformation(setting_name) {
+    switch (setting_name) {
+        case "none":
+            return function (x) { return x; };
+        case "ln":
+            return function (x) { return Math.log(x + 1); };
+        case "log10":
+            return function (x) { return Math.log10(x + 1); };
+        case "sqrt":
+            return Math.sqrt;
+        default:
+            return function (x) { return x; };
+    }
+}
+
+function buildTooltip(index, calculatedLimits, outliers, inputData, inputSettings, derivedSettings) {
+    const data_type = inputSettings.funnel.chart_type;
+    const multiplier = derivedSettings.multiplier;
+    const transform_text = inputSettings.funnel.transformation;
+    const transform = getTransformation(transform_text);
+    const group = inputData.keys[index].label;
+    const numerator = inputData.numerators[index];
+    const denominator = inputData.denominators[index];
+    const limits = calculatedLimits.filter(d => d.denominators === denominator && d.ll99 !== null && d.ul99 !== null)[0];
+    const ratio = transform((numerator / denominator) * multiplier);
+    const formatValue = valueFormatter(inputSettings, derivedSettings);
+    const prop_labels = derivedSettings.percentLabels;
+    const sig_figs = inputSettings.funnel.sig_figs;
+    const valueLabel = {
+        "PR": "Proportion",
+        "SR": "Standardised Ratio",
+        "RC": "Rate"
+    };
+    const tooltip = new Array();
+    if (inputSettings.funnel.ttip_show_group) {
+        tooltip.push({
+            displayName: inputSettings.funnel.ttip_label_group,
+            value: group
+        });
+    }
+    if (inputSettings.funnel.ttip_show_value) {
+        const ttip_label_value = inputSettings.funnel.ttip_label_value;
+        tooltip.push({
+            displayName: ttip_label_value === "Automatic" ? valueLabel[data_type] : ttip_label_value,
+            value: formatValue(ratio, "value")
+        });
+    }
+    if (inputSettings.funnel.ttip_show_numerator && !(numerator === null || numerator === undefined)) {
+        tooltip.push({
+            displayName: inputSettings.funnel.ttip_label_numerator,
+            value: (numerator).toFixed(prop_labels ? 0 : sig_figs)
+        });
+    }
+    if (inputSettings.funnel.ttip_show_denominator && !(denominator === null || denominator === undefined)) {
+        tooltip.push({
+            displayName: inputSettings.funnel.ttip_label_denominator,
+            value: (denominator).toFixed(prop_labels ? 0 : sig_figs)
+        });
+    }
+    ["68", "95", "99"].forEach(limit => {
+        if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
+            tooltip.push({
+                displayName: `Upper ${inputSettings.lines[`ttip_label_${limit}`]}`,
+                value: formatValue(limits[`ul${limit}`], "value")
+            });
+        }
+    });
+    if (inputSettings.lines.show_target && inputSettings.lines.ttip_show_target) {
+        tooltip.push({
+            displayName: inputSettings.lines.ttip_label_target,
+            value: formatValue(limits.target, "value")
+        });
+    }
+    if (inputSettings.lines.show_alt_target && inputSettings.lines.ttip_show_alt_target && !(limits.alt_target === null || limits.alt_target === undefined)) {
+        tooltip.push({
+            displayName: inputSettings.lines.ttip_label_alt_target,
+            value: formatValue(limits.alt_target, "value")
+        });
+    }
+    ["68", "95", "99"].forEach(limit => {
+        if (inputSettings.lines[`ttip_show_${limit}`] && inputSettings.lines[`show_${limit}`]) {
+            tooltip.push({
+                displayName: `Lower ${inputSettings.lines[`ttip_label_${limit}`]}`,
+                value: formatValue(limits[`ll${limit}`], "value")
+            });
+        }
+    });
+    if (transform_text !== "none") {
+        tooltip.push({
+            displayName: "Plot Scaling",
+            value: transform_text
+        });
+    }
+    if (outliers.two_sigma || outliers.three_sigma) {
+        const patterns = new Array();
+        if (outliers.three_sigma) {
+            patterns.push("Three Sigma Outlier");
+        }
+        if (outliers.two_sigma) {
+            patterns.push("Two Sigma Outlier");
+        }
+        tooltip.push({
+            displayName: "Pattern(s)",
+            value: patterns.join("\n")
+        });
+    }
+    if (inputData.tooltips.length > 0) {
+        inputData.tooltips[index].forEach(customTooltip => tooltip.push(customTooltip));
+    }
+    return tooltip;
+}
+
+function checkFlagDirection(outlierStatus, flagSettings) {
+    if (outlierStatus === "none") {
+        return outlierStatus;
+    }
+    const increaseDirectionMap = {
+        "upper": "improvement",
+        "lower": "deterioration"
+    };
+    const decreaseDirectionMap = {
+        "lower": "improvement",
+        "upper": "deterioration"
+    };
+    const neutralDirectionMap = {
+        "lower": "neutral_low",
+        "upper": "neutral_high"
+    };
+    const flagDirectionMap = {
+        "increase": increaseDirectionMap[outlierStatus],
+        "decrease": decreaseDirectionMap[outlierStatus],
+        "neutral": neutralDirectionMap[outlierStatus]
+    };
+    const mappedFlag = flagDirectionMap[flagSettings.improvement_direction];
+    if (flagSettings.process_flag_type !== "both") {
+        return mappedFlag === flagSettings.process_flag_type ? mappedFlag : "none";
+    }
+    else {
+        return mappedFlag;
+    }
+}
+
+function broadcast_binary(fun) {
+    return function (x, y) {
+        if (Array.isArray(x) && Array.isArray(y)) {
+            return x.map((d, idx) => fun(d, y[idx]));
+        }
+        else if (Array.isArray(x) && !Array.isArray(y)) {
+            return x.map(d => fun(d, y));
+        }
+        else if (!Array.isArray(x) && Array.isArray(y)) {
+            return y.map(d => fun(x, d));
+        }
+        else {
+            return fun(x, y);
+        }
+    };
+}
+
+const truncate = broadcast_binary((val, limits) => {
+    let rtn = val;
+    if (limits.lower || limits.lower == 0) {
+        rtn = (rtn < limits.lower ? limits.lower : rtn);
+    }
+    if (limits.upper) {
+        rtn = (rtn > limits.upper ? limits.upper : rtn);
+    }
+    return rtn;
+});
+
+function groupBy(data, key) {
+    const groupedData = new Map();
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        const keyValue = item[key];
+        if (!groupedData.has(keyValue)) {
+            groupedData.set(keyValue, []);
+        }
+        groupedData.get(keyValue)?.push(item);
+    }
+    return Array.from(groupedData);
 }
 
 function chebyshevPolynomial(x, a, n) {
@@ -3769,7 +3795,12 @@ const smrSE = function (inputData) {
 };
 const smrSEOD = function (inputData) {
     const denominators = inputData.denominators;
-    return inv(multiply(2, sqrt(denominators)));
+    const n = denominators.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = 1 / (2 * Math.sqrt(denominators[i]));
+    }
+    return result;
 };
 const smrTarget = function (inputData) {
     return 1;
@@ -3777,7 +3808,12 @@ const smrTarget = function (inputData) {
 const smrY = function (inputData) {
     const numerators = inputData.numerators;
     const denominators = inputData.denominators;
-    return sqrt(divide(numerators, denominators));
+    const n = numerators.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = Math.sqrt(numerators[i] / denominators[i]);
+    }
+    return result;
 };
 const smrZ = function (inputData, zScores, seOD, odAdjust, tau2) {
     if (odAdjust) {
@@ -3807,8 +3843,8 @@ const smrLimitOD = function (args) {
     const q = args.q;
     const SE = args.SE;
     const tau2 = args.tau2;
-    const limit_transformed = target + q * sqrt(square(SE) + tau2);
-    const limit = square(limit_transformed);
+    const limit_transformed = target + q * Math.sqrt(SE * SE + tau2);
+    const limit = limit_transformed * limit_transformed;
     return winsorise(limit, { lower: 0 });
 };
 const smrLimit = function (args) {
@@ -3837,9 +3873,22 @@ class smrFunnelClass extends chartClass {
     }
 }
 
+function sum(values) {
+    let total = 0;
+    for (let i = 0; i < values.length; i++) {
+        total += values[i];
+    }
+    return total;
+}
+
 const prSE = function (inputData) {
     const denominators = inputData.denominators;
-    return inv(multiply(2, sqrt(denominators)));
+    const n = denominators.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = 1 / (2 * Math.sqrt(denominators[i]));
+    }
+    return result;
 };
 const prTarget = function (inputData) {
     const numerators = inputData.numerators;
@@ -3852,7 +3901,12 @@ const prTargetTransformed = function (inputData) {
 const prY = function (inputData) {
     const numerators = inputData.numerators;
     const denominators = inputData.denominators;
-    return asin(sqrt(divide(numerators, denominators)));
+    const n = numerators.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = Math.asin(Math.sqrt(numerators[i] / denominators[i]));
+    }
+    return result;
 };
 const prZ = function (inputData, zScores, seOD, odAdjust, tau2) {
     if (odAdjust) {
@@ -3872,8 +3926,8 @@ const prLimit = function (args) {
     const q = args.q;
     const SE = args.SE;
     const tau2 = args.tau2;
-    const limit_transformed = target + q * sqrt(square(SE) + tau2);
-    const limit = square(Math.sin(limit_transformed));
+    const limit_transformed = target + q * Math.sqrt(SE * SE + tau2);
+    const limit = Math.pow(Math.sin(limit_transformed), 2);
     return winsorise(limit, { lower: 0, upper: 1 });
 };
 class prFunnelClass extends chartClass {
@@ -3896,7 +3950,13 @@ class prFunnelClass extends chartClass {
 const rcSE = function (inputData) {
     const numerators = inputData.numerators ? inputData.numerators : inputData.denominators;
     const denominators = inputData.denominators;
-    return sqrt(add(divide(numerators, square(add(numerators, 0.5))), divide(denominators, square(add(denominators, 0.5)))));
+    const n = numerators.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = Math.sqrt(numerators[i] / Math.pow(numerators[i] + 0.5, 2)
+            + denominators[i] / Math.pow(denominators[i] + 0.5, 2));
+    }
+    return result;
 };
 const rcTarget = function (inputData) {
     const numerators = inputData.numerators;
@@ -3906,12 +3966,17 @@ const rcTarget = function (inputData) {
 const rcTargetTransformed = function (inputData) {
     const numerators = inputData.numerators;
     const denominators = inputData.denominators;
-    return log(sum(numerators)) - log(sum(denominators));
+    return Math.log(sum(numerators)) - Math.log(sum(denominators));
 };
 const rcY = function (inputData) {
     const numerators = inputData.numerators;
     const denominators = inputData.denominators;
-    return log(divide(add(numerators, 0.5), add(denominators, 0.5)));
+    const n = numerators.length;
+    const result = new Array(n);
+    for (let i = 0; i < n; i++) {
+        result[i] = Math.log((numerators[i] + 0.5) / (denominators[i] + 0.5));
+    }
+    return result;
 };
 const rcZ = function (inputData, zScores, seOD, odAdjust, tau2) {
     if (odAdjust) {
@@ -3931,8 +3996,8 @@ const rcLimit = function (args) {
     const q = args.q;
     const SE = args.SE;
     const tau2 = args.tau2;
-    const limit_transformed = target + q * sqrt(square(SE) + tau2);
-    const limit = exp(limit_transformed);
+    const limit_transformed = target + q * Math.sqrt(SE * SE + tau2);
+    const limit = Math.exp(limit_transformed);
     return winsorise(limit, { lower: 0 });
 };
 class rcFunnelClass extends chartClass {
@@ -3997,6 +4062,10 @@ class viewModelClass {
     }
     update(options, host) {
         const res = { status: true };
+        const checkDV = validateDataView(options.dataViews);
+        if (checkDV !== "valid") {
+            return { status: false, error: checkDV };
+        }
         if (options.type === 2 || this.firstRun) {
             this.inputSettings.update(options.dataViews[0]);
         }
@@ -4004,12 +4073,6 @@ class viewModelClass {
             res.status = false;
             res.error = this.inputSettings.validationStatus.error;
             res.type = "settings";
-            return res;
-        }
-        const checkDV = validateDataView(options.dataViews);
-        if (checkDV !== "valid") {
-            res.status = false;
-            res.error = checkDV;
             return res;
         }
         if (isNullOrUndefined(this.colourPalette)) {
@@ -4146,10 +4209,34 @@ class viewModelClass {
         };
         this.calculatedLimits.forEach(limit => {
             ["target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"].forEach(type => {
-                limit[type] = truncate(transform(multiply(limit[type], multiplier)), limits);
+                if (!isNullOrUndefined(limit[type])) {
+                    limit[type] = truncate(transform(limit[type] * multiplier), limits);
+                }
             });
         });
     }
+}
+
+function identitySelected(identity, selectionManager) {
+    const allSelectedIdentities = selectionManager.getSelectionIds();
+    var identity_selected = false;
+    for (const selected of allSelectedIdentities) {
+        if (Array.isArray(identity)) {
+            for (const d of identity) {
+                if (selected === d) {
+                    identity_selected = true;
+                    break;
+                }
+            }
+        }
+        else {
+            if (selected === identity) {
+                identity_selected = true;
+                break;
+            }
+        }
+    }
+    return identity_selected;
 }
 
 class Visual {
@@ -4168,6 +4255,7 @@ class Visual {
             this.svg.select(".errormessage").remove();
             const update_status = this.viewModel.update(options, this.host);
             if (!update_status.status) {
+                this.plotProperties.displayPlot = false;
                 this.resizeCanvas(options.viewport.width, options.viewport.height);
                 if (this.viewModel?.inputSettings?.settings?.canvas?.show_errors ?? true) {
                     this.svg.call(drawErrors, options, update_status?.error, update_status?.type);
@@ -4189,6 +4277,8 @@ class Visual {
             this.host.eventService.renderingFinished(options);
         }
         catch (caught_error) {
+            this.plotProperties.displayPlot = false;
+            this.resizeCanvas(options.viewport.width, options.viewport.height);
             this.svg.call(drawErrors, options, caught_error.message, "internal");
             console.error(caught_error);
             this.host.eventService.renderingFailed(options);
