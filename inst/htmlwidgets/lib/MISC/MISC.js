@@ -229,7 +229,14 @@ class Visual {
     const bottom = height - canvas.lower_padding;
     const plotWidth = Math.max(1, right - left);
     const plotHeight = Math.max(1, bottom - top);
-    const rowHeight = plotHeight / points.length;
+    // Each group heading occupies its own row above its indicators
+    const rowIndex = new Array(points.length);
+    let rows = 0;
+    for (let i = 0; i < points.length; i++) {
+      if (points[i].grouping && points[i].grouping !== points[i - 1]?.grouping) rows++;
+      rowIndex[i] = rows++;
+    }
+    const rowHeight = plotHeight / rows;
     const lower = axis.xlimit_l;
     const upper = axis.xlimit_u;
     const scale = value => left + ((value - lower) / (upper - lower)) * plotWidth;
@@ -269,7 +276,7 @@ class Visual {
       .join("rect")
       .classed("misc-bar", true)
       .attr("x", point => scale(Math.min(0, Math.max(lower, Math.min(upper, point.score)))))
-      .attr("y", (_, i) => top + i * rowHeight + rowHeight * (1 - settings.bars.height_ratio) / 2)
+      .attr("y", (_, i) => top + rowIndex[i] * rowHeight + rowHeight * (1 - settings.bars.height_ratio) / 2)
       .attr("width", point => Math.abs(scale(Math.max(lower, Math.min(upper, point.score))) - zero))
       .attr("height", rowHeight * settings.bars.height_ratio)
       .attr("fill", pointColour)
@@ -283,9 +290,8 @@ class Visual {
       });
     }).on("mouseout", () => this.host.tooltipService.hide());
 
-    const seenGroups = new Set();
     points.forEach((point, i) => {
-      const y = top + (i + 0.5) * rowHeight;
+      const y = top + (rowIndex[i] + 0.5) * rowHeight;
       root.append("text")
         .classed("misc-y-tick", true)
         .attr("x", left - 8).attr("y", y)
@@ -295,11 +301,10 @@ class Visual {
         .style("font-size", `${settings.y_axis.ylimit_tick_size}px`)
         .style("fill", settings.y_axis.ylimit_colour)
         .text(point.indicator);
-      if (point.grouping && !seenGroups.has(point.grouping)) {
-        seenGroups.add(point.grouping);
+      if (point.grouping && point.grouping !== points[i - 1]?.grouping) {
         root.append("text")
           .classed("misc-group-label", true)
-          .attr("x", 5).attr("y", y)
+          .attr("x", 5).attr("y", y - rowHeight)
           .attr("dominant-baseline", "middle")
           .style("font-family", settings.y_axis.ylimit_tick_font)
           .style("font-size", `${settings.y_axis.group_tick_size}px`)
