@@ -565,8 +565,9 @@ function dot_tooltips(selection, visualObj) {
         event.stopPropagation();
     })
         .on("mouseover", (event, d) => {
-        const x = event.pageX;
-        const y = event.pageY;
+        const boundRect = visualObj.svg.node().getBoundingClientRect();
+        const x = event.clientX - boundRect.left;
+        const y = event.clientY - boundRect.top;
         visualObj.host.tooltipService.show({
             dataItems: d.tooltip,
             identities: [d.identity],
@@ -706,8 +707,8 @@ function drawTooltipLine(selection, visualObj) {
         }
         const plotPoints = visualObj.viewModel.plotPoints;
         const boundRect = visualObj.svg.node().getBoundingClientRect();
-        const xValue = (event.pageX - boundRect.left);
-        const yValue = (event.pageY - boundRect.top);
+        const xValue = (event.clientX - boundRect.left);
+        const yValue = (event.clientY - boundRect.top);
         let indexNearestValue;
         let nearestDistance = Infinity;
         let x_coord;
