@@ -161,8 +161,10 @@ funnel <- function(data,
   )
 
   if (!missing(tooltips)) {
-    data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip") |>
-      lapply(function(x) x[cat_order])
+    data_raw$tooltips <- lapply(
+      normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip"),
+      function(x) x[cat_order]
+    )
   }
 
   if (!missing(labels)) {
