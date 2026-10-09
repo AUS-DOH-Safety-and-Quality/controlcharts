@@ -9,7 +9,7 @@ dependencies:
       - commonUtils.min.js
       - interactiveUtils.min.js
   - name: PBISPC
-    version: 1.8.0.3
+    version: 1.8.1.0
     src: htmlwidgets/lib/PBISPC
     script:
       - PBISPC.min.js
