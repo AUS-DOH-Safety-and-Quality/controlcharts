@@ -9,7 +9,7 @@ dependencies:
       - commonUtils.min.js
       - interactiveUtils.min.js
   - name: PBIFUN
-    version: 1.7.0.19
+    version: 1.8.1.0
     src: htmlwidgets/lib/PBIFUN
     script:
       - PBIFUN.min.js

@@ -944,7 +944,7 @@ function drawTooltipLine(selection, visualObj) {
         }
         const plotPoints = visualObj.viewModel.plotPoints[0];
         const boundRect = visualObj.svg.node().getBoundingClientRect();
-        const xValue = (event.pageX - boundRect.left);
+        const xValue = (event.clientX - boundRect.left);
         let indexNearestValue;
         let nearestDistance = Infinity;
         let x_coord;
@@ -1180,8 +1180,9 @@ function drawDots(selection, visualObj) {
         if (!plotProperties.displayPlot) {
             return;
         }
-        const x = event.pageX;
-        const y = event.pageY;
+        const boundRect = visualObj.svg.node().getBoundingClientRect();
+        const x = event.clientX - boundRect.left;
+        const y = event.clientY - boundRect.top;
         visualObj.host.tooltipService.show({
             dataItems: d.tooltip,
             identities: [d.identity],
