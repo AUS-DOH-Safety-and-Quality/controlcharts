@@ -292,6 +292,9 @@ validate_chart_title <- function(title) {
 }
 
 svg_string <- function(svg, width, height) {
+  # Word's SVG renderer ignores dominant-baseline, so position text with dy instead
+  svg <- gsub('dominant-baseline="hanging"', 'dy="0.8em"', svg, fixed = TRUE)
+  svg <- gsub('dominant-baseline="middle"', 'dy="0.35em"', svg, fixed = TRUE)
   paste0('<svg viewBox="0 0 ', width, " ", height,
          '" width="', width, 'px" height="', height,
          'px" xmlns="http://www.w3.org/2000/svg">',
@@ -311,11 +314,12 @@ update_static_padding <- function(type, data_views) {
                                       settings$canvas)
       }
       settings$canvas$left_padding <- settings$canvas$left_padding + 50
-      need_padding <- is.null(settings$x_axis) ||
-        is.null(settings$x_axis$xlimit_tick_size)
-      # SPC Charts need more padding at the bottom for the x-axis dates
-      x_tick_size <- ifelse(need_padding, 10, settings$x_axis$xlimit_tick_size)
-      pad <- ifelse(type == "spc", 50, 10 + x_tick_size)
+      x_axis <- modifyList(.default_settings_impl(type, "x_axis"), as.list(settings$x_axis))
+      pad <- 10 + x_axis$xlimit_tick_size
+      # Rotated tick labels hang further below the axis
+      if (isTRUE(x_axis$xlimit_tick_rotation != 0)) pad <- pad + 15
+      # The funnel visual spaces its x-axis label 20px further from the axis than the SPC visual
+      if (type == "spc" && nzchar(x_axis$xlimit_label)) pad <- pad + 20
       settings$canvas$lower_padding <- settings$canvas$lower_padding + pad
       settings
     }
