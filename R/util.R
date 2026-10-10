@@ -121,10 +121,10 @@ validate_settings <- function(type, input_settings, crosstalk_identities, cat_or
             )
           }
           has_conditional_formatting <- TRUE
-          # Re-format to list of lists, so is passed to JS as an object
-          # which can be indexed by the group name
-          input_settings[[group]][[setting_name]] <- lapply(input_settings[[group]][[setting_name]][cat_order], function(x) x)
-          names(input_settings[[group]][[setting_name]]) <- crosstalk_identities[cat_order]
+          # Values follow the input rows; identities are already in chart order.
+          # Stored as a list so JS receives an object indexed by identity.
+          input_settings[[group]][[setting_name]] <- lapply(setting_value[cat_order], function(x) x)
+          names(input_settings[[group]][[setting_name]]) <- crosstalk_identities
         }
       }
     }

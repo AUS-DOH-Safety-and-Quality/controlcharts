@@ -134,11 +134,10 @@ funnel <- function(data,
     input_data <- data
   }
 
-  categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
+  categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
   cat_order <- order(categories)
-  crosstalk_identities <- crosstalk_identities[cat_order]
-  input_data <- input_data[cat_order,]
 
+  # Evaluated against the input order so vector settings align with the rows
   input_settings <- list(
     canvas = rlang::eval_tidy(rlang::enquo(canvas_settings), input_data),
     funnel = rlang::eval_tidy(rlang::enquo(funnel_settings), input_data),
@@ -150,25 +149,22 @@ funnel <- function(data,
     labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
   )
 
-  categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
-  cat_order <- order(categories)
+  crosstalk_identities <- crosstalk_identities[cat_order]
+  input_data <- input_data[cat_order, ]
 
   data_raw <- list(
-    crosstalk_identities = crosstalk_identities[cat_order],
-    categories = categories[cat_order],
-    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data)[cat_order],
-    denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)[cat_order]
+    crosstalk_identities = crosstalk_identities,
+    categories = as.character(rlang::eval_tidy(rlang::enquo(keys), input_data)),
+    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data),
+    denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)
   )
 
   if (!missing(tooltips)) {
-    data_raw$tooltips <- lapply(
-      normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip"),
-      function(x) x[cat_order]
-    )
+    data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip")
   }
 
   if (!missing(labels)) {
-    data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))[cat_order]
+    data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))
   }
 
   create_controlchart("funnel", data_raw, cat_order, is_crosstalk, crosstalk_group,

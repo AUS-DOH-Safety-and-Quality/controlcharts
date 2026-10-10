@@ -145,7 +145,7 @@ spc <- function(data,
     input_data <- data
   }
 
-  categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
+  categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
   indicator_values <- NULL
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
@@ -154,9 +154,8 @@ spc <- function(data,
 
   ordering_values <- c(indicator_values, list(categories))
   row_order <- do.call(order, ordering_values)
-  crosstalk_identities <- crosstalk_identities[row_order]
-  input_data <- input_data[row_order, ]
 
+  # Evaluated against the input order so vector settings align with the rows
   input_settings <- list(
     canvas = rlang::eval_tidy(rlang::enquo(canvas_settings), input_data),
     spc = rlang::eval_tidy(rlang::enquo(spc_settings), input_data),
@@ -170,8 +169,10 @@ spc <- function(data,
     labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
   )
 
+  crosstalk_identities <- crosstalk_identities[row_order]
+  input_data <- input_data[row_order, ]
+
   categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
-  cat_order <- seq_len(nrow(input_data))
   data_raw <- list(
     crosstalk_identities = crosstalk_identities,
     categories = categories,
@@ -202,7 +203,7 @@ spc <- function(data,
     data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))
   }
 
-  create_controlchart("spc", data_raw, cat_order, is_crosstalk, crosstalk_group,
+  create_controlchart("spc", data_raw, row_order, is_crosstalk, crosstalk_group,
                       input_settings, aggregations, title, tooltip_settings,
                       width, height, elementId, return_objs)
 }

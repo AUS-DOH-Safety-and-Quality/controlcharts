@@ -56,7 +56,7 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
     rtn.svg = visual.svg.node().innerHTML;
   } else {
     const updateStatus = visual.viewModel.update(updateArgs, visual.host);
-    if (!updateStatus) {
+    if (!updateStatus.status) {
       return { error: updateStatus.error };
     }
   }
