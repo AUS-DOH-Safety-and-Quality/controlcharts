@@ -93,6 +93,26 @@ funnel_default_settings()
 #> NULL
 #> 
 #> 
+#> $misc
+#> $misc$group
+#> [1] ""
+#> 
+#> $misc$lower
+#> [1] -5
+#> 
+#> $misc$upper
+#> [1] 5
+#> 
+#> $misc$bar_height
+#> [1] 0.65
+#> 
+#> $misc$unfavourable_label
+#> [1] "Unfavourable"
+#> 
+#> $misc$favourable_label
+#> [1] "Favourable"
+#> 
+#> 
 #> $outliers
 #> $outliers$process_flag_type
 #> [1] "both"
@@ -248,9 +268,6 @@ funnel_default_settings()
 #> $lines$opacity_unselected_alt_target
 #> [1] 0.2
 #> 
-#> $lines$join_rebaselines_alt_target
-#> [1] FALSE
-#> 
 #> $lines$ttip_show_alt_target
 #> [1] TRUE
 #> 
@@ -305,6 +322,12 @@ funnel_default_settings()
 #> $lines$ttip_label_68
 #> [1] "68% Limit"
 #> 
+#> $lines$ttip_label_68_prefix_lower
+#> [1] "Lower "
+#> 
+#> $lines$ttip_label_68_prefix_upper
+#> [1] "Upper "
+#> 
 #> $lines$plot_label_show_68
 #> [1] FALSE
 #> 
@@ -352,6 +375,12 @@ funnel_default_settings()
 #> 
 #> $lines$ttip_label_95
 #> [1] "95% Limit"
+#> 
+#> $lines$ttip_label_95_prefix_lower
+#> [1] "Lower "
+#> 
+#> $lines$ttip_label_95_prefix_upper
+#> [1] "Upper "
 #> 
 #> $lines$plot_label_show_95
 #> [1] FALSE
@@ -401,6 +430,12 @@ funnel_default_settings()
 #> $lines$ttip_label_99
 #> [1] "99% Limit"
 #> 
+#> $lines$ttip_label_99_prefix_lower
+#> [1] "Lower "
+#> 
+#> $lines$ttip_label_99_prefix_upper
+#> [1] "Upper "
+#> 
 #> $lines$plot_label_show_99
 #> [1] FALSE
 #> 
@@ -427,6 +462,9 @@ funnel_default_settings()
 #> 
 #> 
 #> $x_axis
+#> $x_axis$xlimit_show
+#> [1] TRUE
+#> 
 #> $x_axis$xlimit_colour
 #> [1] "#000000"
 #> 
@@ -486,6 +524,9 @@ funnel_default_settings()
 #> 
 #> 
 #> $y_axis
+#> $y_axis$ylimit_show
+#> [1] TRUE
+#> 
 #> $y_axis$ylimit_colour
 #> [1] "#000000"
 #> 
@@ -545,6 +586,11 @@ funnel_default_settings()
 #> 
 #> $y_axis$ylimit_grid_width
 #> [1] 1
+#> 
+#> 
+#> $download_options
+#> $download_options$show_button
+#> [1] FALSE
 #> 
 #> 
 #> $labels
@@ -628,6 +674,9 @@ funnel_default_settings()
 #> 
 # # Get default settings for a specific group
 funnel_default_settings("x_axis")
+#> $xlimit_show
+#> [1] TRUE
+#> 
 #> $xlimit_colour
 #> [1] "#000000"
 #> 

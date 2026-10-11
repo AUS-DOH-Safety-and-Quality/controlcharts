@@ -34,4 +34,4 @@ renderMisc(expr, env = parent.frame(), quoted = FALSE)
 
 ## Value
 
-An interactive Shiny widget.
+An interactive Funnel widget displaying a MISC chart.

@@ -16,4 +16,5 @@ misc_default_settings(group = NULL)
 
 ## Value
 
-A list of MISC settings.
+Native Funnel settings used by
+[`misc()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/misc.md).

@@ -1,8 +1,9 @@
 # Generate a multi-indicator sigma chart
 
-Calculates a funnel plot independently for each indicator, then displays
-the selected target's funnel z-score for every indicator. Positive
-values are in the favourable direction.
+Delegates to
+[`funnel()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/funnel.md)
+with indicator columns and a selected group. Calculations, rendering,
+settings, and interactivity use the native Funnel visual.
 
 ## Usage
 
@@ -14,24 +15,8 @@ misc(
   denominators,
   indicators,
   target,
-  groupings = NULL,
-  tooltips,
-  aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
-    labels = "first"),
-  title = NULL,
-  funnel_settings = NULL,
-  outlier_settings = NULL,
-  canvas_settings = NULL,
-  misc_settings = NULL,
-  bar_settings = NULL,
-  line_settings = NULL,
-  x_axis_settings = NULL,
-  y_axis_settings = NULL,
-  tooltip_settings = NULL,
-  width = NULL,
-  height = NULL,
-  elementId = NULL,
-  return_objs = c("html_plot", "static_plot", "limits")
+  ...,
+  misc_settings = NULL
 )
 ```
 
@@ -39,83 +24,44 @@ misc(
 
 - data:
 
-  A data frame containing the comparison population.
+  A data frame containing the data for the chart.
 
 - keys:
 
-  A vector or column name identifying the funnel groups.
+  A vector or column name representing the categories of the chart.
 
 - numerators:
 
-  A numeric vector or column name containing numerators.
+  A numeric vector or column name representing the numerators for each
+  category.
 
 - denominators:
 
-  A numeric vector or column name containing denominators.
+  A numeric vector or column name representing the denominators for each
+  category.
 
 - indicators:
 
-  A vector or column name identifying indicators. A separate funnel
-  calculation is performed for each value.
+  A vector or list of vectors identifying indicators.
 
 - target:
 
   A single value from `keys` to display.
 
-- groupings:
+- ...:
 
-  Optional vector or column name used to group indicator labels.
-
-- tooltips:
-
-  An optional vector or column name, or a list of them, providing
-  additional tooltips. Each is labelled by its name in the list, or
-  otherwise by the supplied expression.
-
-- aggregations:
-
-  A list of aggregation function names passed to
+  Additional arguments passed to
   [`funnel()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/funnel.md).
 
-- title:
+- misc_settings:
 
-  Optional chart title. See
-  [`funnel()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/funnel.md)
-  for the supported format.
-
-- funnel_settings, outlier_settings:
-
-  Settings used for each indicator's funnel calculation.
-  `outlier_settings$improvement_direction` may be conditionally
-  formatted by indicator. Three-sigma detection is always enabled.
-
-- canvas_settings, misc_settings, bar_settings, line_settings,
-  x_axis_settings, y_axis_settings:
-
-  Optional chart settings. See
-  [`misc_default_settings()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/misc_default_settings.md)
-  for valid options.
-
-- tooltip_settings:
-
-  Optional tooltip settings.
-
-- width, height:
-
-  Optional chart dimensions in pixels.
-
-- elementId:
-
-  Optional HTML element ID for the chart.
-
-- return_objs:
-
-  Character vector containing any of `"html_plot"`, `"static_plot"`, and
-  `"limits"`.
+  Native MISC settings, with `group` supplied by `target`. See
+  `funnel_default_settings("misc")` for valid options.
 
 ## Value
 
-An object of class `controlchart`.
+An object of class `controlchart`, as returned by
+[`funnel()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/funnel.md).
 
 ## Examples
 
@@ -135,10 +81,10 @@ misc(
   target = "A",
   return_objs = "limits"
 )
-#>   indicator grouping group         z     score outlier numerator denominator
-#> 1 Measure A              A  1.558790  1.558790    none         8          10
-#> 2 Measure B              A -1.071406 -1.071406    none         2          10
-#>   value      ll99 target     ul99
-#> 1    80 13.216714   57.5 95.17326
-#> 2    20  2.071914   35.0 81.14814
+#>   indicator group         z     score three_sigma numerator denominator value
+#> 1 Measure A     A  1.558790  1.558790        none         8          10    80
+#> 2 Measure B     A -1.071406 -1.071406        none         2          10    20
+#>   target alt_target      ll99     ll95     ll68     ul68     ul95     ul99
+#> 1   57.5         NA 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326
+#> 2   35.0         NA  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814
 ```

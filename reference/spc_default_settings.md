@@ -632,7 +632,7 @@ spc_default_settings()
 #> [1] TRUE
 #> 
 #> $lines$ttip_label_specification
-#> [1] "specification Limit"
+#> [1] "Specification Limit"
 #> 
 #> $lines$ttip_label_specification_prefix_lower
 #> [1] "Lower "
@@ -695,7 +695,7 @@ spc_default_settings()
 #> [1] TRUE
 #> 
 #> $lines$ttip_label_trend
-#> [1] "Centerline"
+#> [1] "Trend"
 #> 
 #> $lines$plot_label_show_trend
 #> [1] FALSE
@@ -886,7 +886,7 @@ spc_default_settings()
 #> [1] "all"
 #> 
 #> $summary_table$table_text_overflow
-#> [1] "ellipsis"
+#> [1] "none"
 #> 
 #> $summary_table$table_opacity
 #> [1] 1
@@ -898,7 +898,7 @@ spc_default_settings()
 #> [1] 0.2
 #> 
 #> $summary_table$table_outer_border_style
-#> [1] "solid"
+#> [1] "none"
 #> 
 #> $summary_table$table_outer_border_width
 #> [1] 1
@@ -925,22 +925,22 @@ spc_default_settings()
 #> [1] 10
 #> 
 #> $summary_table$table_header_text_align
-#> [1] "center"
+#> [1] "auto"
 #> 
 #> $summary_table$table_header_font_weight
-#> [1] "normal"
+#> [1] "bold"
 #> 
 #> $summary_table$table_header_text_transform
-#> [1] "capitalize"
+#> [1] "none"
 #> 
 #> $summary_table$table_header_text_padding
-#> [1] 1
+#> [1] 3
 #> 
 #> $summary_table$table_header_colour
 #> [1] "#000000"
 #> 
 #> $summary_table$table_header_bg_colour
-#> [1] "#D3D3D3"
+#> [1] "#FFFFFF"
 #> 
 #> $summary_table$table_header_border_style
 #> [1] "solid"
@@ -955,7 +955,7 @@ spc_default_settings()
 #> [1] TRUE
 #> 
 #> $summary_table$table_header_border_inner
-#> [1] TRUE
+#> [1] FALSE
 #> 
 #> $summary_table$table_body_font
 #> [1] "'Arial', sans-serif"
@@ -964,16 +964,16 @@ spc_default_settings()
 #> [1] 10
 #> 
 #> $summary_table$table_body_text_align
-#> [1] "center"
+#> [1] "auto"
 #> 
 #> $summary_table$table_body_font_weight
 #> [1] "normal"
 #> 
 #> $summary_table$table_body_text_transform
-#> [1] "capitalize"
+#> [1] "none"
 #> 
 #> $summary_table$table_body_text_padding
-#> [1] 1
+#> [1] 3
 #> 
 #> $summary_table$table_body_colour
 #> [1] "#000000"
@@ -988,13 +988,13 @@ spc_default_settings()
 #> [1] 1
 #> 
 #> $summary_table$table_body_border_colour
-#> [1] "#000000"
+#> [1] "#D3D3D3"
 #> 
 #> $summary_table$table_body_border_top_bottom
 #> [1] TRUE
 #> 
 #> $summary_table$table_body_border_left_right
-#> [1] TRUE
+#> [1] FALSE
 #> 
 #> 
 #> $download_options

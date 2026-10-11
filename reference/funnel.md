@@ -10,6 +10,7 @@ funnel(
   keys,
   numerators,
   denominators,
+  indicators = NULL,
   tooltips,
   labels,
   aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
@@ -17,6 +18,7 @@ funnel(
   title = NULL,
   canvas_settings = NULL,
   funnel_settings = NULL,
+  misc_settings = NULL,
   outlier_settings = NULL,
   scatter_settings = NULL,
   line_settings = NULL,
@@ -50,6 +52,13 @@ funnel(
 
   A numeric vector or column name representing the denominators for each
   category.
+
+- indicators:
+
+  Optional vector or list of vectors identifying indicators. Supplying
+  indicators displays a multi-indicator sigma chart using the native
+  Funnel visual. Each indicator is calculated against its comparison
+  population.
 
 - tooltips:
 
@@ -124,6 +133,12 @@ funnel(
   Optional list of settings for the Funnel chart, see
   `funnel_default_settings("funnel")` for valid options.
 
+- misc_settings:
+
+  Optional native MISC settings. `group` selects a value from `keys`; if
+  omitted, the first group is shown. See
+  `funnel_default_settings("misc")` for valid options.
+
 - outlier_settings:
 
   Optional list of settings for outliers, see
@@ -185,6 +200,8 @@ funnel(
 
   - `"limit_lines"`: Control limits across the full range of
     denominators, for drawing the limit lines (not returned by default)
+
+  `"limit_lines"` is available only when `indicators` is omitted.
 
 ## Value
 

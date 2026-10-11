@@ -9,7 +9,7 @@ Retrieve the default settings for Funnel charts or a specific settings group."><
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.23</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.24</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -135,6 +135,26 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $funnel$ul_truncate</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc$group</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc$lower</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc$upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc$bar_height</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc$unfavourable_label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Unfavourable"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $misc$favourable_label</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Favourable"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $outliers</span>
@@ -292,9 +312,6 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$opacity_unselected_alt_target</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$join_rebaselines_alt_target</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_show_alt_target</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -349,6 +366,12 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_68</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "68% Limit"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_68_prefix_lower</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Lower "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_68_prefix_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Upper "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$plot_label_show_68</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -396,6 +419,12 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_95</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "95% Limit"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_95_prefix_lower</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Lower "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_95_prefix_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Upper "</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$plot_label_show_95</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
@@ -445,6 +474,12 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_99</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "99% Limit"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_99_prefix_lower</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Lower "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $lines$ttip_label_99_prefix_upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Upper "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lines$plot_label_show_99</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -471,6 +506,9 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x_axis</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $x_axis$xlimit_show</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $x_axis$xlimit_colour</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "#000000"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -530,6 +568,9 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $y_axis</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $y_axis$ylimit_show</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $y_axis$ylimit_colour</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "#000000"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -589,6 +630,11 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $y_axis$ylimit_grid_width</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $download_options</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $download_options$show_button</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $labels</span>
@@ -672,6 +718,9 @@ specified settings group.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co"># # Get default settings for a specific group</span></span></span>
 <span class="r-in"><span><span class="fu">funnel_default_settings</span><span class="op">(</span><span class="st">"x_axis"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $xlimit_show</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $xlimit_colour</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "#000000"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

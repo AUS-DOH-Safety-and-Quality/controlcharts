@@ -1,27 +1,14 @@
-/*
-  Assumes that the following files have already been loaded:
-    - ./ccDeps.js
-    - ./ccD3.js
-    - ./commonUtils.js
-    - ../PBISPC/PBISPC.js
-    - ../PBIFUN/PBIFUN.js
-    - ../MISC/MISC.js
-*/
-
 function initialiseHeadless() {
   // Create a dummy DOM to build the SVGs in
   const {document, window} = minidom.dummyDOM();
   globalThis.document = document;
   globalThis.window = window;
 
-  var spcDiv = ccD3.select(document.body).append('div').classed('spc-container', true).node();
+  var spcDiv = ccCore.select(document.body).append('div').classed('spc-container', true).node();
   globalThis.spcVisual = new spc.Visual(makeConstructorArgs(spcDiv));
 
-  var funnelDiv = ccD3.select(document.body).append('div').classed('funnel-container', true).node();
+  var funnelDiv = ccCore.select(document.body).append('div').classed('funnel-container', true).node();
   globalThis.funnelVisual = new funnel.Visual(makeConstructorArgs(funnelDiv));
-
-  var miscDiv = ccD3.select(document.body).append('div').classed('misc-container', true).node();
-  globalThis.miscVisual = new misc.Visual(makeConstructorArgs(miscDiv));
 }
 
 function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height,
@@ -63,10 +50,14 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
 
   if (rtn_limits === true) {
     if (chartType === "funnel") {
-      rtn.plotPoints = visual.viewModel.plotPoints;
-      rtn.calculatedLimits = visual.viewModel.calculatedLimits;
+      if (visual.viewModel.inputSettings.showMisc) {
+        rtn.miscPoints = visual.viewModel.miscPoints;
+      } else {
+        rtn.plotPoints = visual.viewModel.plotPoints;
+        rtn.calculatedLimits = visual.viewModel.calculatedLimits;
+      }
     } else if (chartType === "spc") {
-      rtn.plotPoints = visual.viewModel.plotPoints[0];
+      rtn.plotPoints = visual.viewModel.plotPoints;
       rtn.spcLimitRows = visual.viewModel.controlLimits.map((limits, index) => {
         var outliers = visual.viewModel.outliers[index];
         return limits.keys.map((key, rowIndex) => ({
@@ -74,8 +65,8 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
           numerator: limits.numerators?.[rowIndex],
           denominator: limits.denominators?.[rowIndex],
           value: limits.values[rowIndex],
-          target: limits.targets[rowIndex],
-          alt_target: limits.alt_targets?.[rowIndex],
+          target: limits.target[rowIndex],
+          alt_target: limits.alt_target[rowIndex],
           ll99: limits.ll99?.[rowIndex],
           ll95: limits.ll95?.[rowIndex],
           ll68: limits.ll68?.[rowIndex],
@@ -93,8 +84,6 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
       });
       rtn.groupNames = visual.viewModel.groupNames;
       rtn.indicatorVarNames = visual.viewModel.indicatorVarNames;
-    } else {
-      rtn.plotPoints = visual.viewModel.plotPoints;
     }
   }
 

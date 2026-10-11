@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.23</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.24</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,6 +50,7 @@
 <span>  <span class="va">keys</span>,</span>
 <span>  <span class="va">numerators</span>,</span>
 <span>  <span class="va">denominators</span>,</span>
+<span>  indicators <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">tooltips</span>,</span>
 <span>  <span class="va">labels</span>,</span>
 <span>  aggregations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numerators <span class="op">=</span> <span class="st">"sum"</span>, denominators <span class="op">=</span> <span class="st">"sum"</span>, tooltips <span class="op">=</span> <span class="st">"first"</span>,</span>
@@ -57,6 +58,7 @@
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  canvas_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  funnel_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  misc_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  outlier_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  scatter_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  line_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -91,6 +93,12 @@ for each category.</p></dd>
 <dt id="arg-denominators">denominators<a class="anchor" aria-label="anchor" href="#arg-denominators"></a></dt>
 <dd><p>A numeric vector or column name representing the
 denominators for each category.</p></dd>
+
+
+<dt id="arg-indicators">indicators<a class="anchor" aria-label="anchor" href="#arg-indicators"></a></dt>
+<dd><p>Optional vector or list of vectors identifying indicators.
+Supplying indicators displays a multi-indicator sigma chart using the native
+Funnel visual. Each indicator is calculated against its comparison population.</p></dd>
 
 
 <dt id="arg-tooltips">tooltips<a class="anchor" aria-label="anchor" href="#arg-tooltips"></a></dt>
@@ -150,6 +158,12 @@ see <code>funnel_default_settings('canvas')</code> for valid options.</p></dd>
 see <code>funnel_default_settings("funnel")</code> for valid options.</p></dd>
 
 
+<dt id="arg-misc-settings">misc_settings<a class="anchor" aria-label="anchor" href="#arg-misc-settings"></a></dt>
+<dd><p>Optional native MISC settings. <code>group</code> selects a value
+from <code>keys</code>; if omitted, the first group is shown. See
+<code>funnel_default_settings("misc")</code> for valid options.</p></dd>
+
+
 <dt id="arg-outlier-settings">outlier_settings<a class="anchor" aria-label="anchor" href="#arg-outlier-settings"></a></dt>
 <dd><p>Optional list of settings for outliers,
 see <code>funnel_default_settings('outliers')</code> for valid options.</p></dd>
@@ -206,7 +220,7 @@ Valid values are:</p><ul><li><p><code>"html_plot"</code>: Interactive <code>html
 <li><p><code>"limits"</code>: Calculated control limits</p></li>
 <li><p><code>"limit_lines"</code>: Control limits across the full range of
 denominators, for drawing the limit lines (not returned by default)</p></li>
-</ul></dd>
+</ul><p><code>"limit_lines"</code> is available only when <code>indicators</code> is omitted.</p></dd>
 
 </dl></div>
     <div class="section level2">
