@@ -31,7 +31,8 @@ jobs:
       run: |
         git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-SPC PowerBI-SPC
         git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Funnels PowerBI-Funnels
-        npm install
+        git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Visuals-Core PowerBI-Visuals-Core
+        npm ci
         npm run bundle
       working-directory: 'inst/bundle'
 
@@ -39,7 +40,7 @@ jobs:
       run: |
         mv inst/bundle/dist/funnel.js inst/htmlwidgets/lib/PBIFUN/PBIFUN.js
         mv inst/bundle/dist/spc.js inst/htmlwidgets/lib/PBISPC/PBISPC.js
-        mv inst/bundle/dist/ccD3.js inst/htmlwidgets/lib/UTILS/ccD3.js
+        mv inst/bundle/dist/ccCore.js inst/htmlwidgets/lib/UTILS/ccCore.js
 
     - name: Commit funnel changes
       run: |

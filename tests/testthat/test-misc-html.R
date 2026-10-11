@@ -18,6 +18,7 @@ test_that("MISC HTML tooltips render above bars with funnel formatting", {
     denominators = denominator,
     indicators = indicator,
     target = "A",
+    title = "Native MISC",
     tooltips = list(Note = note),
     return_objs = "html_plot"
   )
@@ -27,11 +28,15 @@ test_that("MISC HTML tooltips render above bars with funnel formatting", {
   browser <- chromote::ChromoteSession$new()
   on.exit(browser$close(), add = TRUE)
   browser$go_to(paste0("file://", outfile))
+  browser$Runtime$evaluate("HTMLWidgets.find('.funnel').resize(720, 480)")
+  expect_equal(browser$Runtime$evaluate(
+    "document.querySelector('.funnel .chart-title').textContent"
+  )$result$value, "Native MISC")
   tooltip <- browser$Runtime$evaluate(
     paste(
-      "const bar = document.querySelector('.misc .misc-bar');",
+      "const bar = document.querySelector('.funnel .misc-bar');",
       "bar.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));",
-      "const group = document.querySelector('.misc .chart-tooltip-group');",
+      "const group = document.querySelector('.funnel .chart-tooltip-group');",
       "({",
       "  lines: Array.from(group.querySelectorAll('text'), node => node.textContent),",
       "  raised: group === group.parentElement.lastElementChild",
@@ -45,8 +50,11 @@ test_that("MISC HTML tooltips render above bars with funnel formatting", {
   expect_true(any(grepl("^Z-score: -?[0-9]+\\.[0-9]{3}$", lines)))
   expect_contains(lines, "Numerator: 8")
   expect_contains(lines, "Denominator: 10")
-  expect_contains(lines, "Actual Value: 80.00%")
-  expect_true(any(grepl("Upper 99.8% Limit: ", lines, fixed = TRUE)))
-  expect_true(any(grepl("Lower 99.8% Limit: ", lines, fixed = TRUE)))
+  expect_contains(lines, "Proportion: 80.00%")
+  settings <- funnel_default_settings("lines")
+  expect_true(any(grepl(paste0(settings$ttip_label_99_prefix_upper, settings$ttip_label_99, ": "),
+                        lines, fixed = TRUE)))
+  expect_true(any(grepl(paste0(settings$ttip_label_99_prefix_lower, settings$ttip_label_99, ": "),
+                        lines, fixed = TRUE)))
   expect_contains(lines, "Note: Target")
 })

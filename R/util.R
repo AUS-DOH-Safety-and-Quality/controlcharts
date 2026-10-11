@@ -29,9 +29,7 @@ validate_tooltips <- function(tooltip_settings) {
     spc = append(.spc_default_settings_internal,
                  list(tooltips = .default_tooltip_settings)),
     funnel = append(.funnel_default_settings_internal,
-                    list(tooltips = .default_tooltip_settings)),
-    misc = append(.misc_default_settings_internal,
-                  list(tooltips = .default_tooltip_settings))
+                    list(tooltips = .default_tooltip_settings))
   )
   if (is.null(group)) {
     return(settings)
@@ -79,18 +77,17 @@ funnel_default_settings <- function(group = NULL) {
 #' Get default settings for multi-indicator sigma charts
 #'
 #' @param group Optional settings group. If `NULL`, all groups are returned.
-#' @return A list of MISC settings.
+#' @return Native Funnel settings used by [misc()].
 #' @export
 misc_default_settings <- function(group = NULL) {
-  .default_settings_impl("misc", group)
+  funnel_default_settings(group)
 }
 
 validate_settings <- function(type, input_settings, crosstalk_identities, cat_order) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
-    funnel = funnel_default_settings(),
-    misc = misc_default_settings()
+    funnel = funnel_default_settings()
   )
   has_conditional_formatting <- FALSE
   for (group in names(default_settings)) {
@@ -342,7 +339,8 @@ create_static <- function(type, data_views, title_settings,
     )
   }
 
-  if (type == "funnel" && (rtn_limits || rtn_limit_lines)) {
+  is_misc <- "miscPoints" %in% names(raw_ret)
+  if (type == "funnel" && !is_misc && (rtn_limits || rtn_limit_lines)) {
     limit_lines <-
       lapply(raw_ret$calculatedLimits, function(limit_grp) {
         limit_grp <- lapply(limit_grp, function(x) {
@@ -423,6 +421,28 @@ create_static <- function(type, data_views, title_settings,
       }
       attr(limits, "indicator_names") <- raw_ret$indicatorVarNames
     }
+  } else if (is_misc) {
+    values <- lapply(raw_ret$miscPoints, function(obs) {
+      row <- c(list(
+        indicator = obs$indicator,
+        group = obs$group_text,
+        z = obs$z,
+        score = obs$score,
+        three_sigma = obs$three_sigma,
+        numerator = obs$numerator,
+        denominator = obs$x,
+        value = obs$value
+      ), obs$limits)
+      row$denominators <- NULL
+      row <- lapply(row, function(value) {
+        if (is.null(value)) {
+          return(NA_real_)
+        }
+        value
+      })
+      data.frame(row)
+    })
+    limits <- do.call(rbind.data.frame, values)
   } else if (type == "funnel") {
     values <- lapply(raw_ret$plotPoints, function(obs) {
       data.frame(
@@ -449,25 +469,6 @@ create_static <- function(type, data_views, title_settings,
       }
     }
     limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
-  } else if (type == "misc") {
-    values <- lapply(raw_ret$plotPoints, function(obs) {
-      data.frame(
-        indicator = obs$indicator,
-        grouping = obs$grouping,
-        group = obs$group,
-        z = obs$z,
-        score = obs$score,
-        outlier = obs$outlier,
-        numerator = obs$numerator,
-        denominator = obs$denominator,
-        value = obs$value,
-        ll99 = obs$ll99,
-        target = obs$target,
-        ul99 = obs$ul99,
-        stringsAsFactors = FALSE
-      )
-    })
-    limits <- do.call(rbind.data.frame, values)
   }
 
   rtn$limits <- limits
@@ -565,7 +566,10 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
                                 input_settings, aggregations, title, tooltip_settings,
                                 width, height, elementId, return_objs) {
   return_objs <- unique(return_objs)
-  valid_objs <- c("html_plot", "static_plot", "limits", if (type == "funnel") "limit_lines")
+  valid_objs <- c("html_plot", "static_plot", "limits")
+  if (type == "funnel" && is.null(data_raw$indicators)) {
+    valid_objs <- c(valid_objs, "limit_lines")
+  }
   invalid_objs <- return_objs[!(return_objs %in% valid_objs)]
   if (length(invalid_objs) > 0) {
     stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")

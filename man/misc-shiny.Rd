@@ -22,7 +22,7 @@ renderMisc(expr, env = parent.frame(), quoted = FALSE)
 \item{quoted}{Whether \code{expr} is quoted.}
 }
 \value{
-An interactive Shiny widget.
+An interactive Funnel widget displaying a MISC chart.
 }
 \description{
 Shiny bindings for multi-indicator sigma charts

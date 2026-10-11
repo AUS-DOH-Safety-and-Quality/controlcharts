@@ -1,7 +1,7 @@
 minidom_eval <- function(code) {
   context <- QuickJSR::JSContext$new()
   context$source(system.file("js", "minidom.min.js", package = "controlcharts"))
-  context$source(system.file("htmlwidgets", "lib", "UTILS", "ccD3.min.js",
+  context$source(system.file("htmlwidgets", "lib", "UTILS", "ccCore.min.js",
                              package = "controlcharts"))
   context$source(code = paste0(
     "function runTest() { const document = minidom.dummyDOM().document;\n",
@@ -38,10 +38,27 @@ testthat::test_that("minidom preserves tree links when moving and clearing child
   ))
 })
 
+testthat::test_that("minidom replaces children and detaches the previous nodes", {
+  result <- minidom_eval(r"(
+    const root = document.createElement('g');
+    const old = root.appendChild(document.createElement('text'));
+    const replacement = document.createElement('text');
+    replacement.textContent = 'new';
+    root.replaceChildren(replacement, ' label');
+    const replaced = root.textContent === 'new label' && old.parentNode === null
+      && root.firstChild === replacement && replacement.nextSibling === root.lastChild;
+    root.replaceChildren();
+    return {replaced, cleared: root.childNodes.length === 0 && root.firstChild === null
+      && root.lastChild === null && replacement.parentNode === null
+      && replacement.nextSibling === null};
+  )")
+  testthat::expect_identical(result, list(replaced = TRUE, cleared = TRUE))
+})
+
 testthat::test_that("minidom serializes current attributes and escapes text once", {
   result <- minidom_eval(r"(
     const root = document.createElement('svg');
-    const child = ccD3.select(root).append('text').attr('fill', 'red');
+    const child = ccCore.select(root).append('text').attr('fill', 'red');
     child.attr('fill', null).attr('fill', 'blue').attr('title', '"<&');
     child.classed('active', true).classed('active', false).classed('active', true);
     child.text('A & B < C > D &amp;');
@@ -70,7 +87,7 @@ testthat::test_that("minidom serializes current attributes and escapes text once
 testthat::test_that("minidom supports selectors used by chart redraws", {
   result <- minidom_eval(r"(
     const root = document.createElement('svg');
-    const group = ccD3.select(root).append('g').attr('class', 'tick');
+    const group = ccCore.select(root).append('g').attr('class', 'tick');
     const text = group.append('text').attr('class', 'label\tactive').attr('id', 'value');
     group.append('line');
     const selected = root.querySelectorAll(' .tick\t  text.label.active#value, line ').length;
@@ -84,7 +101,7 @@ testthat::test_that("minidom supports selectors used by chart redraws", {
 testthat::test_that("minidom keeps styles and style attributes synchronized", {
   result <- minidom_eval(r"(
     const root = document.createElement('svg');
-    const child = ccD3.select(root).append('rect');
+    const child = ccCore.select(root).append('rect');
     child.attr('style', 'fill: red !important; fill: blue; font-family: "a;b"');
     const fill = child.style('fill');
     const font = child.style('font-family');
@@ -118,7 +135,7 @@ testthat::test_that("minidom keeps styles and style attributes synchronized", {
 testthat::test_that("minidom preserves namespaced attributes through D3 and serialization", {
   result <- minidom_eval(r"(
     const root = document.createElement('svg');
-    const child = ccD3.select(root).append('use').attr('xlink:href', '#symbol');
+    const child = ccCore.select(root).append('use').attr('xlink:href', '#symbol');
     const href = child.attr('xlink:href');
     const clone = child.node().cloneNode();
     root.appendChild(clone);
@@ -166,17 +183,18 @@ testthat::test_that("chart text survives static rendering and resized export", {
   for (objects in list("static_plot", c("html_plot", "static_plot"))) {
     chart <- misc(
       dat, keys = organisation, numerators = numerator, denominators = denominator,
-      indicators = indicator, groupings = grouping, target = "A",
+      indicators = indicator, target = "A",
       title = list(text = text, subtitle = text),
-      misc_settings = list(source = text, favourable_label = text),
+      misc_settings = list(favourable_label = text),
       x_axis_settings = list(xlimit_label = text), return_objs = objects
     )
     xml <- xml2::read_xml(paste0("<svg>", chart$static_plot$svg, "</svg>"))
-    for (class in c("misc-y-tick", "misc-group-label", "misc-source", "misc-x-label",
-                    "misc-direction-favourable", "chart-title", "chart-subtitle")) {
+    for (class in c("misc-y-tick", "chart-title", "chart-subtitle")) {
       node <- xml2::xml_find_first(xml, paste0('.//*[@class="', class, '"]'))
       testthat::expect_identical(xml2::xml_text(node), text, info = class)
     }
+    labels <- xml2::xml_find_all(xml, './/*[@class="misc-root"]/text')
+    testthat::expect_equal(sum(xml2::xml_text(labels) == text), 3)
     output <- tempfile(fileext = ".svg")
     chart$save_plot(output, width = 720, height = 480)
     saved <- xml2::xml_ns_strip(xml2::read_xml(output))

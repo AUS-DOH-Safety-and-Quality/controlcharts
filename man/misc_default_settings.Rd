@@ -10,7 +10,7 @@ misc_default_settings(group = NULL)
 \item{group}{Optional settings group. If \code{NULL}, all groups are returned.}
 }
 \value{
-A list of MISC settings.
+Native Funnel settings used by \code{\link[=misc]{misc()}}.
 }
 \description{
 Get default settings for multi-indicator sigma charts

@@ -6,6 +6,9 @@
 #' for each category.
 #' @param denominators A numeric vector or column name representing the
 #' denominators for each category.
+#' @param indicators Optional vector or list of vectors identifying indicators.
+#' Supplying indicators displays a multi-indicator sigma chart using the native
+#' Funnel visual. Each indicator is calculated against its comparison population.
 #' @param tooltips A vector or column name, or a list of them, representing
 #' additional tooltips for each category. Each is labelled by its name in the
 #' list, or else by the expression supplied.
@@ -49,6 +52,9 @@
 #' see \code{funnel_default_settings('canvas')} for valid options.
 #' @param funnel_settings Optional list of settings for the Funnel chart,
 #' see \code{funnel_default_settings("funnel")} for valid options.
+#' @param misc_settings Optional native MISC settings. `group` selects a value
+#' from `keys`; if omitted, the first group is shown. See
+#' \code{funnel_default_settings("misc")} for valid options.
 #' @param outlier_settings Optional list of settings for outliers,
 #' see \code{funnel_default_settings('outliers')} for valid options.
 #' @param scatter_settings Optional list of settings for scatter points,
@@ -77,6 +83,7 @@
 #'  \item \code{"limit_lines"}: Control limits across the full range of
 #'  denominators, for drawing the limit lines (not returned by default)
 #' }
+#' `"limit_lines"` is available only when `indicators` is omitted.
 #'
 #' @return An object of class \code{controlchart} containing the
 #' interactive plot, static plot, limits data frame, raw data,
@@ -87,6 +94,7 @@ funnel <- function(data,
                    keys,
                    numerators,
                    denominators,
+                   indicators = NULL,
                    tooltips,
                    labels,
                    aggregations = list(
@@ -98,6 +106,7 @@ funnel <- function(data,
                    title = NULL,
                    canvas_settings = NULL,
                    funnel_settings = NULL,
+                   misc_settings = NULL,
                    outlier_settings = NULL,
                    scatter_settings = NULL,
                    line_settings = NULL,
@@ -135,12 +144,18 @@ funnel <- function(data,
   }
 
   categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
-  cat_order <- order(categories)
+  indicator_values <- NULL
+  indicators_quo <- rlang::enquo(indicators)
+  if (!rlang::quo_is_null(indicators_quo)) {
+    indicator_values <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
+  }
+  cat_order <- do.call(order, c(indicator_values, list(categories)))
 
   # Evaluated against the input order so vector settings align with the rows
   input_settings <- list(
     canvas = rlang::eval_tidy(rlang::enquo(canvas_settings), input_data),
     funnel = rlang::eval_tidy(rlang::enquo(funnel_settings), input_data),
+    misc = rlang::eval_tidy(rlang::enquo(misc_settings), input_data),
     outliers = rlang::eval_tidy(rlang::enquo(outlier_settings), input_data),
     scatter = rlang::eval_tidy(rlang::enquo(scatter_settings), input_data),
     lines = rlang::eval_tidy(rlang::enquo(line_settings), input_data),
@@ -158,6 +173,10 @@ funnel <- function(data,
     numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data),
     denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)
   )
+
+  if (!is.null(indicator_values)) {
+    data_raw$indicators <- lapply(indicator_values, function(x) x[cat_order])
+  }
 
   if (!missing(tooltips)) {
     data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip")

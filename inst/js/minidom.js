@@ -349,6 +349,14 @@ var minidom = (function() {
     return child;
   };
 
+  Element.prototype.replaceChildren = function(...nodes) {
+    clearChildren(this);
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      this.appendChild(typeof node === 'string' ? new TextNode(node, this.ownerDocument) : node);
+    }
+  };
+
   Element.prototype.removeChild = function(child) {
     var index = this.childNodes.indexOf(child);
     if (index === -1) {

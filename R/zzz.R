@@ -14,16 +14,15 @@ ctx <- NULL
   # construct the SVGs, so we use a dummy-DOM implementation
   # for headless rendering
   .load_js_file(ctx, "js/minidom.min.js")
-  .load_js_file(ctx, "htmlwidgets/lib/UTILS/ccD3.min.js")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/ccCore.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.min.js")
-  .load_js_file(ctx, "htmlwidgets/lib/MISC/MISC.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/headlessUtils.min.js")
   ctx$call("initialiseHeadless")
 
   # Extract default settings from each chart type and store in R
-  for (type in c("spc", "funnel", "misc")) {
+  for (type in c("spc", "funnel")) {
     assign(
       paste0(".", type, "_default_settings_internal"),
       ctx$get(paste0(type, ".defaultSettings")),

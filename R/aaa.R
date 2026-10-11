@@ -22,13 +22,11 @@ minify_deps(system.file("htmlwidgets", "lib", "PBIFUN", "PBIFUN.js",
                         package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "PBISPC", "PBISPC.js",
                         package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "MISC", "MISC.js",
-                        package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "UTILS", "commonUtils.js",
                         package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "UTILS", "headlessUtils.js",
                         package = "controlcharts"))
 minify_deps(system.file("htmlwidgets", "lib", "UTILS", "interactiveUtils.js",
                         package = "controlcharts"))
-minify_deps(system.file("htmlwidgets", "lib", "UTILS", "ccD3.js",
+minify_deps(system.file("htmlwidgets", "lib", "UTILS", "ccCore.js",
                         package = "controlcharts"))

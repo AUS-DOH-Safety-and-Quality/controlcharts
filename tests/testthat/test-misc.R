@@ -24,7 +24,6 @@ test_that("MISC delegates raw indicator data to funnel calculations", {
     denominators = denominator,
     indicators = indicator,
     target = "A",
-    groupings = grouping,
     outlier_settings = list(improvement_direction = direction),
     return_objs = "limits"
   )
@@ -53,7 +52,7 @@ test_that("MISC delegates raw indicator data to funnel calculations", {
       actual$score,
       expected$z * ifelse(direction == "decrease", -1, 1)
     )
-    expect_equal(actual$outlier, expected$three_sigma)
+    expect_equal(actual$three_sigma, expected$three_sigma)
   }
 })
 
@@ -70,6 +69,7 @@ test_that("MISC renders and saves a single indicator", {
   )
 
   expect_s3_class(chart, "controlchart")
+  expect_s3_class(chart$html_plot, "funnel")
   expect_equal(chart$limits$indicator, "Higher is better")
   expect_match(chart$static_plot$svg, "misc-bar", fixed = TRUE)
 
@@ -78,7 +78,6 @@ test_that("MISC renders and saves a single indicator", {
   svg <- paste(readLines(outfile, warn = FALSE), collapse = "\n")
   expect_match(svg, "Single-indicator MISC", fixed = TRUE)
   expect_match(svg, "misc-limit-99", fixed = TRUE)
-  expect_match(svg, "99.8% Control Limits", fixed = TRUE)
 })
 
 testthat::test_that("MISC renders are independent across charts and export sizes", {
@@ -128,7 +127,7 @@ test_that("MISC validates target and per-indicator direction", {
       target = "missing",
       return_objs = "limits"
     ),
-    "not present"
+    "Select a MISC group present in the data.", fixed = TRUE
   )
 
   dat$direction[1] <- "decrease"
@@ -143,7 +142,7 @@ test_that("MISC validates target and per-indicator direction", {
       outlier_settings = list(improvement_direction = direction),
       return_objs = "limits"
     ),
-    "one improvement_direction"
+    "one improvement direction", fixed = TRUE
   )
 })
 
@@ -177,10 +176,10 @@ test_that("MISC aggregates custom tooltips with the funnel population", {
     function(column) isTRUE(column$source$roles$tooltips),
     columns
   )
-  expect_equal(tooltip_columns[[1]]$values, "last target row")
+  expect_equal(tooltip_columns[[1]]$values, c("last target row", "B", "C", "D"))
 })
 
-test_that("MISC separates rate values from their suffix", {
+test_that("MISC uses native Funnel rate tooltip formatting", {
   dat <- data.frame(
     organisation = LETTERS[1:4],
     indicator = "Rate measure",
@@ -199,15 +198,17 @@ test_that("MISC separates rate values from their suffix", {
       multiplier = 1000,
       perc_labels = "No"
     ),
-    return_objs = "html_plot"
+    return_objs = "limits"
   )
 
-  columns <- chart$html_plot$x$update_values$dataViews[[1]]$categorical$values
-  suffix <- Filter(
-    function(column) isTRUE(column$source$roles$suffixes),
-    columns
+  tooltips <- controlcharts:::ctx$get("funnelVisual.viewModel.miscPoints")[[1]]$tooltip
+  funnel(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    funnel_settings = list(chart_type = "PR", multiplier = 1000, perc_labels = "No"),
+    return_objs = "limits"
   )
-  expect_equal(suffix[[1]]$values, " per 1,000")
+  expected <- controlcharts:::ctx$get("funnelVisual.viewModel.plotPoints")[[1]]$tooltip
+  expect_equal(tooltips[-c(1, 2)], expected)
 })
 
 test_that("MISC applies funnel's automatic percentage rule", {
@@ -224,13 +225,35 @@ test_that("MISC applies funnel's automatic percentage rule", {
     denominators = denominator,
     indicators = indicator,
     target = "A",
-    return_objs = "html_plot"
+    return_objs = "limits"
   )
 
-  columns <- chart$html_plot$x$update_values$dataViews[[1]]$categorical$values
-  suffix <- Filter(
-    function(column) isTRUE(column$source$roles$suffixes),
-    columns
+  tooltips <- controlcharts:::ctx$get("funnelVisual.viewModel.miscPoints")[[1]]$tooltip
+  values <- vapply(tooltips, function(item) item$value, character(1))
+  expect_contains(values, "80.00%")
+})
+
+test_that("MISC forwards multiple indicator columns and native settings to Funnel", {
+  dat <- misc_data()
+  wrapped <- misc(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    indicators = list(grouping, indicator), target = "B",
+    misc_settings = list(lower = -4, upper = 4),
+    outlier_settings = list(improvement_direction = direction),
+    return_objs = c("html_plot", "limits")
   )
-  expect_equal(suffix[[1]]$values, "%")
+  native <- funnel(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    indicators = list(grouping, indicator),
+    misc_settings = list(lower = -4, upper = 4, group = "B"),
+    outlier_settings = list(improvement_direction = direction),
+    return_objs = c("html_plot", "limits")
+  )
+  expect_equal(wrapped$limits, native$limits)
+  expect_equal(wrapped$html_plot$x, native$html_plot$x)
+  expect_equal(wrapped$limits$group, c("B", "B"))
+  expect_equal(wrapped$limits$indicator,
+               c("Effectiveness / Higher is better", "Safety / Lower is better"))
+  expect_identical(misc_default_settings(), funnel_default_settings())
+  expect_identical(as.character(miscOutput("chart")), as.character(funnelOutput("chart")))
 })

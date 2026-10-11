@@ -11,73 +11,36 @@ misc(
   denominators,
   indicators,
   target,
-  groupings = NULL,
-  tooltips,
-  aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
-    labels = "first"),
-  title = NULL,
-  funnel_settings = NULL,
-  outlier_settings = NULL,
-  canvas_settings = NULL,
-  misc_settings = NULL,
-  bar_settings = NULL,
-  line_settings = NULL,
-  x_axis_settings = NULL,
-  y_axis_settings = NULL,
-  tooltip_settings = NULL,
-  width = NULL,
-  height = NULL,
-  elementId = NULL,
-  return_objs = c("html_plot", "static_plot", "limits")
+  ...,
+  misc_settings = NULL
 )
 }
 \arguments{
-\item{data}{A data frame containing the comparison population.}
+\item{data}{A data frame containing the data for the chart.}
 
-\item{keys}{A vector or column name identifying the funnel groups.}
+\item{keys}{A vector or column name representing the categories of the chart.}
 
-\item{numerators}{A numeric vector or column name containing numerators.}
+\item{numerators}{A numeric vector or column name representing the numerators
+for each category.}
 
-\item{denominators}{A numeric vector or column name containing denominators.}
+\item{denominators}{A numeric vector or column name representing the
+denominators for each category.}
 
-\item{indicators}{A vector or column name identifying indicators. A separate
-funnel calculation is performed for each value.}
+\item{indicators}{A vector or list of vectors identifying indicators.}
 
 \item{target}{A single value from \code{keys} to display.}
 
-\item{groupings}{Optional vector or column name used to group indicator labels.}
+\item{...}{Additional arguments passed to \code{\link[=funnel]{funnel()}}.}
 
-\item{tooltips}{An optional vector or column name, or a list of them, providing
-additional tooltips. Each is labelled by its name in the list, or otherwise by
-the supplied expression.}
-
-\item{aggregations}{A list of aggregation function names passed to
-\code{\link[=funnel]{funnel()}}.}
-
-\item{title}{Optional chart title. See \code{\link[=funnel]{funnel()}} for the supported format.}
-
-\item{funnel_settings, outlier_settings}{Settings used for each indicator's
-funnel calculation. \code{outlier_settings$improvement_direction} may be
-conditionally formatted by indicator. Three-sigma detection is always enabled.}
-
-\item{canvas_settings, misc_settings, bar_settings, line_settings, x_axis_settings, y_axis_settings}{Optional chart settings. See \code{misc_default_settings()} for valid options.}
-
-\item{tooltip_settings}{Optional tooltip settings.}
-
-\item{width, height}{Optional chart dimensions in pixels.}
-
-\item{elementId}{Optional HTML element ID for the chart.}
-
-\item{return_objs}{Character vector containing any of \code{"html_plot"},
-\code{"static_plot"}, and \code{"limits"}.}
+\item{misc_settings}{Native MISC settings, with \code{group} supplied by \code{target}.
+See \code{funnel_default_settings("misc")} for valid options.}
 }
 \value{
-An object of class \code{controlchart}.
+An object of class \code{controlchart}, as returned by \code{\link[=funnel]{funnel()}}.
 }
 \description{
-Calculates a funnel plot independently for each indicator, then displays the
-selected target's funnel z-score for every indicator. Positive values are in
-the favourable direction.
+Delegates to \code{\link[=funnel]{funnel()}} with indicator columns and a selected group.
+Calculations, rendering, settings, and interactivity use the native Funnel visual.
 }
 \examples{
 comparison <- data.frame(
