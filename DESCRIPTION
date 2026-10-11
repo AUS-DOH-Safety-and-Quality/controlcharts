@@ -18,12 +18,12 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports:
   htmlwidgets,
-  htmltools,
   crosstalk,
   QuickJSR,
   jsutils,
   rlang
 Suggests:
+  htmltools,
   rsvg,
   knitr,
   rmarkdown,

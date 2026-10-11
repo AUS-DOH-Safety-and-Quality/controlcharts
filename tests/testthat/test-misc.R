@@ -81,6 +81,41 @@ test_that("MISC renders and saves a single indicator", {
   expect_match(svg, "99.8% Control Limits", fixed = TRUE)
 })
 
+testthat::test_that("MISC renders are independent across charts and export sizes", {
+  dat <- misc_data()
+  chart <- misc(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    indicators = indicator, target = "A",
+    title = list(text = "First chart", subtitle = "First subtitle"),
+    return_objs = "static_plot"
+  )
+  misc(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    indicators = indicator, target = "B", title = "Second chart",
+    return_objs = "static_plot"
+  )
+  repeated <- misc(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    indicators = indicator, target = "A",
+    title = list(text = "First chart", subtitle = "First subtitle"),
+    return_objs = "static_plot"
+  )
+  testthat::expect_identical(repeated$static_plot$svg, chart$static_plot$svg)
+  output <- tempfile(fileext = ".svg")
+  on.exit(unlink(output), add = TRUE)
+  chart$save_plot(output, width = 720, height = 480)
+  resized <- misc(
+    dat, keys = organisation, numerators = numerator, denominators = denominator,
+    indicators = indicator, target = "A",
+    title = list(text = "First chart", subtitle = "First subtitle"),
+    width = 720, height = 480, return_objs = "static_plot"
+  )
+  testthat::expect_identical(
+    paste(readLines(output), collapse = "\n"),
+    controlcharts:::svg_string(resized$static_plot$svg, 720, 480)
+  )
+})
+
 test_that("MISC validates target and per-indicator direction", {
   dat <- misc_data()
   expect_error(

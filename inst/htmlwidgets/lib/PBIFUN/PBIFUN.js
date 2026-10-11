@@ -1208,7 +1208,6 @@ function drawLineLabels(selection, visualObj) {
     })
         .attr("dy", function (d) {
         const lineGroup = visualObj.viewModel.groupedLines[d.limit];
-        const bounds = ccD3.select(this).node().getBoundingClientRect();
         let position = lineSettings[`plot_label_position_${lineNameMap[lineGroup[0]]}`];
         let vpadding = lineSettings[`plot_label_vpad_${lineNameMap[lineGroup[0]]}`];
         if (["outside", "inside"].includes(position)) {
@@ -1217,7 +1216,7 @@ function drawLineLabels(selection, visualObj) {
         const heightMap = {
             "above": -lineSettings[`width_${lineNameMap[lineGroup[0]]}`],
             "below": lineSettings[`plot_label_size_${lineNameMap[lineGroup[0]]}`],
-            "beside": bounds.height / 4
+            "beside": lineSettings[`plot_label_size_${lineNameMap[lineGroup[0]]}`] / 4
         };
         return `${positionOffsetMap[position] * vpadding + heightMap[position]}px`;
     });

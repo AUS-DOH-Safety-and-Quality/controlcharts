@@ -135,22 +135,6 @@ validate_settings <- function(type, input_settings, crosstalk_identities, cat_or
   )
 }
 
-# Escape special characters in labels (e.g., '>' -> '&lt;')
-escape_labels <- function(input_settings, type) {
-  for (group in names(input_settings)) {
-    if (!is.null(input_settings[[group]])) {
-      for (setting in names(input_settings[[group]])) {
-        if (grepl("_label$", setting)
-            && !is.null(input_settings[[group]][[setting]])) {
-          input_settings[[group]][[setting]] <-
-            htmltools::htmlEscape(input_settings[[group]][[setting]])
-        }
-      }
-    }
-  }
-  input_settings
-}
-
 validate_aggregations <- function(aggregations, data_raw) {
   if (is.null(aggregations)) {
     return(NULL)
@@ -654,37 +638,7 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
   }
 
   if (rtn_static || rtn_limits || rtn_limit_lines) {
-    # Special characters to be escaped for headless use only,
-    # as is automatically done by htmlwidgets
-    input_settings <- escape_labels(input_settings)
-    title_escaped <- FALSE
-    if (!is.null(title_settings$text)) {
-      title_clean <- htmltools::htmlEscape(title_settings$text)
-      if (title_clean != title_settings$text) {
-        title_escaped <- TRUE
-        title_settings$text <- title_clean
-      }
-    }
-    if (!is.null(title_settings$subtitle)) {
-      subtitle_clean <- htmltools::htmlEscape(title_settings$subtitle)
-      if (subtitle_clean != title_settings$subtitle) {
-        title_escaped <- TRUE
-        title_settings$subtitle <- subtitle_clean
-      }
-    }
-
-    labels_escaped <- FALSE
-    if ("labels" %in% names(data_raw)) {
-      labels_clean <- sapply(data_raw$labels, htmltools::htmlEscape)
-      if (any(labels_clean != data_raw$labels, na.rm = TRUE)) {
-        labels_escaped <- TRUE
-        data_raw$labels <- labels_clean
-      }
-    }
-
-    # If the JS input arguments were already calculated for the HTML plot and there
-    #   have been no changes to the inputs by escaping text, then skip re-calculating
-    if (is.null(update_dataviews) || title_escaped || labels_escaped) {
+    if (is.null(update_dataviews)) {
       update_dataviews <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
                                     has_conditional_formatting, unique_categories)$dataViews
     }
