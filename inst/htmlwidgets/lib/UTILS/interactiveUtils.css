@@ -9,7 +9,7 @@
   z-index: 10;
   font: 12px/1.4 system-ui, sans-serif;
   color: #334155;
-  opacity: 0.45;
+  opacity: 0;
   transition: opacity 120ms ease;
 }
 
