@@ -5,7 +5,7 @@ dependencies:
     src: htmlwidgets/lib/UTILS
     stylesheet: interactiveUtils.css
     script:
-      - ccD3.min.js
+      - ccCore.min.js
       - commonUtils.min.js
       - interactiveUtils.min.js
   - name: PBISPC

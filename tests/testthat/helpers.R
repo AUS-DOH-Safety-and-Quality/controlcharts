@@ -114,8 +114,6 @@ test_linegroup <- function(nodeset, linetype, settings = NULL) {
   nodename <- paste0(linetype, "-linegroup")
   if (linetype == "main") {
     nodename <- gsub("main", "values", nodename, fixed = TRUE)
-  } else if (linetype == "target") {
-    nodename <- gsub("target", "targets", nodename, fixed = TRUE)
   }
 
 

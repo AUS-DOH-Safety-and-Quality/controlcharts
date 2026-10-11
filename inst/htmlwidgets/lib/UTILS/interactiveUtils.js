@@ -1,11 +1,3 @@
-/*
-  Assumes that the following files have already been loaded by the `htmlwidgets` package:
-    - ./commonUtils.js
-    - ../PBISPC/PBISPC.js
-    - ../PBIFUN/PBIFUN.js
-    - ../MISC/MISC.js
-*/
-
 function makeFactory(chartType) {
   return function(el, width, height) {
     // Initialise crosstalk objects for interactivity (highlighting and filtering)
@@ -25,12 +17,42 @@ function makeFactory(chartType) {
       type: 2
     };
     var updateValues;
+    var titleSettings = { text: null };
+
+    function updateVisual() {
+      visual.update(visualUpdateArgs);
+      updateChartTitle(visual.svg, titleSettings);
+      visual.svg.selectAll(".chart-tooltip-group").data([null]).join("g")
+        .classed("chart-tooltip-group", true);
+    }
 
     // Replace PowerBI selection manager (interactivity) functions with crosstalk equivalents
-    visual.selectionManager.getSelectionIds = () => crosstalkSelectionHandle.value ?? []
+    visual.selectionManager.getSelectionIds = () => {
+      const selectedKeys = crosstalkSelectionHandle.value ?? [];
+      const selected = new Set(selectedKeys);
+      const groups = Object.values(updateValues.crosstalk_identities);
+      const identities = new Array(selectedKeys.length);
+      for (let i = 0; i < selectedKeys.length; i++) {
+        identities[i] = makeSelectionId([selectedKeys[i]]);
+      }
+      for (let i = 0; i < groups.length; i++) {
+        const keys = asArray(groups[i]);
+        for (let j = 0; j < keys.length; j++) {
+          if (selected.has(keys[j])) {
+            identities.push(makeSelectionId(keys));
+            break;
+          }
+        }
+      }
+      return identities;
+    }
     visual.selectionManager.clear = () => crosstalkSelectionHandle.clear()
     visual.selectionManager.select = (currentIdentity, multiSelect) => {
-      var newIdentities = currentIdentity;
+      const identities = asArray(currentIdentity);
+      var newIdentities = [];
+      for (let i = 0; i < identities.length; i++) {
+        newIdentities.push(...identities[i].keys);
+      }
       if (multiSelect && crosstalkSelectionHandle.value) {
         newIdentities = newIdentities.concat(crosstalkSelectionHandle.value)
       }
@@ -38,14 +60,9 @@ function makeFactory(chartType) {
       return { then: (f) => f() }
     }
 
-    // Add a group for rendering tooltips in place of PowerBI tooltips
-    visual.svg.append("g")
-              .classed("chart-tooltip-group", true);
-
     return {
       renderValue: function(x) {
-        // Add title to the visual
-        updateChartTitle(visual.svg, x.title_settings);
+        titleSettings = x.title_settings;
 
         // Aggregate the raw data into the format expected by the visual
         updateValues = x.is_crosstalk
@@ -71,18 +88,15 @@ function makeFactory(chartType) {
           visualUpdateArgs.dataViews = updateValues.dataViews;
           visualUpdateArgs.type = 2; // Change in data, so recalculate limits
 
-          visual.update(visualUpdateArgs);
+          updateVisual();
         })
 
         // Replace PowerBI function for assigning selection identities to points,
         // so that the visual will automatically assign the correct crosstalk identities
-        visual.host.createSelectionIdBuilder = () => ({
-          withCategory: (allCategories, categoryIndex) => ({
-            createSelectionId: () => Array.isArray(updateValues.crosstalk_identities)
-              ? updateValues.crosstalk_identities[categoryIndex]
-              : updateValues.crosstalk_identities[allCategories.values[categoryIndex]]
-          })
-        })
+        visual.host.createSelectionIdBuilder = () => makeSelectionIdBuilder((allCategories, categoryIndex) =>
+          asArray(Array.isArray(updateValues.crosstalk_identities)
+            ? updateValues.crosstalk_identities[categoryIndex]
+            : updateValues.crosstalk_identities[allCategories.values[categoryIndex]]));
 
         visual.host.tooltipService.show = (tooltipArgs) => {
           var boundRect = visual.svg.node().getBoundingClientRect();
@@ -146,7 +160,7 @@ function makeFactory(chartType) {
         }
 
         // Trigger the calculation of limits and the rendering of the visual
-        visual.update(visualUpdateArgs);
+        updateVisual();
       },
 
       resize: function(width, height) {
@@ -154,7 +168,7 @@ function makeFactory(chartType) {
         visualUpdateArgs.viewport.height = height;
         // Specify that the event is only a resize, so do not recalculate limits
         visualUpdateArgs.type = 4;
-        visual.update(visualUpdateArgs);
+        updateVisual();
       }
     };
   }

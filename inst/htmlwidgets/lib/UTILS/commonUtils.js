@@ -1,3 +1,19 @@
+function makeSelectionId(keys) {
+  return { keys, getKey: () => JSON.stringify(keys) };
+}
+
+function makeSelectionIdBuilder(resolveKeys) {
+  let keys;
+  const builder = {
+    withCategory: (category, index) => {
+      keys = resolveKeys(category, index);
+      return builder;
+    },
+    createSelectionId: () => makeSelectionId(keys)
+  };
+  return builder;
+}
+
 const makeConstructorArgs = function(element) {
   return {
     element: element,
@@ -8,9 +24,7 @@ const makeConstructorArgs = function(element) {
         showContextMenu: () => {},
         clear: () => {}
       }),
-      createSelectionIdBuilder: () => ({
-        withCategory: () => ({ createSelectionId: () => {} })
-      }),
+      createSelectionIdBuilder: () => makeSelectionIdBuilder((_, index) => [String(index)]),
       tooltipService: {
         show: () => {},
         hide: () => {}
@@ -187,21 +201,25 @@ function makeUpdateValues(rawData, inputSettings, aggregations, has_conditional_
     });
   }
 
+  const columns = new Array(args.categories.length + args.values.length);
+  for (let i = 0; i < columns.length; i++) {
+    columns[i] = i < args.categories.length
+      ? args.categories[i].source
+      : args.values[i - args.categories.length].source;
+  }
+  const metadata = { columns };
+  if (hasIndicators && inputSettings.misc?.group !== undefined) {
+    const group = ccCore.groupCategoryRows([{ values: [String(inputSettings.misc.group)] }], 1);
+    metadata.objects = { misc: { group: group.keys[0] } };
+  }
+
   return {
     dataViews: [{
       categorical: {
         categories: args.categories,
         values: args.values
       },
-      metadata: {
-        columns: hasIndicators
-          ? args.categories.map(column => column.source)
-              .concat(args.values.map(column => column.source))
-          : [
-              { roles: { key: true }},
-              { roles: { numerators: true }}
-            ]
-      }
+      metadata
     }],
     crosstalk_identities: args.crosstalk_identities
   };

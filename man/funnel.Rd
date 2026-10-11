@@ -9,6 +9,7 @@ funnel(
   keys,
   numerators,
   denominators,
+  indicators = NULL,
   tooltips,
   labels,
   aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
@@ -16,6 +17,7 @@ funnel(
   title = NULL,
   canvas_settings = NULL,
   funnel_settings = NULL,
+  misc_settings = NULL,
   outlier_settings = NULL,
   scatter_settings = NULL,
   line_settings = NULL,
@@ -39,6 +41,10 @@ for each category.}
 
 \item{denominators}{A numeric vector or column name representing the
 denominators for each category.}
+
+\item{indicators}{Optional vector or list of vectors identifying indicators.
+Supplying indicators displays a multi-indicator sigma chart using the native
+Funnel visual. Each indicator is calculated against its comparison population.}
 
 \item{tooltips}{A vector or column name, or a list of them, representing
 additional tooltips for each category. Each is labelled by its name in the
@@ -89,6 +95,10 @@ see \code{funnel_default_settings('canvas')} for valid options.}
 \item{funnel_settings}{Optional list of settings for the Funnel chart,
 see \code{funnel_default_settings("funnel")} for valid options.}
 
+\item{misc_settings}{Optional native MISC settings. \code{group} selects a value
+from \code{keys}; if omitted, the first group is shown. See
+\code{funnel_default_settings("misc")} for valid options.}
+
 \item{outlier_settings}{Optional list of settings for outliers,
 see \code{funnel_default_settings('outliers')} for valid options.}
 
@@ -126,7 +136,8 @@ Valid values are:
 \item \code{"limits"}: Calculated control limits
 \item \code{"limit_lines"}: Control limits across the full range of
 denominators, for drawing the limit lines (not returned by default)
-}}
+}
+\code{"limit_lines"} is available only when \code{indicators} is omitted.}
 }
 \value{
 An object of class \code{controlchart} containing the
