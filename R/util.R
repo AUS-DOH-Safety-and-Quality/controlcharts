@@ -366,7 +366,7 @@ create_static <- function(type, data_views, title_settings,
 
   limits <- NULL
   if (type == "spc") {
-    make_spc_limits <- function(rows) {
+    make_spc_limits <- function(rows, outlier_settings) {
       rows <- lapply(rows, function(elem) {
         if ("table_row" %in% names(elem)) elem$table_row else elem
       })
@@ -384,11 +384,9 @@ create_static <- function(type, data_views, title_settings,
       limits$date <- trimws(limits$date)
 
       outlier_cols <- c("astronomical", "shift", "trend", "two_in_three")
-      if (!is.null(input_settings$outliers)) {
-        for (pattern in names(input_settings$outliers)) {
-          if ((pattern %in% outlier_cols) && input_settings$outliers[[pattern]]) {
-            outlier_cols <- setdiff(outlier_cols, pattern)
-          }
+      for (pattern in names(outlier_settings)) {
+        if ((pattern %in% outlier_cols) && outlier_settings[[pattern]]) {
+          outlier_cols <- setdiff(outlier_cols, pattern)
         }
       }
       outlier_cols[outlier_cols == "astronomical"] <- "astpoint"
@@ -396,7 +394,7 @@ create_static <- function(type, data_views, title_settings,
     }
 
     if (length(raw_ret$indicatorVarNames) == 0) {
-      limits <- make_spc_limits(raw_ret$plotPoints)
+      limits <- make_spc_limits(raw_ret$plotPoints, raw_ret$outlierSettings[[1]])
     } else {
       set_nested_limits <- function(x, group_names, group_limits) {
         group_name <- group_names[1]
@@ -416,7 +414,8 @@ create_static <- function(type, data_views, title_settings,
       for (i in seq_along(raw_ret$spcLimitRows)) {
         group_names <- as.character(raw_ret$groupNames[[i]])
         group_names[is.na(group_names) | group_names == ""] <- "<blank>"
-        group_limits <- make_spc_limits(raw_ret$spcLimitRows[[i]])
+        group_limits <- make_spc_limits(raw_ret$spcLimitRows[[i]],
+                                         raw_ret$outlierSettings[[i]])
         limits <- set_nested_limits(limits, group_names, group_limits)
       }
       attr(limits, "indicator_names") <- raw_ret$indicatorVarNames
@@ -461,11 +460,10 @@ create_static <- function(type, data_views, title_settings,
 
     #  Remove columns for any outlier patterns that were not used
     drop_cols <- c("two_sigma", "three_sigma")
-    if (!is.null(input_settings$outliers)) {
-      for (pattern in names(input_settings$outliers)) {
-        if ((pattern %in% drop_cols) && input_settings$outliers[[pattern]]) {
-          drop_cols <- setdiff(drop_cols, pattern)
-        }
+    outlier_settings <- raw_ret$outlierSettings[[1]]
+    for (pattern in names(outlier_settings)) {
+      if ((pattern %in% drop_cols) && outlier_settings[[pattern]]) {
+        drop_cols <- setdiff(drop_cols, pattern)
       }
     }
     limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]

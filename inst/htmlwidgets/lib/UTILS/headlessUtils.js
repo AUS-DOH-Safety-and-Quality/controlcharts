@@ -49,6 +49,13 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
   }
 
   if (rtn_limits === true) {
+    const settings = chartType === "spc"
+      ? visual.viewModel.inputSettings.settings
+      : visual.viewModel.inputSettings.groupSettings;
+    rtn.outlierSettings = [];
+    for (let i = 0; i < settings.length; i++) {
+      rtn.outlierSettings.push(settings[i].outliers);
+    }
     if (chartType === "funnel") {
       if (visual.viewModel.inputSettings.showMisc) {
         rtn.miscPoints = visual.viewModel.miscPoints;

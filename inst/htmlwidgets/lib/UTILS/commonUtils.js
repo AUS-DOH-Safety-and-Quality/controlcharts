@@ -50,28 +50,48 @@ const makeConstructorArgs = function(element) {
 }
 
 const aggregateColumn = function(column, aggregation) {
+  if (aggregation === "first") {
+    return column[0];
+  }
+  if (aggregation === "last") {
+    return column[column.length - 1];
+  }
+  const values = [];
+  let sum = 0;
+  for (let i = 0; i < column.length; i++) {
+    const value = column[i];
+    if (value != null && !Number.isNaN(value)) {
+      values.push(value);
+      sum += value;
+    }
+  }
+  if (values.length === 0) {
+    return null;
+  }
   switch(aggregation) {
     case "sum":
-      return column.reduce((acc, val) => acc + val, 0);
+      return sum;
     case "mean":
-      return column.reduce((acc, val) => acc + val, 0) / column.length;
-    case "sd":
-      var mean = column.reduce((acc, val) => acc + val, 0) / column.length;
-      return Math.sqrt(column.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / (column.length - 1));
+      return sum / values.length;
+    case "sd": {
+      const mean = sum / values.length;
+      let squaredDeviations = 0;
+      for (let i = 0; i < values.length; i++) {
+        squaredDeviations += Math.pow(values[i] - mean, 2);
+      }
+      return Math.sqrt(squaredDeviations / (values.length - 1));
+    }
     case "count":
-      return column.length;
+      return values.length;
     case "min":
-      return Math.min(...column);
+      return Math.min(...values);
     case "max":
-      return Math.max(...column);
-    case "median":
-      var sorted = [...column].sort((a, b) => a - b);
-      var mid = Math.floor(sorted.length / 2);
-      return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-    case "first":
-      return column[0];
-    case "last":
-      return column[column.length - 1];
+      return Math.max(...values);
+    case "median": {
+      values.sort((a, b) => a - b);
+      const mid = Math.floor(values.length / 2);
+      return values.length % 2 !== 0 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+    }
     default:
       throw new Error(`Unsupported aggregation: ${aggregation}`);
   }

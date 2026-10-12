@@ -28,8 +28,10 @@
 #'     \item \code{"min"}: returns the minimum value
 #'     \item \code{"max"}: returns the maximum value
 #'     \item \code{"median"}: returns the median value
-#'     \item \code{"count"}: returns the count of values
+#'     \item \code{"count"}: returns the count of non-missing values
 #'   }
+#' Numeric aggregations ignore missing values and preserve all-missing groups.
+#' Numerators and denominators are aggregated independently.
 #' @param title Optional title to be added to the top of the chart.
 #' It can be a character string for the title text only, or a list with
 #' the following options:
@@ -56,6 +58,8 @@
 #' see \code{spc_default_settings('spc')} for valid options.
 #' @param outlier_settings Optional list of settings for outliers,
 #' see \code{spc_default_settings('outliers')} for valid options.
+#' Detection switches use the first valid outlier settings after sorting and
+#' aggregating keys, separately for each indicator, for both plots and limits.
 #' @param nhs_icon_settings Optional list of settings for NHS icons,
 #' see \code{spc_default_settings('nhs_icons')} for valid options.
 #' @param scatter_settings Optional list of settings for scatter points,

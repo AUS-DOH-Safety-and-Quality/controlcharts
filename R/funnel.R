@@ -25,8 +25,10 @@
 #'     \item \code{"min"}: returns the minimum value
 #'     \item \code{"max"}: returns the maximum value
 #'     \item \code{"median"}: returns the median value
-#'     \item \code{"count"}: returns the count of values
+#'     \item \code{"count"}: returns the count of non-missing values
 #'   }
+#' Numeric aggregations ignore missing values and preserve all-missing groups.
+#' Numerators and denominators are aggregated independently.
 #' @param title Optional title to be added to the top of the chart.
 #' It can be a character string for the title text only,
 #' or a list with the following options:
@@ -57,6 +59,8 @@
 #' \code{funnel_default_settings("misc")} for valid options.
 #' @param outlier_settings Optional list of settings for outliers,
 #' see \code{funnel_default_settings('outliers')} for valid options.
+#' Detection switches use the first valid outlier settings after sorting and
+#' aggregating keys for the whole chart, for both plots and limits.
 #' @param scatter_settings Optional list of settings for scatter points,
 #' see \code{funnel_default_settings('scatter')} for valid options.
 #' @param line_settings Optional list of settings for lines,
