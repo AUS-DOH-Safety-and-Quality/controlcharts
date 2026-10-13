@@ -55,8 +55,7 @@
 <span>  <span class="va">xbar_sds</span>,</span>
 <span>  <span class="va">tooltips</span>,</span>
 <span>  <span class="va">labels</span>,</span>
-<span>  aggregations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>numerators <span class="op">=</span> <span class="st">"sum"</span>, denominators <span class="op">=</span> <span class="st">"sum"</span>, groupings <span class="op">=</span> <span class="st">"first"</span>,</span>
-<span>    xbar_sds <span class="op">=</span> <span class="st">"first"</span>, tooltips <span class="op">=</span> <span class="st">"first"</span>, labels <span class="op">=</span> <span class="st">"first"</span><span class="op">)</span>,</span>
+<span>  aggregations <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  canvas_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  spc_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -134,8 +133,11 @@ if multiple values are provided for each key. Valid options are:</p><ul><li><p><
 <li><p><code>"min"</code>: returns the minimum value</p></li>
 <li><p><code>"max"</code>: returns the maximum value</p></li>
 <li><p><code>"median"</code>: returns the median value</p></li>
-<li><p><code>"count"</code>: returns the count of values</p></li>
-</ul></dd>
+<li><p><code>"count"</code>: returns the count of non-missing values</p></li>
+</ul><p>Defaults to <code>"sum"</code> for numerators and denominators, and
+<code>"first"</code> otherwise.
+Numeric aggregations ignore missing values and preserve all-missing groups.
+Numerators and denominators are aggregated independently.</p></dd>
 
 
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
@@ -171,7 +173,9 @@ see <code>spc_default_settings('spc')</code> for valid options.</p></dd>
 
 <dt id="arg-outlier-settings">outlier_settings<a class="anchor" aria-label="anchor" href="#arg-outlier-settings"></a></dt>
 <dd><p>Optional list of settings for outliers,
-see <code>spc_default_settings('outliers')</code> for valid options.</p></dd>
+see <code>spc_default_settings('outliers')</code> for valid options.
+Detection switches use the first valid outlier settings after sorting and
+aggregating keys, separately for each indicator, for both plots and limits.</p></dd>
 
 
 <dt id="arg-nhs-icon-settings">nhs_icon_settings<a class="anchor" aria-label="anchor" href="#arg-nhs-icon-settings"></a></dt>
@@ -233,7 +237,7 @@ the chart will fill the height of its container.</p></dd>
 Valid values are:</p><ul><li><p><code>"html_plot"</code>: Interactive <code>htmlwidgets</code> plot</p></li>
 <li><p><code>"static_plot"</code>: Non-interactive SVG plot</p></li>
 <li><p><code>"limits"</code>: Calculated control limits</p></li>
-</ul></dd>
+</ul><p>When <code>indicators</code> are supplied, <code>"static_plot"</code> is omitted by default.</p></dd>
 
 </dl></div>
     <div class="section level2">

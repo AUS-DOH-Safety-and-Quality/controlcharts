@@ -13,8 +13,7 @@ funnel(
   indicators = NULL,
   tooltips,
   labels,
-  aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
-    labels = "first"),
+  aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
   funnel_settings = NULL,
@@ -89,7 +88,12 @@ funnel(
 
   - `"median"`: returns the median value
 
-  - `"count"`: returns the count of values
+  - `"count"`: returns the count of non-missing values
+
+  Defaults to `"sum"` for numerators and denominators, and `"first"`
+  otherwise. Numeric aggregations ignore missing values and preserve
+  all-missing groups. Numerators and denominators are aggregated
+  independently.
 
 - title:
 
@@ -142,7 +146,9 @@ funnel(
 - outlier_settings:
 
   Optional list of settings for outliers, see
-  `funnel_default_settings('outliers')` for valid options.
+  `funnel_default_settings('outliers')` for valid options. Detection
+  switches use the first valid outlier settings after sorting and
+  aggregating keys for the whole chart, for both plots and limits.
 
 - scatter_settings:
 

@@ -15,8 +15,7 @@ spc(
   xbar_sds,
   tooltips,
   labels,
-  aggregations = list(numerators = "sum", denominators = "sum", groupings = "first",
-    xbar_sds = "first", tooltips = "first", labels = "first"),
+  aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
   spc_settings = NULL,
@@ -100,7 +99,12 @@ spc(
 
   - `"median"`: returns the median value
 
-  - `"count"`: returns the count of values
+  - `"count"`: returns the count of non-missing values
+
+  Defaults to `"sum"` for numerators and denominators, and `"first"`
+  otherwise. Numeric aggregations ignore missing values and preserve
+  all-missing groups. Numerators and denominators are aggregated
+  independently.
 
 - title:
 
@@ -147,7 +151,10 @@ spc(
 - outlier_settings:
 
   Optional list of settings for outliers, see
-  `spc_default_settings('outliers')` for valid options.
+  `spc_default_settings('outliers')` for valid options. Detection
+  switches use the first valid outlier settings after sorting and
+  aggregating keys, separately for each indicator, for both plots and
+  limits.
 
 - nhs_icon_settings:
 
@@ -212,6 +219,8 @@ spc(
   - `"static_plot"`: Non-interactive SVG plot
 
   - `"limits"`: Calculated control limits
+
+  When `indicators` are supplied, `"static_plot"` is omitted by default.
 
 ## Value
 
