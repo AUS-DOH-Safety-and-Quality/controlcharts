@@ -30,6 +30,8 @@
 #'     \item \code{"median"}: returns the median value
 #'     \item \code{"count"}: returns the count of non-missing values
 #'   }
+#' Defaults to \code{"sum"} for numerators and denominators, and
+#' \code{"first"} otherwise.
 #' Numeric aggregations ignore missing values and preserve all-missing groups.
 #' Numerators and denominators are aggregated independently.
 #' @param title Optional title to be added to the top of the chart.
@@ -88,6 +90,7 @@
 #'  \item \code{"static_plot"}: Non-interactive SVG plot
 #'  \item \code{"limits"}: Calculated control limits
 #' }
+#' When `indicators` are supplied, `"static_plot"` is omitted by default.
 #'
 #' @return An object of class \code{controlchart} containing the
 #' interactive plot, static plot, limits, and a function to save the plot.
@@ -103,14 +106,7 @@ spc <- function(data,
                 xbar_sds,
                 tooltips,
                 labels,
-                aggregations = list(
-                  numerators = "sum",
-                  denominators = "sum",
-                  groupings = "first",
-                  xbar_sds = "first",
-                  tooltips = "first",
-                  labels = "first"
-                ),
+                aggregations = NULL,
                 title = NULL,
                 canvas_settings = NULL,
                 spc_settings = NULL,
@@ -149,17 +145,27 @@ spc <- function(data,
     input_data <- data
   }
 
+  # Numeric keys stay numeric, and factor keys send their levels, so the engine can order them
   categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
-  indicator_values <- NULL
+  category_levels <- levels(categories)
+  if (!is.numeric(categories)) {
+    categories <- as.character(categories)
+  }
+  data_raw <- list(
+    crosstalk_identities = crosstalk_identities,
+    categories = categories,
+    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data)
+  )
+  data_raw$category_levels <- category_levels
+
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
-    indicator_values <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
+    data_raw$indicators <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
+    if (missing(return_objs)) {
+      return_objs <- c("html_plot", "limits")
+    }
   }
 
-  ordering_values <- c(indicator_values, list(categories))
-  row_order <- do.call(order, ordering_values)
-
-  # Evaluated against the input order so vector settings align with the rows
   input_settings <- list(
     canvas = rlang::eval_tidy(rlang::enquo(canvas_settings), input_data),
     spc = rlang::eval_tidy(rlang::enquo(spc_settings), input_data),
@@ -172,20 +178,6 @@ spc <- function(data,
     dates = rlang::eval_tidy(rlang::enquo(date_settings), input_data),
     labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
   )
-
-  crosstalk_identities <- crosstalk_identities[row_order]
-  input_data <- input_data[row_order, ]
-
-  categories <- as.character(rlang::eval_tidy(rlang::enquo(keys), input_data))
-  data_raw <- list(
-    crosstalk_identities = crosstalk_identities,
-    categories = categories,
-    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data)
-  )
-
-  if (!is.null(indicator_values)) {
-    data_raw$indicators <- lapply(indicator_values, function(x) x[row_order])
-  }
 
   if (!missing(denominators)) {
     data_raw$denominators <- as.numeric(rlang::eval_tidy(rlang::enquo(denominators), input_data))
@@ -207,7 +199,7 @@ spc <- function(data,
     data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))
   }
 
-  create_controlchart("spc", data_raw, row_order, is_crosstalk, crosstalk_group,
+  create_controlchart("spc", data_raw, is_crosstalk, crosstalk_group,
                       input_settings, aggregations, title, tooltip_settings,
                       width, height, elementId, return_objs)
 }

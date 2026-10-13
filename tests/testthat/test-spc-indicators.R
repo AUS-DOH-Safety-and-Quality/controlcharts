@@ -119,17 +119,13 @@ test_that("SPC indicators retain grouped Crosstalk identities", {
     "makeUpdateValues",
     chart$html_plot$x$data_raw,
     chart$html_plot$x$input_settings,
-    chart$html_plot$x$aggregations,
-    chart$html_plot$x$has_conditional_formatting,
-    chart$html_plot$x$unique_categories
+    chart$html_plot$x$aggregations
   )
   filtered_values <- controlcharts:::ctx$call(
     "makeUpdateValues",
     chart$html_plot$x$data_raw,
     chart$html_plot$x$input_settings,
     chart$html_plot$x$aggregations,
-    chart$html_plot$x$has_conditional_formatting,
-    chart$html_plot$x$unique_categories,
     c("row1", "row2")
   )
 
@@ -148,4 +144,30 @@ test_that("SPC indicators must be row-aligned vectors", {
     spc(dat, keys = month, numerators = numerator, indicators = c("A")),
     "Each indicator"
   )
+})
+
+test_that("Grouped SPC charts reject static plots", {
+  dat <- data.frame(
+    month = rep(as.Date(c("2024-01-01", "2024-02-01")), 2),
+    organisation = rep(c("A", "B"), each = 2),
+    numerator = seq_len(4)
+  )
+
+  expect_error(
+    spc(dat, keys = month, numerators = numerator, indicators = organisation,
+        return_objs = c("static_plot", "limits")),
+    "Static plots are not available for SPC charts with multiple indicator groups.",
+    fixed = TRUE
+  )
+})
+
+test_that("SPC charts with indicators omit static plots by default", {
+  dat <- data.frame(
+    month = rep(as.Date(c("2024-01-01", "2024-02-01")), 2),
+    organisation = rep(c("A", "B"), each = 2),
+    numerator = seq_len(4)
+  )
+
+  chart <- spc(dat, keys = month, numerators = numerator, indicators = organisation)
+  expect_identical(names(chart), c("html_plot", "limits", "save_plot"))
 })

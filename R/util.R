@@ -83,13 +83,12 @@ misc_default_settings <- function(group = NULL) {
   funnel_default_settings(group)
 }
 
-validate_settings <- function(type, input_settings, crosstalk_identities, cat_order) {
+validate_settings <- function(type, input_settings, crosstalk_identities) {
   default_settings <- switch(
     type,
     spc = spc_default_settings(),
     funnel = funnel_default_settings()
   )
-  has_conditional_formatting <- FALSE
   for (group in names(default_settings)) {
     if (!is.null(input_settings[[group]])) {
       valid_settings <- names(default_settings[[group]])
@@ -117,60 +116,23 @@ validate_settings <- function(type, input_settings, crosstalk_identities, cat_or
               "length equal to the number of observations."
             )
           }
-          has_conditional_formatting <- TRUE
-          # Values follow the input rows; identities are already in chart order.
-          # Stored as a list so JS receives an object indexed by identity.
-          input_settings[[group]][[setting_name]] <- lapply(setting_value[cat_order], function(x) x)
+          # Stored as a list so JS receives an object indexed by identity
+          input_settings[[group]][[setting_name]] <- lapply(setting_value, function(x) x)
           names(input_settings[[group]][[setting_name]]) <- crosstalk_identities
         }
       }
     }
   }
-  list(
-    input_settings = input_settings,
-    has_conditional_formatting = has_conditional_formatting
-  )
+  input_settings
 }
 
-validate_aggregations <- function(aggregations, data_raw) {
-  if (is.null(aggregations)) {
-    return(NULL)
+# Calls a JS function that reports invalid input as an error object
+call_js <- function(name, ...) {
+  result <- ctx$call(name, ...)
+  if (!is.null(result$error)) {
+    stop(result$error, call. = FALSE)
   }
-  if (!is.list(aggregations)) {
-    stop("Aggregations must be a list.", call. = FALSE)
-  }
-
-  all_defaults <- list(
-    numerators = "sum",
-    denominators = "sum",
-    groupings = "first",
-    xbar_sds = "first",
-    tooltips = "first",
-    labels = "first"
-  )
-  value_names <- setdiff(
-    names(data_raw),
-    c("categories", "crosstalk_identities", "indicators", "tooltips")
-  )
-  for (value_name in setdiff(value_names, names(all_defaults))) {
-    all_defaults[[value_name]] <- "first"
-  }
-  valid_aggregations <- c("first", "last", "sum", "mean",
-                          "min", "max", "median", "count")
-  for (new_agg in names(aggregations)) {
-    if (!(new_agg %in% names(all_defaults))) {
-      stop("'", new_agg, "' is not a valid variable to aggregate! ",
-           "Valid options are: ", paste0(names(all_defaults), collapse = ", "),
-           ".", call. = FALSE)
-    }
-    if (!(aggregations[[new_agg]] %in% valid_aggregations)) {
-      stop("'", aggregations[[new_agg]], "' is not a valid aggregation! ",
-           "Valid options are: ", paste0(valid_aggregations, collapse = ", "),
-           ".", call. = FALSE)
-    }
-    all_defaults[[new_agg]] <- aggregations[[new_agg]]
-  }
-  all_defaults
+  result
 }
 
 # Named list of character vectors from an argument given as a vector or list of
@@ -217,111 +179,15 @@ normalise_columns <- function(columns_quo, input_data, arg, item) {
   column_values
 }
 
-title_font_size <- function(font_size) {
-  # If the size is provided as `{}px`, extract the numeric values
-  if (is.character(font_size) && grepl("px$", font_size)) {
-    font_size <- as.numeric(gsub("(^\\d+)px", "\\1", font_size))
-  }
-  font_size
-}
-
-title_padding <- function(title) {
-  if (is.null(title$text)) {
-    return(0)
-  }
-  # Return total padding as font size (as rough proxy for text height) and
-  #  y render value
-  padding <- title_font_size(title$font_size) + title$y
-  if (!is.null(title$subtitle)) {
-    padding <- padding + title_font_size(title$subtitle_font_size)
-  }
-  padding
-}
-
-validate_chart_title <- function(title) {
-  # Default chart title settings
-  title_settings <- list(
-    text = NULL,
-    font_size = "16px",
-    font_weight = "bold",
-    font_family = "'Arial', sans-serif",
-    x = "50%",
-    y = 5,
-    text_anchor = "middle",
-    dominant_baseline = "hanging",
-    subtitle = NULL,
-    subtitle_font_size = "12px",
-    subtitle_font_weight = "normal"
-  )
-  if (is.null(title)) {
-    return(title_settings)
-  } else if (is.character(title) && length(title) == 1) {
-    title_settings$text <- title
-  } else if (is.list(title) && any(names(title_settings) %in% names(title))) {
-    for (x in names(title_settings)) {
-      if (!is.null(title[[x]])) {
-        title_settings[[x]] <- title[[x]]
-      }
-    }
-  } else {
-    stop("Invalid title format. It should be either a character string or a ",
-         "list with at least one of the following valid options: ",
-         paste0("'", names(title_settings), "'", collapse = ", "), ".",
-         call. = FALSE)
-  }
-  title_settings
-}
-
-svg_string <- function(svg, width, height) {
-  # Word's SVG renderer ignores dominant-baseline, so position text with dy instead
-  svg <- gsub('dominant-baseline="hanging"', 'dy="0.8em"', svg, fixed = TRUE)
-  svg <- gsub('dominant-baseline="middle"', 'dy="0.35em"', svg, fixed = TRUE)
-  paste0('<svg viewBox="0 0 ', width, " ", height,
-         '" width="', width, 'px" height="', height,
-         'px" xmlns="http://www.w3.org/2000/svg">',
-         '<rect x="0" y="0" width="100%" height="100%" fill="white"/>',
-         svg,
-         "</svg>")
-}
-
-update_static_padding <- function(type, data_views) {
-  data_views[[1]]$categorical$categories[[1]]$objects <- lapply(
-    data_views[[1]]$categorical$categories[[1]]$objects,
-    function(settings) {
-      if (is.null(settings$canvas)) {
-        settings$canvas <- .default_settings_impl(type, "canvas")
-      } else if (is.null(settings$canvas$left_padding)) {
-        settings$canvas <- modifyList(.default_settings_impl(type, "canvas"),
-                                      settings$canvas)
-      }
-      settings$canvas$left_padding <- settings$canvas$left_padding + 50
-      x_axis <- modifyList(.default_settings_impl(type, "x_axis"), as.list(settings$x_axis))
-      pad <- 10 + x_axis$xlimit_tick_size
-      # Rotated tick labels hang further below the axis
-      if (isTRUE(x_axis$xlimit_tick_rotation != 0)) pad <- pad + 15
-      # The funnel visual spaces its x-axis label 20px further from the axis than the SPC visual
-      if (type == "spc" && nzchar(x_axis$xlimit_label)) pad <- pad + 20
-      settings$canvas$lower_padding <- settings$canvas$lower_padding + pad
-      settings
-    }
-  )
-  data_views
-}
-
-create_static <- function(type, data_views, title_settings,
-                          input_settings, width, height,
+create_static <- function(type, data_views, title_settings, width, height,
                           rtn_static = TRUE, rtn_limits = TRUE,
                           rtn_limit_lines = FALSE
                          ) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
-  raw_ret <- ctx$call("updateHeadlessVisual", type, data_views,
-                      title_settings, width, height,
-                      rtn_static, rtn_limits || rtn_limit_lines)
-
-  if ("error" %in% names(raw_ret)) {
-    stop(raw_ret$error, call. = FALSE)
-  }
+  raw_ret <- call_js("updateHeadlessVisual", type, data_views,
+                     title_settings, width, height,
+                     rtn_static, rtn_limits || rtn_limit_lines)
 
   rtn <- list()
   if (rtn_static) {
@@ -339,138 +205,33 @@ create_static <- function(type, data_views, title_settings,
     )
   }
 
-  is_misc <- "miscPoints" %in% names(raw_ret)
-  if (type == "funnel" && !is_misc && (rtn_limits || rtn_limit_lines)) {
-    limit_lines <-
-      lapply(raw_ret$calculatedLimits, function(limit_grp) {
-        limit_grp <- lapply(limit_grp, function(x) {
-          ifelse(is.null(x) || is.nan(x), NA, x)
-        })
-        data.frame(limit_grp)
-      })
-    limit_lines <- do.call(rbind.data.frame, limit_lines)
-    # Remove alt-target column if not used
-    if (is.null(input_settings$lines) ||
-          is.null(input_settings$lines$alt_target)) {
-      limit_lines$alt_target <- NULL
-    }
-    if (rtn_limit_lines) {
-      rtn$limit_lines <- limit_lines
-      names(rtn$limit_lines)[names(limit_lines) == "denominators"] <- "denominator"
+  if (rtn_limit_lines) {
+    rtn$limit_lines <- limits_frame(raw_ret$limitLines)
+  }
+  if (rtn_limits) {
+    rtn$limits <- limits_frame(raw_ret$limits)
+    if (length(raw_ret$indicatorNames) > 0) {
+      attr(rtn$limits, "indicator_names") <- raw_ret$indicatorNames
     }
   }
-
-  if (!rtn_limits) {
-    return(rtn)
-  }
-
-  limits <- NULL
-  if (type == "spc") {
-    make_spc_limits <- function(rows, outlier_settings) {
-      rows <- lapply(rows, function(elem) {
-        if ("table_row" %in% names(elem)) elem$table_row else elem
-      })
-      # Assemble column-wise, as building (and binding) a data frame per row
-      # is orders of magnitude slower for charts with many points
-      keep <- names(rows[[1]])[!vapply(rows[[1]], is.null, logical(1))]
-      cols <- lapply(keep, function(nm) {
-        unlist(lapply(rows, function(row) {
-          value <- row[[nm]]
-          if (is.null(value)) NA else value
-        }), use.names = FALSE)
-      })
-      names(cols) <- keep
-      limits <- list2DF(cols)
-      limits$date <- trimws(limits$date)
-
-      outlier_cols <- c("astronomical", "shift", "trend", "two_in_three")
-      for (pattern in names(outlier_settings)) {
-        if ((pattern %in% outlier_cols) && outlier_settings[[pattern]]) {
-          outlier_cols <- setdiff(outlier_cols, pattern)
-        }
-      }
-      outlier_cols[outlier_cols == "astronomical"] <- "astpoint"
-      limits[, !(names(limits) %in% outlier_cols), drop = FALSE]
-    }
-
-    if (length(raw_ret$indicatorVarNames) == 0) {
-      limits <- make_spc_limits(raw_ret$plotPoints, raw_ret$outlierSettings[[1]])
-    } else {
-      set_nested_limits <- function(x, group_names, group_limits) {
-        group_name <- group_names[1]
-        if (length(group_names) == 1) {
-          x[[group_name]] <- group_limits
-          return(x)
-        }
-        if (is.null(x[[group_name]])) {
-          x[[group_name]] <- list()
-        }
-        x[[group_name]] <- set_nested_limits(x[[group_name]],
-                                              group_names[-1], group_limits)
-        x
-      }
-
-      limits <- list()
-      for (i in seq_along(raw_ret$spcLimitRows)) {
-        group_names <- as.character(raw_ret$groupNames[[i]])
-        group_names[is.na(group_names) | group_names == ""] <- "<blank>"
-        group_limits <- make_spc_limits(raw_ret$spcLimitRows[[i]],
-                                         raw_ret$outlierSettings[[i]])
-        limits <- set_nested_limits(limits, group_names, group_limits)
-      }
-      attr(limits, "indicator_names") <- raw_ret$indicatorVarNames
-    }
-  } else if (is_misc) {
-    values <- lapply(raw_ret$miscPoints, function(obs) {
-      row <- c(list(
-        indicator = obs$indicator,
-        group = obs$group_text,
-        z = obs$z,
-        score = obs$score,
-        three_sigma = obs$three_sigma,
-        numerator = obs$numerator,
-        denominator = obs$x,
-        value = obs$value
-      ), obs$limits)
-      row$denominators <- NULL
-      row <- lapply(row, function(value) {
-        if (is.null(value)) {
-          return(NA_real_)
-        }
-        value
-      })
-      data.frame(row)
-    })
-    limits <- do.call(rbind.data.frame, values)
-  } else if (type == "funnel") {
-    values <- lapply(raw_ret$plotPoints, function(obs) {
-      data.frame(
-        group = obs$group_text,
-        numerator = obs$numerator,
-        denominator = obs$x,
-        value = obs$value,
-        z = obs$z,
-        two_sigma = obs$two_sigma,
-        three_sigma = obs$three_sigma
-      )
-    })
-    values <- do.call(rbind.data.frame, values)
-
-    limits <- merge(values, limit_lines, by.x = "denominator", by.y = "denominators")
-
-    #  Remove columns for any outlier patterns that were not used
-    drop_cols <- c("two_sigma", "three_sigma")
-    outlier_settings <- raw_ret$outlierSettings[[1]]
-    for (pattern in names(outlier_settings)) {
-      if ((pattern %in% drop_cols) && outlier_settings[[pattern]]) {
-        drop_cols <- setdiff(drop_cols, pattern)
-      }
-    }
-    limits <- limits[, !(names(limits) %in% drop_cols), drop = FALSE]
-  }
-
-  rtn$limits <- limits
   rtn
+}
+
+# Rows arrive as unnamed lists, nested within named lists for grouped SPC charts.
+# Assemble column-wise, as binding a data frame per row is orders of magnitude slower
+limits_frame <- function(limits) {
+  if (!is.null(names(limits))) {
+    return(lapply(limits, limits_frame))
+  }
+  columns <- names(limits[[1]])
+  cols <- lapply(columns, function(name) {
+    unlist(lapply(limits, function(row) {
+      value <- row[[name]]
+      if (is.null(value)) NA_real_ else value
+    }), use.names = FALSE)
+  })
+  names(cols) <- columns
+  list2DF(cols)
 }
 
 create_save_function <- function(type, rtn, data_views) {
@@ -511,9 +272,7 @@ create_save_function <- function(type, rtn, data_views) {
     }
     # No change to size, save existing SVG as-is
     if (file_ext == "svg" && (is.null(width) && is.null(height))) {
-      writeLines(svg_string(static_plot$svg, static_plot$width,
-                            static_plot$height),
-                 con = file)
+      writeLines(static_plot$svg, con = file)
       return(invisible(NULL))
     }
     if (!(file_ext %in% c("html", "svg"))) {
@@ -528,7 +287,7 @@ create_save_function <- function(type, rtn, data_views) {
     width <- ifelse(is.null(width), static_plot$width, width)
     height <- ifelse(is.null(height), static_plot$height, height)
 
-    svg <- ctx$call(
+    svg_resized <- ctx$call(
       "updateHeadlessVisual",
       type,
       data_views,
@@ -538,7 +297,6 @@ create_save_function <- function(type, rtn, data_views) {
       TRUE,
       FALSE
     )$svg
-    svg_resized <- svg_string(svg, width, height)
 
     if (file_ext == "svg") {
       writeLines(svg_resized, file)
@@ -560,7 +318,7 @@ create_save_function <- function(type, rtn, data_views) {
   }
 }
 
-create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crosstalk_group,
+create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
                                 input_settings, aggregations, title, tooltip_settings,
                                 width, height, elementId, return_objs) {
   return_objs <- unique(return_objs)
@@ -573,31 +331,18 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
     stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
   }
 
-  input_settings_processed <- validate_settings(type, input_settings,
-                                                data_raw$crosstalk_identities,
-                                                cat_order)
-  input_settings <- input_settings_processed$input_settings
-  has_conditional_formatting <- input_settings_processed$has_conditional_formatting
-  aggregations <- validate_aggregations(aggregations, data_raw)
-  title_settings <- validate_chart_title(title)
-
-  # If rendering a title, adjust the upper padding so that title
-  # does not overlap the chart
-  if (!is.null(title_settings$text)) {
-    if (is.null(input_settings$canvas$upper_padding)) {
-      input_settings$canvas$upper_padding <- .default_settings_impl(type, "canvas")$upper_padding
-    }
-    input_settings$canvas$upper_padding <- input_settings$canvas$upper_padding + title_padding(title_settings)
+  input_settings <- validate_settings(type, input_settings, data_raw$crosstalk_identities)
+  if (!is.null(aggregations) && !is.list(aggregations)) {
+    stop("Aggregations must be a list.", call. = FALSE)
   }
-
-  unique_categories <- unique(data_raw$categories)
+  aggregations <- call_js("chartAggregations", aggregations)$aggregations
+  title_settings <- call_js("chartTitle", title)$settings
 
   rtn_html <- "html_plot" %in% return_objs
   rtn_static <- "static_plot" %in% return_objs
   rtn_limits <- "limits" %in% return_objs
   rtn_limit_lines <- "limit_lines" %in% return_objs
   rtn <- list()
-  update_dataviews <- NULL
   data_views <- NULL
 
   if (rtn_html) {
@@ -615,12 +360,9 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
       widget_data$data_raw <- data_raw
       widget_data$input_settings <- input_settings
       widget_data$aggregations <- aggregations
-      widget_data$has_conditional_formatting <- has_conditional_formatting
-      widget_data$unique_categories <- unique_categories
     } else {
-      widget_data$update_values <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
-                                            has_conditional_formatting, unique_categories)
-      update_dataviews <- widget_data$update_values$dataViews
+      widget_data$update_values <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations)
+      data_views <- widget_data$update_values$dataViews
     }
 
     # Create interactive plot
@@ -640,18 +382,14 @@ create_controlchart <- function(type, data_raw, cat_order, is_crosstalk, crossta
   }
 
   if (rtn_static || rtn_limits || rtn_limit_lines) {
-    if (is.null(update_dataviews)) {
-      update_dataviews <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations,
-                                    has_conditional_formatting, unique_categories)$dataViews
+    if (is.null(data_views)) {
+      data_views <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations)$dataViews
     }
-
-    data_views <- update_static_padding(type, update_dataviews)
 
     static <- create_static(
       type = type,
       data_views = data_views,
       title_settings = title_settings,
-      input_settings = input_settings,
       width = width,
       height = height,
       rtn_static = rtn_static,

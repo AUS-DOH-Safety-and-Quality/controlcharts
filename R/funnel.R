@@ -27,6 +27,8 @@
 #'     \item \code{"median"}: returns the median value
 #'     \item \code{"count"}: returns the count of non-missing values
 #'   }
+#' Defaults to \code{"sum"} for numerators and denominators, and
+#' \code{"first"} otherwise.
 #' Numeric aggregations ignore missing values and preserve all-missing groups.
 #' Numerators and denominators are aggregated independently.
 #' @param title Optional title to be added to the top of the chart.
@@ -101,12 +103,7 @@ funnel <- function(data,
                    indicators = NULL,
                    tooltips,
                    labels,
-                   aggregations = list(
-                     numerators = "sum",
-                     denominators = "sum",
-                     tooltips = "first",
-                     labels = "first"
-                   ),
+                   aggregations = NULL,
                    title = NULL,
                    canvas_settings = NULL,
                    funnel_settings = NULL,
@@ -147,15 +144,25 @@ funnel <- function(data,
     input_data <- data
   }
 
+  # Numeric keys stay numeric, and factor keys send their levels, so the engine can order them
   categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
-  indicator_values <- NULL
+  category_levels <- levels(categories)
+  if (!is.numeric(categories)) {
+    categories <- as.character(categories)
+  }
+  data_raw <- list(
+    crosstalk_identities = crosstalk_identities,
+    categories = categories,
+    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data),
+    denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)
+  )
+  data_raw$category_levels <- category_levels
+
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
-    indicator_values <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
+    data_raw$indicators <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
   }
-  cat_order <- do.call(order, c(indicator_values, list(categories)))
 
-  # Evaluated against the input order so vector settings align with the rows
   input_settings <- list(
     canvas = rlang::eval_tidy(rlang::enquo(canvas_settings), input_data),
     funnel = rlang::eval_tidy(rlang::enquo(funnel_settings), input_data),
@@ -168,20 +175,6 @@ funnel <- function(data,
     labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
   )
 
-  crosstalk_identities <- crosstalk_identities[cat_order]
-  input_data <- input_data[cat_order, ]
-
-  data_raw <- list(
-    crosstalk_identities = crosstalk_identities,
-    categories = as.character(rlang::eval_tidy(rlang::enquo(keys), input_data)),
-    numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data),
-    denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)
-  )
-
-  if (!is.null(indicator_values)) {
-    data_raw$indicators <- lapply(indicator_values, function(x) x[cat_order])
-  }
-
   if (!missing(tooltips)) {
     data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip")
   }
@@ -190,7 +183,7 @@ funnel <- function(data,
     data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))
   }
 
-  create_controlchart("funnel", data_raw, cat_order, is_crosstalk, crosstalk_group,
+  create_controlchart("funnel", data_raw, is_crosstalk, crosstalk_group,
                       input_settings, aggregations, title, tooltip_settings,
                       width, height, elementId, return_objs)
 }

@@ -91,3 +91,15 @@ testthat::test_that("SPC indicators have independent outlier columns", {
     testthat::expect_equal(chart$limits[[indicator]], expected$limits)
   }
 })
+
+testthat::test_that("SPC limit columns include values missing from the first row", {
+  dat <- data.frame(key = seq(as.Date("2024-01-01"), by = "month", length.out = 6),
+                    numerator = c(5, 6, 7, 5, 6, 8))
+  chart <- spc(dat, keys = key, numerators = numerator,
+               line_settings = list(show_alt_target = TRUE,
+                                    alt_target = c(NA, 7, 7, 7, 7, 7)),
+               return_objs = "limits")
+  testthat::expect_identical(names(chart$limits)[1:4],
+                             c("date", "value", "target", "alt_target"))
+  testthat::expect_identical(chart$limits$alt_target, c(NA, 7, 7, 7, 7, 7))
+})

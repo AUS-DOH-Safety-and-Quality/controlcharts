@@ -188,7 +188,7 @@ testthat::test_that("chart text survives static rendering and resized export", {
       misc_settings = list(favourable_label = text),
       x_axis_settings = list(xlimit_label = text), return_objs = objects
     )
-    xml <- xml2::read_xml(paste0("<svg>", chart$static_plot$svg, "</svg>"))
+    xml <- xml2::xml_ns_strip(xml2::read_xml(chart$static_plot$svg))
     for (class in c("misc-y-tick", "chart-title", "chart-subtitle")) {
       node <- xml2::xml_find_first(xml, paste0('.//*[@class="', class, '"]'))
       testthat::expect_identical(xml2::xml_text(node), text, info = class)
@@ -209,7 +209,7 @@ testthat::test_that("chart text survives static rendering and resized export", {
       title = list(text = text, subtitle = text),
       spc_settings = list(chart_type = "i"), return_objs = objects
     )
-    xml <- xml2::read_xml(paste0("<svg>", chart$static_plot$svg, "</svg>"))
+    xml <- xml2::xml_ns_strip(xml2::read_xml(chart$static_plot$svg))
     testthat::expect_identical(
       xml2::xml_text(xml2::xml_find_first(xml, './/*[@class="text-labels"]//text')), text
     )
@@ -228,10 +228,59 @@ testthat::test_that("SPC and funnel line labels scale with their font size", {
         line_settings = list(plot_label_show_target = TRUE, plot_label_size_target = size),
         return_objs = "static_plot"
       )
-      xml <- xml2::read_xml(paste0("<svg>", chart$static_plot$svg, "</svg>"))
+      xml <- xml2::xml_ns_strip(xml2::read_xml(chart$static_plot$svg))
       labels <- xml2::xml_find_all(xml, './/*[@class="linesgroup"]/text[text()]')
       testthat::expect_gt(length(labels), 0)
       testthat::expect_true(all(xml2::xml_attr(labels, "dy") == paste0(size / 4, "px")))
     }
   }
+})
+
+testthat::test_that("minidom parentElement stops at the document", {
+  result <- minidom_eval(r"(
+    const root = document.createElement('div');
+    const child = root.appendChild(document.createElement('span'));
+    return {
+      child: child.parentElement === root,
+      detached: root.parentElement === null,
+      body: document.body.parentElement === document.documentElement,
+      html: document.documentElement.parentElement === null
+    };
+  )")
+  testthat::expect_identical(result, list(
+    child = TRUE, detached = TRUE, body = TRUE, html = TRUE
+  ))
+})
+
+testthat::test_that("minidom selector lists match once per element in document order", {
+  result <- minidom_eval(r"(
+    const root = document.createElement('div');
+    root.className = 'container';
+    document.body.appendChild(root);
+    const first = root.appendChild(document.createElement('span'));
+    first.setAttribute('id', 'first');
+    first.className = 'item selected';
+    const second = root.appendChild(document.createElement('span'));
+    second.setAttribute('id', 'second');
+    second.className = 'other';
+    const third = root.appendChild(document.createElement('div'));
+    third.setAttribute('id', 'third');
+    const matches = root.querySelectorAll('.other, .item, .selected');
+    const ids = [];
+    for (let i = 0; i < matches.length; i++) {
+      ids.push(matches[i].getAttribute('id'));
+    }
+    return {
+      ids: ids,
+      first: root.querySelector('.other,.item').getAttribute('id'),
+      descendant: first.matches('.absent, .container .item'),
+      tag: third.matches('.absent, div'),
+      id: first.matches('#second, #first'),
+      absent: third.matches('.other, .item')
+    };
+  )")
+  testthat::expect_identical(result, list(
+    ids = c("first", "second"), first = "first", descendant = TRUE,
+    tag = TRUE, id = TRUE, absent = FALSE
+  ))
 })

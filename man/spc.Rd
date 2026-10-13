@@ -14,8 +14,7 @@ spc(
   xbar_sds,
   tooltips,
   labels,
-  aggregations = list(numerators = "sum", denominators = "sum", groupings = "first",
-    xbar_sds = "first", tooltips = "first", labels = "first"),
+  aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
   spc_settings = NULL,
@@ -74,6 +73,8 @@ if multiple values are provided for each key. Valid options are:
 \item \code{"median"}: returns the median value
 \item \code{"count"}: returns the count of non-missing values
 }
+Defaults to \code{"sum"} for numerators and denominators, and
+\code{"first"} otherwise.
 Numeric aggregations ignore missing values and preserve all-missing groups.
 Numerators and denominators are aggregated independently.}
 
@@ -147,7 +148,8 @@ Valid values are:
 \item \code{"html_plot"}: Interactive \code{htmlwidgets} plot
 \item \code{"static_plot"}: Non-interactive SVG plot
 \item \code{"limits"}: Calculated control limits
-}}
+}
+When \code{indicators} are supplied, \code{"static_plot"} is omitted by default.}
 }
 \value{
 An object of class \code{controlchart} containing the

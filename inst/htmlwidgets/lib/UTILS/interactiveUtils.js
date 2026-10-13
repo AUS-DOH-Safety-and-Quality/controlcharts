@@ -66,9 +66,9 @@ function makeFactory(chartType) {
 
         // Aggregate the raw data into the format expected by the visual
         updateValues = x.is_crosstalk
-          ? makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories)
+          ? makeUpdateValues(x.data_raw, x.input_settings, x.aggregations)
           : x.update_values;
-        visualUpdateArgs.dataViews = updateValues.dataViews;
+        visualUpdateArgs.dataViews = paddedDataViews(chartType, updateValues.dataViews, titleSettings, false);
 
         // Initialise the dataset linkage for crosstalk highlighting and filtering
         crosstalkSelectionHandle.setGroup(x.crosstalk_group);
@@ -84,8 +84,8 @@ function makeFactory(chartType) {
         // filter the original dataset before re-aggregating and re-rendering the visual
         // (see the `makeUpdateValues` function)
         crosstalkFilterHandle.on("change", function(e) {
-          updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, x.has_conditional_formatting, x.unique_categories, e.value);
-          visualUpdateArgs.dataViews = updateValues.dataViews;
+          updateValues = makeUpdateValues(x.data_raw, x.input_settings, x.aggregations, e.value);
+          visualUpdateArgs.dataViews = paddedDataViews(chartType, updateValues.dataViews, titleSettings, false);
           visualUpdateArgs.type = 2; // Change in data, so recalculate limits
 
           updateVisual();

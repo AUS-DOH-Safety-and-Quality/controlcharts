@@ -12,8 +12,7 @@ funnel(
   indicators = NULL,
   tooltips,
   labels,
-  aggregations = list(numerators = "sum", denominators = "sum", tooltips = "first",
-    labels = "first"),
+  aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
   funnel_settings = NULL,
@@ -66,6 +65,8 @@ Valid options are:
 \item \code{"median"}: returns the median value
 \item \code{"count"}: returns the count of non-missing values
 }
+Defaults to \code{"sum"} for numerators and denominators, and
+\code{"first"} otherwise.
 Numeric aggregations ignore missing values and preserve all-missing groups.
 Numerators and denominators are aggregated independently.}
 
