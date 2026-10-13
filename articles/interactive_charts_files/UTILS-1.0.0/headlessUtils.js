@@ -75,6 +75,26 @@ function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height
   return rtn;
 }
 
+// Validates and processes raw inputs, then renders, for frontends without interactive plots
+function headlessChart(chartType, rawData, inputSettings, aggregations, title, width, height,
+                       rtn_static, rtn_limits) {
+  const settings = chartSettings(chartType, inputSettings, asArray(rawData.categories).length);
+  if (settings.error !== undefined) {
+    return settings;
+  }
+  const chartAggs = chartAggregations(aggregations);
+  if (chartAggs.error !== undefined) {
+    return chartAggs;
+  }
+  const titleSettings = chartTitle(title);
+  if (titleSettings.error !== undefined) {
+    return titleSettings;
+  }
+  const dataViews = makeUpdateValues(rawData, settings.settings, chartAggs.aggregations).dataViews;
+  return updateHeadlessVisual(chartType, dataViews, titleSettings.settings, width, height,
+                              rtn_static, rtn_limits);
+}
+
 // Word's SVG renderer ignores dominant-baseline, so position text with dy instead
 function svgDocument(content, width, height) {
   const body = content

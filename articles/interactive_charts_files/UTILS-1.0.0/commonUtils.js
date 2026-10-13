@@ -113,6 +113,9 @@ const defaultAggregations = {
 const aggregationMethods = ["first", "last", "sum", "mean", "min", "max", "median", "count"];
 
 function chartAggregations(aggregations) {
+  if (aggregations != null && !isPlainObject(aggregations)) {
+    return { error: "Aggregations must be named." };
+  }
   const result = { ...defaultAggregations };
   const names = Object.keys(aggregations ?? {});
   for (let i = 0; i < names.length; i++) {
@@ -135,6 +138,43 @@ function isPlainObject(value) {
 
 function asArray(value) {
   return Array.isArray(value) ? value : [value];
+}
+
+// Settings are validated against the chart defaults, and may give one value per row
+function chartSettings(chartType, inputSettings, rowCount) {
+  const defaults = globalThis[chartType].defaultSettings;
+  const settings = {};
+  const groupNames = Object.keys(inputSettings);
+  for (let i = 0; i < groupNames.length; i++) {
+    const groupName = groupNames[i];
+    const group = inputSettings[groupName];
+    if (group == null) {
+      continue;
+    }
+    if (!Object.hasOwn(defaults, groupName)) {
+      return { error: `'${groupName}' is not a valid settings group. Valid options are: ${Object.keys(defaults).join(", ")}.` };
+    }
+    if (!isPlainObject(group)) {
+      return { error: `Settings in group '${groupName}' must be named.` };
+    }
+    settings[groupName] = {};
+    const names = Object.keys(group);
+    for (let j = 0; j < names.length; j++) {
+      if (!Object.hasOwn(defaults[groupName], names[j])) {
+        const options = Object.keys(defaults[groupName]).join("', '");
+        return { error: `Invalid setting '${names[j]}' in group '${groupName}'. Valid settings are: '${options}'.` };
+      }
+      let value = group[names[j]];
+      if (Array.isArray(value) && value.length === 1) {
+        value = value[0];
+      }
+      if (isPlainObject(value) || (Array.isArray(value) && value.length !== rowCount)) {
+        return { error: `Setting '${names[j]}' in group '${groupName}' must have one value or ${rowCount} values.` };
+      }
+      settings[groupName][names[j]] = value;
+    }
+  }
+  return { settings };
 }
 
 // Missing values last, numbers by value, and text by code point so that order is locale-independent
@@ -177,7 +217,15 @@ function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters
     tooltipColumns[i] = asArray(rawData.tooltips[tooltipNames[i]]);
   }
   const categories = asArray(rawData.categories);
-  const crosstalkIdentities = asArray(rawData.crosstalk_identities);
+  // Rows without Crosstalk keys are identified by position
+  let crosstalkIdentities = rawData.crosstalk_identities;
+  if (crosstalkIdentities == null) {
+    crosstalkIdentities = new Array(categories.length);
+    for (let i = 0; i < categories.length; i++) {
+      crosstalkIdentities[i] = String(i + 1);
+    }
+  }
+  crosstalkIdentities = asArray(crosstalkIdentities);
   // Categories with levels (e.g., R factors) are ordered by level rather than value
   let categoryOrder = categories;
   if (rawData.category_levels != null) {
@@ -259,7 +307,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters
     });
   }
 
-  // Settings given per row arrive as objects keyed by crosstalk identity
+  // Settings given per row arrive as arrays, and each group takes the value of its first row
   const settingGroupNames = [];
   const settingGroupEntries = [];
   let conditional = false;
@@ -271,7 +319,7 @@ function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters
     }
     const entries = Object.entries(settingGroup);
     for (let j = 0; j < entries.length; j++) {
-      conditional ||= isPlainObject(entries[j][1]);
+      conditional ||= Array.isArray(entries[j][1]);
     }
     settingGroupNames.push(inputGroupNames[i]);
     settingGroupEntries.push(entries);
@@ -297,8 +345,8 @@ function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters
         const groupClone = {};
         for (let j = 0; j < settingGroupEntries[i].length; j++) {
           const settingValue = settingGroupEntries[i][j][1];
-          groupClone[settingGroupEntries[i][j][0]] = isPlainObject(settingValue)
-            ? settingValue[groupIdentities[0]]
+          groupClone[settingGroupEntries[i][j][0]] = Array.isArray(settingValue)
+            ? settingValue[group.rows[0]]
             : settingValue;
         }
         settingsClone[settingGroupNames[i]] = groupClone;
