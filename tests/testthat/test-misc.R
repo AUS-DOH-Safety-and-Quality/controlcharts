@@ -27,6 +27,10 @@ test_that("MISC delegates raw indicator data to funnel calculations", {
     outlier_settings = list(improvement_direction = direction),
     return_objs = "limits"
   )
+  expect_identical(names(chart$limits), c(
+    "indicator", "group", "z", "score", "three_sigma", "numerator", "denominator",
+    "value", "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"
+  ))
 
   for (indicator_name in unique(dat$indicator)) {
     rows <- dat$indicator == indicator_name
@@ -111,7 +115,7 @@ testthat::test_that("MISC renders are independent across charts and export sizes
   )
   testthat::expect_identical(
     paste(readLines(output), collapse = "\n"),
-    controlcharts:::svg_string(resized$static_plot$svg, 720, 480)
+    resized$static_plot$svg
   )
 })
 

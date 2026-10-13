@@ -17,11 +17,15 @@ export(spc)
 export(spcOutput)
 export(spc_default_settings)
 importFrom(QuickJSR,JSContext)
-importFrom(crosstalk,crosstalkLibs)
-importFrom(crosstalk,is.SharedData)
-importFrom(htmlwidgets,createWidget)
-importFrom(htmlwidgets,saveWidget)
-importFrom(htmlwidgets,shinyRenderWidget)
-importFrom(htmlwidgets,shinyWidgetOutput)
+importFrom(crosstalk,
+  crosstalkLibs,
+  is.SharedData
+)
+importFrom(htmlwidgets,
+  createWidget,
+  saveWidget,
+  shinyRenderWidget,
+  shinyWidgetOutput
+)
 importFrom(jsutils,js_versions)
 importFrom(utils,modifyList)

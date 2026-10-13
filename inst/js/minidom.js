@@ -204,6 +204,12 @@ var minidom = (function() {
     }
   });
 
+  Object.defineProperty(Element.prototype, 'parentElement', {
+    get: function() {
+      return this.parentNode && this.parentNode.nodeType === 1 ? this.parentNode : null;
+    }
+  });
+
   Object.defineProperty(Element.prototype, 'children', {
     get: function() {
       const children = [];

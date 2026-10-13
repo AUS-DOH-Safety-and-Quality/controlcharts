@@ -2,7 +2,7 @@ test_that("static charts embed PDF graphics for LaTeX and SVG for Word", {
   skip_if_not_installed("knitr")
   skip_if_not_installed("rsvg")
   chart <- structure(list(static_plot = structure(list(
-    svg = '<circle cx="50" cy="50" r="20" fill="blue"/>',
+    svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="20" fill="blue"/></svg>',
     width = 100, height = 100
   ), class = "static_plot")), class = "controlchart")
 

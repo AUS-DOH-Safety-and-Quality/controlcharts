@@ -11,7 +11,7 @@ print.controlchart <- function(x, ...) {
 print.static_plot <- function(x, ...) {
   viewer <- getOption("viewer")
   tmp <- tempfile(fileext = ".svg")
-  cat(svg_string(x$svg, x$width, x$height), file = tmp)
+  cat(x$svg, file = tmp)
   # If the viewer is set, display the SVG in it
   if (!is.null(viewer) && is.function(viewer)) {
     viewer(tmp)
@@ -42,14 +42,14 @@ knit_print.static_plot <- function(x, ...) {
              call. = FALSE)
       }
       rsvg::rsvg_pdf(
-        charToRaw(svg_string(x$svg, x$width, x$height)),
+        charToRaw(x$svg),
         file = tmp,
         # Scale up the SVG for better resolution in PDF
         width = x$width * 3,
         height = x$height * 3
       )
     } else {
-      cat(svg_string(x$svg, x$width, x$height), file = tmp)
+      cat(x$svg, file = tmp)
     }
   })
   knitr::include_graphics(tmp)

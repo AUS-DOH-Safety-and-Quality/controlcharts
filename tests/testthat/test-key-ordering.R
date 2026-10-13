@@ -46,11 +46,14 @@ test_that("Crosstalk raw data follows numeric key ordering", {
   for (chart_fun in list(spc, funnel)) {
     chart <- chart_fun(shared, keys = key, numerators = numerator,
                        denominators = denominator, return_objs = "html_plot")
-    raw <- chart$html_plot$x$data_raw
+    x <- chart$html_plot$x
+    values <- controlcharts:::ctx$call("makeUpdateValues", x$data_raw,
+                                       x$input_settings, x$aggregations)
+    categorical <- values$dataViews[[1]]$categorical
 
-    expect_equal(raw$categories, c("1", "2", "10"))
-    expect_equal(raw$numerators, c(10, 20, 30))
-    expect_equal(raw$crosstalk_identities, c("first", "middle", "last"))
+    expect_equal(categorical$categories[[1]]$values, c("1", "2", "10"))
+    expect_equal(categorical$values[[1]]$values, c(10, 20, 30))
+    expect_equal(unname(unlist(values$crosstalk_identities)), c("first", "middle", "last"))
   }
 })
 

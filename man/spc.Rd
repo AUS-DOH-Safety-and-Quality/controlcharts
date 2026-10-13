@@ -14,8 +14,7 @@ spc(
   xbar_sds,
   tooltips,
   labels,
-  aggregations = list(numerators = "sum", denominators = "sum", groupings = "first",
-    xbar_sds = "first", tooltips = "first", labels = "first"),
+  aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
   spc_settings = NULL,
@@ -72,8 +71,12 @@ if multiple values are provided for each key. Valid options are:
 \item \code{"min"}: returns the minimum value
 \item \code{"max"}: returns the maximum value
 \item \code{"median"}: returns the median value
-\item \code{"count"}: returns the count of values
-}}
+\item \code{"count"}: returns the count of non-missing values
+}
+Defaults to \code{"sum"} for numerators and denominators, and
+\code{"first"} otherwise.
+Numeric aggregations ignore missing values and preserve all-missing groups.
+Numerators and denominators are aggregated independently.}
 
 \item{title}{Optional title to be added to the top of the chart.
 It can be a character string for the title text only, or a list with
@@ -103,7 +106,9 @@ see \code{spc_default_settings('canvas')} for valid options.}
 see \code{spc_default_settings('spc')} for valid options.}
 
 \item{outlier_settings}{Optional list of settings for outliers,
-see \code{spc_default_settings('outliers')} for valid options.}
+see \code{spc_default_settings('outliers')} for valid options.
+Detection switches use the first valid outlier settings after sorting and
+aggregating keys, separately for each indicator, for both plots and limits.}
 
 \item{nhs_icon_settings}{Optional list of settings for NHS icons,
 see \code{spc_default_settings('nhs_icons')} for valid options.}
@@ -143,7 +148,8 @@ Valid values are:
 \item \code{"html_plot"}: Interactive \code{htmlwidgets} plot
 \item \code{"static_plot"}: Non-interactive SVG plot
 \item \code{"limits"}: Calculated control limits
-}}
+}
+When \code{indicators} are supplied, \code{"static_plot"} is omitted by default.}
 }
 \value{
 An object of class \code{controlchart} containing the
