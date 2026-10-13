@@ -83,49 +83,6 @@ misc_default_settings <- function(group = NULL) {
   funnel_default_settings(group)
 }
 
-validate_settings <- function(type, input_settings, crosstalk_identities) {
-  default_settings <- switch(
-    type,
-    spc = spc_default_settings(),
-    funnel = funnel_default_settings()
-  )
-  for (group in names(default_settings)) {
-    if (!is.null(input_settings[[group]])) {
-      valid_settings <- names(default_settings[[group]])
-      invalid_settings <- setdiff(names(input_settings[[group]]),
-                                  valid_settings)
-      if (length(invalid_settings) > 0) {
-        stop(
-          "Invalid settings in group '", group, "': ",
-          paste0("'", invalid_settings, "'", collapse = ", "),
-          ".\nValid settings are: ",
-          paste0("'", valid_settings, "'", collapse = ", "), "."
-        )
-      }
-
-      # Check that length of vector settings matches number of categories
-      for (setting_name in names(input_settings[[group]])) {
-        setting_value <- input_settings[[group]][[setting_name]]
-        if (length(setting_value) > 1) {
-          if (length(setting_value) != length(crosstalk_identities)) {
-            stop(
-              "Setting '", setting_name, "' in group '", group,
-              "' has length ", length(setting_value),
-              " but there are ", length(crosstalk_identities), " observations. ",
-              "Either provide a single value or a vector of ",
-              "length equal to the number of observations."
-            )
-          }
-          # Stored as a list so JS receives an object indexed by identity
-          input_settings[[group]][[setting_name]] <- lapply(setting_value, function(x) x)
-          names(input_settings[[group]][[setting_name]]) <- crosstalk_identities
-        }
-      }
-    }
-  }
-  input_settings
-}
-
 # Calls a JS function that reports invalid input as an error object
 call_js <- function(name, ...) {
   result <- ctx$call(name, ...)
@@ -331,10 +288,8 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
     stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
   }
 
-  input_settings <- validate_settings(type, input_settings, data_raw$crosstalk_identities)
-  if (!is.null(aggregations) && !is.list(aggregations)) {
-    stop("Aggregations must be a list.", call. = FALSE)
-  }
+  input_settings <- call_js("chartSettings", type, input_settings,
+                            length(data_raw$categories))$settings
   aggregations <- call_js("chartAggregations", aggregations)$aggregations
   title_settings <- call_js("chartTitle", title)$settings
 

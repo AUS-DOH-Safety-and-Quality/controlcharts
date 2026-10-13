@@ -140,7 +140,7 @@ spc <- function(data,
     crosstalk_group <- data$groupName()
     input_data <- data$origData()
   } else {
-    crosstalk_identities <- as.character(seq_len(nrow(data)))
+    crosstalk_identities <- NULL
     crosstalk_group <- NULL
     input_data <- data
   }
@@ -152,11 +152,11 @@ spc <- function(data,
     categories <- as.character(categories)
   }
   data_raw <- list(
-    crosstalk_identities = crosstalk_identities,
     categories = categories,
     numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data)
   )
   data_raw$category_levels <- category_levels
+  data_raw$crosstalk_identities <- crosstalk_identities
 
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
