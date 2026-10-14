@@ -100,6 +100,9 @@ var ccCore = (function (exports) {
         return `"${text.replace(/"/g, "\"\"")}"`;
     }
     function toCsv(rows) {
+        if (rows.length === 0) {
+            return "";
+        }
         const columns = Object.keys(rows[0]);
         const lines = new Array(rows.length + 1);
         const header = new Array(columns.length);
@@ -117,18 +120,9 @@ var ccCore = (function (exports) {
         return lines.join("\n");
     }
 
-    function keptPositions(messages) {
-        const kept = [];
-        for (let i = 0; i < messages.length; i++) {
-            if (messages[i] === "") {
-                kept.push(i);
-            }
-        }
-        return kept;
-    }
     function validateRows(count, rules) {
         const messages = new Array(count);
-        let anyValid = false;
+        const kept = [];
         let sameRule = true;
         let firstRule = -1;
         for (let i = 0; i < count; i++) {
@@ -141,7 +135,7 @@ var ccCore = (function (exports) {
             }
             messages[i] = failed === -1 ? "" : rules[failed].message;
             if (failed === -1) {
-                anyValid = true;
+                kept.push(i);
             }
             if (i === 0) {
                 firstRule = failed;
@@ -150,22 +144,61 @@ var ccCore = (function (exports) {
                 sameRule = false;
             }
         }
-        if (anyValid) {
-            return { status: 0, messages };
+        if (kept.length > 0) {
+            return { status: 0, messages, kept };
         }
-        return { status: 1, messages, error: sameRule ? rules[firstRule].all : "No valid data found!" };
+        return { status: 1, messages, error: sameRule && count > 0 ? rules[firstRule].all : "No valid data found!" };
     }
 
+    function keptValue(values, position) {
+        const value = values?.[position];
+        if (value === undefined) {
+            throw new Error("Validated row contains a missing value.");
+        }
+        return value;
+    }
     function keptValues(values, kept) {
         const result = new Array(kept.length);
         for (let i = 0; i < kept.length; i++) {
-            const value = values[kept[i]];
-            if (value === undefined) {
-                throw new Error("Validated row contains a missing value.");
-            }
-            result[i] = value;
+            result[i] = keptValue(values, kept[i]);
         }
         return result;
+    }
+
+    const quantity = {
+        numerator: { name: "Numerator", plural: "numerators" },
+        denominator: { name: "Denominator", plural: "denominators" }
+    };
+    function valueAt(values, index) {
+        return values?.[index] ?? NaN;
+    }
+    function missingRule(values, named) {
+        return {
+            fails: i => isNullOrUndefined(values?.[i]),
+            message: `${named.name} missing`,
+            all: `All ${named.plural} are missing or null!`
+        };
+    }
+    function nanRule(values, named) {
+        return {
+            fails: i => Number.isNaN(valueAt(values, i)),
+            message: `${named.name} is not a number`,
+            all: `All ${named.plural} are not numbers!`
+        };
+    }
+    function negativeRule(values, named) {
+        return {
+            fails: i => valueAt(values, i) < 0,
+            message: `${named.name} negative`,
+            all: `All ${named.plural} are negative!`
+        };
+    }
+    function ratioRule(numerators, denominators) {
+        return {
+            fails: i => valueAt(denominators, i) < valueAt(numerators, i),
+            message: "Denominator < numerator",
+            all: "All denominators are smaller than numerators!"
+        };
     }
 
     function deriveScaling(settings, options) {
@@ -176,6 +209,808 @@ var ccCore = (function (exports) {
             percentLabels,
             formatValue: createValueFormatter(settings.sig_figs, options.wholeCounts ? 0 : settings.sig_figs, percentLabels ? "%" : "")
         };
+    }
+
+    const FormattingComponent = {
+        AlignmentGroup: "AlignmentGroup",
+        ColorPicker: "ColorPicker",
+        Dropdown: "Dropdown",
+        FontPicker: "FontPicker",
+        NumUpDown: "NumUpDown",
+        TextInput: "TextInput",
+        ToggleSwitch: "ToggleSwitch"
+    };
+    const defaultColours = {
+        improvement: "#00B0F0",
+        deterioration: "#E46C0A",
+        neutral_low: "#490092",
+        neutral_high: "#490092",
+        common_cause: "#A6A6A6",
+        limits: "#6495ED",
+        standard: "#000000",
+        lightgray: "#D3D3D3",
+        white: "#FFFFFF"
+    };
+    function numberOption(displayName, description, defaultValue, minMax) {
+        const result = {
+            displayName,
+            description,
+            type: FormattingComponent.NumUpDown,
+            default: defaultValue
+        };
+        if (minMax !== undefined) {
+            const min = minMax.min ?? minMax.above;
+            const max = minMax.max ?? minMax.below;
+            if (min !== undefined || max !== undefined) {
+                result.options = {};
+                if (min !== undefined) {
+                    result.options.minValue = { value: min };
+                }
+                if (max !== undefined) {
+                    result.options.maxValue = { value: max };
+                }
+            }
+            if (minMax.above !== undefined) {
+                result.exclusiveMin = true;
+            }
+            if (minMax.below !== undefined) {
+                result.exclusiveMax = true;
+            }
+            if (minMax.integer) {
+                result.integer = true;
+            }
+        }
+        return result;
+    }
+    function describeRange(setting, kind) {
+        const min = setting.options?.minValue?.value;
+        const max = setting.options?.maxValue?.value;
+        if (min !== undefined && max !== undefined && !setting.exclusiveMin && !setting.exclusiveMax) {
+            return `${kind} from ${min} to ${max}`;
+        }
+        const bounds = [];
+        if (min !== undefined) {
+            bounds.push(`${setting.exclusiveMin ? "above" : "at least"} ${min}`);
+        }
+        if (max !== undefined) {
+            bounds.push(`${setting.exclusiveMax ? "below" : "at most"} ${max}`);
+        }
+        return bounds.length === 0 ? kind : `${kind}, ${bounds.join(" and ")}`;
+    }
+    function toggleOption(displayName, description, defaultValue) {
+        return {
+            displayName: displayName,
+            description,
+            type: FormattingComponent.ToggleSwitch,
+            default: defaultValue
+        };
+    }
+    function paddingOption(displayName, description) {
+        return numberOption(displayName, description, 10);
+    }
+    function colourOption(displayName, description, type) {
+        return {
+            displayName: displayName,
+            description,
+            type: FormattingComponent.ColorPicker,
+            default: defaultColours[type]
+        };
+    }
+    function fontOption(displayName, description) {
+        return {
+            displayName: displayName,
+            description,
+            type: FormattingComponent.FontPicker,
+            default: "'Arial', sans-serif",
+            valid: [
+                "'Arial', sans-serif",
+                "Arial",
+                "'Arial Black'",
+                "'Arial Unicode MS'",
+                "Calibri",
+                "Cambria",
+                "'Cambria Math'",
+                "Candara",
+                "'Comic Sans MS'",
+                "Consolas",
+                "Constantia",
+                "Corbel",
+                "'Courier New'",
+                "wf_standard-font, helvetica, arial, sans-serif",
+                "wf_standard-font_light, helvetica, arial, sans-serif",
+                "Georgia",
+                "'Lucida Sans Unicode'",
+                "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
+                "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
+                "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
+                "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
+                "Symbol",
+                "Tahoma",
+                "'Times New Roman'",
+                "'Trebuchet MS'",
+                "Verdana",
+                "Wingdings"
+            ]
+        };
+    }
+    function fontSizeOption(displayName, description) {
+        return numberOption(displayName, description, 10, { min: 0, max: 100 });
+    }
+    const valueTransforms = {
+        none: (value) => value,
+        sentence: (value) => value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
+    };
+    function dropdownOption(displayName, description, defaultValue, validValues, displayTransform = "none", displayNames) {
+        const valid = new Array(validValues.length);
+        const items = new Array(validValues.length);
+        const transform = valueTransforms[displayTransform];
+        for (let i = 0; i < validValues.length; i++) {
+            const value = validValues[i];
+            valid[i] = value;
+            items[i] = { displayName: displayNames === undefined ? transform(value) : displayNames[i], value };
+        }
+        return {
+            displayName,
+            description,
+            type: FormattingComponent.Dropdown,
+            default: defaultValue,
+            valid,
+            items
+        };
+    }
+    function lineTypeOption(displayName, description, defaultValue) {
+        return dropdownOption(displayName, description, defaultValue, ["10 0", "10 10", "2 5"], "none", ["Solid", "Dashed", "Dotted"]);
+    }
+    function textOption(displayName, description, defaultValue) {
+        return {
+            displayName: displayName,
+            description,
+            type: FormattingComponent.TextInput,
+            default: defaultValue
+        };
+    }
+    function lineLabelPositionOption() {
+        return dropdownOption("Position of Value on Line(s)", "Where the value sits at the line's end. Outside is below lower limits and above other lines; inside is the reverse.", "beside", ["outside", "inside", "above", "below", "beside"], "sentence");
+    }
+    const borderStyles = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"];
+    function borderStyleOption(displayName, description, defaultValue = "solid") {
+        return dropdownOption(displayName, description, defaultValue, borderStyles, "sentence");
+    }
+    function borderWidthOption(displayName, description) {
+        return numberOption(displayName, description, 1, { min: 0, max: 100 });
+    }
+    function alignmentOption(displayName, description) {
+        return {
+            displayName: displayName,
+            description,
+            type: FormattingComponent.AlignmentGroup,
+            default: "center",
+            valid: ["center", "left", "right"]
+        };
+    }
+    const fontWeights = ["normal", "bold", "bolder", "lighter"];
+    function fontWeightOption(displayName, description, defaultValue = "normal") {
+        return dropdownOption(displayName, description, defaultValue, fontWeights, "sentence");
+    }
+    function fontStyleOption(displayName, description) {
+        return dropdownOption(displayName, description, "normal", ["normal", "italic"], "sentence");
+    }
+    function textTransformOption(displayName, description) {
+        return dropdownOption(displayName, description, "none", ["uppercase", "lowercase", "capitalize", "none"], "sentence");
+    }
+    function defineCard(definition) {
+        const card = { ...definition };
+        const groups = Object.keys(card.settingsGroups);
+        for (let i = 0; i < groups.length; i++) {
+            const group = card.settingsGroups[groups[i]];
+            const names = Object.keys(group);
+            for (let j = 0; j < names.length; j++) {
+                const name = names[j];
+                Object.defineProperty(card, name, { get: () => group[name] });
+            }
+        }
+        return card;
+    }
+    function groupDisplayName(card, groupName) {
+        return groupName === "all" ? card.displayName : groupName;
+    }
+    function createDefaultValues(schema) {
+        const values = {};
+        const cards = Object.keys(schema);
+        for (let i = 0; i < cards.length; i++) {
+            const name = cards[i];
+            const groups = schema[name].settingsGroups;
+            const groupNames = Object.keys(groups);
+            const defaults = {};
+            for (let j = 0; j < groupNames.length; j++) {
+                const definitions = groups[groupNames[j]];
+                const names = Object.keys(definitions);
+                for (let k = 0; k < names.length; k++) {
+                    const setting = names[k];
+                    defaults[setting] = definitions[setting].default;
+                }
+            }
+            values[name] = defaults;
+        }
+        return values;
+    }
+
+    const charts = new Map();
+    function registerChart(name, chart) {
+        charts.set(name, { ...chart, defaultSettings: createDefaultValues(chart.settingsModel) });
+    }
+    function frontendChart(name) {
+        const chart = charts.get(name);
+        if (chart === undefined) {
+            throw new Error(`Unknown chart type '${name}'.`);
+        }
+        return chart;
+    }
+    function chartNames() {
+        return Array.from(charts.keys());
+    }
+
+    function selectionId(keys) {
+        return { keys, getKey: () => JSON.stringify(keys) };
+    }
+    function ignore() { }
+    function constructorOptions(element, services) {
+        const host = {
+            createSelectionManager: () => services.selectionManager,
+            createSelectionIdBuilder: () => {
+                let keys = [];
+                const builder = {
+                    withCategory: (category, index) => {
+                        keys = services.rowKeys(category, index);
+                        return builder;
+                    },
+                    createSelectionId: () => selectionId(keys)
+                };
+                return builder;
+            },
+            tooltipService: services.tooltipService,
+            eventService: {
+                renderingStarted: ignore,
+                renderingFailed: ignore,
+                renderingFinished: ignore
+            },
+            colorPalette: {
+                isHighContrast: false,
+                foreground: { value: "black" },
+                background: { value: "white" },
+                foregroundSelected: { value: "black" },
+                hyperlink: { value: "blue" }
+            },
+            hostCapabilities: {
+                allowInteractions: true
+            },
+            displayWarningIcon: (hoverText, detailedText) => {
+                console.log(hoverText, detailedText);
+            }
+        };
+        return { element, host: host };
+    }
+
+    function isArray(value) {
+        return Array.isArray(value);
+    }
+    function asArray(value) {
+        return isArray(value) ? value : [value];
+    }
+    function isMissing(value) {
+        return value == null || Number.isNaN(value);
+    }
+    function isPlainObject(value) {
+        return Object.prototype.toString.call(value) === "[object Object]";
+    }
+    function hasOwn(object, key) {
+        return Object.prototype.hasOwnProperty.call(object, key);
+    }
+    function limitValue(value) {
+        return value === undefined || Number.isNaN(value) ? null : value;
+    }
+
+    const aggregationMethods = ["first", "last", "sum", "mean", "min", "max", "median", "count"];
+    const valueRoles = ["numerators", "denominators", "groupings", "xbar_sds", "labels"];
+    const defaultAggregations = {
+        numerators: "sum",
+        denominators: "sum",
+        groupings: "first",
+        xbar_sds: "first",
+        tooltips: "first",
+        labels: "first"
+    };
+    function isAggregationMethod(value) {
+        for (let i = 0; i < aggregationMethods.length; i++) {
+            if (aggregationMethods[i] === value) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function isAggregatedRole(name) {
+        return hasOwn(defaultAggregations, name);
+    }
+    function aggregateColumn(column, aggregation) {
+        if (aggregation === "first") {
+            return column[0];
+        }
+        if (aggregation === "last") {
+            return column[column.length - 1];
+        }
+        const values = [];
+        let sum = 0;
+        for (let i = 0; i < column.length; i++) {
+            const value = column[i];
+            if (!isMissing(value)) {
+                values.push(Number(value));
+                sum += Number(value);
+            }
+        }
+        if (values.length === 0) {
+            return null;
+        }
+        switch (aggregation) {
+            case "sum":
+                return sum;
+            case "mean":
+                return sum / values.length;
+            case "count":
+                return values.length;
+            case "min":
+                return Math.min(...values);
+            case "max":
+                return Math.max(...values);
+            case "median": {
+                values.sort((a, b) => a - b);
+                const mid = Math.floor(values.length / 2);
+                return values.length % 2 !== 0 ? values[mid] : (values[mid - 1] + values[mid]) / 2;
+            }
+        }
+    }
+    function chartAggregations(aggregations) {
+        if (aggregations != null && !isPlainObject(aggregations)) {
+            return { error: "Aggregations must be named." };
+        }
+        const result = { ...defaultAggregations };
+        const names = Object.keys(aggregations ?? {});
+        for (let i = 0; i < names.length; i++) {
+            const name = names[i];
+            const method = aggregations?.[name];
+            if (!isAggregatedRole(name)) {
+                const options = Object.keys(defaultAggregations).join(", ");
+                return { error: `'${name}' is not a valid variable to aggregate. Valid options are: ${options}.` };
+            }
+            if (!isAggregationMethod(method)) {
+                return { error: `'${String(method)}' is not a valid aggregation. Valid options are: ${aggregationMethods.join(", ")}.` };
+            }
+            result[name] = method;
+        }
+        return { aggregations: result };
+    }
+
+    function isConstant(card, name) {
+        const groupNames = Object.keys(card.settingsGroups);
+        for (let i = 0; i < groupNames.length; i++) {
+            const group = card.settingsGroups[groupNames[i]];
+            if (hasOwn(group, name)) {
+                return group[name].constant === true;
+            }
+        }
+        return false;
+    }
+    function chartSettings(chartType, inputSettings, rowCount) {
+        const chart = frontendChart(chartType);
+        const defaults = chart.defaultSettings;
+        const settings = {};
+        const groupNames = Object.keys(inputSettings);
+        for (let i = 0; i < groupNames.length; i++) {
+            const groupName = groupNames[i];
+            const group = inputSettings[groupName];
+            if (group == null) {
+                continue;
+            }
+            if (!hasOwn(defaults, groupName)) {
+                return { error: `'${groupName}' is not a valid settings group. Valid options are: ${Object.keys(defaults).join(", ")}.` };
+            }
+            if (!isPlainObject(group)) {
+                return { error: `Settings in group '${groupName}' must be named.` };
+            }
+            const groupDefaults = defaults[groupName];
+            const groupSettings = {};
+            const names = Object.keys(group);
+            for (let j = 0; j < names.length; j++) {
+                if (!hasOwn(groupDefaults, names[j])) {
+                    const options = Object.keys(groupDefaults).join("', '");
+                    return { error: `Invalid setting '${names[j]}' in group '${groupName}'. Valid settings are: '${options}'.` };
+                }
+                let value = group[names[j]];
+                if (isArray(value) && value.length === 1) {
+                    value = value[0];
+                }
+                if (isArray(value) && isConstant(chart.settingsModel[groupName], names[j])) {
+                    return { error: `Setting '${names[j]}' in group '${groupName}' must have one value.` };
+                }
+                if (isPlainObject(value) || (isArray(value) && value.length !== rowCount)) {
+                    return { error: `Setting '${names[j]}' in group '${groupName}' must have one value or ${rowCount} values.` };
+                }
+                groupSettings[names[j]] = value;
+            }
+            settings[groupName] = groupSettings;
+        }
+        return { settings };
+    }
+
+    const defaultTitleSettings = {
+        text: null,
+        font_size: "16px",
+        font_weight: "bold",
+        font_family: "'Arial', sans-serif",
+        x: "50%",
+        y: 5,
+        text_anchor: "middle",
+        dominant_baseline: "hanging",
+        subtitle: null,
+        subtitle_font_size: "12px",
+        subtitle_font_weight: "normal"
+    };
+    function isTitleName(name) {
+        return hasOwn(defaultTitleSettings, name);
+    }
+    function chartTitle(title) {
+        const settings = { ...defaultTitleSettings };
+        if (typeof title === "string") {
+            settings.text = title;
+            return { settings };
+        }
+        let valid = title == null || isPlainObject(title);
+        const named = isPlainObject(title) ? title : {};
+        const names = Object.keys(named);
+        for (let i = 0; i < names.length && valid; i++) {
+            const name = names[i];
+            const value = named[name];
+            if (!isTitleName(name) || (value != null && typeof value !== "string" && typeof value !== "number")) {
+                valid = false;
+            }
+            else if (value != null) {
+                settings[name] = value;
+            }
+        }
+        if (!valid) {
+            const options = Object.keys(defaultTitleSettings).join("', '");
+            return { error: `The title must be a string, or named settings from: '${options}'.` };
+        }
+        return { settings };
+    }
+    function titleHeight(settings) {
+        if (settings.text === null) {
+            return 0;
+        }
+        let height = parseFloat(String(settings.font_size)) + Number(settings.y);
+        if (settings.subtitle !== null) {
+            height += parseFloat(String(settings.subtitle_font_size));
+        }
+        return height;
+    }
+    function updateChartTitle(svg, settings) {
+        svg.selectAll(".chart-title, .chart-subtitle").remove();
+        if (settings.text === null) {
+            return;
+        }
+        svg.append("text")
+            .classed("chart-title", true)
+            .attr("x", settings.x)
+            .attr("y", settings.y)
+            .attr("text-anchor", settings.text_anchor)
+            .attr("dominant-baseline", settings.dominant_baseline)
+            .attr("font-size", settings.font_size)
+            .attr("font-weight", settings.font_weight)
+            .attr("font-family", settings.font_family)
+            .text(settings.text);
+        if (settings.subtitle !== null) {
+            svg.append("text")
+                .classed("chart-subtitle", true)
+                .attr("x", settings.x)
+                .attr("y", Number(settings.y) + parseFloat(String(settings.font_size)))
+                .attr("text-anchor", settings.text_anchor)
+                .attr("dominant-baseline", settings.dominant_baseline)
+                .attr("font-size", settings.subtitle_font_size)
+                .attr("font-weight", settings.subtitle_font_weight)
+                .attr("font-family", settings.font_family)
+                .text(settings.subtitle);
+        }
+    }
+
+    function indexColumnsByRole(columns) {
+        const result = Object.create(null);
+        for (let i = 0; i < columns.length; i++) {
+            const column = columns[i];
+            const roles = column.source.roles;
+            if (roles === undefined) {
+                continue;
+            }
+            const names = Object.keys(roles);
+            for (let j = 0; j < names.length; j++) {
+                const name = names[j];
+                if (!roles[name]) {
+                    continue;
+                }
+                (result[name] ?? (result[name] = [])).push(column);
+            }
+        }
+        return result;
+    }
+    function formatPrimitiveValue(value) {
+        return value == null ? undefined : String(value);
+    }
+    function readNumbers(column, rows) {
+        const numbers = new Array(rows.length);
+        for (let i = 0; i < rows.length; i++) {
+            const value = column.values[rows[i]];
+            numbers[i] = value == null || value === "" ? undefined : Number(value);
+        }
+        return numbers;
+    }
+
+    function pad(value) {
+        return String(value).padStart(2, "0");
+    }
+    function dateName(date) {
+        const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
+            return day;
+        }
+        return `${day} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+    function groupCategoryRows(columns, rowCount) {
+        if (columns.length === 0) {
+            const rows = new Array(rowCount);
+            for (let i = 0; i < rowCount; i++) {
+                rows[i] = i;
+            }
+            return { rows: [rows], names: [[]], keys: ["[]"], labels: [""] };
+        }
+        const groups = { rows: [], names: [], keys: [], labels: [] };
+        const indexes = new Map();
+        for (let i = 0; i < rowCount; i++) {
+            const parts = new Array(columns.length);
+            const names = new Array(columns.length);
+            for (let j = 0; j < columns.length; j++) {
+                const value = columns[j].values[i];
+                names[j] = value instanceof Date ? dateName(value) : formatPrimitiveValue(value) ?? "";
+                parts[j] = value == null ? ["undefined", ""]
+                    : value instanceof Date ? ["date", String(value.getTime())] : [typeof value, String(value)];
+            }
+            const key = JSON.stringify(parts);
+            let index = indexes.get(key);
+            if (index === undefined) {
+                index = groups.rows.length;
+                indexes.set(key, index);
+                groups.rows.push([]);
+                groups.names.push(names);
+                groups.keys.push(key);
+                groups.labels.push(names.join(" / "));
+            }
+            groups.rows[index].push(i);
+        }
+        return groups;
+    }
+
+    function toDataViews(dataViews) {
+        return dataViews;
+    }
+    function compareValues(a, b) {
+        const aMissing = isMissing(a);
+        const bMissing = isMissing(b);
+        if (aMissing || bMissing) {
+            return Number(aMissing) - Number(bMissing);
+        }
+        if (typeof a === "number" && typeof b === "number") {
+            return a - b;
+        }
+        const aText = String(a);
+        const bText = String(b);
+        if (aText === bText) {
+            return 0;
+        }
+        return aText < bText ? -1 : 1;
+    }
+    function namedColumns(columns) {
+        const names = Object.keys(columns ?? {});
+        const values = new Array(names.length);
+        for (let i = 0; i < names.length; i++) {
+            values[i] = asArray(columns?.[names[i]] ?? null);
+        }
+        return { names, columns: values };
+    }
+    function groupRows(categories, categoryOrder, indicatorColumns, crosstalkIdentities, crosstalkFilters) {
+        const filters = crosstalkFilters === undefined ? undefined : new Set(crosstalkFilters);
+        const order = new Array(categories.length);
+        for (let i = 0; i < order.length; i++) {
+            order[i] = i;
+        }
+        order.sort((a, b) => {
+            for (let i = 0; i < indicatorColumns.length; i++) {
+                const comparison = compareValues(indicatorColumns[i][a], indicatorColumns[i][b]);
+                if (comparison !== 0) {
+                    return comparison;
+                }
+            }
+            return compareValues(categoryOrder[a], categoryOrder[b]);
+        });
+        const groups = new Map();
+        for (let i = 0; i < order.length; i++) {
+            const row = order[i];
+            if (filters !== undefined && !filters.has(String(crosstalkIdentities[row]))) {
+                continue;
+            }
+            const category = isMissing(categories[row]) ? null : String(categories[row]);
+            const indicators = new Array(indicatorColumns.length);
+            for (let j = 0; j < indicatorColumns.length; j++) {
+                indicators[j] = indicatorColumns[j][row];
+            }
+            const groupKey = JSON.stringify([category, ...indicators]);
+            let group = groups.get(groupKey);
+            if (group === undefined) {
+                group = { category, indicators, rows: [] };
+                groups.set(groupKey, group);
+            }
+            group.rows.push(row);
+        }
+        return Array.from(groups.values());
+    }
+    function groupSettings(inputSettings) {
+        const groupNames = Object.keys(inputSettings);
+        let conditional = false;
+        for (let i = 0; i < groupNames.length && !conditional; i++) {
+            const group = inputSettings[groupNames[i]];
+            const names = Object.keys(group);
+            for (let j = 0; j < names.length && !conditional; j++) {
+                conditional = isArray(group[names[j]]);
+            }
+        }
+        if (!conditional) {
+            return () => inputSettings;
+        }
+        return row => {
+            const settings = {};
+            for (let i = 0; i < groupNames.length; i++) {
+                const group = inputSettings[groupNames[i]];
+                const rowGroup = {};
+                const names = Object.keys(group);
+                for (let j = 0; j < names.length; j++) {
+                    const value = group[names[j]];
+                    rowGroup[names[j]] = isArray(value) ? value[row] : value;
+                }
+                settings[groupNames[i]] = rowGroup;
+            }
+            return settings;
+        };
+    }
+    function makeUpdateValues(rawData, inputSettings, aggregations, crosstalkFilters) {
+        const valueNames = [];
+        const valueColumns = [];
+        for (let i = 0; i < valueRoles.length; i++) {
+            const column = rawData[valueRoles[i]];
+            if (column != null) {
+                valueNames.push(valueRoles[i]);
+                valueColumns.push(asArray(column));
+            }
+        }
+        const indicators = namedColumns(rawData.indicators);
+        const tooltips = namedColumns(rawData.tooltips);
+        const hasIndicators = indicators.names.length > 0;
+        const categories = asArray(rawData.categories);
+        let crosstalkIdentities;
+        if (rawData.crosstalk_identities == null) {
+            const positions = new Array(categories.length);
+            for (let i = 0; i < categories.length; i++) {
+                positions[i] = String(i + 1);
+            }
+            crosstalkIdentities = positions;
+        }
+        else {
+            crosstalkIdentities = asArray(rawData.crosstalk_identities);
+        }
+        let categoryOrder = categories;
+        if (rawData.category_levels != null) {
+            const levels = asArray(rawData.category_levels);
+            const ranks = new Map();
+            for (let i = 0; i < levels.length; i++) {
+                ranks.set(levels[i], i);
+            }
+            const ranked = new Array(categories.length);
+            for (let i = 0; i < categories.length; i++) {
+                ranked[i] = ranks.get(categories[i]);
+            }
+            categoryOrder = ranked;
+        }
+        const groups = groupRows(categories, categoryOrder, indicators.columns, crosstalkIdentities, crosstalkFilters);
+        const key = {
+            source: { roles: { key: true }, type: { temporal: {} } },
+            values: [],
+            objects: []
+        };
+        const categoryColumns = [key];
+        for (let i = 0; i < indicators.names.length; i++) {
+            categoryColumns.push({ source: { displayName: indicators.names[i], roles: { indicator: true } }, values: [] });
+        }
+        const columns = new Array(valueNames.length + tooltips.names.length);
+        for (let i = 0; i < valueNames.length; i++) {
+            columns[i] = { source: { roles: { [valueNames[i]]: true } }, values: [] };
+        }
+        for (let i = 0; i < tooltips.names.length; i++) {
+            columns[valueNames.length + i] = {
+                source: { displayName: tooltips.names[i], roles: { tooltips: true }, type: { text: true } },
+                values: []
+            };
+        }
+        const rowSettings = groupSettings(inputSettings);
+        const byPosition = [];
+        const byCategory = {};
+        for (let g = 0; g < groups.length; g++) {
+            const group = groups[g];
+            key.values.push(group.category);
+            for (let i = 0; i < group.indicators.length; i++) {
+                categoryColumns[i + 1].values.push(group.indicators[i]);
+            }
+            const groupIdentities = new Array(group.rows.length);
+            for (let i = 0; i < group.rows.length; i++) {
+                groupIdentities[i] = String(crosstalkIdentities[group.rows[i]]);
+            }
+            if (hasIndicators) {
+                byPosition.push(groupIdentities);
+            }
+            else {
+                byCategory[String(group.category)] = groupIdentities;
+            }
+            key.objects.push(rowSettings(group.rows[0]));
+            const groupValues = new Array(group.rows.length);
+            for (let i = 0; i < columns.length; i++) {
+                const isValue = i < valueNames.length;
+                const column = isValue ? valueColumns[i] : tooltips.columns[i - valueNames.length];
+                for (let j = 0; j < group.rows.length; j++) {
+                    groupValues[j] = column[group.rows[j]];
+                }
+                columns[i].values.push(aggregateColumn(groupValues, isValue ? aggregations[valueNames[i]] : aggregations.tooltips));
+            }
+        }
+        const sources = new Array(categoryColumns.length + columns.length);
+        for (let i = 0; i < sources.length; i++) {
+            sources[i] = i < categoryColumns.length ? categoryColumns[i].source : columns[i - categoryColumns.length].source;
+        }
+        const group = inputSettings.misc?.group;
+        const dataView = {
+            categorical: { categories: categoryColumns, values: columns },
+            metadata: hasIndicators && (typeof group === "string" || typeof group === "number")
+                ? { columns: sources, objects: { misc: { group: groupCategoryRows([{ values: [String(group)] }], 1).keys[0] } } }
+                : { columns: sources }
+        };
+        return { dataViews: [dataView], crosstalk_identities: hasIndicators ? byPosition : byCategory };
+    }
+
+    function paddedDataViews(chartType, dataViews, titleSettings, staticPlot) {
+        const defaults = frontendChart(chartType).defaultSettings;
+        const titlePadding = titleHeight(titleSettings);
+        const dataView = dataViews[0];
+        const [key, ...indicators] = dataView.categorical.categories;
+        const objects = new Array(key.objects.length);
+        for (let i = 0; i < objects.length; i++) {
+            const settings = key.objects[i];
+            const canvas = { ...defaults.canvas, ...settings.canvas };
+            canvas.upper_padding = Number(canvas.upper_padding) + titlePadding;
+            if (staticPlot) {
+                const xAxis = { ...defaults.x_axis, ...settings.x_axis };
+                canvas.left_padding = Number(canvas.left_padding) + 50;
+                let lowerPadding = 10 + Number(xAxis.xlimit_tick_size);
+                if (xAxis.xlimit_tick_rotation !== 0) {
+                    lowerPadding += 15;
+                }
+                canvas.lower_padding = Number(canvas.lower_padding) + lowerPadding;
+            }
+            objects[i] = { ...settings, canvas };
+        }
+        return [{ ...dataView, categorical: { ...dataView.categorical, categories: [{ ...key, objects }, ...indicators] } }];
     }
 
     function sum(values) {
@@ -708,7 +1543,7 @@ var ccCore = (function (exports) {
         if (Number.isNaN(x)) {
             return Number.NaN;
         }
-        if (x == 0 || (x < 0 && x === Math.trunc(x))) {
+        if (x === 0 || (x < 0 && x === Math.trunc(x))) {
             return Number.NaN;
         }
         let y = Math.abs(x);
@@ -721,7 +1556,7 @@ var ccCore = (function (exports) {
             y = x - n;
             n--;
             value = chebyshevPolynomial(y * 2 - 1, gamcs, 22) + .9375;
-            if (n == 0) {
+            if (n === 0) {
                 return value;
             }
             if (n < 0) {
@@ -745,7 +1580,7 @@ var ccCore = (function (exports) {
         if (x < -170.5674972726612) {
             return 0;
         }
-        if (y <= 50 && y == Math.trunc(y)) {
+        if (y <= 50 && y === Math.trunc(y)) {
             value = 1;
             for (let i = 2; i < y; i++) {
                 value *= i;
@@ -754,7 +1589,7 @@ var ccCore = (function (exports) {
         else {
             const two_y = 2 * y;
             value = Math.exp((y - 0.5) * Math.log(y) - y + LOG_SQRT_TWO_PI
-                + ((two_y == Math.trunc(two_y)) ? stirlingError(y) : lgammaCorrection(y)));
+                + ((two_y === Math.trunc(two_y)) ? stirlingError(y) : lgammaCorrection(y)));
         }
         if (x > 0) {
             return value;
@@ -802,7 +1637,7 @@ var ccCore = (function (exports) {
     }
 
     function normalCDFImpl(x, lower_tail, log_p) {
-        let i_tail = lower_tail ? 0 : 1;
+        const i_tail = lower_tail ? 0 : 1;
         const a = [
             2.2352520354606839287,
             161.02823106855587881,
@@ -856,18 +1691,14 @@ var ccCore = (function (exports) {
         let xnum;
         let temp;
         let del;
-        let eps;
         let xsq;
-        let y;
         let i;
-        let lower;
-        let upper;
-        eps = Number.EPSILON * 0.5;
-        lower = i_tail != 1;
-        upper = i_tail != 0;
+        const eps = Number.EPSILON * 0.5;
+        const lower = i_tail !== 1;
+        const upper = i_tail !== 0;
         let cum = 0;
         let ccum = 0;
-        y = Math.abs(x);
+        const y = Math.abs(x);
         if (y <= 0.67448975) {
             if (y > eps) {
                 xsq = x * x;
@@ -969,7 +1800,7 @@ var ccCore = (function (exports) {
     }
 
     function normalCDF(x, mu, sigma, lower_tail = true, log_p = false) {
-        if (!Number.isFinite(x) && mu == x) {
+        if (!Number.isFinite(x) && mu === x) {
             return Number.NaN;
         }
         const zeroBoundLower = (lower_tail ? (log_p ? Number.NEGATIVE_INFINITY : 0) : (log_p ? 0 : 1));
@@ -977,7 +1808,7 @@ var ccCore = (function (exports) {
         if (sigma === 0) {
             return (x < mu) ? zeroBoundLower : zeroBoundUpper;
         }
-        let p = (x - mu) / sigma;
+        const p = (x - mu) / sigma;
         if (!Number.isFinite(p)) {
             return (x < mu) ? zeroBoundLower : zeroBoundUpper;
         }
@@ -989,11 +1820,11 @@ var ccCore = (function (exports) {
         if (!Number.isFinite(sigma)) {
             return zeroBound;
         }
-        if (!Number.isFinite(x) && mu == x) {
+        if (!Number.isFinite(x) && mu === x) {
             return Number.NaN;
         }
-        if (sigma == 0) {
-            return (x == mu) ? Number.POSITIVE_INFINITY : zeroBound;
+        if (sigma === 0) {
+            return (x === mu) ? Number.POSITIVE_INFINITY : zeroBound;
         }
         const z = (x - mu) / sigma;
         if (!Number.isFinite(z)) {
@@ -1012,8 +1843,8 @@ var ccCore = (function (exports) {
         if (absZ > 38.56804181549334) {
             return 0;
         }
-        let x1 = ldexp(Math.trunc(ldexp(absZ, 16)), -16);
-        let x2 = absZ - x1;
+        const x1 = ldexp(Math.trunc(ldexp(absZ, 16)), -16);
+        const x2 = absZ - x1;
         return ONE_DIV_SQRT_TWO_PI / sigma
             * (Math.exp(-0.5 * x1 * x1) * Math.exp((-0.5 * x2 - x1) * x2));
     }
@@ -1028,18 +1859,16 @@ var ccCore = (function (exports) {
         return q * numerator / denominator;
     }
     function normalQuantile(p, mu, sigma, lower_tail, log_p) {
-        let p_;
-        let q;
         let r;
         let val;
         if (log_p) {
             if (p > 0) {
                 return Number.NaN;
             }
-            if (p == 0) {
+            if (p === 0) {
                 return lower_tail ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
             }
-            if (p == Number.NEGATIVE_INFINITY) {
+            if (p === Number.NEGATIVE_INFINITY) {
                 return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
             }
         }
@@ -1047,19 +1876,19 @@ var ccCore = (function (exports) {
             if (p < 0 || p > 1) {
                 return Number.NaN;
             }
-            if (p == 0) {
+            if (p === 0) {
                 return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
             }
-            if (p == 1) {
+            if (p === 1) {
                 return lower_tail ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
             }
         }
-        if (sigma == 0) {
+        if (sigma === 0) {
             return mu;
         }
-        p_ = log_p ? (lower_tail ? Math.exp(p) : -Math.expm1(p))
+        const p_ = log_p ? (lower_tail ? Math.exp(p) : -Math.expm1(p))
             : (lower_tail ? p : (0.5 - p + 0.5));
-        q = p_ - 0.5;
+        const q = p_ - 0.5;
         const coeffs_a = [
             2509.0809287301226727,
             33430.575583588128105,
@@ -1419,7 +2248,7 @@ var ccCore = (function (exports) {
     }
 
     function gammaContFrac(y, d) {
-        if (y == 0) {
+        if (y === 0) {
             return 0;
         }
         let f0 = y / d;
@@ -1504,14 +2333,10 @@ var ccCore = (function (exports) {
         let res1_ig;
         let res2_term;
         let res2_ig;
-        let dfm;
-        let pt_;
         let s2pt;
-        let f;
-        let np;
         let i;
-        dfm = lambda - x;
-        pt_ = -log1pmx(dfm / x);
+        const dfm = lambda - x;
+        const pt_ = -log1pmx(dfm / x);
         s2pt = Math.sqrt(2 * x * pt_);
         if (dfm < 0) {
             s2pt = -s2pt;
@@ -1536,8 +2361,8 @@ var ccCore = (function (exports) {
         if (!lower_tail) {
             elfb = -elfb;
         }
-        f = res12 / elfb;
-        np = normalCDF(s2pt, 0, 1, !lower_tail, log_p);
+        const f = res12 / elfb;
+        const np = normalCDF(s2pt, 0, 1, !lower_tail, log_p);
         if (log_p) {
             let i_tail = !lower_tail;
             let n_d_over_p;
@@ -1548,7 +2373,7 @@ var ccCore = (function (exports) {
             if (s2pt > 10 && !i_tail) {
                 let term = 1 / s2pt;
                 let sum = term;
-                let x2 = s2pt * s2pt;
+                const x2 = s2pt * s2pt;
                 let i = 1;
                 while (Math.abs(term) > Number.EPSILON * sum) {
                     term *= -i / x2;
@@ -1558,7 +2383,7 @@ var ccCore = (function (exports) {
                 n_d_over_p = 1 / sum;
             }
             else {
-                let d = normalDensity(s2pt, 0, 1, false);
+                const d = normalDensity(s2pt, 0, 1, false);
                 n_d_over_p = d / Math.exp(np);
             }
             return np + Math.log1p(f * n_d_over_p);
@@ -1614,8 +2439,8 @@ var ccCore = (function (exports) {
                     res = log1mExp(Math.log1p(sum) + lf2);
                 }
                 else {
-                    let f1m1 = sum;
-                    let f2m1 = Math.expm1(lf2);
+                    const f1m1 = sum;
+                    const f2m1 = Math.expm1(lf2);
                     res = -(f1m1 + f2m1 + f1m1 * f2m1);
                 }
             }
@@ -1658,7 +2483,7 @@ var ccCore = (function (exports) {
                     sum += term;
                     y--;
                 }
-                if (y != Math.floor(y)) {
+                if (y !== Math.floor(y)) {
                     sum += term * gammaContFrac(y, x + 1 - y);
                 }
                 sum = log_p ? Math.log1p(sum) : 1 + sum;
@@ -1814,9 +2639,9 @@ var ccCore = (function (exports) {
         const C9 = 6.73;
         const C10 = 13.32;
         let ch = 0.4;
-        let p2 = 0;
+        let p2;
         let q = 0;
-        let t = 0;
+        let t;
         const a = logP(p, !lower_tail, log_p) + g + c * Math.LN2;
         while (Math.abs(q - ch) > tol * Math.abs(ch)) {
             q = ch;
@@ -1912,6 +2737,9 @@ var ccCore = (function (exports) {
     }
 
     function quantile(sorted, q) {
+        if (sorted.length === 0 || !(q >= 0 && q <= 1)) {
+            return NaN;
+        }
         const pos = (sorted.length - 1) * q;
         const base = Math.floor(pos);
         const rest = pos - base;
@@ -1921,207 +2749,6 @@ var ccCore = (function (exports) {
         else {
             return sorted[base];
         }
-    }
-
-    const FormattingComponent = {
-        AlignmentGroup: "AlignmentGroup",
-        ColorPicker: "ColorPicker",
-        Dropdown: "Dropdown",
-        FontPicker: "FontPicker",
-        NumUpDown: "NumUpDown",
-        TextInput: "TextInput",
-        ToggleSwitch: "ToggleSwitch"
-    };
-    const defaultColours = {
-        improvement: "#00B0F0",
-        deterioration: "#E46C0A",
-        neutral_low: "#490092",
-        neutral_high: "#490092",
-        common_cause: "#A6A6A6",
-        limits: "#6495ED",
-        standard: "#000000",
-        lightgray: "#D3D3D3",
-        white: "#FFFFFF"
-    };
-    function numberOption(displayName, description, defaultValue, minMax) {
-        const result = {
-            displayName,
-            description,
-            type: FormattingComponent.NumUpDown,
-            default: defaultValue
-        };
-        if (minMax !== undefined) {
-            if (minMax.min !== undefined || minMax.max !== undefined) {
-                result.options = {};
-                if (minMax.min !== undefined) {
-                    result.options.minValue = { value: minMax.min };
-                }
-                if (minMax.max !== undefined) {
-                    result.options.maxValue = { value: minMax.max };
-                }
-            }
-            if (minMax.integer) {
-                result.integer = true;
-            }
-        }
-        return result;
-    }
-    function toggleOption(displayName, description, defaultValue) {
-        return {
-            displayName: displayName,
-            description,
-            type: FormattingComponent.ToggleSwitch,
-            default: defaultValue
-        };
-    }
-    function paddingOption(displayName, description) {
-        return numberOption(displayName, description, 10);
-    }
-    function colourOption(displayName, description, type) {
-        return {
-            displayName: displayName,
-            description,
-            type: FormattingComponent.ColorPicker,
-            default: defaultColours[type]
-        };
-    }
-    function fontOption(displayName, description) {
-        return {
-            displayName: displayName,
-            description,
-            type: FormattingComponent.FontPicker,
-            default: "'Arial', sans-serif",
-            valid: [
-                "'Arial', sans-serif",
-                "Arial",
-                "'Arial Black'",
-                "'Arial Unicode MS'",
-                "Calibri",
-                "Cambria",
-                "'Cambria Math'",
-                "Candara",
-                "'Comic Sans MS'",
-                "Consolas",
-                "Constantia",
-                "Corbel",
-                "'Courier New'",
-                "wf_standard-font, helvetica, arial, sans-serif",
-                "wf_standard-font_light, helvetica, arial, sans-serif",
-                "Georgia",
-                "'Lucida Sans Unicode'",
-                "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif",
-                "'Segoe UI Light', wf_segoe-ui_light, helvetica, arial, sans-serif",
-                "'Segoe UI Semibold', wf_segoe-ui_semibold, helvetica, arial, sans-serif",
-                "'Segoe UI Bold', wf_segoe-ui_bold, helvetica, arial, sans-serif",
-                "Symbol",
-                "Tahoma",
-                "'Times New Roman'",
-                "'Trebuchet MS'",
-                "Verdana",
-                "Wingdings"
-            ]
-        };
-    }
-    function fontSizeOption(displayName, description) {
-        return numberOption(displayName, description, 10, { min: 0, max: 100 });
-    }
-    const valueTransforms = {
-        none: (value) => value,
-        sentence: (value) => value.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase())
-    };
-    function dropdownOption(displayName, description, defaultValue, validValues, displayTransform = "none", displayNames) {
-        const valid = new Array(validValues.length);
-        const items = new Array(validValues.length);
-        const transform = valueTransforms[displayTransform];
-        for (let i = 0; i < validValues.length; i++) {
-            const value = validValues[i];
-            valid[i] = value;
-            items[i] = { displayName: displayNames === undefined ? transform(value) : displayNames[i], value };
-        }
-        return {
-            displayName,
-            description,
-            type: FormattingComponent.Dropdown,
-            default: defaultValue,
-            valid,
-            items
-        };
-    }
-    function lineTypeOption(displayName, description, defaultValue) {
-        return dropdownOption(displayName, description, defaultValue, ["10 0", "10 10", "2 5"], "none", ["Solid", "Dashed", "Dotted"]);
-    }
-    function textOption(displayName, description, defaultValue) {
-        return {
-            displayName: displayName,
-            description,
-            type: FormattingComponent.TextInput,
-            default: defaultValue
-        };
-    }
-    function lineLabelPositionOption() {
-        return dropdownOption("Position of Value on Line(s)", "Where the value sits at the line's end. Outside is below lower limits and above other lines; inside is the reverse.", "beside", ["outside", "inside", "above", "below", "beside"], "sentence");
-    }
-    const borderStyles = ["solid", "dotted", "dashed", "double", "groove", "ridge", "inset", "outset", "none"];
-    function borderStyleOption(displayName, description, defaultValue = "solid") {
-        return dropdownOption(displayName, description, defaultValue, borderStyles, "sentence");
-    }
-    function borderWidthOption(displayName, description) {
-        return numberOption(displayName, description, 1, { min: 0 });
-    }
-    function alignmentOption(displayName, description) {
-        return {
-            displayName: displayName,
-            description,
-            type: FormattingComponent.AlignmentGroup,
-            default: "center",
-            valid: ["center", "left", "right"]
-        };
-    }
-    const fontWeights = ["normal", "bold", "bolder", "lighter"];
-    function fontWeightOption(displayName, description, defaultValue = "normal") {
-        return dropdownOption(displayName, description, defaultValue, fontWeights, "sentence");
-    }
-    function fontStyleOption(displayName, description) {
-        return dropdownOption(displayName, description, "normal", ["normal", "italic"], "sentence");
-    }
-    function textTransformOption(displayName, description) {
-        return dropdownOption(displayName, description, "none", ["uppercase", "lowercase", "capitalize", "none"], "sentence");
-    }
-    function defineCard(definition) {
-        const card = { ...definition };
-        const groups = Object.keys(card.settingsGroups);
-        for (let i = 0; i < groups.length; i++) {
-            const group = card.settingsGroups[groups[i]];
-            const names = Object.keys(group);
-            for (let j = 0; j < names.length; j++) {
-                const name = names[j];
-                Object.defineProperty(card, name, { get: () => group[name] });
-            }
-        }
-        return card;
-    }
-    function groupDisplayName(card, groupName) {
-        return groupName === "all" ? card.displayName : groupName;
-    }
-    function createDefaultValues(schema) {
-        const values = {};
-        const cards = Object.keys(schema);
-        for (let i = 0; i < cards.length; i++) {
-            const name = cards[i];
-            const groups = schema[name].settingsGroups;
-            const groupNames = Object.keys(groups);
-            const defaults = {};
-            for (let j = 0; j < groupNames.length; j++) {
-                const definitions = groups[groupNames[j]];
-                const names = Object.keys(definitions);
-                for (let k = 0; k < names.length; k++) {
-                    const setting = names[k];
-                    defaults[setting] = definitions[setting].default;
-                }
-            }
-            values[name] = defaults;
-        }
-        return values;
     }
 
     function buildFormattingModel(schema, values) {
@@ -2213,7 +2840,7 @@ var ccCore = (function (exports) {
         const expected = definition.type === FormattingComponent.NumUpDown ? "number"
             : definition.type === FormattingComponent.ToggleSwitch ? "boolean" : "string";
         if (typeof value !== expected) {
-            return `${value} is not a valid ${expected} for ${name}`;
+            return `${String(value)} is not a valid ${expected} for ${name}`;
         }
         if (definition.valid !== undefined) {
             let valid = false;
@@ -2224,17 +2851,16 @@ var ccCore = (function (exports) {
                 }
             }
             if (!valid) {
-                return `${value} is not a valid value for ${name}. Valid values are: ${definition.valid.join(", ")}`;
+                return `${String(value)} is not a valid value for ${name}. Valid values are: ${definition.valid.join(", ")}`;
             }
         }
         if (typeof value === "number") {
             const min = definition.options?.minValue?.value;
             const max = definition.options?.maxValue?.value;
-            if (!Number.isFinite(value) || (min !== undefined && value < min) || (max !== undefined && value > max)) {
-                return `${value} is not a valid value for ${name}. Valid values are between ${min} and ${max}`;
-            }
-            if (definition.integer && !Number.isInteger(value)) {
-                return `${value} is not a valid value for ${name}. Valid values are whole numbers`;
+            const belowMin = min !== undefined && (definition.exclusiveMin ? value <= min : value < min);
+            const aboveMax = max !== undefined && (definition.exclusiveMax ? value >= max : value > max);
+            if (!Number.isFinite(value) || belowMin || aboveMax || (definition.integer && !Number.isInteger(value))) {
+                return `${value} is not a valid value for ${name}. Valid values are ${describeRange(definition, definition.integer ? "whole numbers" : "numbers")}`;
             }
         }
         return "";
@@ -2259,8 +2885,8 @@ var ccCore = (function (exports) {
         for (let i = 0; i < rawRowIndices.length; i++) {
             const objects = category.objects?.[rawRowIndices[i]]?.[cardName];
             if (objects == null && defaultRow !== undefined) {
-                values[i] = { ...defaultRow.values };
-                messages[i] = defaultRow.messages.slice();
+                values[i] = defaultRow.values;
+                messages[i] = defaultRow.messages;
                 anyValid || (anyValid = defaultRow.messages.length === 0);
                 continue;
             }
@@ -2291,13 +2917,10 @@ var ccCore = (function (exports) {
     }
 
     function readSettingsGroups(schema, category, groups, rules = []) {
-        var _a;
-        const values = new Array(groups.length);
         const rawRows = [];
         const firstPositions = new Array(groups.length);
         const messagePositionByRowIndex = new Map();
         for (let i = 0; i < groups.length; i++) {
-            values[i] = createDefaultValues(schema);
             const rows = groups[i];
             firstPositions[i] = rawRows.length;
             for (let j = 0; j < rows.length; j++) {
@@ -2305,110 +2928,113 @@ var ccCore = (function (exports) {
                 rawRows.push(rows[j]);
             }
         }
-        let validation = { status: 0, messages: [] };
         const defaults = createDefaultValues(schema);
         const cards = Object.keys(schema);
+        const perCard = new Array(cards.length);
+        const noMessages = [];
+        const messages = new Array(rawRows.length).fill(noMessages);
+        let error;
         for (let i = 0; i < cards.length; i++) {
-            const card = cards[i];
-            const result = readSettingsRows(schema[card], card, defaults[card], category, rawRows);
-            for (let j = 0; j < result.validation.messages.length; j++) {
-                const messages = (_a = validation.messages)[j] ?? (_a[j] = []);
+            const result = readSettingsRows(schema[cards[i]], cards[i], defaults[cards[i]], category, rawRows);
+            perCard[i] = result;
+            for (let j = 0; j < rawRows.length; j++) {
                 const row = result.validation.messages[j];
+                if (row.length === 0) {
+                    continue;
+                }
+                if (messages[j] === noMessages) {
+                    messages[j] = [];
+                }
                 for (let k = 0; k < row.length; k++) {
-                    messages.push(row[k]);
+                    messages[j].push(row[k]);
                 }
             }
             if (result.validation.status !== 0) {
-                validation = { status: 1, messages: validation.messages, error: result.validation.error };
+                error = result.validation.error;
             }
-            for (let j = 0; j < groups.length; j++) {
-                const position = firstPositions[j];
+        }
+        const values = new Array(groups.length);
+        const rowValues = new Array(groups.length);
+        for (let i = 0; i < groups.length; i++) {
+            const position = firstPositions[i];
+            const count = groups[i].length;
+            const group = {};
+            rowValues[i] = new Array(count);
+            for (let k = 0; k < count; k++) {
+                const row = {};
+                for (let c = 0; c < cards.length; c++) {
+                    row[cards[c]] = perCard[c].values[position + k];
+                }
+                rowValues[i][k] = row;
+            }
+            for (let c = 0; c < cards.length; c++) {
                 let chosen = position;
-                for (let k = position; k < position + groups[j].length; k++) {
-                    if (result.validation.messages[k].length === 0) {
+                for (let k = position; k < position + count; k++) {
+                    if (perCard[c].validation.messages[k].length === 0) {
                         chosen = k;
                         break;
                     }
                 }
-                values[j][card] = result.values[chosen];
+                group[cards[c]] = perCard[c].values[chosen];
             }
+            values[i] = group;
         }
+        let validation = error === undefined ? { status: 0, messages } : { status: 1, messages, error };
         for (let i = 0; validation.status === 0 && i < groups.length; i++) {
             for (let r = 0; validation.status === 0 && r < rules.length; r++) {
-                const error = rules[r](values[i], i);
-                if (error !== undefined) {
-                    validation = { status: 1, messages: validation.messages, error };
+                const ruleError = rules[r](values[i], i);
+                if (ruleError !== undefined) {
+                    validation = { status: 1, messages, error: ruleError };
                 }
             }
         }
-        return { values, validation, messagePositionByRowIndex };
+        return { values, rowValues, validation, messagePositionByRowIndex };
     }
 
-    function indexColumnsByRole(columns) {
-        const result = Object.create(null);
-        for (let i = 0; i < columns.length; i++) {
-            const column = columns[i];
-            const roles = column.source.roles;
-            if (roles === undefined) {
-                continue;
-            }
-            const names = Object.keys(roles);
-            for (let j = 0; j < names.length; j++) {
-                const name = names[j];
-                if (!roles[name]) {
-                    continue;
-                }
-                (result[name] ?? (result[name] = [])).push(column);
+    class SettingsStore {
+        constructor(schema, derive, rules = []) {
+            this.rowSettings = [];
+            this.validationStatus = { status: 0, messages: [] };
+            this.messagePositionByRowIndex = new Map();
+            this.schema = schema;
+            this.derive = derive;
+            this.rules = rules;
+            this.settings = [createDefaultValues(schema)];
+            this.derivedSettings = [derive(this.settings[0])];
+        }
+        update(category, groups) {
+            const result = readSettingsGroups(this.schema, category, groups, this.rules);
+            this.settings = result.values;
+            this.rowSettings = result.rowValues;
+            this.validationStatus = result.validation;
+            this.messagePositionByRowIndex = result.messagePositionByRowIndex;
+            this.derivedSettings = new Array(result.values.length);
+            for (let i = 0; i < result.values.length; i++) {
+                this.derivedSettings[i] = this.derive(result.values[i]);
             }
         }
-        return result;
-    }
-    function formatPrimitiveValue(value) {
-        return value == null ? undefined : String(value);
-    }
-    function readNumbers(column, rows) {
-        const numbers = new Array(rows.length);
-        for (let i = 0; i < rows.length; i++) {
-            const value = column.values[rows[i]];
-            numbers[i] = value == null ? undefined : Number(value);
+        group(index) {
+            return { settings: this.settings[index], derivedSettings: this.derivedSettings[index] };
         }
-        return numbers;
+        getFormattingModel() {
+            return buildFormattingModel(this.schema, this.settings[0]);
+        }
     }
 
-    function pad(value) {
-        return String(value).padStart(2, "0");
-    }
-    function dateName(date) {
-        const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-        if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
-            return day;
+    const updateType = {
+        data: 2,
+        resize: 4,
+        viewMode: 8,
+        style: 16,
+        resizeEnd: 32,
+        all: 62
+    };
+    function combineUpdateTypes(types) {
+        let combined = 0;
+        for (let i = 0; i < types.length; i++) {
+            combined |= types[i];
         }
-        return `${day} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-    }
-    function groupCategoryRows(columns, rowCount) {
-        const groups = { rows: [], names: [], keys: [] };
-        const indexes = new Map();
-        for (let i = 0; i < rowCount; i++) {
-            const parts = new Array(columns.length);
-            const names = new Array(columns.length);
-            for (let j = 0; j < columns.length; j++) {
-                const value = columns[j].values[i];
-                names[j] = value instanceof Date ? dateName(value) : formatPrimitiveValue(value) ?? "";
-                parts[j] = value == null ? ["undefined", ""]
-                    : value instanceof Date ? ["date", String(value.getTime())] : [typeof value, String(value)];
-            }
-            const key = JSON.stringify(parts);
-            let index = indexes.get(key);
-            if (index === undefined) {
-                index = groups.rows.length;
-                indexes.set(key, index);
-                groups.rows.push([]);
-                groups.names.push(names);
-                groups.keys.push(key);
-            }
-            groups.rows[index].push(i);
-        }
-        return groups;
+        return combined;
     }
 
     function selectedKeys(selected) {
@@ -2429,6 +3055,13 @@ var ccCore = (function (exports) {
         }
         return false;
     }
+    function rowIdentity(host, columns, row) {
+        const builder = host.createSelectionIdBuilder();
+        for (let i = 0; i < columns.length; i++) {
+            builder.withCategory(columns[i], row);
+        }
+        return builder.createSelectionId();
+    }
     function selectionState(manager, anyHighlights) {
         const ids = manager.getSelectionIds();
         return { active: anyHighlights || ids.length > 0, selected: selectedKeys(ids) };
@@ -2448,7 +3081,7 @@ var ccCore = (function (exports) {
     function validateDataView(dataViews, requiredValueRoles) {
         const dataView = dataViews[0];
         if (dataView === undefined) {
-            return { status: "invalid", error: "No data present" };
+            return { status: "empty", error: "No data present" };
         }
         const categorical = dataView.categorical;
         const category = categorical?.categories?.[0];
@@ -2462,7 +3095,7 @@ var ccCore = (function (exports) {
         }
         const rowCount = key[0].values.length;
         if (rowCount === 0) {
-            return { status: "invalid", error: "No data present" };
+            return { status: "empty", error: "No data present" };
         }
         const values = indexColumnsByRole(categorical.values ?? []);
         for (let i = 0; i < requiredValueRoles.length; i++) {
@@ -2484,12 +3117,10 @@ var ccCore = (function (exports) {
     }
 
     function readRowAnnotations(sources, rows, kept) {
-        const categories = sources.categories;
         const labels = sources.values.labels?.[0];
         const tooltips = sources.values.tooltips ?? [];
         const highlights = sources.categorical.values?.[0]?.highlights;
-        const scatter = readSettingsRows(sources.cards.scatter, "scatter", sources.defaults.scatter, categories, rows).values;
-        const labelSettings = readSettingsRows(sources.cards.labels, "labels", sources.defaults.labels, categories, rows).values;
+        const rowSettings = sources.rowSettings;
         const result = {
             labels: new Array(kept.length),
             anyLabels: false,
@@ -2502,8 +3133,8 @@ var ccCore = (function (exports) {
         for (let k = 0; k < kept.length; k++) {
             const position = kept[k];
             const row = rows[position];
-            result.scatter_formatting[k] = scatter[position];
-            result.label_formatting[k] = labelSettings[position];
+            result.scatter_formatting[k] = rowSettings[position].scatter;
+            result.label_formatting[k] = rowSettings[position].labels;
             const label = labels === undefined ? undefined : formatPrimitiveValue(labels.values[row]);
             result.labels[k] = label;
             result.anyLabels || (result.anyLabels = label !== undefined && label !== "");
@@ -2536,6 +3167,35 @@ var ccCore = (function (exports) {
             }
         }
         return warnings;
+    }
+    function labelledMessage(label, message) {
+        if (label === "") {
+            return message;
+        }
+        const lines = message.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            lines[i] = `${label}: ${lines[i]}`;
+        }
+        return lines.join("\n");
+    }
+
+    function extractRows(view, rows, options) {
+        const validation = options.validation;
+        if (validation.status !== 0) {
+            return { status: "invalid", error: validation.error };
+        }
+        const kept = validation.kept;
+        const annotations = readRowAnnotations({ categorical: view.categorical, values: view.values, rowSettings: options.rowSettings }, rows, kept);
+        return {
+            status: "valid",
+            data: {
+                ...annotations,
+                identityColumns: [...view.categories.key, ...(view.categories.indicator ?? [])],
+                validationStatus: validation,
+                kept,
+                warnings: rowWarnings(view.category.source.displayName, rows, options.keys, validation.messages, options.settings)
+            }
+        };
     }
 
     function valueTooltips(settings, row, automaticLabel, format) {
@@ -2718,9 +3378,10 @@ var ccCore = (function (exports) {
         return { x: transformed.x, y: transformed.y };
     }
 
-    const SVG_NS$4 = "http://www.w3.org/2000/svg";
+    const SVG_NS = "http://www.w3.org/2000/svg";
+
     function append(parent, tag) {
-        const element = parent.ownerDocument.createElementNS(SVG_NS$4, tag);
+        const element = parent.ownerDocument.createElementNS(SVG_NS, tag);
         parent.appendChild(element);
         return element;
     }
@@ -2854,7 +3515,6 @@ var ccCore = (function (exports) {
         }
         return { anchor: beside ? "start" : "end", dx: (beside ? 1 : -1) * label.hpad, dy };
     }
-    const SVG_NS$3 = "http://www.w3.org/2000/svg";
     function drawLineLabels(group, labels, headless) {
         const children = group.children;
         for (let i = children.length - 1; i >= 0; i--) {
@@ -2864,7 +3524,7 @@ var ccCore = (function (exports) {
         }
         for (let i = 0; i < labels.length; i++) {
             const label = labels[i];
-            const text = group.ownerDocument.createElementNS(SVG_NS$3, "text");
+            const text = group.ownerDocument.createElementNS(SVG_NS, "text");
             group.appendChild(text);
             text.textContent = label.text;
             text.setAttribute("x", String(label.x));
@@ -3826,9 +4486,8 @@ var ccCore = (function (exports) {
         internal: "Internal Error! Please file a bug report with the following text:",
         settings: "Invalid settings provided for all observations! First error:"
     };
-    const SVG_NS$2 = "http://www.w3.org/2000/svg";
     function addText(group, x, y, text, colour) {
-        const element = group.ownerDocument.createElementNS(SVG_NS$2, "text");
+        const element = group.ownerDocument.createElementNS(SVG_NS, "text");
         group.appendChild(element);
         element.setAttribute("x", String(x));
         element.setAttribute("y", String(y));
@@ -3842,12 +4501,13 @@ var ccCore = (function (exports) {
         if (!options.show) {
             return;
         }
-        const group = svg.ownerDocument.createElementNS(SVG_NS$2, "g");
+        const group = svg.ownerDocument.createElementNS(SVG_NS, "g");
         svg.appendChild(group);
         group.classList.add("errormessage");
         const x = options.width / 2;
-        if (options.kind !== undefined) {
-            addText(group, x, options.height / 3, preambles[options.kind], options.colour);
+        const preamble = options.kind === undefined ? undefined : preambles[options.kind];
+        if (preamble !== undefined) {
+            addText(group, x, options.height / 3, preamble, options.colour);
         }
         addText(group, x, options.height / 2, options.message, options.colour);
     }
@@ -3882,7 +4542,6 @@ var ccCore = (function (exports) {
         };
     }
 
-    const SVG_NS$1 = "http://www.w3.org/2000/svg";
     function axisLabelPlacement(align, start, end) {
         if (align === "left" || align === "bottom") {
             return { position: start, anchor: "start" };
@@ -3921,27 +4580,27 @@ var ccCore = (function (exports) {
         const outer = k * options.tickSizeOuter;
         const document = group.ownerDocument;
         group.replaceChildren();
-        const domain = document.createElementNS(SVG_NS$1, "path");
+        const domain = document.createElementNS(SVG_NS, "path");
         domain.setAttribute("class", "domain");
         domain.setAttribute("stroke", "currentColor");
         if (bottom) {
-            domain.setAttribute("d", outer ? `M${range0},${outer}V${offset}H${range1}V${outer}` : `M${range0},${offset}H${range1}`);
+            domain.setAttribute("d", outer !== 0 ? `M${range0},${outer}V${offset}H${range1}V${outer}` : `M${range0},${offset}H${range1}`);
         }
         else {
-            domain.setAttribute("d", outer ? `M${outer},${range0}H${offset}V${range1}H${outer}` : `M${offset},${range0}V${range1}`);
+            domain.setAttribute("d", outer !== 0 ? `M${outer},${range0}H${offset}V${range1}H${outer}` : `M${offset},${range0}V${range1}`);
         }
         group.appendChild(domain);
         for (let i = 0; i < options.values.length; i++) {
             const value = options.values[i];
-            const tick = document.createElementNS(SVG_NS$1, "g");
+            const tick = document.createElementNS(SVG_NS, "g");
             tick.setAttribute("class", "tick");
             tick.setAttribute("opacity", "1");
             const position = options.position(value) + offset;
             tick.setAttribute("transform", bottom ? `translate(${position},0)` : `translate(0,${position})`);
-            const line = document.createElementNS(SVG_NS$1, "line");
+            const line = document.createElementNS(SVG_NS, "line");
             line.setAttribute("stroke", "currentColor");
             line.setAttribute(bottom ? "y2" : "x2", String(k * 6));
-            const text = document.createElementNS(SVG_NS$1, "text");
+            const text = document.createElementNS(SVG_NS, "text");
             text.setAttribute("fill", "currentColor");
             text.setAttribute(bottom ? "y" : "x", String(k * 9));
             text.setAttribute("dy", bottom ? "0.71em" : "0.32em");
@@ -3964,7 +4623,7 @@ var ccCore = (function (exports) {
         }
         const vertical = options.orientation === "vertical";
         for (let i = 0; i < options.values.length; i++) {
-            const line = container.ownerDocument.createElementNS(SVG_NS$1, "line");
+            const line = container.ownerDocument.createElementNS(SVG_NS, "line");
             line.classList.add(className);
             const position = String(options.scale(options.values[i]));
             line.setAttribute(vertical ? "x1" : "y1", position);
@@ -4096,7 +4755,6 @@ var ccCore = (function (exports) {
             .style("stroke-opacity", dotOpacity);
     }
 
-    const SVG_NS = "http://www.w3.org/2000/svg";
     function drawDownloadButton(svg, options) {
         let button = svg.querySelector(".download-btn-group");
         if (!options.visible) {
@@ -4153,7 +4811,16 @@ var ccCore = (function (exports) {
         const scale = isX ? frame.xScale : frame.yScale;
         let values = [];
         if (properties.ticks) {
-            values = properties.tick_count ? scale.ticks(properties.tick_count) : scale.ticks();
+            values = properties.tick_count !== 0 ? scale.ticks(properties.tick_count) : scale.ticks();
+            if (options.integer) {
+                const integers = [];
+                for (let i = 0; i < values.length; i++) {
+                    if (Number.isInteger(values[i])) {
+                        integers.push(values[i]);
+                    }
+                }
+                values = integers;
+            }
         }
         const groupNode = group.node();
         if (groupNode !== null) {
@@ -4318,13 +4985,16 @@ var ccCore = (function (exports) {
             ? `translate(${frame.xScale(point.x)}, ${frame.yScale(point.value)})`
             : "translate(0, 0) scale(0)");
         if (text !== undefined) {
-            marks
-                .attr("dy", "0.35em")
-                .text(point => text(point).text)
-                .style("text-anchor", "middle")
-                .style("font-size", point => `${text(point).size}px`)
-                .style("font-family", point => text(point).font)
-                .style("fill", point => text(point).colour);
+            marks.each(function (point) {
+                const label = text(point);
+                select(this)
+                    .attr("dy", "0.35em")
+                    .text(label.text)
+                    .style("text-anchor", "middle")
+                    .style("font-size", `${label.size}px`)
+                    .style("font-family", label.font)
+                    .style("fill", label.colour);
+            });
         }
         else {
             marks
@@ -4368,6 +5038,31 @@ var ccCore = (function (exports) {
     }
 
     const limitLineNames = ["ll99", "ll95", "ll68", "ul68", "ul95", "ul99"];
+    function limitColumns(lines, controlLimits) {
+        const columns = [];
+        const levels = ["99", "95", "68"];
+        const limit = (level, side) => {
+            if (controlLimits && lines[`show_${level}`]) {
+                columns.push({
+                    name: `${side === "upper" ? "ul" : "ll"}${level}`,
+                    label: `${lines[`ttip_label_${level}_prefix_${side}`]}${lines[`ttip_label_${level}`]}`
+                });
+            }
+        };
+        for (let i = 0; i < levels.length; i++) {
+            limit(levels[i], "upper");
+        }
+        if (lines.show_target) {
+            columns.push({ name: "target", label: lines.ttip_label_target });
+        }
+        if (lines.show_alt_target) {
+            columns.push({ name: "alt_target", label: lines.ttip_label_alt_target });
+        }
+        for (let i = levels.length - 1; i >= 0; i--) {
+            limit(levels[i], "lower");
+        }
+        return columns;
+    }
     const lowerLimitLines = new Set(["ll99", "ll95", "ll68"]);
     const standardLineKeys = {
         ll99: "99",
@@ -4408,11 +5103,11 @@ var ccCore = (function (exports) {
         };
     }
 
-    function visiblePoints(context) {
+    function visiblePoints(frame, points) {
         const visible = [];
-        for (let i = 0; i < context.points.length; i++) {
-            const point = context.points[i];
-            if (inPlot(context.frame, point.x, point.value)) {
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            if (inPlot(frame, point.x, point.value)) {
                 visible.push(point);
             }
         }
@@ -4431,7 +5126,8 @@ var ccCore = (function (exports) {
             show: settings.x_axis.xlimit_show,
             labelSize: settings.x_axis.xlimit_label_size,
             measure,
-            tickFormat: formats.x
+            tickFormat: formats.x,
+            integer: false
         });
         drawAxis(svg, {
             axis: "y",
@@ -4439,12 +5135,13 @@ var ccCore = (function (exports) {
             show: settings.y_axis.ylimit_show,
             labelSize: settings.y_axis.ylimit_label_size,
             measure,
-            tickFormat: formats.y
+            tickFormat: formats.y,
+            integer: formats.yInteger ?? false
         });
     }
     function drawPlotTooltips(svg, context, includeVertical) {
         const frame = context.frame;
-        const points = visiblePoints(context);
+        const points = context.visible;
         const host = context.host;
         const palette = context.palette;
         const vertical = svg.querySelector(".ttip-line-x");
@@ -4544,7 +5241,7 @@ var ccCore = (function (exports) {
         const settings = context.settings;
         drawValueLabels(svg, {
             visible: settings.labels.show_labels && anyLabels,
-            points: visiblePoints(context),
+            points: context.visible,
             xScale: frame.xScale,
             yScale: frame.yScale,
             plotHeight: frame.height,
@@ -4574,8 +5271,196 @@ var ccCore = (function (exports) {
             visible: context.settings.download_options.show_button,
             x: context.frame.width - 50,
             y: context.frame.height - 5,
-            onClick: () => context.host.downloadService.exportVisualsContent(toCsv(rows()), "chartdata.csv", "csv", "csv file")
+            onClick: () => {
+                void context.host.downloadService.exportVisualsContent(toCsv(rows()), "chartdata.csv", "csv", "csv file");
+            }
         });
+    }
+
+    const flagLabels = {
+        none: "",
+        improvement: "Improvement",
+        deterioration: "Deterioration",
+        neutral_low: "Neutral (Low)",
+        neutral_high: "Neutral (High)"
+    };
+    function createTableContainer(element) {
+        const div = select(element).insert("div", "svg").style("overflow", "auto");
+        const table = div.append("table")
+            .classed("table-group", true)
+            .style("border-collapse", "separate")
+            .style("border-spacing", "0")
+            .style("width", "100%");
+        table.append("thead").append("tr").classed("table-header", true);
+        table.append("tbody").classed("table-body", true);
+        return div;
+    }
+    function showTable(div, visible) {
+        const size = visible ? "100%" : "0%";
+        div.style("width", size).style("height", size);
+    }
+    function columnAlignment(setting, kind) {
+        if (setting !== "auto") {
+            return setting;
+        }
+        if (kind === "icon") {
+            return "center";
+        }
+        return kind === "number" || kind === "integer" ? "right" : "left";
+    }
+    function drawTableHeaders(div, options) {
+        const tableSettings = options.settings;
+        const tableHeaders = div.select(".table-header")
+            .selectAll("th")
+            .data(options.columns)
+            .join("th");
+        tableHeaders.selectAll("text")
+            .data(d => [d.label])
+            .join("text")
+            .text(d => d);
+        tableHeaders.style("font-size", `${tableSettings.table_header_size}px`)
+            .style("font-family", tableSettings.table_header_font)
+            .style("color", tableSettings.table_header_colour)
+            .style("padding", `${tableSettings.table_header_text_padding}px`)
+            .style("background-color", tableSettings.table_header_bg_colour)
+            .style("font-weight", tableSettings.table_header_font_weight)
+            .style("text-transform", tableSettings.table_header_text_transform)
+            .style("text-align", d => columnAlignment(tableSettings.table_header_text_align, options.kinds[d.name]))
+            .style("border-width", `${tableSettings.table_header_border_width}px`)
+            .style("border-style", tableSettings.table_header_border_style)
+            .style("border-color", tableSettings.table_header_border_colour)
+            .style("border-top", "none")
+            .style("border-left", "none")
+            .style("position", "sticky")
+            .style("top", "0")
+            .style("z-index", "1");
+        if (!tableSettings.table_header_border_bottom) {
+            tableHeaders.style("border-bottom", "none");
+        }
+        if (!tableSettings.table_header_border_inner) {
+            tableHeaders.style("border-right", "none");
+        }
+    }
+    function drawTableRows(div, options, rowSettings) {
+        div.select(".table-body")
+            .selectAll("tr")
+            .data(options.rows)
+            .join("tr")
+            .on("click", (event, d) => {
+            if (options.host.hostCapabilities.allowInteractions) {
+                const alreadySelected = identitySelected(d.identity, selectionState(options.selectionManager, false).selected);
+                options.selectionManager
+                    .select(d.identity, alreadySelected || event.ctrlKey || event.metaKey)
+                    .then(() => options.onSelectionChange());
+                event.stopPropagation();
+            }
+        })
+            .on("mouseenter", function () {
+            select(this).selectAll("td").style("background-color", "whitesmoke");
+        })
+            .on("mouseleave", function (_event, d) {
+            select(this).selectAll("td").style("background-color", rowSettings(d).table_body_bg_colour);
+        });
+    }
+    function drawTextOverflow(div, tableSettings, maxWidth) {
+        const cells = div.selectAll("th, td");
+        if (tableSettings.table_text_overflow !== "none") {
+            cells.style("overflow", "hidden")
+                .style("max-width", `${maxWidth}px`)
+                .style("text-overflow", tableSettings.table_text_overflow);
+        }
+        else {
+            cells.style("overflow", "auto")
+                .style("max-width", "none");
+        }
+    }
+    function drawOuterBorder(div, tableSettings) {
+        const table = div.select(".table-group");
+        table.style("border-width", `${tableSettings.table_outer_border_width}px`)
+            .style("border-style", tableSettings.table_outer_border_style)
+            .style("border-color", tableSettings.table_outer_border_colour);
+        const sides = ["top", "right", "bottom", "left"];
+        for (let i = 0; i < sides.length; i++) {
+            if (!tableSettings[`table_outer_border_${sides[i]}`]) {
+                table.style(`border-${sides[i]}`, "none");
+            }
+        }
+        div.selectAll("th:last-child").style("border-right", "inherit");
+        div.selectAll("td:last-child").style("border-right", "inherit");
+        div.selectAll("tr:last-child").selectAll("td").style("border-bottom", "inherit");
+    }
+    function cellText(cell, kind, formatValue) {
+        if (typeof cell.value === "number") {
+            return formatValue(cell.value, kind === "integer" ? "integer" : "value");
+        }
+        if (cell.value === undefined) {
+            return "";
+        }
+        return kind === "flag" ? flagLabels[cell.value] : cell.value;
+    }
+    function drawTableCells(div, options, rowSettings) {
+        const columns = options.columns;
+        const kinds = options.kinds;
+        const tableCells = div.select(".table-body")
+            .selectAll("tr")
+            .selectAll("td")
+            .data(d => {
+            const settings = rowSettings(d);
+            const cells = new Array(columns.length);
+            for (let i = 0; i < columns.length; i++) {
+                cells[i] = { column: columns[i].name, value: d.table_row[columns[i].name], settings };
+            }
+            return cells;
+        })
+            .join("td");
+        tableCells.each(function (d) {
+            const cell = select(this);
+            const kind = kinds[d.column];
+            if (kind !== "icon") {
+                cell.text(cellText(d, kind, options.formatValue)).classed("cell-text", true);
+            }
+            const tableSettings = d.settings;
+            cell.style("background-color", tableSettings.table_body_bg_colour)
+                .style("font-weight", tableSettings.table_body_font_weight)
+                .style("text-transform", tableSettings.table_body_text_transform)
+                .style("text-align", columnAlignment(tableSettings.table_body_text_align, kind))
+                .style("font-size", `${tableSettings.table_body_size}px`)
+                .style("font-family", tableSettings.table_body_font)
+                .style("color", tableSettings.table_body_colour)
+                .style("border-width", `${tableSettings.table_body_border_width}px`)
+                .style("border-style", tableSettings.table_body_border_style)
+                .style("border-color", tableSettings.table_body_border_colour)
+                .style("border-top", "none")
+                .style("border-left", "none")
+                .style("padding", `${tableSettings.table_body_text_padding}px`)
+                .style("opacity", "inherit")
+                .style("white-space", (kind === "icon" || kind === "date") ? "nowrap" : "normal");
+            if (!tableSettings.table_body_border_left_right) {
+                cell.style("border-right", "none");
+            }
+            if (!tableSettings.table_body_border_top_bottom) {
+                cell.style("border-bottom", "none");
+            }
+        });
+    }
+    function drawSummaryTable(div, options) {
+        div.selectAll(".rowsvg").remove();
+        div.selectAll(".cell-text").remove();
+        const rowSettings = options.rowSettings ?? (() => options.settings);
+        drawTableHeaders(div, options);
+        drawTableRows(div, options, rowSettings);
+        if (options.rows.length > 0) {
+            drawTableCells(div, options, rowSettings);
+        }
+        drawTextOverflow(div, options.settings, options.width / options.columns.length);
+        drawOuterBorder(div, options.settings);
+        div.on("click", () => {
+            options.selectionManager.clear();
+            options.onSelectionChange();
+        });
+    }
+    function highlightTable(div, state, opacities) {
+        div.selectAll(".table-body").selectChildren().style("opacity", d => highlightOpacity(opacities(d), state.active, identitySelected(d.identity, state.selected) || d.highlighted));
     }
 
     class PlotVisual {
@@ -4603,6 +5488,40 @@ var ccCore = (function (exports) {
         drawAlternate() {
             return false;
         }
+        drawMarks(_svg) { }
+        drawVisual() {
+            const svg = this.svg.node();
+            if (svg === null) {
+                return;
+            }
+            const viewModel = this.viewModel;
+            const context = this.plotContext();
+            const options = this.plotOptions();
+            const lines = viewModel.groupedLines;
+            drawPlotAxes(svg, context, options.tickFormats);
+            drawPlotTooltips(svg, context, options.verticalCrosshair);
+            drawPlotLines(svg, context, lines, (name, points, index) => lineStyle(options.lineSettings(points, index), this.lineKeys[name]));
+            drawPlotLineLabels(svg, context, {
+                lines,
+                settings: this.settings.lines,
+                keys: this.lineKeys,
+                lower: name => options.lowerLines.has(name),
+                format: viewModel.inputSettings.derivedSettings[0].formatValue,
+                periodEnds: viewModel.periodEnds
+            });
+            drawPlotDots(svg, context, options.dots);
+            this.drawMarks(svg);
+            this.addContextMenu(svg);
+            drawPlotDownload(svg, context, () => {
+                const points = context.points;
+                const rows = new Array(points.length);
+                for (let i = 0; i < points.length; i++) {
+                    rows[i] = points[i].table_row;
+                }
+                return rows;
+            });
+            drawPlotValueLabels(svg, context, viewModel.anyLabels);
+        }
         update(options) {
             try {
                 this.host.eventService.renderingStarted(options);
@@ -4611,9 +5530,15 @@ var ccCore = (function (exports) {
                 if (!status.status) {
                     this.currentPlotProperties = undefined;
                     this.resizeCanvas(options.viewport.width, options.viewport.height);
-                    this.drawErrors(options, status.error, status.type, this.settings.canvas.show_errors);
-                    this.host.eventService.renderingFailed(options);
-                    return;
+                    const empty = status.type === "empty";
+                    this.drawErrors(options, status.error, status.type, this.settings.canvas.show_errors && !empty);
+                    if (empty) {
+                        this.host.eventService.renderingFinished(options);
+                    }
+                    else {
+                        this.host.eventService.renderingFailed(options);
+                    }
+                    return status;
                 }
                 if (status.warning) {
                     this.host.displayWarningIcon("Invalid inputs or settings ignored.\n", status.warning);
@@ -4623,14 +5548,14 @@ var ccCore = (function (exports) {
                     this.currentPlotProperties = undefined;
                     this.updateHighlighting();
                     this.host.eventService.renderingFinished(options);
-                    return;
+                    return status;
                 }
                 const viewModel = this.viewModel;
                 this.currentPlotProperties = createPlotFrame({
                     width: options.viewport.width,
                     height: options.viewport.height,
                     displayPlot: viewModel.plotPoints.length > 0,
-                    ...this.axisRanges(),
+                    ...viewModel.axisRanges(),
                     settings: this.settings,
                     palette: viewModel.colourPalette
                 });
@@ -4638,6 +5563,7 @@ var ccCore = (function (exports) {
                 this.adjustPaddingForOverflow();
                 this.updateHighlighting();
                 this.host.eventService.renderingFinished(options);
+                return status;
             }
             catch (caught_error) {
                 this.currentPlotProperties = undefined;
@@ -4645,6 +5571,7 @@ var ccCore = (function (exports) {
                 this.drawErrors(options, caught_error instanceof Error ? caught_error.message : String(caught_error), "internal", true);
                 console.error(caught_error);
                 this.host.eventService.renderingFailed(options);
+                return { status: false, error: String(caught_error), type: "internal" };
             }
         }
         resizeCanvas(width, height) {
@@ -4666,9 +5593,11 @@ var ccCore = (function (exports) {
         }
         plotContext() {
             const viewModel = this.viewModel;
+            const frame = this.plotProperties;
             return {
-                frame: this.plotProperties,
+                frame,
                 points: viewModel.plotPoints,
+                visible: visiblePoints(frame, viewModel.plotPoints),
                 palette: viewModel.colourPalette,
                 settings: this.settings,
                 host: this.host,
@@ -4698,12 +5627,14 @@ var ccCore = (function (exports) {
                 enabled,
                 identity: target => {
                     const datum = select(target).datum();
-                    if (datum === undefined) {
+                    if (datum?.identity === undefined) {
                         return {};
                     }
                     return Array.isArray(datum.identity) ? datum.identity[0] : datum.identity;
                 },
-                show: (identity, position) => this.selectionManager.showContextMenu(identity, position)
+                show: (identity, position) => {
+                    void this.selectionManager.showContextMenu(identity, position);
+                }
             });
         }
         adjustPaddingForOverflow() {
@@ -4722,7 +5653,65 @@ var ccCore = (function (exports) {
             this.drawVisual();
         }
         getFormattingModel() {
-            return this.viewModel.inputSettings.getFormattingModel();
+            return this.viewModel.getFormattingModel();
+        }
+    }
+
+    class PlotViewModelBase {
+        constructor(host, inputSettings, valueRoles) {
+            this.svgWidth = 0;
+            this.svgHeight = 0;
+            this.headless = false;
+            this.frontend = false;
+            this.firstRun = true;
+            this.inputSettings = inputSettings;
+            this.valueRoles = valueRoles;
+            this.colourPalette = readColourPalette(host);
+        }
+        getFormattingModel() {
+            return this.inputSettings.getFormattingModel();
+        }
+        update(options, host) {
+            this.colourPalette = readColourPalette(host);
+            const checkView = validateDataView(options.dataViews, this.valueRoles);
+            if (checkView.status !== "valid") {
+                return this.invalidate(checkView.error, checkView.status === "empty" ? "empty" : undefined);
+            }
+            const view = checkView.view;
+            this.svgWidth = options.viewport.width;
+            this.svgHeight = options.viewport.height;
+            this.headless = options.headless ?? false;
+            this.frontend = options.frontend ?? false;
+            const groups = groupCategoryRows(view.categories.indicator ?? [], view.rowCount);
+            const dataChanged = (options.type & (updateType.data | updateType.style)) !== 0 || this.firstRun;
+            if (dataChanged) {
+                this.inputSettings.update(view.category, groups.rows);
+            }
+            const settingsValidation = this.inputSettings.validationStatus;
+            if (settingsValidation.status !== 0) {
+                return this.invalidate(settingsValidation.error, "settings");
+            }
+            if (dataChanged) {
+                const results = this.updateData(view, groups, host);
+                if (results.errors.length > 0) {
+                    return this.invalidate(results.errors.join("\n"));
+                }
+                this.warning = results.warnings.length > 0 ? results.warnings.join("\n") : undefined;
+                this.firstRun = false;
+            }
+            if (this.hasAxes) {
+                const rangeError = axisRangeError(this.axisRanges());
+                if (rangeError !== undefined) {
+                    return this.invalidate(rangeError, "settings");
+                }
+            }
+            return { status: true, warning: this.warning };
+        }
+        invalidate(error, type) {
+            this.reset();
+            this.warning = undefined;
+            this.firstRun = true;
+            return { status: false, error, type };
         }
     }
 
@@ -4749,21 +5738,6 @@ var ccCore = (function (exports) {
         }
         return code(value);
     }
-    function formatRange(setting) {
-        const kind = setting.integer ? "Whole number" : "Number";
-        const min = setting.options?.minValue?.value;
-        const max = setting.options?.maxValue?.value;
-        if (min !== undefined && max !== undefined) {
-            return kind + " from " + min + " to " + max;
-        }
-        if (min !== undefined) {
-            return kind + ", at least " + min;
-        }
-        if (max !== undefined) {
-            return kind + ", at most " + max;
-        }
-        return kind;
-    }
     function formatValues(setting) {
         switch (setting.type) {
             case FormattingComponent.Dropdown: {
@@ -4784,7 +5758,7 @@ var ccCore = (function (exports) {
                 return values.join("<br>");
             }
             case FormattingComponent.NumUpDown:
-                return formatRange(setting);
+                return describeRange(setting, setting.integer ? "Whole number" : "Number");
             case FormattingComponent.ColorPicker:
                 return "Colour";
             case FormattingComponent.FontPicker:
@@ -4863,7 +5837,7 @@ var ccCore = (function (exports) {
         });
     }
 
-    function showDefinition$1(options) {
+    function showDefinition$2(options) {
         return { show: toggleOption(options.showLabel, options.showDescription, options.showDefault) };
     }
     function styleDefinitions(options) {
@@ -4913,7 +5887,7 @@ var ccCore = (function (exports) {
     }
     function createLineGroup(key, options, extras) {
         const group = {};
-        addSuffixed(group, key, showDefinition$1(options));
+        addSuffixed(group, key, showDefinition$2(options));
         if (extras !== undefined) {
             const names = Object.keys(extras);
             for (let i = 0; i < names.length; i++) {
@@ -4939,7 +5913,7 @@ var ccCore = (function (exports) {
         return group;
     }
 
-    function showDefinition(axis) {
+    function showDefinition$1(axis) {
         return { show: toggleOption(`Show ${axis.toUpperCase()} Axis`, "Draws the axis with its ticks, title and gridlines.", true) };
     }
     function colourDefinition() {
@@ -4947,7 +5921,7 @@ var ccCore = (function (exports) {
     }
     function sigFigsDefinition() {
         return {
-            sig_figs: numberOption("Tick Decimal Places", "Decimal places for the tick values; blank uses Decimals to Report.", undefined, { min: 0, max: 100, integer: true })
+            sig_figs: numberOption("Tick Decimal Places", "Decimal places for the tick values; blank uses Decimals to Report.", undefined, { min: 0, max: 20, integer: true })
         };
     }
     function limitDefinitions(units) {
@@ -4986,7 +5960,7 @@ var ccCore = (function (exports) {
         return {
             grid_show: toggleOption("Show Gridlines", "Draws a gridline at each tick.", false),
             grid_colour: colourOption("Gridline Colour", "Gridline colour.", "lightgray"),
-            grid_width: numberOption("Gridline Width", "Gridline width, in pixels.", 1, { min: 0 })
+            grid_width: numberOption("Gridline Width", "Gridline width, in pixels.", 1, { min: 0, max: 100 })
         };
     }
     function addPrefixed(group, axis, definitions) {
@@ -4997,7 +5971,7 @@ var ccCore = (function (exports) {
     }
     function createAxisCard(axis, options, extras) {
         const axisGroup = {};
-        addPrefixed(axisGroup, axis, showDefinition(axis));
+        addPrefixed(axisGroup, axis, showDefinition$1(axis));
         addPrefixed(axisGroup, axis, colourDefinition());
         if (extras !== undefined) {
             const names = Object.keys(extras);
@@ -5042,6 +6016,74 @@ var ccCore = (function (exports) {
         });
     }
 
+    function textAlignOption(displayName, description) {
+        return dropdownOption(displayName, description, "auto", ["auto", "left", "center", "right"], "sentence");
+    }
+    function showDefinition(options) {
+        return { show_table: toggleOption("Show Summary Table", options.showDescription, false) };
+    }
+    function generalDefinitions() {
+        return {
+            table_text_overflow: dropdownOption("Text Overflow Handling", "Text too long for its column: ellipsis or clip cuts it short, none lets it wrap.", "none", ["ellipsis", "clip", "none"], "sentence"),
+            table_opacity: numberOption("Default Opacity", "Row opacity while nothing is selected.", 1, { min: 0, max: 1 }),
+            table_opacity_selected: numberOption("Opacity if Selected", "Opacity of selected rows while a selection is active.", 1, { min: 0, max: 1 }),
+            table_opacity_unselected: numberOption("Opacity if Unselected", "Opacity of the other rows while a selection is active.", 0.2, { min: 0, max: 1 }),
+            table_outer_border_style: borderStyleOption("Outer Border Style", "Line style of the border around the table.", "none"),
+            table_outer_border_width: borderWidthOption("Outer Border Width", "Width of the border around the table, in pixels."),
+            table_outer_border_colour: colourOption("Outer Border Colour", "Colour of the border around the table.", "standard"),
+            table_outer_border_top: toggleOption("Outer Border Top", "Draws the top of the border around the table.", true),
+            table_outer_border_bottom: toggleOption("Outer Border Bottom", "Draws the bottom of the border around the table.", true),
+            table_outer_border_left: toggleOption("Outer Border Left", "Draws the left side of the border around the table.", true),
+            table_outer_border_right: toggleOption("Outer Border Right", "Draws the right side of the border around the table.", true)
+        };
+    }
+    function headerDefinitions() {
+        return {
+            table_header_font: fontOption("Header Font", "Font of the column headers."),
+            table_header_size: fontSizeOption("Header Font Size", "Font size of the column headers, in pixels."),
+            table_header_text_align: textAlignOption("Text Alignment", "Alignment of the headers; auto puts numbers right, text left and icons in the centre."),
+            table_header_font_weight: fontWeightOption("Header Font Weight", "Font weight of the column headers.", "bold"),
+            table_header_text_transform: textTransformOption("Header Text Transform", "Changes the case of the column headers."),
+            table_header_text_padding: numberOption("Padding Around Text", "Space around each header, in pixels.", 3, { min: 0, max: 100 }),
+            table_header_colour: colourOption("Header Font Colour", "Colour of the column headers.", "standard"),
+            table_header_bg_colour: colourOption("Header Background Colour", "Background colour of the header row.", "white"),
+            table_header_border_style: borderStyleOption("Header Border Style", "Line style of the header borders."),
+            table_header_border_width: borderWidthOption("Header Border Width", "Width of the header borders, in pixels."),
+            table_header_border_colour: colourOption("Header Border Colour", "Colour of the header borders.", "standard"),
+            table_header_border_bottom: toggleOption("Bottom Border", "Draws a border under the header row.", true),
+            table_header_border_inner: toggleOption("Inner Borders", "Draws borders between the headers.", false)
+        };
+    }
+    function bodyDefinitions() {
+        return {
+            table_body_font: fontOption("Body Font", "Font of the table cells."),
+            table_body_size: fontSizeOption("Body Font Size", "Font size of the table cells, in pixels."),
+            table_body_text_align: textAlignOption("Text Alignment", "Alignment of the cells; auto puts numbers right, text left and icons in the centre."),
+            table_body_font_weight: fontWeightOption("Font Weight", "Font weight of the table cells."),
+            table_body_text_transform: textTransformOption("Text Transform", "Changes the case of the table cells."),
+            table_body_text_padding: numberOption("Padding Around Text", "Space around each cell's text, in pixels.", 3, { min: 0, max: 100 }),
+            table_body_colour: colourOption("Body Font Colour", "Colour of the cell text.", "standard"),
+            table_body_bg_colour: colourOption("Body Background Colour", "Background colour of the rows.", "white"),
+            table_body_border_style: borderStyleOption("Body Border Style", "Line style of the cell borders."),
+            table_body_border_width: borderWidthOption("Body Border Width", "Width of the cell borders, in pixels."),
+            table_body_border_colour: colourOption("Body Border Colour", "Colour of the cell borders.", "lightgray"),
+            table_body_border_top_bottom: toggleOption("Top/Bottom Borders", "Draws borders between rows.", true),
+            table_body_border_left_right: toggleOption("Left/Right Borders", "Draws borders between columns.", false)
+        };
+    }
+    function createSummaryTableCard(options, extras) {
+        const card = defineCard({
+            description: "Summary Table Settings",
+            displayName: "Summary Table Settings",
+            settingsGroups: {
+                General: { ...showDefinition(options), ...extras, ...generalDefinitions() },
+                Header: headerDefinitions(),
+                Body: bodyDefinitions()
+            }
+        });
+        return card;
+    }
+
     function dotOptions() {
         return {
             shape: dropdownOption("Shape", "Marker shape for each point.", "Circle", ["Circle", "Cross", "Diamond", "Square", "Star", "Triangle", "Wye"]),
@@ -5062,7 +6104,7 @@ var ccCore = (function (exports) {
     }
     function scalingOptions() {
         return {
-            multiplier: numberOption("Multiplier", "Multiplies plotted values and limits, e.g. 1000 for a rate per 1,000.", 1, { min: 0 }),
+            multiplier: numberOption("Multiplier", "Multiplies plotted values and limits, e.g. 1000 for a rate per 1,000.", 1, { above: 0 }),
             sig_figs: numberOption("Decimals to Report:", "Decimal places for values in tooltips, line labels and the y-axis, unless the y-axis sets its own.", 2, { min: 0, max: 20, integer: true }),
             perc_labels: dropdownOption("Report as percentage", "Yes multiplies by 100 and adds a % sign, replacing the multiplier. Automatic does this for "
                 + "proportion charts with a multiplier of 1 or 100. No never adds a % sign.", "Automatic", ["Automatic", "Yes", "No"])
@@ -5085,20 +6127,16 @@ var ccCore = (function (exports) {
         };
     }
 
-    function orderedBoundsError(settings, truncation) {
-        const bounds = [
-            ["ll_truncate", truncation.ll_truncate, "ul_truncate", truncation.ul_truncate],
-            ["xlimit_l", settings.x_axis.xlimit_l, "xlimit_u", settings.x_axis.xlimit_u],
-            ["ylimit_l", settings.y_axis.ylimit_l, "ylimit_u", settings.y_axis.ylimit_u]
-        ];
-        for (let i = 0; i < bounds.length; i++) {
-            const lower = bounds[i][1];
-            const upper = bounds[i][3];
-            if (lower !== undefined && upper !== undefined && lower >= upper) {
-                return `${bounds[i][0]} (${lower}) must be below ${bounds[i][2]} (${upper})`;
-            }
+    function orderedPairError(lowerName, lower, upperName, upper) {
+        if (lower !== undefined && upper !== undefined && lower >= upper) {
+            return `${lowerName} (${lower}) must be below ${upperName} (${upper})`;
         }
         return undefined;
+    }
+    function orderedBoundsError(settings, truncation) {
+        return orderedPairError("ll_truncate", truncation.ll_truncate, "ul_truncate", truncation.ul_truncate)
+            ?? orderedPairError("xlimit_l", settings.x_axis.xlimit_l, "xlimit_u", settings.x_axis.xlimit_u)
+            ?? orderedPairError("ylimit_l", settings.y_axis.ylimit_l, "ylimit_u", settings.y_axis.ylimit_u);
     }
 
     function limitStatus(value, lower, upper) {
@@ -5154,6 +6192,33 @@ var ccCore = (function (exports) {
         return shift_detected;
     }
 
+    function sigmaLimits(n, centre, options) {
+        const sigma = options.sigma;
+        const floor = options.floor ?? -Infinity;
+        const ceiling = options.ceiling ?? Infinity;
+        const target = options.target ?? centre;
+        const limits = {
+            target: new Array(n),
+            ll99: new Array(n),
+            ll95: new Array(n),
+            ll68: new Array(n),
+            ul68: new Array(n),
+            ul95: new Array(n),
+            ul99: new Array(n)
+        };
+        for (let i = 0; i < n; i++) {
+            const s = typeof sigma === "number" ? sigma : sigma(i);
+            limits.target[i] = target;
+            limits.ll99[i] = Math.max(floor, centre - 3 * s);
+            limits.ll95[i] = Math.max(floor, centre - 2 * s);
+            limits.ll68[i] = Math.max(floor, centre - s);
+            limits.ul68[i] = Math.min(ceiling, centre + s);
+            limits.ul95[i] = Math.min(ceiling, centre + 2 * s);
+            limits.ul99[i] = Math.min(ceiling, centre + 3 * s);
+        }
+        return limits;
+    }
+
     function trend(val, n) {
         const length = val.length;
         const trend_detected = new Array(length);
@@ -5195,8 +6260,8 @@ var ccCore = (function (exports) {
 
     function twoInThree(val, ll95, ul95, highlight_series) {
         const length = val.length;
-        let outside95 = new Array(length);
-        let two_in_three_detected = new Array(length);
+        const outside95 = new Array(length);
+        const two_in_three_detected = new Array(length);
         for (let i = 0; i < length; i++) {
             const lower = ll95[i];
             const upper = ul95[i];
@@ -5233,15 +6298,19 @@ var ccCore = (function (exports) {
     exports.LOG_SQRT_TWO_PI = LOG_SQRT_TWO_PI;
     exports.LOG_TWO_PI = LOG_TWO_PI;
     exports.ONE_DIV_SQRT_TWO_PI = ONE_DIV_SQRT_TWO_PI;
+    exports.PlotViewModelBase = PlotViewModelBase;
     exports.PlotVisual = PlotVisual;
     exports.SQRT_THIRTY_TWO = SQRT_THIRTY_TWO;
     exports.SQRT_TWO_PI = SQRT_TWO_PI;
+    exports.SVG_NS = SVG_NS;
+    exports.SettingsStore = SettingsStore;
     exports.TWO_PI = TWO_PI;
     exports.a3 = a3;
     exports.adjustPaddingForOverflow = adjustPaddingForOverflow;
     exports.alignmentOption = alignmentOption;
     exports.appendPatternTooltips = appendPatternTooltips;
     exports.applyFlagColours = applyFlagColours;
+    exports.asArray = asArray;
     exports.astronomical = astronomical;
     exports.axisLabelPlacement = axisLabelPlacement;
     exports.axisPropertiesFromSettings = axisPropertiesFromSettings;
@@ -5256,6 +6325,10 @@ var ccCore = (function (exports) {
     exports.c4 = c4;
     exports.c5 = c5;
     exports.calculateTrendLine = calculateTrendLine;
+    exports.chartAggregations = chartAggregations;
+    exports.chartNames = chartNames;
+    exports.chartSettings = chartSettings;
+    exports.chartTitle = chartTitle;
     exports.chebyshevPolynomial = chebyshevPolynomial;
     exports.checkFlagDirection = checkFlagDirection;
     exports.chisqCDF = chisqCDF;
@@ -5263,6 +6336,8 @@ var ccCore = (function (exports) {
     exports.chisqQuantileApprox = chisqQuantileApprox;
     exports.clamp = clamp;
     exports.colourOption = colourOption;
+    exports.combineUpdateTypes = combineUpdateTypes;
+    exports.constructorOptions = constructorOptions;
     exports.createAxisCard = createAxisCard;
     exports.createCanvasCard = createCanvasCard;
     exports.createDefaultValues = createDefaultValues;
@@ -5270,6 +6345,8 @@ var ccCore = (function (exports) {
     exports.createLabelsCard = createLabelsCard;
     exports.createLineGroup = createLineGroup;
     exports.createPlotFrame = createPlotFrame;
+    exports.createSummaryTableCard = createSummaryTableCard;
+    exports.createTableContainer = createTableContainer;
     exports.createValueFormatter = createValueFormatter;
     exports.defineCard = defineCard;
     exports.deriveScaling = deriveScaling;
@@ -5289,8 +6366,10 @@ var ccCore = (function (exports) {
     exports.drawPlotLines = drawPlotLines;
     exports.drawPlotTooltips = drawPlotTooltips;
     exports.drawPlotValueLabels = drawPlotValueLabels;
+    exports.drawSummaryTable = drawSummaryTable;
     exports.drawValueLabels = drawValueLabels;
     exports.dropdownOption = dropdownOption;
+    exports.extractRows = extractRows;
     exports.fitPlotToOverflow = fitPlotToOverflow;
     exports.flagDirectionOptions = flagDirectionOptions;
     exports.fontOption = fontOption;
@@ -5300,6 +6379,7 @@ var ccCore = (function (exports) {
     exports.formatNumber = formatNumber;
     exports.formatPrimitiveValue = formatPrimitiveValue;
     exports.frexp = frexp;
+    exports.frontendChart = frontendChart;
     exports.gamma = gamma;
     exports.gammaCDF = gammaCDF;
     exports.gammaDensity = gammaDensity;
@@ -5308,23 +6388,28 @@ var ccCore = (function (exports) {
     exports.groupCategoryRows = groupCategoryRows;
     exports.highlightOpacity = highlightOpacity;
     exports.highlightPlot = highlightPlot;
+    exports.highlightTable = highlightTable;
     exports.identitySelected = identitySelected;
     exports.inPlot = inPlot;
     exports.indexColumnsByRole = indexColumnsByRole;
     exports.initialiseSvg = initialiseSvg;
+    exports.isArray = isArray;
     exports.isNullOrUndefined = isNullOrUndefined;
     exports.isValidNumber = isValidNumber;
-    exports.keptPositions = keptPositions;
+    exports.keptValue = keptValue;
     exports.keptValues = keptValues;
     exports.labelGeometry = labelGeometry;
+    exports.labelledMessage = labelledMessage;
     exports.ldexp = ldexp;
     exports.lgamma = lgamma;
     exports.lgamma1p = lgamma1p;
     exports.lgammaCorrection = lgammaCorrection;
+    exports.limitColumns = limitColumns;
     exports.limitLineNames = limitLineNames;
     exports.limitStatus = limitStatus;
     exports.limitTooltips = limitTooltips;
     exports.limitTruncationOptions = limitTruncationOptions;
+    exports.limitValue = limitValue;
     exports.lineLabel = lineLabel;
     exports.lineLabelGeometry = lineLabelGeometry;
     exports.lineLabelPositionOption = lineLabelPositionOption;
@@ -5337,27 +6422,37 @@ var ccCore = (function (exports) {
     exports.logP = logP;
     exports.logcf = logcf;
     exports.lowerLimitLines = lowerLimitLines;
+    exports.makeUpdateValues = makeUpdateValues;
     exports.max = max;
     exports.measureAxisEdge = measureAxisEdge;
     exports.median = median;
+    exports.missingRule = missingRule;
+    exports.nanRule = nanRule;
     exports.nearestPoint = nearestPoint;
+    exports.negativeRule = negativeRule;
     exports.normalCDF = normalCDF;
     exports.normalDensity = normalDensity;
     exports.normalQuantile = normalQuantile;
     exports.numberOption = numberOption;
     exports.orderedBoundsError = orderedBoundsError;
+    exports.orderedPairError = orderedPairError;
+    exports.paddedDataViews = paddedDataViews;
     exports.paddingOption = paddingOption;
     exports.pickRows = pickRows;
     exports.poissonDensity = poissonDensity;
     exports.quantile = quantile;
+    exports.quantity = quantity;
+    exports.ratioRule = ratioRule;
     exports.readColourPalette = readColourPalette;
     exports.readNumbers = readNumbers;
     exports.readRowAnnotations = readRowAnnotations;
     exports.readSettingsGroups = readSettingsGroups;
     exports.readSettingsRows = readSettingsRows;
+    exports.registerChart = registerChart;
     exports.rep = rep;
     exports.rescalePlotFrame = rescalePlotFrame;
     exports.resolvePercentScaling = resolvePercentScaling;
+    exports.rowIdentity = rowIdentity;
     exports.rowWarnings = rowWarnings;
     exports.scaleLinear = scaleLinear;
     exports.scalingOptions = scalingOptions;
@@ -5365,10 +6460,13 @@ var ccCore = (function (exports) {
     exports.select = select;
     exports.selectAll = selectAll;
     exports.selectedKeys = selectedKeys;
+    exports.selectionId = selectionId;
     exports.selectionState = selectionState;
     exports.sequence = sequence;
     exports.settingsReference = settingsReference;
     exports.shift = shift;
+    exports.showTable = showTable;
+    exports.sigmaLimits = sigmaLimits;
     exports.sinpi = sinpi;
     exports.standardLineKeys = standardLineKeys;
     exports.stirlingError = stirlingError;
@@ -5376,15 +6474,20 @@ var ccCore = (function (exports) {
     exports.textOption = textOption;
     exports.textTransformOption = textTransformOption;
     exports.toCsv = toCsv;
+    exports.toDataViews = toDataViews;
     exports.toggleOption = toggleOption;
     exports.trend = trend;
     exports.trianglePath = trianglePath;
     exports.twoInThree = twoInThree;
+    exports.updateChartTitle = updateChartTitle;
+    exports.updateType = updateType;
     exports.validateDataView = validateDataView;
     exports.validateRows = validateRows;
+    exports.valueAt = valueAt;
     exports.valueTickFormat = valueTickFormat;
     exports.valueTooltipOptions = valueTooltipOptions;
     exports.valueTooltips = valueTooltips;
+    exports.visiblePoints = visiblePoints;
     exports.xTickLabelOffsets = xTickLabelOffsets;
 
     return exports;

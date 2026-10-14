@@ -1,126 +1,10 @@
-var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) {
+var funnel = (function (exports, frontends, rendering, math, settings, powerbi, data, spc) {
     'use strict';
-
-    const funnelSettings = {
-        description: "Funnel Settings",
-        displayName: "Data Settings",
-        settingsGroups: {
-            "all": {
-                chart_type: settings.dropdownOption("Chart Type", "Type of funnel plot: an indirectly standardised ratio of observed to expected, a proportion or a rate.", "PR", ["SR", "PR", "RC"], "none", ["Indirectly Standardised (HSMR)", "Proportion", "Rate"]),
-                od_adjust: settings.dropdownOption("OD Adjustment", "Widens the limits for overdispersion. Yes adjusts for any estimated overdispersion; "
-                    + "Auto only when a chi-squared test detects it.", "no", ["auto", "yes", "no"], "sentence"),
-                ...settings.scalingOptions(),
-                transformation: settings.dropdownOption("Transformation", "Scale for the plotted values and limits; any transformation turns off % labels.", "none", ["none", "ln", "log10", "sqrt"], "none", ["None", "Natural Log (y+1)", "Log10 (y+1)", "Square-Root"]),
-                ttip_show_group: settings.toggleOption("Show Group in Tooltip", "Shows the group name in the tooltip.", true),
-                ttip_label_group: settings.textOption("Group Tooltip Label", "Name for the group in the tooltip.", "Group"),
-                ...settings.valueTooltipOptions(),
-                ...settings.limitTruncationOptions()
-            }
-        }
-    };
-
-    const miscSettings = {
-        displayName: "MISC Settings",
-        description: "Multi-indicator sigma chart",
-        settingsGroups: {
-            all: {
-                group: { ...settings.textOption("Group", "Group the multi-indicator chart shows, with a bar per indicator.", ""), type: settings.FormattingComponent.Dropdown, constant: true,
-                    items: [] },
-                lower: settings.numberOption("Lower Sigma Bound", "Left end of the z-score axis; must be below 0.", -5),
-                upper: settings.numberOption("Upper Sigma Bound", "Right end of the z-score axis; must be above 0.", 5),
-                bar_height: settings.numberOption("Bar Height Ratio", "Share of each row's height the bar fills.", 0.65, { min: 0, max: 1 }),
-                unfavourable_label: settings.textOption("Unfavourable Label", "Caption over the unfavourable (left) side.", "Unfavourable"),
-                favourable_label: settings.textOption("Favourable Label", "Caption over the favourable (right) side.", "Favourable")
-            }
-        }
-    };
-
-    const outliersSettings = {
-        description: "Outlier Settings",
-        displayName: "Outlier Settings",
-        settingsGroups: {
-            "General": settings.flagDirectionOptions(),
-            "Three Sigma Outliers": {
-                three_sigma: settings.toggleOption("Three Sigma Outliers", "Flags points beyond the 99.8% limits.", false),
-                three_sigma_colour_improvement: settings.colourOption("Imp. Three Sigma Colour", "Colour for three-sigma outliers that are an improvement.", "improvement"),
-                three_sigma_colour_deterioration: settings.colourOption("Det. Three Sigma Colour", "Colour for three-sigma outliers that are a deterioration.", "deterioration"),
-                three_sigma_colour_neutral_low: settings.colourOption("Neutral (Low) Three Sigma Colour", "Colour for points below the lower 99.8% limit when the improvement direction is neutral.", "neutral_low"),
-                three_sigma_colour_neutral_high: settings.colourOption("Neutral (High) Three Sigma Colour", "Colour for points above the upper 99.8% limit when the improvement direction is neutral.", "neutral_high")
-            },
-            "Two Sigma Outliers": {
-                two_sigma: settings.toggleOption("Two Sigma Outliers", "Flags points beyond the 95% limits.", false),
-                two_sigma_colour_improvement: settings.colourOption("Imp. Two Sigma Colour", "Colour for two-sigma outliers that are an improvement.", "improvement"),
-                two_sigma_colour_deterioration: settings.colourOption("Det. Two Sigma Colour", "Colour for two-sigma outliers that are a deterioration.", "deterioration"),
-                two_sigma_colour_neutral_low: settings.colourOption("Neutral (Low) Two Sigma Colour", "Colour for points below the lower 95% limit when the improvement direction is neutral.", "neutral_low"),
-                two_sigma_colour_neutral_high: settings.colourOption("Neutral (High) Two Sigma Colour", "Colour for points above the upper 95% limit when the improvement direction is neutral.", "neutral_high")
-            }
-        }
-    };
-
-    const scatterSettings = {
-        description: "Scatter Settings",
-        displayName: "Scatter Settings",
-        settingsGroups: {
-            "Dots": settings.dotOptions(),
-            "Group Text": {
-                use_group_text: settings.toggleOption("Show Group Text", "Writes each group's name in place of its point.", false),
-                scatter_text_font: settings.fontOption("Group Text Font", "Font of the group names."),
-                scatter_text_size: settings.fontSizeOption("Group Text Size", "Font size of the group names, in pixels."),
-                scatter_text_colour: settings.colourOption("Group Text Colour", "Colour of the group names.", "standard"),
-                scatter_text_opacity: settings.numberOption("Group Text Default Opacity", "Opacity of the group names while nothing is selected.", 1, { min: 0, max: 1 }),
-                scatter_text_opacity_selected: settings.numberOption("Group Text Opacity if Selected", "Opacity of selected group names while a selection is active.", 1, { min: 0, max: 1 }),
-                scatter_text_opacity_unselected: settings.numberOption("Group Text Opacity if Unselected", "Opacity of the other group names while a selection is active.", 0.2, { min: 0, max: 1 })
-            }
-        }
-    };
-
-    const linesSettings = {
-        description: "Line Settings",
-        displayName: "Line Settings",
-        settingsGroups: {
-            "Target": settings.createLineGroup("target", {
-                showLabel: "Show Target", showDescription: "Draws the centreline.", showDefault: true,
-                width: 1.5, type: "10 0", colour: "standard", rebaselines: false, tooltipLabel: "Centerline"
-            }),
-            "Alt. Target": settings.createLineGroup("alt_target", {
-                showLabel: "Show Alt. Target Line", showDescription: "Draws a line at the Additional Target Value.", showDefault: false,
-                width: 1.5, type: "10 0", colour: "standard", rebaselines: false, tooltipLabel: "Alt. Target"
-            }, {
-                alt_target: settings.numberOption("Additional Target Value:", "Value of the target line, as a plotted value; the transformation applies but not the multiplier.", undefined)
-            }),
-            "68% Limits": settings.createLineGroup("68", {
-                showLabel: "Show 68% Lines", showDescription: "Draws the 68% limits.", showDefault: false,
-                width: 2, type: "2 5", colour: "limits", rebaselines: false, tooltipLabel: "68% Limit", tooltipPrefixes: true
-            }),
-            "95% Limits": settings.createLineGroup("95", {
-                showLabel: "Show 95% Lines", showDescription: "Draws the 95% limits.", showDefault: true,
-                width: 2, type: "2 5", colour: "limits", rebaselines: false, tooltipLabel: "95% Limit", tooltipPrefixes: true
-            }),
-            "99% Limits": settings.createLineGroup("99", {
-                showLabel: "Show 99% Lines", showDescription: "Draws the 99.8% limits.", showDefault: true,
-                width: 2, type: "10 10", colour: "limits", rebaselines: false, tooltipLabel: "99% Limit", tooltipPrefixes: true
-            })
-        }
-    };
-
-    const settingsModel = {
-        canvas: settings.createCanvasCard(),
-        funnel: settings.defineCard(funnelSettings),
-        misc: settings.defineCard(miscSettings),
-        outliers: settings.defineCard(outliersSettings),
-        scatter: settings.defineCard(scatterSettings),
-        lines: settings.defineCard(linesSettings),
-        x_axis: settings.createAxisCard("x", { tickRotation: 0, limitUnits: "a denominator" }),
-        y_axis: settings.createAxisCard("y", { tickRotation: 0, limitUnits: "a plotted value" }),
-        download_options: settings.createDownloadCard(),
-        labels: settings.createLabelsCard()
-    };
-    const defaultSettings = settings.createDefaultValues(settingsModel);
 
     function drawMisc(svg, visual) {
         svg.selectChildren().remove();
         const model = visual.viewModel;
-        const settings = model.inputSettings.settings;
+        const settings = model.inputSettings.settings[0];
         const canvas = settings.canvas;
         const misc = settings.misc;
         const xAxis = settings.x_axis;
@@ -242,7 +126,7 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
     }
 
     function winsoriseZScores(z) {
-        const z_sorted = [...z].sort(function (a, b) { return a - b; });
+        const z_sorted = [...z].sort((a, b) => a - b);
         const lower_z = math.quantile(z_sorted, 0.1);
         const upper_z = math.quantile(z_sorted, 0.9);
         const n = z.length;
@@ -278,26 +162,43 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         return tau_num / tau_denom;
     }
 
+    const levels = ["99", "95", "68"];
+    function pruneCrossing(inner, next) {
+        for (let i = 0; i < levels.length; i++) {
+            const lower = `ll${levels[i]}`;
+            const upper = `ul${levels[i]}`;
+            const nextLower = next[lower];
+            const nextUpper = next[upper];
+            let low = inner[lower];
+            let high = inner[upper];
+            if (low !== undefined && nextLower !== undefined && low > nextLower) {
+                low = undefined;
+            }
+            if (high !== undefined && nextUpper !== undefined && high < nextUpper) {
+                high = undefined;
+            }
+            if (low !== undefined && high !== undefined && low >= high) {
+                low = undefined;
+                high = undefined;
+            }
+            inner[lower] = low;
+            inner[upper] = high;
+        }
+    }
     class chartClass {
         getPlottingDenominators() {
             const plotDenomLower = 1;
             const plotDenomUpper = Math.max(math.max(this.inputData.denominators) * 1.1, this.inputSettings.settings.x_axis.xlimit_u ?? -Infinity);
             const plotDenomSteps = 110;
-            const candidates = this.inputData.denominators.slice();
+            const candidates = new Set(this.inputData.denominators);
             if (plotDenomUpper > plotDenomLower) {
                 const plotDenomStep = (plotDenomUpper - plotDenomLower) / plotDenomSteps;
                 for (let i = 0; i < plotDenomSteps; i++) {
-                    candidates.push(plotDenomLower + i * plotDenomStep);
+                    candidates.add(plotDenomLower + i * plotDenomStep);
                 }
-                candidates.push(plotDenomUpper);
+                candidates.add(plotDenomUpper);
             }
-            const unique = [];
-            for (let i = 0; i < candidates.length; i++) {
-                if (candidates.indexOf(candidates[i]) === i) {
-                    unique.push(candidates[i]);
-                }
-            }
-            return unique.sort((a, b) => a - b);
+            return Array.from(candidates).sort((a, b) => a - b);
         }
         getTarget(par) {
             const targetFun = par.transformed ? this.targetFunctionTransformed : this.targetFunction;
@@ -368,20 +269,27 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         }
         getLimits() {
             const tau2 = this.getTau2();
-            this.odAdjust = this.getODAdjust();
-            const curr_tau2 = this.odAdjust ? tau2 : 0;
+            const odAdjust = this.getODAdjust();
+            this.odAdjust = odAdjust;
+            const curr_tau2 = odAdjust ? tau2 : 0;
             const target = this.getTarget({ transformed: false });
             const alt_target = this.inputSettings.settings.lines.alt_target;
             const target_transformed = this.getTarget({ transformed: true });
             const intervals = this.getIntervals();
             const plottingDenominators = this.getPlottingDenominators();
+            const nextDenominators = new Array(plottingDenominators.length);
+            for (let idx = 0; idx < plottingDenominators.length; idx++) {
+                nextDenominators[idx] = plottingDenominators[idx] * (1 + 1e-3);
+            }
             const plottingSE = this.getSE({
-                odAdjust: this.odAdjust,
+                odAdjust: odAdjust,
                 plottingDenominators: plottingDenominators
             });
-            const calcLimits = new Array(plottingDenominators.length);
-            for (let idx = 0; idx < plottingDenominators.length; idx++) {
-                const denom = plottingDenominators[idx];
+            const nextSE = this.getSE({
+                odAdjust: odAdjust,
+                plottingDenominators: nextDenominators
+            });
+            const limitRow = (denom, SE) => {
                 const row = { denominators: denom, target, alt_target,
                     ll99: undefined, ll95: undefined, ll68: undefined, ul68: undefined, ul95: undefined, ul99: undefined };
                 for (let i = 0; i < intervals.length; i++) {
@@ -390,42 +298,23 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
                         p: interval.prob,
                         q: interval.quantile,
                         target_transformed: target_transformed,
-                        SE: plottingSE[idx],
+                        SE: SE,
                         tau2: curr_tau2,
                         denominators: denom
                     };
                     const limit = this.getSingleLimit({
-                        odAdjust: this.odAdjust,
+                        odAdjust: odAdjust,
                         inputArgs: functionArgs
                     });
                     row[interval.label] = limit;
                 }
+                return row;
+            };
+            const calcLimits = new Array(plottingDenominators.length);
+            for (let idx = 0; idx < plottingDenominators.length; idx++) {
+                const row = limitRow(plottingDenominators[idx], plottingSE[idx]);
+                pruneCrossing(row, limitRow(nextDenominators[idx], nextSE[idx]));
                 calcLimits[idx] = row;
-            }
-            const levels = ["99", "95", "68"];
-            for (let idx = 0; idx < calcLimits.length - 1; idx++) {
-                const inner = calcLimits[idx];
-                const next = calcLimits[idx + 1];
-                for (let i = 0; i < levels.length; i++) {
-                    const lower = `ll${levels[i]}`;
-                    const upper = `ul${levels[i]}`;
-                    const nextLower = next[lower];
-                    const nextUpper = next[upper];
-                    let low = inner[lower];
-                    let high = inner[upper];
-                    if (low !== undefined && nextLower !== undefined && low > nextLower) {
-                        low = undefined;
-                    }
-                    if (high !== undefined && nextUpper !== undefined && high < nextUpper) {
-                        high = undefined;
-                    }
-                    if (low !== undefined && high !== undefined && low >= high) {
-                        low = undefined;
-                        high = undefined;
-                    }
-                    inner[lower] = low;
-                    inner[upper] = high;
-                }
             }
             return calcLimits;
         }
@@ -441,6 +330,137 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
             this.limitFunctionOD = args.limitFunctionOD;
             this.inputData = args.inputData;
             this.inputSettings = args.inputSettings;
+        }
+    }
+
+    const funnelSettings = {
+        description: "Funnel Settings",
+        displayName: "Data Settings",
+        settingsGroups: {
+            "all": {
+                chart_type: settings.dropdownOption("Chart Type", "Type of funnel plot: an indirectly standardised ratio of observed to expected, a proportion or a rate.", "PR", ["SR", "PR", "RC"], "none", ["Indirectly Standardised (HSMR)", "Proportion", "Rate"]),
+                od_adjust: settings.dropdownOption("OD Adjustment", "Widens the limits for overdispersion. Yes adjusts for any estimated overdispersion; "
+                    + "Auto only when a chi-squared test detects it.", "no", ["auto", "yes", "no"], "sentence"),
+                ...settings.scalingOptions(),
+                transformation: settings.dropdownOption("Transformation", "Scale for the plotted values and limits; any transformation turns off % labels.", "none", ["none", "ln", "log10", "sqrt"], "none", ["None", "Natural Log (y+1)", "Log10 (y+1)", "Square-Root"]),
+                ttip_show_group: settings.toggleOption("Show Group in Tooltip", "Shows the group name in the tooltip.", true),
+                ttip_label_group: settings.textOption("Group Tooltip Label", "Name for the group in the tooltip.", "Group"),
+                ...settings.valueTooltipOptions(),
+                ...settings.limitTruncationOptions()
+            }
+        }
+    };
+
+    const miscSettings = {
+        displayName: "MISC Settings",
+        description: "Multi-indicator sigma chart",
+        settingsGroups: {
+            all: {
+                group: { ...settings.textOption("Group", "Group the multi-indicator chart shows, with a bar per indicator.", ""), type: settings.FormattingComponent.Dropdown, constant: true,
+                    items: [] },
+                lower: settings.numberOption("Lower Sigma Bound", "Left end of the z-score axis; must be below 0.", -5, { below: 0 }),
+                upper: settings.numberOption("Upper Sigma Bound", "Right end of the z-score axis; must be above 0.", 5, { above: 0 }),
+                bar_height: settings.numberOption("Bar Height Ratio", "Share of each row's height the bar fills.", 0.65, { min: 0, max: 1 }),
+                unfavourable_label: settings.textOption("Unfavourable Label", "Caption over the unfavourable (left) side.", "Unfavourable"),
+                favourable_label: settings.textOption("Favourable Label", "Caption over the favourable (right) side.", "Favourable")
+            }
+        }
+    };
+
+    const outliersSettings = {
+        description: "Outlier Settings",
+        displayName: "Outlier Settings",
+        settingsGroups: {
+            "General": settings.flagDirectionOptions(),
+            "Three Sigma Outliers": {
+                three_sigma: settings.toggleOption("Three Sigma Outliers", "Flags points beyond the 99.8% limits.", false),
+                three_sigma_colour_improvement: settings.colourOption("Imp. Three Sigma Colour", "Colour for three-sigma outliers that are an improvement.", "improvement"),
+                three_sigma_colour_deterioration: settings.colourOption("Det. Three Sigma Colour", "Colour for three-sigma outliers that are a deterioration.", "deterioration"),
+                three_sigma_colour_neutral_low: settings.colourOption("Neutral (Low) Three Sigma Colour", "Colour for points below the lower 99.8% limit when the improvement direction is neutral.", "neutral_low"),
+                three_sigma_colour_neutral_high: settings.colourOption("Neutral (High) Three Sigma Colour", "Colour for points above the upper 99.8% limit when the improvement direction is neutral.", "neutral_high")
+            },
+            "Two Sigma Outliers": {
+                two_sigma: settings.toggleOption("Two Sigma Outliers", "Flags points beyond the 95% limits.", false),
+                two_sigma_colour_improvement: settings.colourOption("Imp. Two Sigma Colour", "Colour for two-sigma outliers that are an improvement.", "improvement"),
+                two_sigma_colour_deterioration: settings.colourOption("Det. Two Sigma Colour", "Colour for two-sigma outliers that are a deterioration.", "deterioration"),
+                two_sigma_colour_neutral_low: settings.colourOption("Neutral (Low) Two Sigma Colour", "Colour for points below the lower 95% limit when the improvement direction is neutral.", "neutral_low"),
+                two_sigma_colour_neutral_high: settings.colourOption("Neutral (High) Two Sigma Colour", "Colour for points above the upper 95% limit when the improvement direction is neutral.", "neutral_high")
+            }
+        }
+    };
+
+    const scatterSettings = {
+        description: "Scatter Settings",
+        displayName: "Scatter Settings",
+        settingsGroups: {
+            "Dots": settings.dotOptions(),
+            "Group Text": {
+                use_group_text: settings.toggleOption("Show Group Text", "Writes each group's name in place of its point.", false),
+                scatter_text_font: settings.fontOption("Group Text Font", "Font of the group names."),
+                scatter_text_size: settings.fontSizeOption("Group Text Size", "Font size of the group names, in pixels."),
+                scatter_text_colour: settings.colourOption("Group Text Colour", "Colour of the group names.", "standard"),
+                scatter_text_opacity: settings.numberOption("Group Text Default Opacity", "Opacity of the group names while nothing is selected.", 1, { min: 0, max: 1 }),
+                scatter_text_opacity_selected: settings.numberOption("Group Text Opacity if Selected", "Opacity of selected group names while a selection is active.", 1, { min: 0, max: 1 }),
+                scatter_text_opacity_unselected: settings.numberOption("Group Text Opacity if Unselected", "Opacity of the other group names while a selection is active.", 0.2, { min: 0, max: 1 })
+            }
+        }
+    };
+
+    const linesSettings = {
+        description: "Line Settings",
+        displayName: "Line Settings",
+        settingsGroups: {
+            "Target": settings.createLineGroup("target", {
+                showLabel: "Show Target", showDescription: "Draws the centreline.", showDefault: true,
+                width: 1.5, type: "10 0", colour: "standard", rebaselines: false, tooltipLabel: "Centerline"
+            }),
+            "Alt. Target": settings.createLineGroup("alt_target", {
+                showLabel: "Show Alt. Target Line", showDescription: "Draws a line at the Additional Target Value.", showDefault: false,
+                width: 1.5, type: "10 0", colour: "standard", rebaselines: false, tooltipLabel: "Alt. Target"
+            }, {
+                alt_target: settings.numberOption("Additional Target Value:", "Value of the target line, as a plotted value; the transformation applies but not the multiplier.", undefined)
+            }),
+            "68% Limits": settings.createLineGroup("68", {
+                showLabel: "Show 68% Lines", showDescription: "Draws the 68% limits.", showDefault: false,
+                width: 2, type: "2 5", colour: "limits", rebaselines: false, tooltipLabel: "68% Limit", tooltipPrefixes: true
+            }),
+            "95% Limits": settings.createLineGroup("95", {
+                showLabel: "Show 95% Lines", showDescription: "Draws the 95% limits.", showDefault: true,
+                width: 2, type: "2 5", colour: "limits", rebaselines: false, tooltipLabel: "95% Limit", tooltipPrefixes: true
+            }),
+            "99% Limits": settings.createLineGroup("99", {
+                showLabel: "Show 99% Lines", showDescription: "Draws the 99.8% limits.", showDefault: true,
+                width: 2, type: "10 10", colour: "limits", rebaselines: false, tooltipLabel: "99% Limit", tooltipPrefixes: true
+            })
+        }
+    };
+
+    const settingsModel = {
+        canvas: settings.createCanvasCard(),
+        funnel: settings.defineCard(funnelSettings),
+        misc: settings.defineCard(miscSettings),
+        outliers: settings.defineCard(outliersSettings),
+        scatter: settings.defineCard(scatterSettings),
+        lines: settings.defineCard(linesSettings),
+        x_axis: settings.createAxisCard("x", { tickRotation: 0, limitUnits: "a denominator" }),
+        y_axis: settings.createAxisCard("y", { tickRotation: 0, limitUnits: "a plotted value" }),
+        summary_table: settings.createSummaryTableCard({ showDescription: "Shows the groups as a table instead of a chart." }),
+        download_options: settings.createDownloadCard(),
+        labels: settings.createLabelsCard()
+    };
+    const defaultSettings = settings.createDefaultValues(settingsModel);
+
+    function derive(settings) {
+        const funnel = settings.funnel;
+        return data.deriveScaling(funnel, {
+            proportion: funnel.chart_type === "PR",
+            wholeCounts: funnel.chart_type !== "SR",
+            percentAllowed: funnel.transformation === "none"
+        });
+    }
+    class settingsClass extends powerbi.SettingsStore {
+        constructor() {
+            super(settingsModel, derive, [settings$1 => settings.orderedBoundsError(settings$1, settings$1.funnel)]);
         }
     }
 
@@ -490,102 +510,56 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         };
     }
 
-    function derive(settings) {
-        const funnel = settings.funnel;
-        return data.deriveScaling(funnel, {
-            proportion: funnel.chart_type === "PR",
-            wholeCounts: funnel.chart_type !== "SR",
-            percentAllowed: funnel.transformation === "none"
-        });
-    }
-    class settingsClass {
-        update(view, groups) {
-            const result = powerbi.readSettingsGroups(settingsModel, view.category, groups, [settings$1 => settings.orderedBoundsError(settings$1, settings$1.funnel)]);
-            this.groupSettings = result.values;
-            this.settings = result.values[0];
-            this.validationStatus = result.validation;
-            this.messagePositionByRowIndex = result.messagePositionByRowIndex;
-            const selectedGroup = view.dataView.metadata.objects?.misc?.group;
-            this.settings.misc.group = typeof selectedGroup === "string" ? selectedGroup : "";
-            this.derivedSettings = derive(this.settings);
-        }
-        forGroup(index) {
-            const result = new settingsClass(this.groupSettings[index]);
-            result.validationStatus = this.validationStatus;
-            result.messagePositionByRowIndex = this.messagePositionByRowIndex;
-            return result;
-        }
-        getFormattingModel() {
-            const { misc, ...funnelModel } = settingsModel;
-            if (!this.showMisc) {
-                return powerbi.buildFormattingModel(funnelModel, this.settings);
-            }
-            return powerbi.buildFormattingModel(miscFormattingSchema(this.miscGroups), this.settings);
-        }
-        constructor(settings$1 = settings.createDefaultValues(settingsModel)) {
-            this.groupSettings = [];
-            this.messagePositionByRowIndex = new Map();
-            this.miscGroups = [];
-            this.showMisc = false;
-            this.validationStatus = { status: 0, messages: [] };
-            this.settings = settings$1;
-            this.derivedSettings = derive(settings$1);
-        }
-    }
-
     function validateInputData(keys, numerators, denominators, data_type) {
-        const at = (values, i) => values[i] ?? NaN;
         const rules = [
-            { fails: i => keys[i] === undefined, message: "Group missing", all: "All Groups/IDs are missing or null!" },
-            { fails: i => numerators[i] === undefined, message: "Numerator missing", all: "All numerators are missing or null!" },
-            { fails: i => Number.isNaN(at(numerators, i)), message: "Numerator is not a number", all: "All numerators are not numbers!" },
-            { fails: i => at(numerators, i) < 0, message: "Numerator negative", all: "All numerators are negative!" },
-            { fails: i => denominators[i] === undefined, message: "Denominator missing", all: "All denominators missing or null!" },
-            { fails: i => Number.isNaN(at(denominators, i)), message: "Denominator is not a number", all: "All denominators are not numbers!" },
+            data.missingRule(keys, { name: "Group", plural: "Groups/IDs" }),
+            data.missingRule(numerators, data.quantity.numerator),
+            data.nanRule(numerators, data.quantity.numerator),
+            data.negativeRule(numerators, data.quantity.numerator),
+            data.missingRule(denominators, data.quantity.denominator),
+            data.nanRule(denominators, data.quantity.denominator),
             { fails: i => !Number.isFinite(denominators[i]), message: "Denominator is not finite", all: "All denominators are not finite!" },
-            { fails: i => at(denominators, i) < 0, message: "Denominator negative", all: "All denominators are negative!" },
+            data.negativeRule(denominators, data.quantity.denominator),
             { fails: i => denominators[i] === 0, message: "Denominator is zero", all: "All denominators are zero!" }
         ];
         if (data_type === "PR") {
-            rules.push({
-                fails: i => !(at(denominators, i) >= at(numerators, i)),
-                message: "Denominator < numerator", all: "All denominators are smaller than numerators!"
-            });
+            rules.push(data.ratioRule(numerators, denominators));
         }
         return data.validateRows(keys.length, rules);
     }
 
-    function extractInputData(view, inputSettingsClass, rows) {
+    function extractInputData(view, inputSettingsClass, rows, group = 0) {
         const keyColumn = view.categories.key[0];
-        const numeratorColumn = view.values.numerators[0];
-        const denominatorColumn = view.values.denominators[0];
-        const categories = view.category;
         const keys = new Array(rows.length);
         for (let i = 0; i < rows.length; i++) {
             keys[i] = powerbi.formatPrimitiveValue(keyColumn.values[rows[i]]);
         }
-        const numerators = powerbi.readNumbers(numeratorColumn, rows);
-        const denominators = powerbi.readNumbers(denominatorColumn, rows);
-        const validation = validateInputData(keys, numerators, denominators, inputSettingsClass.settings.funnel.chart_type);
-        if (validation.status !== 0) {
-            return { status: "invalid", error: validation.error };
+        const numerators = powerbi.readNumbers(view.values.numerators[0], rows);
+        const denominators = powerbi.readNumbers(view.values.denominators[0], rows);
+        const extracted = powerbi.extractRows(view, rows, {
+            keys,
+            validation: validateInputData(keys, numerators, denominators, inputSettingsClass.settings[group].funnel.chart_type),
+            rowSettings: inputSettingsClass.rowSettings[group],
+            settings: { messages: inputSettingsClass.validationStatus.messages, messagePositionByRowIndex: inputSettingsClass.messagePositionByRowIndex }
+        });
+        if (extracted.status === "invalid") {
+            return extracted;
         }
-        const kept = data.keptPositions(validation.messages);
-        const id = data.keptValues(rows, kept);
-        const labels = data.keptValues(keys, kept);
+        const { kept, warnings, ...annotations } = extracted.data;
+        const id = new Array(kept.length);
         const keyRows = new Array(kept.length);
+        const keptNumerators = new Array(kept.length);
+        const keptDenominators = new Array(kept.length);
         for (let x = 0; x < kept.length; x++) {
-            keyRows[x] = { x, id: id[x], label: labels[x] };
+            const i = kept[x];
+            id[x] = rows[i];
+            keyRows[x] = { x, id: rows[i], label: data.keptValue(keys, i) };
+            keptNumerators[x] = data.keptValue(numerators, i);
+            keptDenominators[x] = data.keptValue(denominators, i);
         }
-        const annotations = powerbi.readRowAnnotations({
-            categorical: view.categorical, values: view.values, categories,
-            cards: { scatter: settingsModel.scatter, labels: settingsModel.labels },
-            defaults: { scatter: defaultSettings.scatter, labels: defaultSettings.labels }
-        }, rows, kept);
-        const warnings = powerbi.rowWarnings(categories.source.displayName, rows, keys, validation.messages, { messages: inputSettingsClass.validationStatus.messages, messagePositionByRowIndex: inputSettingsClass.messagePositionByRowIndex });
         return { status: "valid", data: {
-                ...annotations, keys: keyRows, id, numerators: data.keptValues(numerators, kept), denominators: data.keptValues(denominators, kept), categories,
-                warningMessage: warnings.join("\n"), validationStatus: validation
+                ...annotations, keys: keyRows, id, numerators: keptNumerators, denominators: keptDenominators,
+                warningMessage: warnings.join("\n")
             } };
     }
 
@@ -594,7 +568,7 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         if (inputData === undefined) {
             throw new Error("Axis ranges require validated data.");
         }
-        const settings = viewModel.inputSettings.settings;
+        const settings = viewModel.inputSettings.settings[0];
         let yUpperLimit = settings.y_axis.ylimit_u;
         if (yUpperLimit === undefined) {
             yUpperLimit = -Infinity;
@@ -880,76 +854,59 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         SR: smrFunnelClass
     });
 
-    class viewModelClass {
+    function tableColumns(settings$1) {
+        const columns = [{ name: "group", label: settings$1.funnel.ttip_label_group }, { name: "value", label: "Value" }];
+        if (settings$1.funnel.ttip_show_numerator) {
+            columns.push({ name: "numerator", label: "Numerator" });
+        }
+        if (settings$1.funnel.ttip_show_denominator) {
+            columns.push({ name: "denominator", label: "Denominator" });
+        }
+        columns.push(...settings.limitColumns(settings$1.lines, true));
+        if (settings$1.outliers.three_sigma) {
+            columns.push({ name: "three_sigma", label: "Three Sigma" });
+        }
+        if (settings$1.outliers.two_sigma) {
+            columns.push({ name: "two_sigma", label: "Two Sigma" });
+        }
+        return columns;
+    }
+    class viewModelClass extends rendering.PlotViewModelBase {
         constructor(host) {
-            this.svgWidth = 0;
-            this.svgHeight = 0;
-            this.frontend = false;
-            this.miscPoints = [];
-            this.miscAnyHighlights = false;
+            super(host, new settingsClass(), ["numerators", "denominators"]);
             this.inputData = undefined;
-            this.inputSettings = new settingsClass();
             this.chartBase = undefined;
             this.calculatedLimits = [];
-            this.plotPoints = new Array();
-            this.groupedLines = new Array();
-            this.firstRun = true;
-            this.colourPalette = powerbi.readColourPalette(host);
-            this.headless = false;
+            this.plotPoints = [];
+            this.tableColumns = [];
+            this.groupedLines = [];
+            this.showMisc = false;
+            this.miscGroups = [];
+            this.miscGroup = "";
+            this.miscPoints = [];
+            this.miscAnyHighlights = false;
         }
-        update(options, host) {
-            this.colourPalette = powerbi.readColourPalette(host);
-            const checkDV = powerbi.validateDataView(options.dataViews, ["numerators", "denominators"]);
-            if (checkDV.status !== "valid") {
-                return this.invalidate(checkDV.error);
-            }
-            const view = checkDV.view;
-            const dataChanged = (options.type & (2 | 16)) !== 0 || this.firstRun;
-            const indicators = view.categories.indicator ?? [];
-            const indicatorGroups = powerbi.groupCategoryRows(indicators, view.rowCount);
-            if (dataChanged) {
-                this.inputSettings.showMisc = indicators.length > 0;
-                this.inputSettings.miscGroups = [];
-                this.inputSettings.update(view, indicatorGroups.rows);
-            }
-            const settingsValidation = this.inputSettings.validationStatus;
-            if (settingsValidation.status !== 0) {
-                return this.invalidate(settingsValidation.error, "settings");
-            }
-            this.svgWidth = options.viewport.width;
-            this.svgHeight = options.viewport.height;
-            this.headless = options.headless ?? false;
-            this.frontend = options.frontend ?? false;
-            if (dataChanged) {
-                this.miscPoints = [];
-                this.miscAnyHighlights = false;
-                if (this.inputSettings.showMisc) {
-                    return this.initialiseMisc(view, host, indicatorGroups, indicators);
-                }
-                const result = extractInputData(view, this.inputSettings, indicatorGroups.rows[0]);
-                if (result.status === "invalid") {
-                    return this.invalidate(result.error);
-                }
-                this.inputData = result.data;
-                this.chartBase = new chartObjects[this.inputSettings.settings.funnel.chart_type](result.data, this.inputSettings);
-                this.calculatedLimits = this.chartBase.getLimits();
-                this.scaleAndTruncateLimits();
-                this.initialisePlotData(host, result.data, this.chartBase);
-                this.initialiseGroupedLines();
-                this.firstRun = false;
-            }
-            if (this.inputData === undefined) {
-                return this.invalidate("No validated data present");
-            }
-            if (!this.inputSettings.showMisc) {
-                const rangeError = rendering.axisRangeError(axisRanges(this));
-                if (rangeError !== undefined) {
-                    return this.invalidate(rangeError, "settings");
-                }
-            }
-            return { status: true, data: this.inputData, warning: this.inputData.warningMessage || undefined };
+        get periodEnds() {
+            return [this.calculatedLimits.length - 1];
         }
-        invalidate(error, type) {
+        get anyLabels() {
+            return this.inputData?.anyLabels ?? false;
+        }
+        getFormattingModel() {
+            const settings = this.inputSettings.settings[0];
+            if (this.showMisc) {
+                return powerbi.buildFormattingModel(miscFormattingSchema(this.miscGroups), { ...settings, misc: { ...settings.misc, group: this.miscGroup } });
+            }
+            const { misc, ...funnelModel } = settingsModel;
+            return powerbi.buildFormattingModel(funnelModel, settings);
+        }
+        get hasAxes() {
+            return !this.showMisc;
+        }
+        axisRanges() {
+            return axisRanges(this);
+        }
+        reset() {
             this.inputData = undefined;
             this.chartBase = undefined;
             this.calculatedLimits = [];
@@ -957,13 +914,32 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
             this.groupedLines = [];
             this.miscPoints = [];
             this.miscAnyHighlights = false;
-            this.firstRun = true;
-            return { status: false, error, type };
         }
-        initialiseMisc(view, host, indicators, indicatorColumns) {
+        updateData(view, indicatorGroups, host) {
+            this.showMisc = (view.categories.indicator ?? []).length > 0;
+            this.miscGroups = [];
+            this.miscPoints = [];
+            this.miscAnyHighlights = false;
+            if (this.showMisc) {
+                return this.initialiseMisc(view, host, indicatorGroups);
+            }
+            const result = extractInputData(view, this.inputSettings, indicatorGroups.rows[0]);
+            if (result.status === "invalid") {
+                return { errors: [result.error], warnings: [] };
+            }
+            this.inputData = result.data;
+            const group = this.inputSettings.group(0);
+            this.chartBase = new chartObjects[group.settings.funnel.chart_type](result.data, group);
+            this.calculatedLimits = this.chartBase.getLimits();
+            this.scaleAndTruncateLimits();
+            this.initialisePlotData(host, result.data, this.chartBase);
+            this.initialiseGroupedLines();
+            return { errors: [], warnings: result.data.warningMessage === "" ? [] : [result.data.warningMessage] };
+        }
+        initialiseMisc(view, host, indicators) {
             const keyColumn = view.categories.key[0];
             const groups = powerbi.groupCategoryRows([keyColumn], keyColumn.values.length);
-            const items = this.inputSettings.miscGroups;
+            const items = this.miscGroups;
             const rowsByGroup = new Map();
             for (let i = 0; i < groups.rows.length; i++) {
                 if (keyColumn.values[groups.rows[i][0]] == null) {
@@ -972,46 +948,48 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
                 items.push({ displayName: groups.names[i][0], value: groups.keys[i] });
                 rowsByGroup.set(groups.keys[i], groups.rows[i]);
             }
-            const misc = this.inputSettings.settings.misc;
-            if (misc.group === "" && items.length > 0) {
-                misc.group = items[0].value;
+            const selectedGroup = view.dataView.metadata.objects?.misc?.group;
+            this.miscGroup = typeof selectedGroup === "string" ? selectedGroup : "";
+            if (this.miscGroup === "" && items.length > 0) {
+                this.miscGroup = items[0].value;
             }
-            const targetRows = rowsByGroup.get(misc.group);
+            const targetRows = rowsByGroup.get(this.miscGroup);
             if (targetRows === undefined) {
-                return this.invalidate("Select a MISC group present in the data.");
-            }
-            if (!(misc.lower < 0 && misc.upper > 0)) {
-                return this.invalidate("MISC sigma bounds must span zero.");
+                return { errors: ["Select a MISC group present in the data."], warnings: [] };
             }
             const selectedRows = new Set(targetRows);
+            const errors = [];
             const warnings = [];
             this.inputData = undefined;
             for (let i = 0; i < indicators.rows.length; i++) {
                 const rows = indicators.rows[i];
-                const settings = this.inputSettings.forGroup(i);
-                const indicator = indicators.names[i].join(" / ");
-                const directions = powerbi.readSettingsRows(settingsModel.outliers, "outliers", defaultSettings.outliers, view.category, rows).values;
-                const direction = directions[0].improvement_direction;
-                for (let j = 0; j < directions.length; j++) {
-                    if (direction === "neutral" || directions[j].improvement_direction !== direction) {
-                        return this.invalidate(`Each MISC indicator must have one improvement direction: increase or decrease. Invalid indicator: ${indicator}.`);
-                    }
+                const group = this.inputSettings.group(i);
+                const indicator = indicators.labels[i];
+                const rowSettings = this.inputSettings.rowSettings[i];
+                const direction = rowSettings[0].outliers.improvement_direction;
+                let oneDirection = direction !== "neutral";
+                for (let j = 1; oneDirection && j < rowSettings.length; j++) {
+                    oneDirection = rowSettings[j].outliers.improvement_direction === direction;
                 }
-                settings.settings.outliers = { ...settings.settings.outliers, three_sigma: true, two_sigma: false };
-                const result = extractInputData(view, settings, rows);
+                if (!oneDirection) {
+                    errors.push(powerbi.labelledMessage(indicator, "Each MISC indicator must have one improvement direction: increase or decrease."));
+                    continue;
+                }
+                const result = extractInputData(view, this.inputSettings, rows, i);
                 if (result.status === "invalid") {
-                    return this.invalidate(`${indicator}: ${result.error}`);
+                    errors.push(powerbi.labelledMessage(indicator, result.error));
+                    continue;
                 }
                 const data = result.data;
                 this.inputData ?? (this.inputData = data);
                 if (data.warningMessage !== "") {
-                    warnings.push(`${indicator}: ${data.warningMessage}`);
+                    warnings.push(powerbi.labelledMessage(indicator, data.warningMessage));
                 }
                 this.miscAnyHighlights || (this.miscAnyHighlights = data.anyHighlights);
-                const chart = new chartObjects[settings.settings.funnel.chart_type](data, settings);
+                const chart = new chartObjects[group.settings.funnel.chart_type](data, group);
                 this.calculatedLimits = chart.getLimits();
-                this.scaleAndTruncateLimits(settings);
-                this.initialisePlotData(host, data, chart, settings);
+                this.scaleAndTruncateLimits(group);
+                this.initialisePlotData(host, data, chart, group, { two_sigma: false, three_sigma: true });
                 for (let j = 0; j < data.id.length; j++) {
                     const row = data.id[j];
                     if (!selectedRows.has(row)) {
@@ -1019,15 +997,10 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
                     }
                     const point = this.plotPoints[j];
                     const score = point.z * (direction === "decrease" ? -1 : 1);
-                    const identity = host.createSelectionIdBuilder().withCategory(keyColumn, row);
-                    for (let k = 0; k < indicatorColumns.length; k++) {
-                        identity.withCategory(indicatorColumns[k], row);
-                    }
                     this.miscPoints.push({
                         ...point,
                         indicator,
                         score,
-                        identity: identity.createSelectionId(),
                         tooltip: [
                             { displayName: "Indicator", value: indicator },
                             { displayName: "Z-score", value: score.toFixed(3) },
@@ -1040,20 +1013,23 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
             this.calculatedLimits = [];
             this.plotPoints = [];
             this.groupedLines = [];
-            if (this.inputData === undefined || this.miscPoints.length === 0) {
-                return this.invalidate("The selected MISC group has no valid indicator results.");
+            if (errors.length === 0 && (this.inputData === undefined || this.miscPoints.length === 0)) {
+                errors.push("The selected MISC group has no valid indicator results.");
             }
-            this.inputData.warningMessage = warnings.join("\n");
-            this.firstRun = false;
-            return { status: true, data: this.inputData, warning: this.inputData.warningMessage || undefined };
+            return { errors, warnings };
         }
-        initialisePlotData(host, inputData, chart, inputSettings = this.inputSettings) {
+        initialisePlotData(host, inputData, chart, inputSettings = this.inputSettings.group(0), flags = inputSettings.settings.outliers) {
             this.plotPoints = new Array();
+            this.tableColumns = tableColumns(inputSettings.settings);
             const transform = getTransformation(inputSettings.settings.funnel.transformation);
             const multiplier = inputSettings.derivedSettings.multiplier;
-            const flag_two_sigma = inputSettings.settings.outliers.two_sigma;
-            const flag_three_sigma = inputSettings.settings.outliers.three_sigma;
+            const flag_two_sigma = flags.two_sigma;
+            const flag_three_sigma = flags.three_sigma;
             const zScores = chart.getZ();
+            const flagSettings = {
+                process_flag_type: inputSettings.settings.outliers.process_flag_type,
+                improvement_direction: inputSettings.settings.outliers.improvement_direction
+            };
             const limitsByDenominator = new Map();
             for (let i = 0; i < this.calculatedLimits.length; i++) {
                 limitsByDenominator.set(this.calculatedLimits[i].denominators, this.calculatedLimits[i]);
@@ -1067,14 +1043,10 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
                 if (limits === undefined) {
                     throw new Error("Missing limits for an observed denominator.");
                 }
-                const aesthetics = inputData.scatter_formatting[i];
+                const aesthetics = { ...inputData.scatter_formatting[i] };
                 if (this.colourPalette.isHighContrast) {
                     aesthetics.colour = this.colourPalette.foregroundColour;
                 }
-                const flagSettings = {
-                    process_flag_type: inputSettings.settings.outliers.process_flag_type,
-                    improvement_direction: inputSettings.settings.outliers.improvement_direction
-                };
                 const two_sigma_outlier = data.checkFlagDirection(flag_two_sigma ? spc.limitStatus(value, limits.ll95, limits.ul95) : "none", flagSettings);
                 const three_sigma_outlier = data.checkFlagDirection(flag_three_sigma ? spc.limitStatus(value, limits.ll99, limits.ul99) : "none", flagSettings);
                 const category = inputData.keys[i].label;
@@ -1088,10 +1060,14 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
                     z: zScores[i],
                     group_text: category,
                     limits,
+                    table_row: {
+                        group: category, numerator, denominator, value,
+                        target: limits.target, alt_target: limits.alt_target,
+                        ll99: limits.ll99, ll95: limits.ll95, ll68: limits.ll68, ul68: limits.ul68, ul95: limits.ul95, ul99: limits.ul99,
+                        two_sigma: two_sigma_outlier, three_sigma: three_sigma_outlier
+                    },
                     aesthetics: aesthetics,
-                    identity: host.createSelectionIdBuilder()
-                        .withCategory(inputData.categories, original_index)
-                        .createSelectionId(),
+                    identity: powerbi.rowIdentity(host, inputData.identityColumns, original_index),
                     highlighted: inputData.highlights[i] !== undefined,
                     tooltip: buildTooltip(i, limits, { two_sigma: two_sigma_outlier !== "none", three_sigma: three_sigma_outlier !== "none" }, inputData, inputSettings.settings, inputSettings.derivedSettings),
                     label: {
@@ -1107,32 +1083,35 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         }
         initialiseGroupedLines() {
             const labels = [];
-            if (this.inputSettings.settings.lines.show_target) {
+            if (this.inputSettings.settings[0].lines.show_target) {
                 labels.push("target");
             }
-            if (this.inputSettings.settings.lines.show_alt_target) {
+            if (this.inputSettings.settings[0].lines.show_alt_target) {
                 labels.push("alt_target");
             }
-            if (this.inputSettings.settings.lines.show_99) {
+            if (this.inputSettings.settings[0].lines.show_99) {
                 labels.push("ll99", "ul99");
             }
-            if (this.inputSettings.settings.lines.show_95) {
+            if (this.inputSettings.settings[0].lines.show_95) {
                 labels.push("ll95", "ul95");
             }
-            if (this.inputSettings.settings.lines.show_68) {
+            if (this.inputSettings.settings[0].lines.show_68) {
                 labels.push("ll68", "ul68");
             }
-            const formattedLines = new Array();
+            const lines = new Array(labels.length);
+            for (let j = 0; j < labels.length; j++) {
+                lines[j] = [labels[j], []];
+            }
             for (let i = 0; i < this.calculatedLimits.length; i++) {
                 const limits = this.calculatedLimits[i];
                 for (let j = 0; j < labels.length; j++) {
                     const label = labels[j];
-                    formattedLines.push({ x: limits.denominators, line_value: limits[label], group: label });
+                    lines[j][1].push({ x: limits.denominators, line_value: limits[label], group: label });
                 }
             }
-            this.groupedLines = data.groupBy(formattedLines, "group");
+            this.groupedLines = lines;
         }
-        scaleAndTruncateLimits(inputSettings = this.inputSettings) {
+        scaleAndTruncateLimits(inputSettings = this.inputSettings.group(0)) {
             const multiplier = inputSettings.derivedSettings.multiplier;
             const transform = getTransformation(inputSettings.settings.funnel.transformation);
             const lower = inputSettings.settings.funnel.ll_truncate;
@@ -1154,35 +1133,28 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
         }
     }
 
-    function downloadRows(viewModel) {
-        const points = viewModel.plotPoints;
-        const rows = new Array(points.length);
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            const limit = point.limits;
-            rows[i] = {
-                group: point.group_text, numerator: point.numerator, denominator: point.x, value: point.value,
-                target: limit.target, alt_target: limit.alt_target,
-                ll99: limit.ll99, ll95: limit.ll95, ll68: limit.ll68, ul68: limit.ul68, ul95: limit.ul95, ul99: limit.ul99,
-                two_sigma: point.two_sigma, three_sigma: point.three_sigma
-            };
-        }
-        return rows;
-    }
-
+    const columnKinds = {
+        value: "number", target: "number", alt_target: "number",
+        ll99: "number", ll95: "number", ll68: "number", ul68: "number", ul95: "number", ul99: "number",
+        numerator: "integer", denominator: "integer",
+        two_sigma: "flag", three_sigma: "flag"
+    };
     class Visual extends rendering.PlotVisual {
         constructor(options) {
             super(options, host => new viewModelClass(host));
             this.lineKeys = settings.standardLineKeys;
+            this.tableDiv = rendering.createTableContainer(this.element);
+        }
+        resizeCanvas(width, height) {
+            super.resizeCanvas(width, height);
+            rendering.showTable(this.tableDiv, width === 0 && height === 0);
         }
         get settings() {
-            return this.viewModel.inputSettings.settings;
-        }
-        axisRanges() {
-            return axisRanges(this.viewModel);
+            return this.viewModel.inputSettings.settings[0];
         }
         drawAlternate() {
-            if (this.viewModel.inputSettings.showMisc) {
+            const viewModel = this.viewModel;
+            if (viewModel.showMisc) {
                 this.svg.call(drawMisc, this);
                 return true;
             }
@@ -1190,17 +1162,37 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
             if (svg !== null && !this.svg.select(".misc-root").empty()) {
                 rendering.initialiseSvg(svg, true);
             }
-            return false;
+            if (!this.settings.summary_table.show_table) {
+                return false;
+            }
+            this.resizeCanvas(0, 0);
+            rendering.drawSummaryTable(this.tableDiv, {
+                columns: viewModel.tableColumns,
+                rows: viewModel.plotPoints,
+                kinds: columnKinds,
+                settings: this.settings.summary_table,
+                formatValue: viewModel.inputSettings.derivedSettings[0].formatValue,
+                width: viewModel.svgWidth,
+                host: this.host,
+                selectionManager: this.selectionManager,
+                onSelectionChange: () => this.updateHighlighting()
+            });
+            this.addContextMenu(this.tableDiv.node(), true);
+            return true;
         }
         updateHighlighting() {
             const viewModel = this.viewModel;
-            if (viewModel.inputSettings.showMisc) {
+            if (viewModel.showMisc) {
                 const state = powerbi.selectionState(this.selectionManager, viewModel.miscAnyHighlights);
                 this.svg.selectAll(".misc-bar").attr("opacity", point => rendering.highlightOpacity(point.aesthetics, state.active, powerbi.identitySelected(point.identity, state.selected) || point.highlighted));
                 return;
             }
             const state = powerbi.selectionState(this.selectionManager, viewModel.inputData ? viewModel.inputData.anyHighlights : false);
             const settings = this.settings;
+            const table = settings.summary_table;
+            rendering.highlightTable(this.tableDiv, state, () => ({
+                opacity: table.table_opacity, opacity_selected: table.table_opacity_selected, opacity_unselected: table.table_opacity_unselected
+            }));
             this.highlightPlotPoints(state, point => settings.scatter.use_group_text
                 ? {
                     opacity: point.aesthetics.scatter_text_opacity,
@@ -1209,47 +1201,109 @@ var funnel = (function (exports, settings, rendering, math, powerbi, data, spc) 
                 }
                 : point.aesthetics);
         }
-        drawVisual() {
-            const svg = this.svg.node();
-            if (svg === null) {
-                return;
-            }
-            const viewModel = this.viewModel;
+        plotOptions() {
             const settings$1 = this.settings;
-            const context = this.plotContext();
-            rendering.drawPlotAxes(svg, context, {
-                x: undefined,
-                y: rendering.valueTickFormat(settings$1.y_axis.ylimit_sig_figs ?? settings$1.funnel.sig_figs, viewModel.inputSettings.derivedSettings.percentLabels)
-            });
-            rendering.drawPlotTooltips(svg, context, true);
-            rendering.drawPlotLines(svg, context, viewModel.groupedLines, name => settings.lineStyle(settings$1.lines, settings.standardLineKeys[name]));
-            rendering.drawPlotLineLabels(svg, context, {
-                lines: viewModel.groupedLines,
-                settings: settings$1.lines,
-                keys: settings.standardLineKeys,
-                lower: name => settings.lowerLimitLines.has(name),
-                format: viewModel.inputSettings.derivedSettings.formatValue,
-                periodEnds: [viewModel.calculatedLimits.length - 1]
-            });
-            rendering.drawPlotDots(svg, context, {
-                show: true,
-                text: settings$1.scatter.use_group_text
-                    ? point => ({
-                        text: point.group_text, size: point.aesthetics.scatter_text_size,
-                        font: point.aesthetics.scatter_text_font, colour: point.aesthetics.scatter_text_colour
-                    })
-                    : undefined,
-                onClick: undefined
-            });
-            this.addContextMenu(svg);
-            rendering.drawPlotDownload(svg, context, () => downloadRows(viewModel));
-            rendering.drawPlotValueLabels(svg, context, viewModel.inputData?.anyLabels ?? false);
+            return {
+                tickFormats: {
+                    x: undefined,
+                    y: rendering.valueTickFormat(settings$1.y_axis.ylimit_sig_figs ?? settings$1.funnel.sig_figs, this.viewModel.inputSettings.derivedSettings[0].percentLabels)
+                },
+                verticalCrosshair: true,
+                lineSettings: () => settings$1.lines,
+                lowerLines: settings.lowerLimitLines,
+                dots: {
+                    show: true,
+                    text: settings$1.scatter.use_group_text
+                        ? point => ({
+                            text: point.group_text, size: point.aesthetics.scatter_text_size,
+                            font: point.aesthetics.scatter_text_font, colour: point.aesthetics.scatter_text_colour
+                        })
+                        : undefined,
+                    onClick: undefined
+                }
+            };
         }
     }
+
+    function limitRow(fields, limits, includeAltTarget) {
+        const row = {};
+        const fieldNames = Object.keys(fields);
+        for (let i = 0; i < fieldNames.length; i++) {
+            row[fieldNames[i]] = frontends.limitValue(fields[fieldNames[i]]);
+        }
+        const limitValues = limits;
+        const limitNames = Object.keys(limitValues);
+        for (let i = 0; i < limitNames.length; i++) {
+            const name = limitNames[i];
+            if (name !== "denominators" && (includeAltTarget || name !== "alt_target")) {
+                row[name] = frontends.limitValue(limitValues[name]);
+            }
+        }
+        return row;
+    }
+    function funnelLimits(plotPoints, outlierSettings, showAltTarget) {
+        const points = plotPoints.slice().sort((a, b) => a.x - b.x);
+        const rows = new Array(points.length);
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            const fields = {
+                denominator: point.x,
+                group: point.group_text,
+                numerator: point.numerator,
+                value: point.value,
+                z: point.z
+            };
+            if (outlierSettings.two_sigma) {
+                fields.two_sigma = point.two_sigma;
+            }
+            if (outlierSettings.three_sigma) {
+                fields.three_sigma = point.three_sigma;
+            }
+            rows[i] = limitRow(fields, point.limits, showAltTarget);
+        }
+        return rows;
+    }
+    function miscLimits(miscPoints) {
+        const rows = new Array(miscPoints.length);
+        for (let i = 0; i < miscPoints.length; i++) {
+            const point = miscPoints[i];
+            rows[i] = limitRow({
+                indicator: point.indicator,
+                group: point.group_text,
+                z: point.z,
+                score: point.score,
+                three_sigma: point.three_sigma,
+                numerator: point.numerator,
+                denominator: point.x,
+                value: point.value
+            }, point.limits, false);
+        }
+        return rows;
+    }
+    const frontend = {
+        Visual,
+        settingsModel,
+        limits: visual => {
+            const viewModel = visual.viewModel;
+            if (viewModel.showMisc) {
+                return { limits: miscLimits(viewModel.miscPoints) };
+            }
+            const settings = viewModel.inputSettings.settings[0];
+            const showAltTarget = settings.lines.alt_target != null;
+            const limitLines = new Array(viewModel.calculatedLimits.length);
+            for (let i = 0; i < limitLines.length; i++) {
+                const limits = viewModel.calculatedLimits[i];
+                limitLines[i] = limitRow({ denominator: limits.denominators }, limits, showAltTarget);
+            }
+            return { limits: funnelLimits(viewModel.plotPoints, settings.outliers, showAltTarget), limitLines };
+        }
+    };
+
+    frontends.registerChart('funnel', frontend);
 
     exports.Visual = Visual;
     exports.defaultSettings = defaultSettings;
 
     return exports;
 
-})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);
+})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);

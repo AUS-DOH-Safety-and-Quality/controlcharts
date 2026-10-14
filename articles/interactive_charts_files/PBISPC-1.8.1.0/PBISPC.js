@@ -1,302 +1,5 @@
-var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
+var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings, data) {
     'use strict';
-
-    const spcSettings = {
-        description: "SPC Settings",
-        displayName: "Data Settings",
-        settingsGroups: {
-            "all": {
-                chart_type: settings.dropdownOption("Chart Type", "Type of control chart; see Chart Types for the inputs each needs.", "i", ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"], "none", [
-                    "run - Run Chart",
-                    "i - Individual Measurements",
-                    "i_m - Individual Measurements: Median centerline",
-                    "i_mm - Individual Measurements: Median centerline, Median MR Limits",
-                    "mr - Moving Range of Individual Measurements",
-                    "p - Proportions",
-                    "p prime - Proportions: Large-Sample Corrected",
-                    "u - Rates",
-                    "u prime - Rates: Large-Sample Correction",
-                    "c - Counts",
-                    "xbar - Sample Means",
-                    "s - Sample SDs",
-                    "g - Number of Non-Events Between Events",
-                    "t - Time Between Events"
-                ]),
-                outliers_in_limits: settings.toggleOption("Keep Outliers in Limit Calcs.", "Keeps unusually large moving ranges when calculating limits; off drops them first. "
-                    + "Applies to i, i_m, i_mm, t, p prime and u prime charts.", false),
-                ...settings.scalingOptions(),
-                split_on_click: settings.toggleOption("Split Limits on Click", "Clicking a point ends a limit period there; clicking it again removes the split. "
-                    + "Splits stay when this is turned off, and are ignored when Grouping (Summary Table) is used.", false),
-                num_points_subset: settings.numberOption("Subset Number of Points for Limit Calculations", "Calculates the first period's limits from only this many points; blank or out of range uses them all.", undefined, { integer: true }),
-                subset_points_from: settings.dropdownOption("Subset Points From", "Whether the subset is taken from the start or end of the period.", "Start", ["Start", "End"]),
-                subset_rebaselines: settings.toggleOption("Subset Points After Each Re-Baseline", "Applies the subset to every rebaseline period, not only the first.", false),
-                ttip_show_date: settings.toggleOption("Show Date in Tooltip", "Shows the date, or the point number for g and t charts, in the tooltip.", true),
-                ttip_label_date: settings.textOption("Date Tooltip Label", "Name for the date in the tooltip; Automatic uses Date, or Event for g and t charts.", "Automatic"),
-                ...settings.valueTooltipOptions(),
-                ...settings.limitTruncationOptions()
-            }
-        }
-    };
-
-    const outliersSettings = {
-        description: "Outlier Settings",
-        displayName: "Outlier Settings",
-        settingsGroups: {
-            "General": settings.flagDirectionOptions(),
-            "Astronomical Points": {
-                astronomical: settings.toggleOption("Highlight Astronomical Points", "Flags points beyond the chosen limit.", false),
-                astronomical_limit: settings.dropdownOption("Limit for Astronomical Points", "Limit a point must be beyond. Specification needs the specification lines shown.", "3 Sigma", ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"]),
-                ast_colour_improvement: settings.colourOption("Imp. Ast. Colour", "Colour for astronomical points that are an improvement.", "improvement"),
-                ast_colour_deterioration: settings.colourOption("Det. Ast. Colour", "Colour for astronomical points that are a deterioration.", "deterioration"),
-                ast_colour_neutral_low: settings.colourOption("Neutral (Low) Ast. Colour", "Colour for points beyond the lower limit when the improvement direction is neutral.", "neutral_low"),
-                ast_colour_neutral_high: settings.colourOption("Neutral (High) Ast. Colour", "Colour for points beyond the upper limit when the improvement direction is neutral.", "neutral_high")
-            },
-            "Shifts": {
-                shift: settings.toggleOption("Highlight Shifts", "Flags runs of points on one side of the centreline.", false),
-                shift_n: settings.numberOption("Shift Points", "Points needed for a shift; points on the centreline neither count nor break it.", 7, { min: 1, integer: true }),
-                shift_colour_improvement: settings.colourOption("Imp. Shift Colour", "Colour for shifts that are an improvement.", "improvement"),
-                shift_colour_deterioration: settings.colourOption("Det. Shift Colour", "Colour for shifts that are a deterioration.", "deterioration"),
-                shift_colour_neutral_low: settings.colourOption("Neutral (Low) Shift Colour", "Colour for shifts below the centreline when the improvement direction is neutral.", "neutral_low"),
-                shift_colour_neutral_high: settings.colourOption("Neutral (High) Shift Colour", "Colour for shifts above the centreline when the improvement direction is neutral.", "neutral_high")
-            },
-            "Trends": {
-                trend: settings.toggleOption("Highlight Trends", "Flags runs of steadily rising or falling points.", false),
-                trend_n: settings.numberOption("Trend Points", "Points needed for a trend, including its first; repeated values count once.", 5, { min: 2, integer: true }),
-                trend_colour_improvement: settings.colourOption("Imp. Trend Colour", "Colour for trends that are an improvement.", "improvement"),
-                trend_colour_deterioration: settings.colourOption("Det. Trend Colour", "Colour for trends that are a deterioration.", "deterioration"),
-                trend_colour_neutral_low: settings.colourOption("Neutral (Low) Trend Colour", "Colour for falling trends when the improvement direction is neutral.", "neutral_low"),
-                trend_colour_neutral_high: settings.colourOption("Neutral (High) Trend Colour", "Colour for rising trends when the improvement direction is neutral.", "neutral_high")
-            },
-            "Two-In-Three": {
-                two_in_three: settings.toggleOption("Highlight Two-in-Three", "Flags two of three consecutive points beyond the same warning limit.", false),
-                two_in_three_highlight_series: settings.toggleOption("Highlight all in Pattern", "Also flags the third point in the window, unless it is beyond the opposite limit.", false),
-                two_in_three_limit: settings.dropdownOption("Warning Limit for Two-in-Three", "Limit the points must be beyond. Specification needs the specification lines shown.", "2 Sigma", ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"]),
-                twointhree_colour_improvement: settings.colourOption("Imp. Two-in-Three Colour", "Colour for two-in-three points that are an improvement.", "improvement"),
-                twointhree_colour_deterioration: settings.colourOption("Det. Two-in-Three Colour", "Colour for two-in-three points that are a deterioration.", "deterioration"),
-                twointhree_colour_neutral_low: settings.colourOption("Neutral (Low) Two-in-Three Colour", "Colour for two-in-three patterns at the lower limit when the improvement direction is neutral.", "neutral_low"),
-                twointhree_colour_neutral_high: settings.colourOption("Neutral (High) Two-in-Three Colour", "Colour for two-in-three patterns at the upper limit when the improvement direction is neutral.", "neutral_high")
-            }
-        }
-    };
-
-    const iconLocations = ["Top Right", "Bottom Right", "Top Left", "Bottom Left"];
-    const nhsIconsSettings = {
-        description: "NHS Icons Settings",
-        displayName: "NHS Icons Settings",
-        settingsGroups: {
-            "all": {
-                show_variation_icons: settings.toggleOption("Show Variation Icons", "Draws the NHS variation icons for the flagged points, or adds them as a summary table column.", false),
-                flag_last_point: settings.toggleOption("Flag Only Last Point", "Bases the variation icons on the last point only; off uses every point.", true),
-                variation_icons_locations: settings.dropdownOption("Variation Icon Locations", "Corner of the chart for the variation icons.", "Top Right", iconLocations),
-                variation_icons_scaling: settings.numberOption("Scale Variation Icon Size", "Multiplies the size of the variation icons.", 1, { min: 0 }),
-                show_assurance_icons: settings.toggleOption("Show Assurance Icons", "Draws the NHS assurance icon, comparing the alt. target with the last point's three-sigma limits. "
-                    + "Needs the alt. target line and an increase or decrease improvement direction.", false),
-                assurance_icons_locations: settings.dropdownOption("Assurance Icon Locations", "Corner of the chart for the assurance icon.", "Top Right", iconLocations),
-                assurance_icons_scaling: settings.numberOption("Scale Assurance Icon Size", "Multiplies the size of the assurance icon.", 1, { min: 0 })
-            }
-        }
-    };
-
-    const scatterSettings = {
-        description: "Scatter Settings",
-        displayName: "Scatter Settings",
-        settingsGroups: {
-            "all": {
-                show_dots: settings.toggleOption("Show Scatter", "Draws the points.", true),
-                ...settings.dotOptions()
-            }
-        }
-    };
-
-    const linesSettings = {
-        description: "Line Settings",
-        displayName: "Line Settings",
-        settingsGroups: {
-            "Main": settings.createLineGroup("main", {
-                showLabel: "Show Main Line",
-                showDescription: "Draws the line joining the points.",
-                showDefault: true,
-                namePrefix: "Main ",
-                width: 1,
-                type: "10 0",
-                colour: "common_cause",
-                rebaselines: true
-            }),
-            "Target": settings.createLineGroup("target", {
-                showLabel: "Show Target",
-                showDescription: "Draws the centreline.",
-                showDefault: true,
-                width: 1.5,
-                type: "10 0",
-                colour: "standard",
-                rebaselines: true,
-                tooltipLabel: "Centerline"
-            }),
-            "Alt. Target": settings.createLineGroup("alt_target", {
-                showLabel: "Show Alt. Target Line",
-                showDescription: "Draws a line at the Additional Target Value; the assurance icon needs it.",
-                showDefault: false,
-                width: 1.5,
-                type: "10 0",
-                colour: "standard",
-                rebaselines: true,
-                tooltipLabel: "Alt. Target"
-            }, {
-                alt_target: settings.numberOption("Additional Target Value:", "Value of the target line, as a plotted value unless the multiplier is applied.", undefined),
-                multiplier_alt_target: settings.toggleOption("Apply Multiplier to Alt. Target", "Multiplies the target by the Multiplier, for targets entered as raw proportions or rates.", false)
-            }),
-            "68% Limits": settings.createLineGroup("68", {
-                showLabel: "Show 68% Lines",
-                showDescription: "Draws the one-sigma lines.",
-                showDefault: false,
-                width: 2,
-                type: "2 5",
-                colour: "limits",
-                rebaselines: true,
-                tooltipLabel: "68% Limit",
-                tooltipPrefixes: true
-            }),
-            "95% Limits": settings.createLineGroup("95", {
-                showLabel: "Show 95% Lines",
-                showDescription: "Draws the two-sigma lines.",
-                showDefault: true,
-                width: 2,
-                type: "2 5",
-                colour: "limits",
-                rebaselines: true,
-                tooltipLabel: "95% Limit",
-                tooltipPrefixes: true
-            }),
-            "99% Limits": settings.createLineGroup("99", {
-                showLabel: "Show 99% Lines",
-                showDescription: "Draws the three-sigma control limits.",
-                showDefault: true,
-                width: 2,
-                type: "10 10",
-                colour: "limits",
-                rebaselines: true,
-                tooltipLabel: "99% Limit",
-                tooltipPrefixes: true
-            }),
-            "Specification Limits": settings.createLineGroup("specification", {
-                showLabel: "Show Specification Lines",
-                showDescription: "Draws the specification limits, which patterns using the Specification limit need.",
-                showDefault: false,
-                width: 2,
-                type: "10 10",
-                colour: "limits",
-                rebaselines: true,
-                tooltipLabel: "Specification Limit",
-                tooltipPrefixes: true
-            }, {
-                specification_upper: settings.numberOption("Upper Specification Limit:", "Upper specification limit, as a plotted value unless the multiplier is applied.", undefined),
-                specification_lower: settings.numberOption("Lower Specification Limit:", "Lower specification limit, as a plotted value unless the multiplier is applied.", undefined),
-                multiplier_specification: settings.toggleOption("Apply Multiplier to Specification Limits", "Multiplies the limits by the Multiplier, for limits entered as raw proportions or rates.", false)
-            }),
-            "Trend": settings.createLineGroup("trend", {
-                showLabel: "Show Trend",
-                showDescription: "Draws a least-squares trend line through each rebaseline period.",
-                showDefault: false,
-                width: 1.5,
-                type: "10 0",
-                colour: "common_cause",
-                rebaselines: true,
-                tooltipLabel: "Trend"
-            })
-        }
-    };
-
-    const datesSettings = {
-        description: "Date Settings",
-        displayName: "Date Settings",
-        settingsGroups: {
-            "all": {
-                date_format_day: settings.dropdownOption("Day Format", "How the day appears in date labels; (blank) leaves it out.", "DD", ["DD", "Thurs DD", "Thursday DD", "(blank)"]),
-                date_format_month: settings.dropdownOption("Month Format", "How the month appears in date labels; (blank) leaves it out.", "MM", ["MM", "Mon", "Month", "(blank)"]),
-                date_format_year: settings.dropdownOption("Year Format", "How the year appears in date labels; (blank) leaves it out.", "YYYY", ["YYYY", "YY", "(blank)"]),
-                date_format_delim: settings.dropdownOption("Delimiter", "Character between the parts of a date label.", "/", ["/", "-", " "]),
-                date_format_locale: settings.dropdownOption("Locale", "Order of the parts: en-GB puts the day first, en-US the month.", "en-GB", ["en-GB", "en-US"])
-            }
-        }
-    };
-
-    function textAlignOption(displayName, description) {
-        return settings.dropdownOption(displayName, description, "auto", ["auto", "left", "center", "right"], "sentence");
-    }
-    const summaryTableSettings = {
-        description: "Summary Table Settings",
-        displayName: "Summary Table Settings",
-        settingsGroups: {
-            "General": {
-                show_table: settings.toggleOption("Show Summary Table", "Shows the points as a table instead of a chart. Data with more than one summary table group "
-                    + "is always shown as a table.", false),
-                table_variation_filter: settings.dropdownOption("Filter by Variation Type", "Shows only the groups whose variation icon matches.", "all", ["all", "common", "special", "improvement", "deterioration", "neutral"], "none", [
-                    "All", "Common Cause", "Special Cause - Any", "Special Cause - Improvement",
-                    "Special Cause - Deterioration", "Special Cause - Neutral"
-                ]),
-                table_assurance_filter: settings.dropdownOption("Filter by Assurance Type", "Shows only the groups whose assurance icon matches.", "all", ["all", "any", "pass", "fail", "inconsistent"], "none", ["All", "Consistent - Any", "Consistent Pass", "Consistent Fail", "Inconsistent"]),
-                table_text_overflow: settings.dropdownOption("Text Overflow Handling", "Text too long for its column: ellipsis or clip cuts it short, none lets it wrap.", "none", ["ellipsis", "clip", "none"], "sentence"),
-                table_opacity: settings.numberOption("Default Opacity", "Row opacity while nothing is selected.", 1, { min: 0, max: 1 }),
-                table_opacity_selected: settings.numberOption("Opacity if Selected", "Opacity of selected rows while a selection is active.", 1, { min: 0, max: 1 }),
-                table_opacity_unselected: settings.numberOption("Opacity if Unselected", "Opacity of the other rows while a selection is active.", 0.2, { min: 0, max: 1 }),
-                table_outer_border_style: settings.borderStyleOption("Outer Border Style", "Line style of the border around the table.", "none"),
-                table_outer_border_width: settings.borderWidthOption("Outer Border Width", "Width of the border around the table, in pixels."),
-                table_outer_border_colour: settings.colourOption("Outer Border Colour", "Colour of the border around the table.", "standard"),
-                table_outer_border_top: settings.toggleOption("Outer Border Top", "Draws the top of the border around the table.", true),
-                table_outer_border_bottom: settings.toggleOption("Outer Border Bottom", "Draws the bottom of the border around the table.", true),
-                table_outer_border_left: settings.toggleOption("Outer Border Left", "Draws the left side of the border around the table.", true),
-                table_outer_border_right: settings.toggleOption("Outer Border Right", "Draws the right side of the border around the table.", true)
-            },
-            "Header": {
-                table_header_font: settings.fontOption("Header Font", "Font of the column headers."),
-                table_header_size: settings.fontSizeOption("Header Font Size", "Font size of the column headers, in pixels."),
-                table_header_text_align: textAlignOption("Text Alignment", "Alignment of the headers; auto puts numbers right, text left and icons in the centre."),
-                table_header_font_weight: settings.fontWeightOption("Header Font Weight", "Font weight of the column headers.", "bold"),
-                table_header_text_transform: settings.textTransformOption("Header Text Transform", "Changes the case of the column headers."),
-                table_header_text_padding: settings.numberOption("Padding Around Text", "Space around each header, in pixels.", 3, { min: 0, max: 100 }),
-                table_header_colour: settings.colourOption("Header Font Colour", "Colour of the column headers.", "standard"),
-                table_header_bg_colour: settings.colourOption("Header Background Colour", "Background colour of the header row.", "white"),
-                table_header_border_style: settings.borderStyleOption("Header Border Style", "Line style of the header borders."),
-                table_header_border_width: settings.borderWidthOption("Header Border Width", "Width of the header borders, in pixels."),
-                table_header_border_colour: settings.colourOption("Header Border Colour", "Colour of the header borders.", "standard"),
-                table_header_border_bottom: settings.toggleOption("Bottom Border", "Draws a border under the header row.", true),
-                table_header_border_inner: settings.toggleOption("Inner Borders", "Draws borders between the headers.", false)
-            },
-            "Body": {
-                table_body_font: settings.fontOption("Body Font", "Font of the table cells."),
-                table_body_size: settings.fontSizeOption("Body Font Size", "Font size of the table cells, in pixels."),
-                table_body_text_align: textAlignOption("Text Alignment", "Alignment of the cells; auto puts numbers right, text left and icons in the centre."),
-                table_body_font_weight: settings.fontWeightOption("Font Weight", "Font weight of the table cells."),
-                table_body_text_transform: settings.textTransformOption("Text Transform", "Changes the case of the table cells."),
-                table_body_text_padding: settings.numberOption("Padding Around Text", "Space around each cell's text, in pixels.", 3, { min: 0, max: 100 }),
-                table_body_colour: settings.colourOption("Body Font Colour", "Colour of the cell text.", "standard"),
-                table_body_bg_colour: settings.colourOption("Body Background Colour", "Background colour of the rows.", "white"),
-                table_body_border_style: settings.borderStyleOption("Body Border Style", "Line style of the cell borders."),
-                table_body_border_width: settings.borderWidthOption("Body Border Width", "Width of the cell borders, in pixels."),
-                table_body_border_colour: settings.colourOption("Body Border Colour", "Colour of the cell borders.", "lightgray"),
-                table_body_border_top_bottom: settings.toggleOption("Top/Bottom Borders", "Draws borders between rows.", true),
-                table_body_border_left_right: settings.toggleOption("Left/Right Borders", "Draws borders between columns.", false)
-            }
-        }
-    };
-
-    const settingsModel = {
-        canvas: settings.createCanvasCard(),
-        spc: settings.defineCard(spcSettings),
-        outliers: settings.defineCard(outliersSettings),
-        nhs_icons: settings.defineCard(nhsIconsSettings),
-        scatter: settings.defineCard(scatterSettings),
-        lines: settings.defineCard(linesSettings),
-        x_axis: settings.createAxisCard("x", { tickRotation: -35, limitUnits: "a point number counted from 0" }),
-        y_axis: settings.createAxisCard("y", { tickRotation: 0, limitUnits: "a plotted value" }, {
-            limit_multiplier: settings.numberOption("Axis Scaling Factor", "Extends the y-axis past the centreline by this multiple of the distance to the furthest point, limit or target.", 1.5, { min: 0 })
-        }),
-        dates: settings.defineCard(datesSettings),
-        summary_table: settings.defineCard(summaryTableSettings),
-        download_options: settings.createDownloadCard(),
-        labels: settings.createLabelsCard()
-    };
-    const defaultSettings = settings.createDefaultValues(settingsModel);
 
     function commonCause(selection) {
         selection.append("g")
@@ -1106,15 +809,16 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         const upper = ul99[N];
         const lower = ll99[N];
         const impDirectionIncrease = imp_direction === "increase";
-        if (alt_target !== undefined && upper !== undefined && alt_target > upper) {
+        if (alt_target === undefined || upper === undefined || lower === undefined) {
+            return "none";
+        }
+        if (alt_target > upper) {
             return impDirectionIncrease ? "consistentFail" : "consistentPass";
         }
-        else if (alt_target !== undefined && lower !== undefined && alt_target < lower) {
+        if (alt_target < lower) {
             return impDirectionIncrease ? "consistentPass" : "consistentFail";
         }
-        else {
-            return "inconsistent";
-        }
+        return "inconsistent";
     }
 
     function variationIconsToDraw(outliers, inputSettings) {
@@ -1126,16 +830,28 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         const icons = imp_direction === "neutral" ? undefined : direction_icons[imp_direction];
         const flag_last = inputSettings.nhs_icons.flag_last_point;
         const startIndex = flag_last ? outliers.astpoint.length - 1 : 0;
+        const patterns = [outliers.astpoint, outliers.shift, outliers.trend, outliers.two_in_three];
         let improvementPresent = false;
         let deteriorationPresent = false;
         let neutralLowPresent = false;
         let neutralHighPresent = false;
         for (let i = startIndex; i < outliers.astpoint.length; i++) {
-            const flagsToCheck = [outliers.astpoint[i], outliers.shift[i], outliers.trend[i], outliers.two_in_three[i]];
-            improvementPresent = improvementPresent || flagsToCheck.includes("improvement");
-            deteriorationPresent = deteriorationPresent || flagsToCheck.includes("deterioration");
-            neutralLowPresent = neutralLowPresent || flagsToCheck.includes("neutral_low");
-            neutralHighPresent = neutralHighPresent || flagsToCheck.includes("neutral_high");
+            for (let p = 0; p < patterns.length; p++) {
+                switch (patterns[p][i]) {
+                    case "improvement":
+                        improvementPresent = true;
+                        break;
+                    case "deterioration":
+                        deteriorationPresent = true;
+                        break;
+                    case "neutral_low":
+                        neutralLowPresent = true;
+                        break;
+                    case "neutral_high":
+                        neutralHighPresent = true;
+                        break;
+                }
+            }
             if (improvementPresent && deteriorationPresent && neutralLowPresent && neutralHighPresent) {
                 break;
             }
@@ -1202,180 +918,37 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         }
     }
 
-    const integerFormattedColumns = new Set(["numerator", "denominator"]);
-    const numericColumns = new Set([
-        "value", "numerator", "denominator", "target", "alt_target", "trend_line", "speclimits_lower", "speclimits_upper",
-        "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"
-    ]);
-    const dateColumns = new Set(["date", "latest_date"]);
-    const flagColumns = new Set(["astpoint", "trend", "shift", "two_in_three"]);
-    const flagLabels = {
-        none: "",
-        improvement: "Improvement",
-        deterioration: "Deterioration",
-        neutral_low: "Neutral (Low)",
-        neutral_high: "Neutral (High)"
+    const columnKinds = {
+        value: "number", target: "number", alt_target: "number", trend_line: "number", speclimits_lower: "number", speclimits_upper: "number",
+        ll99: "number", ll95: "number", ll68: "number", ul68: "number", ul95: "number", ul99: "number",
+        numerator: "integer", denominator: "integer",
+        date: "date", latest_date: "date",
+        astpoint: "flag", trend: "flag", shift: "flag", two_in_three: "flag"
     };
+    const iconKinds = { ...columnKinds, variation: "icon", assurance: "icon" };
     function drawsIcons(inputSettings, showGrouped) {
         return showGrouped && (inputSettings.nhs_icons.show_variation_icons || inputSettings.nhs_icons.show_assurance_icons);
     }
     function isIconColumn(column) {
         return column === "variation" || column === "assurance";
     }
-    function columnAlignment(setting, column, drawIcons) {
-        if (setting !== "auto") {
-            return setting;
-        }
-        if (drawIcons && isIconColumn(column)) {
-            return "center";
-        }
-        return numericColumns.has(column) ? "right" : "left";
-    }
     function rowTableSettings(row, tableSettings) {
         return ("table_body_bg_colour" in row.aesthetics) ? row.aesthetics : tableSettings;
     }
-    function drawTableHeaders(selection, cols, tableSettings, drawIcons) {
-        const tableHeaders = selection.select(".table-header")
-            .selectAll("th")
-            .data(cols)
-            .join("th");
-        tableHeaders.selectAll("text")
-            .data(d => [d.label])
-            .join("text")
-            .text(d => d);
-        tableHeaders.style("font-size", `${tableSettings.table_header_size}px`)
-            .style("font-family", tableSettings.table_header_font)
-            .style("color", tableSettings.table_header_colour)
-            .style("padding", `${tableSettings.table_header_text_padding}px`)
-            .style("background-color", tableSettings.table_header_bg_colour)
-            .style("font-weight", tableSettings.table_header_font_weight)
-            .style("text-transform", tableSettings.table_header_text_transform)
-            .style("text-align", d => columnAlignment(tableSettings.table_header_text_align, d.name, drawIcons))
-            .style("border-width", `${tableSettings.table_header_border_width}px`)
-            .style("border-style", tableSettings.table_header_border_style)
-            .style("border-color", tableSettings.table_header_border_colour)
-            .style("border-top", "none")
-            .style("border-left", "none")
-            .style("position", "sticky")
-            .style("top", "0")
-            .style("z-index", "1");
-        if (!tableSettings.table_header_border_bottom) {
-            tableHeaders.style("border-bottom", "none");
-        }
-        if (!tableSettings.table_header_border_inner) {
-            tableHeaders.style("border-right", "none");
-        }
-    }
-    function drawTableRows(selection, visualObj, plotPoints, tableSettings) {
-        selection.select(".table-body")
-            .selectAll('tr')
-            .data(plotPoints)
-            .join('tr')
-            .on("click", (event, d) => {
-            if (visualObj.host.hostCapabilities.allowInteractions) {
-                const alreadySel = powerbi.identitySelected(d.identity, powerbi.selectionState(visualObj.selectionManager, false).selected);
-                visualObj.selectionManager
-                    .select(d.identity, alreadySel || event.ctrlKey || event.metaKey)
-                    .then(() => visualObj.updateHighlighting());
-                event.stopPropagation();
-            }
-        })
-            .on("mouseenter", function () {
-            rendering.select(this).selectAll("td").style("background-color", "whitesmoke");
-        })
-            .on("mouseleave", function (_event, d) {
-            rendering.select(this).selectAll("td").style("background-color", rowTableSettings(d, tableSettings).table_body_bg_colour);
-        });
-    }
-    function drawTextOverflow(selection, tableSettings, maxWidth) {
-        const cells = selection.selectAll("th, td");
-        if (tableSettings.table_text_overflow !== "none") {
-            cells.style("overflow", "hidden")
-                .style("max-width", `${maxWidth}px`)
-                .style("text-overflow", tableSettings.table_text_overflow);
-        }
-        else {
-            cells.style("overflow", "auto")
-                .style("max-width", "none");
-        }
-    }
-    function drawOuterBorder(selection, tableSettings) {
-        selection.select(".table-group")
-            .style("border-width", `${tableSettings.table_outer_border_width}px`)
-            .style("border-style", tableSettings.table_outer_border_style)
-            .style("border-color", tableSettings.table_outer_border_colour);
-        const sides = ["top", "right", "bottom", "left"];
-        for (let i = 0; i < sides.length; i++) {
-            if (!tableSettings[`table_outer_border_${sides[i]}`]) {
-                selection.select(".table-group").style(`border-${sides[i]}`, "none");
-            }
-        }
-        selection.selectAll("th:last-child")
-            .style("border-right", "inherit");
-        selection.selectAll("td:last-child")
-            .style("border-right", "inherit");
-        selection.selectAll("tr:last-child")
-            .selectAll("td")
-            .style("border-bottom", "inherit");
-    }
-    function drawTableCells(selection, cols, inputSettings, drawIcons, formatValues) {
-        const tableCells = selection.select(".table-body")
-            .selectAll('tr')
-            .selectAll('td')
-            .data(d => {
-            const row = d.table_row;
-            const cells = new Array(cols.length);
-            for (let i = 0; i < cols.length; i++) {
-                cells[i] = { column: cols[i].name, value: row[cols[i].name] };
-            }
-            return cells;
-        })
-            .join('td');
-        tableCells.each(function (d) {
-            const currNode = rendering.select(this);
-            const rowData = rendering.select(this.parentElement).datum();
-            const iconCell = drawIcons && isIconColumn(d.column);
-            if (!iconCell) {
-                let value = "";
-                if (typeof d.value === "number") {
-                    value = formatValues(d.value, integerFormattedColumns.has(d.column) ? "integer" : "value");
-                }
-                else if (d.value !== undefined) {
-                    value = flagColumns.has(d.column) ? flagLabels[d.value] : d.value;
-                }
-                currNode.text(value).classed("cell-text", true);
-            }
-            const tableAesthetics = rowTableSettings(rowData, inputSettings.summary_table);
-            currNode.style("background-color", tableAesthetics.table_body_bg_colour)
-                .style("font-weight", tableAesthetics.table_body_font_weight)
-                .style("text-transform", tableAesthetics.table_body_text_transform)
-                .style("text-align", columnAlignment(tableAesthetics.table_body_text_align, d.column, drawIcons))
-                .style("font-size", `${tableAesthetics.table_body_size}px`)
-                .style("font-family", tableAesthetics.table_body_font)
-                .style("color", tableAesthetics.table_body_colour)
-                .style("border-width", `${tableAesthetics.table_body_border_width}px`)
-                .style("border-style", tableAesthetics.table_body_border_style)
-                .style("border-color", tableAesthetics.table_body_border_colour)
-                .style("border-top", "none")
-                .style("border-left", "none")
-                .style("padding", `${tableAesthetics.table_body_text_padding}px`)
-                .style("opacity", "inherit")
-                .style("white-space", (iconCell || dateColumns.has(d.column)) ? "nowrap" : "normal");
-            if (!tableAesthetics.table_body_border_left_right) {
-                currNode.style("border-right", "none");
-            }
-            if (!tableAesthetics.table_body_border_top_bottom) {
-                currNode.style("border-bottom", "none");
-            }
-        });
-    }
     function drawIconCells(selection, nhsIconSettings) {
-        const iconCells = selection.select(".table-body")
+        const allCells = selection.select(".table-body")
             .selectAll("tr")
-            .selectAll("td")
-            .filter(d => isIconColumn(d.column));
-        const cells = iconCells.nodes();
-        const data = iconCells.data();
+            .selectAll("td");
+        const allNodes = allCells.nodes();
+        const allData = allCells.data();
+        const cells = [];
+        const data = [];
+        for (let i = 0; i < allNodes.length; i++) {
+            if (isIconColumn(allData[i].column)) {
+                cells.push(allNodes[i]);
+                data.push(allData[i]);
+            }
+        }
         const icons = new Array(cells.length);
         let rowHeight = Number.POSITIVE_INFINITY;
         const columnWidths = { variation: 0, assurance: 0 };
@@ -1419,30 +992,26 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         }
     }
     function drawSummaryTable(selection, visualObj) {
-        selection.selectAll(".rowsvg").remove();
-        selection.selectAll(".cell-text").remove();
         const viewModel = visualObj.viewModel;
         const plotPoints = viewModel.showGrouped ? viewModel.groupedRows : viewModel.plotPoints;
-        const cols = viewModel.tableColumns[0];
-        const maxWidth = visualObj.viewModel.svgWidth / cols.length;
-        const inputSettings = visualObj.viewModel.inputSettings.settings[0];
+        const inputSettings = viewModel.inputSettings.settings[0];
         const tableSettings = inputSettings.summary_table;
         const draw_icons = drawsIcons(inputSettings, viewModel.showGrouped);
-        selection.call(drawTableHeaders, cols, tableSettings, draw_icons)
-            .call(drawTableRows, visualObj, plotPoints, tableSettings);
-        if (plotPoints.length > 0) {
-            const formatValues = visualObj.viewModel.inputSettings.derivedSettings[0].formatValue;
-            selection.call(drawTableCells, cols, inputSettings, draw_icons, formatValues);
-        }
-        selection.call(drawTextOverflow, tableSettings, maxWidth)
-            .call(drawOuterBorder, tableSettings);
+        rendering.drawSummaryTable(selection, {
+            columns: viewModel.tableColumns[0],
+            rows: plotPoints,
+            kinds: draw_icons ? iconKinds : columnKinds,
+            settings: tableSettings,
+            rowSettings: row => rowTableSettings(row, tableSettings),
+            formatValue: viewModel.inputSettings.derivedSettings[0].formatValue,
+            width: viewModel.svgWidth,
+            host: visualObj.host,
+            selectionManager: visualObj.selectionManager,
+            onSelectionChange: () => visualObj.updateHighlighting()
+        });
         if (plotPoints.length > 0 && draw_icons) {
             drawIconCells(selection, inputSettings.nhs_icons);
         }
-        selection.on('click', () => {
-            visualObj.selectionManager.clear();
-            visualObj.updateHighlighting();
-        });
     }
 
     function cLimits(args) {
@@ -1454,44 +1023,18 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             cl += numerators[subset_points[i]];
         }
         cl = cl / n_sub;
-        const sigma = Math.sqrt(cl);
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
             values: args.numerators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: Math.sqrt(cl), floor: 0 })
         };
-        const twoSigma = 2 * sigma;
-        const threeSigma = 3 * sigma;
-        const ll99 = Math.max(0, cl - threeSigma);
-        const ll95 = Math.max(0, cl - twoSigma);
-        const ll68 = Math.max(0, cl - sigma);
-        const ul68 = cl + sigma;
-        const ul95 = cl + twoSigma;
-        const ul99 = cl + threeSigma;
-        for (let i = 0; i < n; i++) {
-            rtn.target[i] = cl;
-            rtn.ll99[i] = ll99;
-            rtn.ll95[i] = ll95;
-            rtn.ll68[i] = ll68;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
-        }
-        return rtn;
     }
 
     function gLimits(args) {
         const numerators = args.numerators;
         const subset_points = args.subset_points;
         const n_sub = subset_points.length;
-        let numerator_subset = new Array(n_sub);
+        const numerator_subset = new Array(n_sub);
         let cl = 0;
         for (let i = 0; i < n_sub; i++) {
             const curr_numerator = numerators[subset_points[i]];
@@ -1499,33 +1042,11 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             cl += curr_numerator;
         }
         cl /= n_sub;
-        const median_val = math.median(numerator_subset);
-        const sigma = Math.sqrt(cl * (cl + 1));
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
             values: args.numerators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: Math.sqrt(cl * (cl + 1)), target: math.median(numerator_subset), floor: 0 })
         };
-        const ul68 = cl + sigma;
-        const ul95 = cl + 2 * sigma;
-        const ul99 = cl + 3 * sigma;
-        for (let i = 0; i < n; i++) {
-            rtn.target[i] = median_val;
-            rtn.ll68[i] = 0;
-            rtn.ll95[i] = 0;
-            rtn.ll99[i] = 0;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
-        }
-        return rtn;
     }
 
     function averageMovingRange(consec_diff, outliers_in_limits) {
@@ -1553,7 +1074,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         const numerators = args.numerators;
         const denominators = args.denominators;
         if (denominators === undefined) {
-            return { values: numerators.slice() };
+            return { values: numerators };
         }
         const values = new Array(numerators.length);
         for (let i = 0; i < values.length; i++) {
@@ -1562,121 +1083,65 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         return { values, numerators, denominators };
     }
 
-    function iLimits(args) {
-        const plotted = plottedValues(args);
-        const values = plotted.values;
-        const n_sub = args.subset_points.length;
-        const subset_points = args.subset_points;
+    function iCentreAndSigma(values, subset_points, outliers_in_limits) {
+        const n_sub = subset_points.length;
         let prevVal = values[subset_points[0]];
         let cl = prevVal;
-        let consec_diff = new Array(n_sub - 1);
+        const consec_diff = new Array(n_sub - 1);
         for (let i = 1; i < n_sub; i++) {
-            let currVal = values[subset_points[i]];
+            const currVal = values[subset_points[i]];
             consec_diff[i - 1] = Math.abs(currVal - prevVal);
             cl += currVal;
             prevVal = currVal;
         }
-        cl /= n_sub;
-        const sigma = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
-        const n = args.keys.length;
-        const rtn = {
+        return { cl: cl / n_sub, sigma: averageMovingRange(consec_diff, outliers_in_limits) / 1.128 };
+    }
+    function iLimits(args) {
+        const plotted = plottedValues(args);
+        const { cl, sigma } = iCentreAndSigma(plotted.values, args.subset_points, args.outliers_in_limits);
+        return {
             keys: args.keys,
-            values,
-            numerators: plotted.numerators,
-            denominators: plotted.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plotted,
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma })
         };
-        const twoSigma = 2 * sigma;
-        const threeSigma = 3 * sigma;
-        const ll99 = cl - threeSigma;
-        const ll95 = cl - twoSigma;
-        const ll68 = cl - sigma;
-        const ul68 = cl + sigma;
-        const ul95 = cl + twoSigma;
-        const ul99 = cl + threeSigma;
-        for (let i = 0; i < n; i++) {
-            rtn.target[i] = cl;
-            rtn.ll99[i] = ll99;
-            rtn.ll95[i] = ll95;
-            rtn.ll68[i] = ll68;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
-        }
-        return rtn;
     }
 
     function imLimits(args) {
         const plotted = plottedValues(args);
         const n_sub = args.subset_points.length;
         const subset_points = args.subset_points;
-        let ratio_subset = new Array(n_sub);
-        for (let i = 0; i < n_sub; i++) {
-            ratio_subset[i] = plotted.values[subset_points[i]];
-        }
-        const cl = math.median(ratio_subset);
-        let consec_diff = new Array(n_sub - 1);
+        const ratio_subset = new Array(n_sub);
+        const consec_diff = new Array(n_sub - 1);
+        ratio_subset[0] = plotted.values[subset_points[0]];
         for (let i = 1; i < n_sub; i++) {
+            ratio_subset[i] = plotted.values[subset_points[i]];
             consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
         }
+        const cl = math.median(ratio_subset);
         const sigma = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
-            values: plotted.values,
-            numerators: plotted.numerators,
-            denominators: plotted.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plotted,
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma })
         };
-        const twoSigma = 2 * sigma;
-        const threeSigma = 3 * sigma;
-        const ll99 = cl - threeSigma;
-        const ll95 = cl - twoSigma;
-        const ll68 = cl - sigma;
-        const ul68 = cl + sigma;
-        const ul95 = cl + twoSigma;
-        const ul99 = cl + threeSigma;
-        for (let i = 0; i < n; i++) {
-            rtn.target[i] = cl;
-            rtn.ll99[i] = ll99;
-            rtn.ll95[i] = ll95;
-            rtn.ll68[i] = ll68;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
-        }
-        return rtn;
     }
 
     function immLimits(args) {
         const plotted = plottedValues(args);
         const n_sub = args.subset_points.length;
         const subset_points = args.subset_points;
-        let ratio_subset = new Array(n_sub);
-        for (let i = 0; i < n_sub; i++) {
-            ratio_subset[i] = plotted.values[subset_points[i]];
-        }
-        const cl = math.median(ratio_subset);
-        let consec_diff = new Array(n_sub - 1);
+        const ratio_subset = new Array(n_sub);
+        const consec_diff = new Array(n_sub - 1);
+        ratio_subset[0] = plotted.values[subset_points[0]];
         for (let i = 1; i < n_sub; i++) {
+            ratio_subset[i] = plotted.values[subset_points[i]];
             consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
         }
+        const cl = math.median(ratio_subset);
         let mmr = math.median(consec_diff);
         if (!args.outliers_in_limits) {
             const consec_diff_ulim = mmr * 3.865;
-            let valid_diffs = [];
+            const valid_diffs = [];
             for (let i = 0; i < consec_diff.length; i++) {
                 if (consec_diff[i] < consec_diff_ulim) {
                     valid_diffs.push(consec_diff[i]);
@@ -1686,58 +1151,30 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 mmr = math.median(valid_diffs);
             }
         }
-        const sigma = mmr / 0.954;
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
-            values: plotted.values,
-            numerators: plotted.numerators,
-            denominators: plotted.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plotted,
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: mmr / 0.954 })
         };
-        const twoSigma = 2 * sigma;
-        const threeSigma = 3 * sigma;
-        const ll99 = cl - threeSigma;
-        const ll95 = cl - twoSigma;
-        const ll68 = cl - sigma;
-        const ul68 = cl + sigma;
-        const ul95 = cl + twoSigma;
-        const ul99 = cl + threeSigma;
-        for (let i = 0; i < n; i++) {
-            rtn.target[i] = cl;
-            rtn.ll99[i] = ll99;
-            rtn.ll95[i] = ll95;
-            rtn.ll68[i] = ll68;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
-        }
-        return rtn;
     }
 
     function mrLimits(args) {
         const plotted = plottedValues(args);
         const values = plotted.values;
         const n_sub = args.subset_points.length;
-        const n = args.keys.length;
+        const n_mr = args.keys.length - 1;
         const subset_points = args.subset_points;
         let cl = 0;
         for (let i = 1; i < n_sub; i++) {
             cl += Math.abs(values[subset_points[i]] - values[subset_points[i - 1]]);
         }
         cl /= (n_sub - 1);
-        const n_mr = n - 1;
-        const rtn = {
-            keys: args.keys.slice(1),
-            values: new Array(n_mr),
-            numerators: plotted.numerators?.slice(1),
-            denominators: plotted.denominators?.slice(1),
+        const sigma = 3.267 / 3;
+        const ul68 = cl * sigma;
+        const ul95 = cl * (2 * sigma);
+        const ul99 = cl * (3 * sigma);
+        const ranges = new Array(n_mr);
+        const limits = {
             target: new Array(n_mr),
             ll99: new Array(n_mr),
             ll95: new Array(n_mr),
@@ -1746,172 +1183,89 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             ul95: new Array(n_mr),
             ul99: new Array(n_mr)
         };
-        const sigma = 3.267 / 3;
-        const twoSigma = 2 * sigma;
-        const threeSigma = 3 * sigma;
-        const ul68 = cl * sigma;
-        const ul95 = cl * twoSigma;
-        const ul99 = cl * threeSigma;
         for (let i = 0; i < n_mr; i++) {
-            rtn.values[i] = Math.abs(values[i + 1] - values[i]);
-            rtn.target[i] = cl;
-            rtn.ll99[i] = 0;
-            rtn.ll95[i] = 0;
-            rtn.ll68[i] = 0;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
+            ranges[i] = Math.abs(values[i + 1] - values[i]);
+            limits.target[i] = cl;
+            limits.ll99[i] = 0;
+            limits.ll95[i] = 0;
+            limits.ll68[i] = 0;
+            limits.ul68[i] = ul68;
+            limits.ul95[i] = ul95;
+            limits.ul99[i] = ul99;
         }
-        return rtn;
+        return {
+            keys: args.keys.slice(1),
+            values: ranges,
+            numerators: plotted.numerators?.slice(1),
+            denominators: plotted.denominators?.slice(1),
+            ...limits
+        };
+    }
+
+    function subsetRatio(numerators, denominators, subset_points) {
+        let sum_numerators = 0;
+        let sum_denominators = 0;
+        for (let i = 0; i < subset_points.length; i++) {
+            sum_numerators += numerators[subset_points[i]];
+            sum_denominators += denominators[subset_points[i]];
+        }
+        return sum_numerators / sum_denominators;
     }
 
     function pLimits(args) {
-        const numerators = args.numerators;
         const denominators = args.denominators;
-        const subset_points = args.subset_points;
-        const n_sub = subset_points.length;
-        let sum_num = 0;
-        let sum_den = 0;
-        for (let i = 0; i < n_sub; i++) {
-            sum_num += numerators[subset_points[i]];
-            sum_den += denominators[subset_points[i]];
-        }
-        const cl = sum_num / sum_den;
+        const cl = subsetRatio(args.numerators, denominators, args.subset_points);
         const cl_mult = cl * (1 - cl);
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
-            values: new Array(n),
-            numerators: args.numerators,
-            denominators: args.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plottedValues(args),
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => Math.sqrt(cl_mult / denominators[i]), floor: 0, ceiling: 1 })
         };
-        for (let i = 0; i < n; i++) {
-            const sigma = Math.sqrt(cl_mult / denominators[i]);
-            const twoSigma = 2 * sigma;
-            const threeSigma = 3 * sigma;
-            rtn.values[i] = numerators[i] / denominators[i];
-            rtn.target[i] = cl;
-            rtn.ll99[i] = Math.max(0, cl - threeSigma);
-            rtn.ll95[i] = Math.max(0, cl - twoSigma);
-            rtn.ll68[i] = Math.max(0, cl - sigma);
-            rtn.ul68[i] = Math.min(1, cl + sigma);
-            rtn.ul95[i] = Math.min(1, cl + twoSigma);
-            rtn.ul99[i] = Math.min(1, cl + threeSigma);
-        }
-        return rtn;
     }
 
     function pprimeLimits(args) {
         const n = args.keys.length;
-        const numerators = args.numerators;
         const denominators = args.denominators;
         const subset_points = args.subset_points;
-        const n_sub = subset_points.length;
-        let sum_numerators = 0;
-        let sum_denominators = 0;
-        for (let i = 0; i < n_sub; i++) {
-            let idx = subset_points[i];
-            sum_numerators += numerators[idx];
-            sum_denominators += denominators[idx];
-        }
-        const cl = sum_numerators / sum_denominators;
+        const cl = subsetRatio(args.numerators, denominators, subset_points);
+        const plotted = plottedValues(args);
         if (cl === 0 || cl === 1) {
-            const rtn = {
-                keys: args.keys,
-                values: new Array(n),
-                numerators: args.numerators,
-                denominators: args.denominators,
-                target: new Array(n),
-                ll99: new Array(n),
-                ll95: new Array(n),
-                ll68: new Array(n),
-                ul68: new Array(n),
-                ul95: new Array(n),
-                ul99: new Array(n)
-            };
-            for (let i = 0; i < n; i++) {
-                rtn.values[i] = numerators[i] / denominators[i];
-                rtn.target[i] = cl;
-                rtn.ll99[i] = cl;
-                rtn.ll95[i] = cl;
-                rtn.ll68[i] = cl;
-                rtn.ul68[i] = cl;
-                rtn.ul95[i] = cl;
-                rtn.ul99[i] = cl;
-            }
-            return rtn;
+            return { keys: args.keys, ...plotted, ...spc.sigmaLimits(n, cl, { sigma: 0, floor: 0, ceiling: 1 }) };
         }
         const cl_mult = cl * (1 - cl);
-        let val = new Array(n);
-        let sd = new Array(n);
+        const val = plotted.values;
+        const sd = new Array(n);
         for (let i = 0; i < n; i++) {
-            val[i] = numerators[i] / denominators[i];
             sd[i] = Math.sqrt(cl_mult / denominators[i]);
         }
-        let consec_diff = new Array(n_sub - 1);
+        const consec_diff = new Array(subset_points.length - 1);
         let prevZ = (val[subset_points[0]] - cl) / sd[subset_points[0]];
-        for (let i = 1; i < n_sub; i++) {
-            let currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
+        for (let i = 1; i < subset_points.length; i++) {
+            const currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
             consec_diff[i - 1] = Math.abs(currZ - prevZ);
             prevZ = currZ;
         }
         const sigma_multiplier = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
-        const rtn = {
+        return {
             keys: args.keys,
-            values: val,
-            numerators: args.numerators,
-            denominators: args.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plotted,
+            ...spc.sigmaLimits(n, cl, { sigma: i => sd[i] * sigma_multiplier, floor: 0, ceiling: 1 })
         };
-        for (let i = 0; i < n; i++) {
-            const sigma = sd[i] * sigma_multiplier;
-            const twoSigma = 2 * sigma;
-            const threeSigma = 3 * sigma;
-            rtn.target[i] = cl;
-            rtn.ll99[i] = Math.max(0, cl - threeSigma);
-            rtn.ll95[i] = Math.max(0, cl - twoSigma);
-            rtn.ll68[i] = Math.max(0, cl - sigma);
-            rtn.ul68[i] = Math.min(1, cl + sigma);
-            rtn.ul95[i] = Math.min(1, cl + twoSigma);
-            rtn.ul99[i] = Math.min(1, cl + threeSigma);
-        }
-        return rtn;
     }
 
     function runLimits(args) {
         const plotted = plottedValues(args);
         const n_sub = args.subset_points.length;
         const subset_points = args.subset_points;
-        let ratio_subset = new Array(n_sub);
+        const ratio_subset = new Array(n_sub);
         for (let i = 0; i < n_sub; i++) {
             ratio_subset[i] = plotted.values[subset_points[i]];
         }
-        const cl = math.median(ratio_subset);
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
-            values: plotted.values,
-            numerators: plotted.numerators,
-            denominators: plotted.denominators,
-            target: new Array(n)
+            ...plotted,
+            target: math.rep(math.median(ratio_subset), args.keys.length)
         };
-        for (let i = 0; i < n; i++) {
-            rtn.target[i] = cl;
-        }
-        return rtn;
     }
 
     function withinGroupSd(group_sd, count_per_group, subset_points) {
@@ -1944,57 +1298,30 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         const group_sd = args.numerators;
         const count_per_group = args.denominators;
         const cl = withinGroupSd(group_sd, count_per_group, args.subset_points);
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
             values: args.numerators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => cl * (math.c5(count_per_group[i]) / math.c4(count_per_group[i])), floor: 0 })
         };
-        for (let i = 0; i < n; i++) {
-            const c5c4 = (math.c5(count_per_group[i]) / math.c4(count_per_group[i]));
-            const sigma = cl * c5c4;
-            const twoSigma = 2 * sigma;
-            const threeSigma = 3 * sigma;
-            rtn.target[i] = cl;
-            rtn.ll99[i] = Math.max(0, cl - threeSigma);
-            rtn.ll95[i] = Math.max(0, cl - twoSigma);
-            rtn.ll68[i] = Math.max(0, cl - sigma);
-            rtn.ul68[i] = cl + sigma;
-            rtn.ul95[i] = cl + twoSigma;
-            rtn.ul99[i] = cl + threeSigma;
-        }
-        return rtn;
     }
 
     function tLimits(args) {
         const n = args.keys.length;
-        let val = new Array(n);
+        const transformed = new Array(n);
         for (let i = 0; i < n; i++) {
-            val[i] = Math.pow(args.numerators[i], 1 / 3.6);
+            transformed[i] = Math.pow(args.numerators[i], 1 / 3.6);
         }
-        const inputArgsCopy = {
-            numerators: val,
-            keys: args.keys,
-            subset_points: args.subset_points,
-            outliers_in_limits: args.outliers_in_limits
-        };
-        const limits = iLimits(inputArgsCopy);
-        const cl = Math.pow(limits.target[0], 3.6);
-        const ll99 = limits.ll99[0] < 0 ? 0 : Math.pow(limits.ll99[0], 3.6);
-        const ll95 = limits.ll95[0] < 0 ? 0 : Math.pow(limits.ll95[0], 3.6);
-        const ll68 = limits.ll68[0] < 0 ? 0 : Math.pow(limits.ll68[0], 3.6);
-        const ul68 = Math.pow(limits.ul68[0], 3.6);
-        const ul95 = Math.pow(limits.ul95[0], 3.6);
-        const ul99 = Math.pow(limits.ul99[0], 3.6);
-        const rtn = {
-            keys: args.keys,
-            values: args.numerators,
+        const { cl, sigma } = iCentreAndSigma(transformed, args.subset_points, args.outliers_in_limits);
+        const back = (value) => Math.pow(value, 3.6);
+        const backLower = (value) => value < 0 ? 0 : back(value);
+        const target = back(cl);
+        const ll99 = backLower(cl - 3 * sigma);
+        const ll95 = backLower(cl - 2 * sigma);
+        const ll68 = backLower(cl - sigma);
+        const ul68 = back(cl + sigma);
+        const ul95 = back(cl + 2 * sigma);
+        const ul99 = back(cl + 3 * sigma);
+        const limits = {
             target: new Array(n),
             ll99: new Array(n),
             ll95: new Array(n),
@@ -2004,139 +1331,54 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             ul99: new Array(n)
         };
         for (let i = 0; i < n; i++) {
-            rtn.target[i] = cl;
-            rtn.ll99[i] = ll99;
-            rtn.ll95[i] = ll95;
-            rtn.ll68[i] = ll68;
-            rtn.ul68[i] = ul68;
-            rtn.ul95[i] = ul95;
-            rtn.ul99[i] = ul99;
+            limits.target[i] = target;
+            limits.ll99[i] = ll99;
+            limits.ll95[i] = ll95;
+            limits.ll68[i] = ll68;
+            limits.ul68[i] = ul68;
+            limits.ul95[i] = ul95;
+            limits.ul99[i] = ul99;
         }
-        return rtn;
+        return { keys: args.keys, values: args.numerators, ...limits };
     }
 
     function uLimits(args) {
-        const n = args.keys.length;
-        const numerators = args.numerators;
         const denominators = args.denominators;
-        const subset_points = args.subset_points;
-        let sum_numerators = 0;
-        let sum_denominators = 0;
-        for (let i = 0; i < subset_points.length; i++) {
-            let idx = subset_points[i];
-            sum_numerators += numerators[idx];
-            sum_denominators += denominators[idx];
-        }
-        const cl = sum_numerators / sum_denominators;
-        const rtn = {
+        const cl = subsetRatio(args.numerators, denominators, args.subset_points);
+        return {
             keys: args.keys,
-            values: new Array(n),
-            numerators: args.numerators,
-            denominators: args.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plottedValues(args),
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => Math.sqrt(cl / denominators[i]), floor: 0 })
         };
-        for (let i = 0; i < n; i++) {
-            rtn.values[i] = numerators[i] / denominators[i];
-            const sigma = Math.sqrt(cl / denominators[i]);
-            const twoSigma = 2 * sigma;
-            const threeSigma = 3 * sigma;
-            rtn.target[i] = cl;
-            rtn.ll99[i] = Math.max(0, cl - threeSigma);
-            rtn.ll95[i] = Math.max(0, cl - twoSigma);
-            rtn.ll68[i] = Math.max(0, cl - sigma);
-            rtn.ul68[i] = cl + sigma;
-            rtn.ul95[i] = cl + twoSigma;
-            rtn.ul99[i] = cl + threeSigma;
-        }
-        return rtn;
     }
 
     function uprimeLimits(args) {
         const n = args.keys.length;
-        const numerators = args.numerators;
         const denominators = args.denominators;
         const subset_points = args.subset_points;
-        const n_sub = subset_points.length;
-        let sum_numerators = 0;
-        let sum_denominators = 0;
-        for (let i = 0; i < n_sub; i++) {
-            let idx = subset_points[i];
-            sum_numerators += numerators[idx];
-            sum_denominators += denominators[idx];
-        }
-        const cl = sum_numerators / sum_denominators;
+        const cl = subsetRatio(args.numerators, denominators, subset_points);
+        const plotted = plottedValues(args);
         if (cl === 0) {
-            const rtn = {
-                keys: args.keys,
-                values: new Array(n),
-                numerators: args.numerators,
-                denominators: args.denominators,
-                target: new Array(n),
-                ll99: new Array(n),
-                ll95: new Array(n),
-                ll68: new Array(n),
-                ul68: new Array(n),
-                ul95: new Array(n),
-                ul99: new Array(n)
-            };
-            for (let i = 0; i < n; i++) {
-                rtn.values[i] = numerators[i] / denominators[i];
-                rtn.target[i] = cl;
-                rtn.ll99[i] = cl;
-                rtn.ll95[i] = cl;
-                rtn.ll68[i] = cl;
-                rtn.ul68[i] = cl;
-                rtn.ul95[i] = cl;
-                rtn.ul99[i] = cl;
-            }
-            return rtn;
+            return { keys: args.keys, ...plotted, ...spc.sigmaLimits(n, cl, { sigma: 0, floor: 0 }) };
         }
-        let sd = new Array(n);
-        let val = new Array(n);
+        const val = plotted.values;
+        const sd = new Array(n);
         for (let i = 0; i < n; i++) {
-            val[i] = numerators[i] / denominators[i];
             sd[i] = Math.sqrt(cl / denominators[i]);
         }
-        let consec_diff = new Array(n_sub - 1);
+        const consec_diff = new Array(subset_points.length - 1);
         let prevZ = (val[subset_points[0]] - cl) / sd[subset_points[0]];
-        for (let i = 1; i < n_sub; i++) {
-            let currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
+        for (let i = 1; i < subset_points.length; i++) {
+            const currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
             consec_diff[i - 1] = Math.abs(currZ - prevZ);
             prevZ = currZ;
         }
         const sigma_multiplier = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
-        const rtn = {
+        return {
             keys: args.keys,
-            values: val,
-            numerators: args.numerators,
-            denominators: args.denominators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n)
+            ...plotted,
+            ...spc.sigmaLimits(n, cl, { sigma: i => sd[i] * sigma_multiplier, floor: 0 })
         };
-        for (let i = 0; i < n; i++) {
-            const sigma = sd[i] * sigma_multiplier;
-            const twoSigma = 2 * sigma;
-            const threeSigma = 3 * sigma;
-            rtn.target[i] = cl;
-            rtn.ll99[i] = Math.max(0, cl - threeSigma);
-            rtn.ll95[i] = Math.max(0, cl - twoSigma);
-            rtn.ll68[i] = Math.max(0, cl - sigma);
-            rtn.ul68[i] = cl + sigma;
-            rtn.ul95[i] = cl + twoSigma;
-            rtn.ul99[i] = cl + threeSigma;
-        }
-        return rtn;
     }
 
     function xbarLimits(args) {
@@ -2154,32 +1396,12 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         }
         const sd = withinGroupSd(group_sd, count_per_group, subset_points);
         const cl = weighted_mean_sum / total_count;
-        const n = args.keys.length;
-        const rtn = {
+        return {
             keys: args.keys,
             values: args.numerators,
-            target: new Array(n),
-            ll99: new Array(n),
-            ll95: new Array(n),
-            ll68: new Array(n),
-            ul68: new Array(n),
-            ul95: new Array(n),
-            ul99: new Array(n),
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => (math.a3(count_per_group[i]) * sd) / 3 }),
             count: args.denominators
         };
-        for (let i = 0; i < n; i++) {
-            const sigma = (math.a3(count_per_group[i]) * sd) / 3;
-            const twoSigma = sigma * 2;
-            const threeSigma = sigma * 3;
-            rtn.target[i] = cl;
-            rtn.ll99[i] = cl - threeSigma;
-            rtn.ll95[i] = cl - twoSigma;
-            rtn.ll68[i] = cl - sigma;
-            rtn.ul68[i] = cl + sigma;
-            rtn.ul95[i] = cl + twoSigma;
-            rtn.ul99[i] = cl + threeSigma;
-        }
-        return rtn;
     }
 
     var limitFunctions = /*#__PURE__*/Object.freeze({
@@ -2200,6 +1422,254 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         up: uprimeLimits,
         xbar: xbarLimits
     });
+
+    const spcSettings = {
+        description: "SPC Settings",
+        displayName: "Data Settings",
+        settingsGroups: {
+            "all": {
+                chart_type: settings.dropdownOption("Chart Type", "Type of control chart; see Chart Types for the inputs each needs.", "i", ["run", "i", "i_m", "i_mm", "mr", "p", "pp", "u", "up", "c", "xbar", "s", "g", "t"], "none", [
+                    "run - Run Chart",
+                    "i - Individual Measurements",
+                    "i_m - Individual Measurements: Median centerline",
+                    "i_mm - Individual Measurements: Median centerline, Median MR Limits",
+                    "mr - Moving Range of Individual Measurements",
+                    "p - Proportions",
+                    "p prime - Proportions: Large-Sample Corrected",
+                    "u - Rates",
+                    "u prime - Rates: Large-Sample Correction",
+                    "c - Counts",
+                    "xbar - Sample Means",
+                    "s - Sample SDs",
+                    "g - Number of Non-Events Between Events",
+                    "t - Time Between Events"
+                ]),
+                outliers_in_limits: settings.toggleOption("Keep Outliers in Limit Calcs.", "Keeps unusually large moving ranges when calculating limits; off drops them first. "
+                    + "Applies to i, i_m, i_mm, t, p prime and u prime charts.", false),
+                ...settings.scalingOptions(),
+                split_on_click: settings.toggleOption("Split Limits on Click", "Clicking a point ends a limit period there; clicking it again removes the split. "
+                    + "Splits stay when this is turned off, and are ignored when Grouping (Summary Table) is used.", false),
+                num_points_subset: settings.numberOption("Subset Number of Points for Limit Calculations", "Calculates the first period's limits from only this many points; blank or out of range uses them all.", undefined, { min: 1, integer: true }),
+                subset_points_from: settings.dropdownOption("Subset Points From", "Whether the subset is taken from the start or end of the period.", "Start", ["Start", "End"]),
+                subset_rebaselines: settings.toggleOption("Subset Points After Each Re-Baseline", "Applies the subset to every rebaseline period, not only the first.", false),
+                ttip_show_date: settings.toggleOption("Show Date in Tooltip", "Shows the date, or the point number for g and t charts, in the tooltip.", true),
+                ttip_label_date: settings.textOption("Date Tooltip Label", "Name for the date in the tooltip; Automatic uses Date, or Event for g and t charts.", "Automatic"),
+                ...settings.valueTooltipOptions(),
+                ...settings.limitTruncationOptions()
+            }
+        }
+    };
+
+    const outliersSettings = {
+        description: "Outlier Settings",
+        displayName: "Outlier Settings",
+        settingsGroups: {
+            "General": settings.flagDirectionOptions(),
+            "Astronomical Points": {
+                astronomical: settings.toggleOption("Highlight Astronomical Points", "Flags points beyond the chosen limit.", false),
+                astronomical_limit: settings.dropdownOption("Limit for Astronomical Points", "Limit a point must be beyond. Specification needs the specification lines shown.", "3 Sigma", ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"]),
+                ast_colour_improvement: settings.colourOption("Imp. Ast. Colour", "Colour for astronomical points that are an improvement.", "improvement"),
+                ast_colour_deterioration: settings.colourOption("Det. Ast. Colour", "Colour for astronomical points that are a deterioration.", "deterioration"),
+                ast_colour_neutral_low: settings.colourOption("Neutral (Low) Ast. Colour", "Colour for points beyond the lower limit when the improvement direction is neutral.", "neutral_low"),
+                ast_colour_neutral_high: settings.colourOption("Neutral (High) Ast. Colour", "Colour for points beyond the upper limit when the improvement direction is neutral.", "neutral_high")
+            },
+            "Shifts": {
+                shift: settings.toggleOption("Highlight Shifts", "Flags runs of points on one side of the centreline.", false),
+                shift_n: settings.numberOption("Shift Points", "Points needed for a shift; points on the centreline neither count nor break it.", 7, { min: 1, integer: true }),
+                shift_colour_improvement: settings.colourOption("Imp. Shift Colour", "Colour for shifts that are an improvement.", "improvement"),
+                shift_colour_deterioration: settings.colourOption("Det. Shift Colour", "Colour for shifts that are a deterioration.", "deterioration"),
+                shift_colour_neutral_low: settings.colourOption("Neutral (Low) Shift Colour", "Colour for shifts below the centreline when the improvement direction is neutral.", "neutral_low"),
+                shift_colour_neutral_high: settings.colourOption("Neutral (High) Shift Colour", "Colour for shifts above the centreline when the improvement direction is neutral.", "neutral_high")
+            },
+            "Trends": {
+                trend: settings.toggleOption("Highlight Trends", "Flags runs of steadily rising or falling points.", false),
+                trend_n: settings.numberOption("Trend Points", "Points needed for a trend, including its first; repeated values count once.", 5, { min: 2, integer: true }),
+                trend_colour_improvement: settings.colourOption("Imp. Trend Colour", "Colour for trends that are an improvement.", "improvement"),
+                trend_colour_deterioration: settings.colourOption("Det. Trend Colour", "Colour for trends that are a deterioration.", "deterioration"),
+                trend_colour_neutral_low: settings.colourOption("Neutral (Low) Trend Colour", "Colour for falling trends when the improvement direction is neutral.", "neutral_low"),
+                trend_colour_neutral_high: settings.colourOption("Neutral (High) Trend Colour", "Colour for rising trends when the improvement direction is neutral.", "neutral_high")
+            },
+            "Two-In-Three": {
+                two_in_three: settings.toggleOption("Highlight Two-in-Three", "Flags two of three consecutive points beyond the same warning limit.", false),
+                two_in_three_highlight_series: settings.toggleOption("Highlight all in Pattern", "Also flags the third point in the window, unless it is beyond the opposite limit.", false),
+                two_in_three_limit: settings.dropdownOption("Warning Limit for Two-in-Three", "Limit the points must be beyond. Specification needs the specification lines shown.", "2 Sigma", ["1 Sigma", "2 Sigma", "3 Sigma", "Specification"]),
+                twointhree_colour_improvement: settings.colourOption("Imp. Two-in-Three Colour", "Colour for two-in-three points that are an improvement.", "improvement"),
+                twointhree_colour_deterioration: settings.colourOption("Det. Two-in-Three Colour", "Colour for two-in-three points that are a deterioration.", "deterioration"),
+                twointhree_colour_neutral_low: settings.colourOption("Neutral (Low) Two-in-Three Colour", "Colour for two-in-three patterns at the lower limit when the improvement direction is neutral.", "neutral_low"),
+                twointhree_colour_neutral_high: settings.colourOption("Neutral (High) Two-in-Three Colour", "Colour for two-in-three patterns at the upper limit when the improvement direction is neutral.", "neutral_high")
+            }
+        }
+    };
+
+    const iconLocations = ["Top Right", "Bottom Right", "Top Left", "Bottom Left"];
+    const nhsIconsSettings = {
+        description: "NHS Icons Settings",
+        displayName: "NHS Icons Settings",
+        settingsGroups: {
+            "all": {
+                show_variation_icons: settings.toggleOption("Show Variation Icons", "Draws the NHS variation icons for the flagged points, or adds them as a summary table column.", false),
+                flag_last_point: settings.toggleOption("Flag Only Last Point", "Bases the variation icons on the last point only; off uses every point.", true),
+                variation_icons_locations: settings.dropdownOption("Variation Icon Locations", "Corner of the chart for the variation icons.", "Top Right", iconLocations),
+                variation_icons_scaling: settings.numberOption("Scale Variation Icon Size", "Multiplies the size of the variation icons.", 1, { min: 0 }),
+                show_assurance_icons: settings.toggleOption("Show Assurance Icons", "Draws the NHS assurance icon, comparing the alt. target with the last point's three-sigma limits. "
+                    + "Needs the alt. target line and an increase or decrease improvement direction.", false),
+                assurance_icons_locations: settings.dropdownOption("Assurance Icon Locations", "Corner of the chart for the assurance icon.", "Top Right", iconLocations),
+                assurance_icons_scaling: settings.numberOption("Scale Assurance Icon Size", "Multiplies the size of the assurance icon.", 1, { min: 0 })
+            }
+        }
+    };
+
+    const scatterSettings = {
+        description: "Scatter Settings",
+        displayName: "Scatter Settings",
+        settingsGroups: {
+            "all": {
+                show_dots: settings.toggleOption("Show Scatter", "Draws the points.", true),
+                ...settings.dotOptions()
+            }
+        }
+    };
+
+    const linesSettings = {
+        description: "Line Settings",
+        displayName: "Line Settings",
+        settingsGroups: {
+            "Main": settings.createLineGroup("main", {
+                showLabel: "Show Main Line",
+                showDescription: "Draws the line joining the points.",
+                showDefault: true,
+                namePrefix: "Main ",
+                width: 1,
+                type: "10 0",
+                colour: "common_cause",
+                rebaselines: true
+            }),
+            "Target": settings.createLineGroup("target", {
+                showLabel: "Show Target",
+                showDescription: "Draws the centreline.",
+                showDefault: true,
+                width: 1.5,
+                type: "10 0",
+                colour: "standard",
+                rebaselines: true,
+                tooltipLabel: "Centerline"
+            }),
+            "Alt. Target": settings.createLineGroup("alt_target", {
+                showLabel: "Show Alt. Target Line",
+                showDescription: "Draws a line at the Additional Target Value; the assurance icon needs it.",
+                showDefault: false,
+                width: 1.5,
+                type: "10 0",
+                colour: "standard",
+                rebaselines: true,
+                tooltipLabel: "Alt. Target"
+            }, {
+                alt_target: settings.numberOption("Additional Target Value:", "Value of the target line, as a plotted value unless the multiplier is applied.", undefined),
+                multiplier_alt_target: settings.toggleOption("Apply Multiplier to Alt. Target", "Multiplies the target by the Multiplier, for targets entered as raw proportions or rates.", false)
+            }),
+            "68% Limits": settings.createLineGroup("68", {
+                showLabel: "Show 68% Lines",
+                showDescription: "Draws the one-sigma lines.",
+                showDefault: false,
+                width: 2,
+                type: "2 5",
+                colour: "limits",
+                rebaselines: true,
+                tooltipLabel: "68% Limit",
+                tooltipPrefixes: true
+            }),
+            "95% Limits": settings.createLineGroup("95", {
+                showLabel: "Show 95% Lines",
+                showDescription: "Draws the two-sigma lines.",
+                showDefault: true,
+                width: 2,
+                type: "2 5",
+                colour: "limits",
+                rebaselines: true,
+                tooltipLabel: "95% Limit",
+                tooltipPrefixes: true
+            }),
+            "99% Limits": settings.createLineGroup("99", {
+                showLabel: "Show 99% Lines",
+                showDescription: "Draws the three-sigma control limits.",
+                showDefault: true,
+                width: 2,
+                type: "10 10",
+                colour: "limits",
+                rebaselines: true,
+                tooltipLabel: "99% Limit",
+                tooltipPrefixes: true
+            }),
+            "Specification Limits": settings.createLineGroup("specification", {
+                showLabel: "Show Specification Lines",
+                showDescription: "Draws the specification limits, which patterns using the Specification limit need.",
+                showDefault: false,
+                width: 2,
+                type: "10 10",
+                colour: "limits",
+                rebaselines: true,
+                tooltipLabel: "Specification Limit",
+                tooltipPrefixes: true
+            }, {
+                specification_upper: settings.numberOption("Upper Specification Limit:", "Upper specification limit, as a plotted value unless the multiplier is applied.", undefined),
+                specification_lower: settings.numberOption("Lower Specification Limit:", "Lower specification limit, as a plotted value unless the multiplier is applied.", undefined),
+                multiplier_specification: settings.toggleOption("Apply Multiplier to Specification Limits", "Multiplies the limits by the Multiplier, for limits entered as raw proportions or rates.", false)
+            }),
+            "Trend": settings.createLineGroup("trend", {
+                showLabel: "Show Trend",
+                showDescription: "Draws a least-squares trend line through each rebaseline period.",
+                showDefault: false,
+                width: 1.5,
+                type: "10 0",
+                colour: "common_cause",
+                rebaselines: true,
+                tooltipLabel: "Trend"
+            })
+        }
+    };
+
+    const datesSettings = {
+        description: "Date Settings",
+        displayName: "Date Settings",
+        settingsGroups: {
+            "all": {
+                date_format_day: settings.dropdownOption("Day Format", "How the day appears in date labels; (blank) leaves it out.", "DD", ["DD", "Thurs DD", "Thursday DD", "(blank)"]),
+                date_format_month: settings.dropdownOption("Month Format", "How the month appears in date labels; (blank) leaves it out.", "MM", ["MM", "Mon", "Month", "(blank)"]),
+                date_format_year: settings.dropdownOption("Year Format", "How the year appears in date labels; (blank) leaves it out.", "YYYY", ["YYYY", "YY", "(blank)"]),
+                date_format_delim: settings.dropdownOption("Delimiter", "Character between the parts of a date label.", "/", ["/", "-", " "]),
+                date_format_locale: settings.dropdownOption("Locale", "Order of the parts: en-GB puts the day first, en-US the month.", "en-GB", ["en-GB", "en-US"])
+            }
+        }
+    };
+
+    const summaryTableSettings = settings.createSummaryTableCard({
+        showDescription: "Shows the points as a table instead of a chart. Data with more than one summary table group "
+            + "is always shown as a table."
+    }, {
+        table_variation_filter: settings.dropdownOption("Filter by Variation Type", "Shows only the groups whose variation icon matches.", "all", ["all", "common", "special", "improvement", "deterioration", "neutral"], "none", [
+            "All", "Common Cause", "Special Cause - Any", "Special Cause - Improvement",
+            "Special Cause - Deterioration", "Special Cause - Neutral"
+        ]),
+        table_assurance_filter: settings.dropdownOption("Filter by Assurance Type", "Shows only the groups whose assurance icon matches.", "all", ["all", "any", "pass", "fail", "inconsistent"], "none", ["All", "Consistent - Any", "Consistent Pass", "Consistent Fail", "Inconsistent"])
+    });
+
+    const settingsModel = {
+        canvas: settings.createCanvasCard(),
+        spc: settings.defineCard(spcSettings),
+        outliers: settings.defineCard(outliersSettings),
+        nhs_icons: settings.defineCard(nhsIconsSettings),
+        scatter: settings.defineCard(scatterSettings),
+        lines: settings.defineCard(linesSettings),
+        x_axis: settings.createAxisCard("x", { tickRotation: -35, limitUnits: "a point number counted from 0" }),
+        y_axis: settings.createAxisCard("y", { tickRotation: 0, limitUnits: "a plotted value" }, {
+            limit_multiplier: settings.numberOption("Axis Scaling Factor", "Extends the y-axis past the centreline by this multiple of the distance to the furthest point, limit or target.", 1.5, { above: 0 })
+        }),
+        dates: settings.defineCard(datesSettings),
+        summary_table: settings.defineCard(summaryTableSettings),
+        download_options: settings.createDownloadCard(),
+        labels: settings.createLabelsCard()
+    };
+    const defaultSettings = settings.createDefaultValues(settingsModel);
 
     const valueNames = {
         "i": "Observation",
@@ -2229,6 +1699,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 has_control_limits: !(["run"].includes(chartType)),
                 needs_sd: ["xbar"].includes(chartType),
                 integer_num_den: ["c", "p", "pp"].includes(chartType),
+                integer_values: ["c", "g"].includes(chartType),
                 value_name: valueNames[chartType],
                 x_axis_use_date: !(["g", "t"].includes(chartType)),
                 date_name: !(["g", "t"].includes(chartType)) ? "Date" : "Event",
@@ -2264,25 +1735,9 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         },
         settings$1 => settings.orderedBoundsError(settings$1, settings$1.spc)
     ];
-    class settingsClass {
-        update(category, groupIdxs) {
-            const result = powerbi.readSettingsGroups(settingsModel, category, groupIdxs, rules);
-            this.settings = result.values;
-            this.validationStatus = result.validation;
-            this.messagePositionByRowIndex = result.messagePositionByRowIndex;
-            this.derivedSettings = new Array(this.settings.length);
-            for (let i = 0; i < this.settings.length; i++) {
-                this.derivedSettings[i] = new derivedSettingsClass(this.settings[i].spc);
-            }
-        }
-        getFormattingModel() {
-            return powerbi.buildFormattingModel(settingsModel, this.settings[0]);
-        }
+    class settingsClass extends powerbi.SettingsStore {
         constructor() {
-            this.messagePositionByRowIndex = new Map();
-            this.validationStatus = { status: 0, messages: [] };
-            this.settings = [settings.createDefaultValues(settingsModel)];
-            this.derivedSettings = [new derivedSettingsClass(this.settings[0].spc)];
+            super(settingsModel, settings => new derivedSettingsClass(settings.spc), rules);
         }
     }
 
@@ -2409,71 +1864,59 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         "November": 10,
         "December": 11
     };
-    function temporalTypeToKey(inputType, inputValue) {
-        if (!inputType.temporal) {
-            return [];
+    function readDatePart(parts, inputType, inputValue) {
+        if (inputType?.temporal == null) {
+            return;
         }
         if (inputType.category === "DayOfMonth") {
-            return ["day", (inputValue)];
+            parts.day = (inputValue);
         }
         else if (inputType.category === "Months") {
-            return ["month", monthNameToNumber[(inputValue)]];
+            parts.month = monthNameToNumber[(inputValue)];
         }
         else if (inputType.category === "Quarters") {
-            return ["quarter", inputValue];
+            parts.quarter = inputValue;
         }
         else if (inputType.category === "Years") {
-            return ["year", (inputValue)];
+            parts.year = (inputValue);
         }
-        else {
-            return [];
+    }
+    function parseDate(value) {
+        const parts = typeof value === "string" ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(value) : null;
+        if (parts !== null) {
+            return new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]));
         }
+        return new Date(value);
     }
     function parseInputDates(inputs, idxs) {
         const n_keys = idxs.length;
-        let inputDates = [];
-        const inputQuarters = [];
+        const inputDates = [];
+        const inputQuarters = new Array(n_keys);
         if (inputs.length > 1) {
             for (let i = 0; i < n_keys; i++) {
-                const datePartsArray = [];
+                const datePartsObj = {};
                 for (let j = 0; j < inputs.length; j++) {
-                    datePartsArray.push(temporalTypeToKey(inputs[j].source.type, inputs[j].values[idxs[i]]));
+                    readDatePart(datePartsObj, inputs[j].source.type, inputs[j].values[idxs[i]]);
                 }
-                const datePartsObj = Object.fromEntries(datePartsArray);
-                if (datePartsObj.quarter) {
-                    inputQuarters.push(datePartsObj.quarter);
-                }
+                inputQuarters[i] = datePartsObj.quarter;
                 inputDates[i] = new Date(datePartsObj.year ?? 1970, datePartsObj.month ?? 0, datePartsObj.day ?? 1);
             }
         }
         else {
             for (let i = 0; i < n_keys; i++) {
                 const value = inputs[0].values[idxs[i]];
-                inputDates[i] = data.isNullOrUndefined(value) ? undefined : new Date(value);
+                inputDates[i] = data.isNullOrUndefined(value) ? undefined : parseDate(value);
             }
         }
         return { dates: inputDates, quarters: inputQuarters };
     }
 
-    const weekdayShort = {
-        "en-GB": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        "en-US": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    };
-    const weekdayLong = {
-        "en-GB": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "en-US": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    };
-    const monthShort = {
-        "en-GB": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        "en-US": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    };
-    const monthLong = {
-        "en-GB": ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"],
-        "en-US": ["January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"]
-    };
-    function formatDateParts(date, locale, options) {
+    const weekdayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const weekdayLong = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const monthShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthLong = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    function formatDateParts(date, options) {
         const result = {
             weekday: "",
             day: "",
@@ -2481,10 +1924,10 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             year: ""
         };
         if (options.weekday === "short") {
-            result.weekday = weekdayShort[locale][date.getDay()];
+            result.weekday = weekdayShort[date.getDay()];
         }
         else if (options.weekday === "long") {
-            result.weekday = weekdayLong[locale][date.getDay()];
+            result.weekday = weekdayLong[date.getDay()];
         }
         if (options.day === "2-digit") {
             result.day = String(date.getDate()).padStart(2, "0");
@@ -2493,10 +1936,10 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             result.month = String(date.getMonth() + 1).padStart(2, "0");
         }
         else if (options.month === "short") {
-            result.month = monthShort[locale][date.getMonth()];
+            result.month = monthShort[date.getMonth()];
         }
         else if (options.month === "long") {
-            result.month = monthLong[locale][date.getMonth()];
+            result.month = monthLong[date.getMonth()];
         }
         if (options.year === "numeric") {
             result.year = String(date.getFullYear());
@@ -2509,7 +1952,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
 
     function formatKeys(col, inputSettings, idxs) {
         const n_keys = idxs.length;
-        let ret = new Array(n_keys);
+        const ret = new Array(n_keys);
         if (col.length === 1 && !(col[0].source.type?.temporal)) {
             for (let i = 0; i < n_keys; i++) {
                 ret[i] = powerbi.formatPrimitiveValue(col[0].values[idxs[i]]);
@@ -2548,7 +1991,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 ret[i] = undefined;
             }
             else {
-                const datePartsRecord = formatDateParts(date, locale, formatOptions);
+                const datePartsRecord = formatDateParts(date, formatOptions);
                 const datePartStrings = [(datePartsRecord.weekday + " " + datePartsRecord[day_elem]).trim(),
                     datePartsRecord[month_elem],
                     inputDates.quarters[i] ?? "",
@@ -2582,87 +2025,63 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             (groupedCols[queryName] ?? (groupedCols[queryName] = [])).push(col[i]);
         }
         const queryNames = Object.keys(groupedCols);
+        if (queryNames.length === 1) {
+            return formatKeys(groupedCols[queryNames[0]], inputSettings, idxs);
+        }
         const combinedKeys = new Array(idxs.length);
         for (let i = 0; i < queryNames.length; i++) {
             const groupKeys = formatKeys(groupedCols[queryNames[i]], inputSettings, idxs);
             for (let j = 0; j < idxs.length; j++) {
                 const key = groupKeys[j];
-                if (i === 0 || combinedKeys[j] === undefined) {
+                const combined = combinedKeys[j];
+                if (i === 0 || combined === undefined) {
                     combinedKeys[j] = key;
                 }
                 else if (key !== undefined) {
-                    combinedKeys[j] += ` ${key}`;
+                    combinedKeys[j] = `${combined} ${key}`;
                 }
             }
         }
         return combinedKeys;
     }
 
+    const sd = { name: "SD", plural: "SDs" };
     function validateInputData(keys, numerators, denominators, xbar_sds, chart_type_props) {
         const check_denom = chart_type_props.needs_denominator
             || (chart_type_props.denominator_optional && denominators !== undefined && denominators.length > 0);
-        const at = (values, i) => values?.[i] ?? NaN;
         const rules = [];
         if (chart_type_props.needs_sd) {
-            rules.push({
-                fails: i => data.isNullOrUndefined(xbar_sds?.[i]),
-                message: "SD missing",
-                all: "All SDs missing or null!"
-            }, {
-                fails: i => Number.isNaN(at(xbar_sds, i)) && !data.isNullOrUndefined(numerators[i]),
+            rules.push(data.missingRule(xbar_sds, sd), {
+                fails: i => Number.isNaN(data.valueAt(xbar_sds, i)) && !data.isNullOrUndefined(numerators[i]),
                 message: "SD is not a number",
                 all: "All SDs are not numbers!"
-            }, {
-                fails: i => at(xbar_sds, i) < 0,
-                message: "SD negative",
-                all: "All SDs are negative!"
-            });
+            }, data.negativeRule(xbar_sds, sd));
         }
         if (check_denom) {
-            rules.push({
-                fails: i => data.isNullOrUndefined(denominators?.[i]),
-                message: "Denominator missing",
-                all: "All denominators missing or null!"
-            }, {
-                fails: i => Number.isNaN(at(denominators, i)),
-                message: "Denominator is not a number",
-                all: "All denominators are not numbers!"
-            }, {
-                fails: i => at(denominators, i) < 0,
-                message: "Denominator negative",
-                all: "All denominators are negative!"
-            }, {
-                fails: i => chart_type_props.numerator_leq_denominator && !data.isNullOrUndefined(numerators[i]) && at(denominators, i) < at(numerators, i),
-                message: "Denominator < numerator",
-                all: "All denominators are smaller than numerators!"
-            }, {
-                fails: i => chart_type_props.denominator_gt_one && at(denominators, i) <= 1,
-                message: "Denominator <= 1",
-                all: "All denominators are less than or equal to one!"
-            });
+            rules.push(data.missingRule(denominators, data.quantity.denominator), data.nanRule(denominators, data.quantity.denominator), data.negativeRule(denominators, data.quantity.denominator), { fails: i => data.valueAt(denominators, i) === 0, message: "Denominator is zero", all: "All denominators are zero!" });
+            if (chart_type_props.numerator_leq_denominator) {
+                rules.push(data.ratioRule(numerators, denominators));
+            }
+            if (chart_type_props.denominator_gt_one) {
+                rules.push({
+                    fails: i => data.valueAt(denominators, i) <= 1,
+                    message: "Denominator <= 1",
+                    all: "All denominators are less than or equal to one!"
+                });
+            }
         }
-        rules.push({
-            fails: i => data.isNullOrUndefined(numerators[i]),
-            message: "Numerator missing",
-            all: "All numerators are missing or null!"
-        }, {
-            fails: i => Number.isNaN(at(numerators, i)),
-            message: "Numerator is not a number",
-            all: "All numerators are not numbers!"
-        }, {
-            fails: i => chart_type_props.numerator_non_negative && at(numerators, i) < 0,
-            message: "Numerator negative",
-            all: "All numerators are negative!"
-        }, {
-            fails: i => data.isNullOrUndefined(keys[i]),
-            message: "Date missing",
-            all: "All dates/IDs are missing or null!"
-        });
+        rules.push(data.missingRule(numerators, data.quantity.numerator), data.nanRule(numerators, data.quantity.numerator));
+        if (chart_type_props.numerator_non_negative) {
+            rules.push(data.negativeRule(numerators, data.quantity.numerator));
+        }
+        rules.push(data.missingRule(keys, { name: "Date", plural: "dates/IDs" }));
         return data.validateRows(keys.length, rules);
     }
 
-    function extractInputData(view, inputSettings, derivedSettings, validationMessages, idxs, messagePositionByRowIndex) {
-        const categories = view.category;
+    function extractInputData(view, inputSettingsClass, idxs, group = 0) {
+        const inputSettings = inputSettingsClass.settings[group];
+        const derivedSettings = inputSettingsClass.derivedSettings[group];
+        const rowSettings = inputSettingsClass.rowSettings[group];
         const denominatorColumn = view.values.denominators?.[0];
         const sdColumn = view.values.xbar_sds?.[0];
         const chart = derivedSettings.chart_type_props;
@@ -2671,22 +2090,24 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         const numerators = powerbi.readNumbers(view.values.numerators[0], idxs);
         const denominators = useDenominators && denominatorColumn !== undefined ? powerbi.readNumbers(denominatorColumn, idxs) : undefined;
         const xbar_sds = chart.needs_sd && sdColumn !== undefined ? powerbi.readNumbers(sdColumn, idxs) : undefined;
-        const validation = validateInputData(keys, numerators, denominators, xbar_sds, chart);
-        if (validation.status !== 0) {
-            return { status: "invalid", error: validation.error };
+        const extracted = powerbi.extractRows(view, idxs, {
+            keys,
+            validation: validateInputData(keys, numerators, denominators, xbar_sds, chart),
+            rowSettings,
+            settings: { messages: inputSettingsClass.validationStatus.messages, messagePositionByRowIndex: inputSettingsClass.messagePositionByRowIndex }
+        });
+        if (extracted.status === "invalid") {
+            return extracted;
         }
-        const kept = data.keptPositions(validation.messages);
+        const { kept, warnings, ...rows } = extracted.data;
+        if (chart.name === "mr" && kept.length < 2) {
+            return { status: "invalid", error: "Moving range charts need at least two valid observations!" };
+        }
         const groupings = view.values.groupings?.[0];
-        const lines = powerbi.readSettingsRows(settingsModel.lines, "lines", defaultSettings.lines, categories, idxs).values;
-        const spcSettings = powerbi.readSettingsRows(settingsModel.spc, "spc", defaultSettings.spc, categories, [idxs[0]]).values[0];
-        const keptKeys = data.keptValues(keys, kept);
-        const limitInputArgs = {
-            keys: new Array(kept.length),
-            numerators: data.keptValues(numerators, kept),
-            denominators: denominators === undefined ? undefined : data.keptValues(denominators, kept),
-            xbar_sds: xbar_sds === undefined ? undefined : data.keptValues(xbar_sds, kept),
-            outliers_in_limits: spcSettings.outliers_in_limits
-        };
+        const limitKeys = new Array(kept.length);
+        const keptNumerators = new Array(kept.length);
+        const keptDenominators = denominators === undefined ? undefined : new Array(kept.length);
+        const keptSds = xbar_sds === undefined ? undefined : new Array(kept.length);
         const showAltTarget = inputSettings.lines.show_alt_target;
         const showSpecification = inputSettings.lines.show_specification;
         const line_formatting = new Array(kept.length);
@@ -2698,11 +2119,23 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         for (let x = 0; x < kept.length; x++) {
             const i = kept[x];
             const row = idxs[i];
-            limitInputArgs.keys[x] = { x, id: row, label: chart.x_axis_use_date ? keptKeys[x] : String(x) };
-            line_formatting[x] = lines[i];
-            alt_target[x] = showAltTarget ? lines[i].alt_target : undefined;
-            speclimits_lower[x] = showSpecification ? lines[i].specification_lower : undefined;
-            speclimits_upper[x] = showSpecification ? lines[i].specification_upper : undefined;
+            const lines = rowSettings[i].lines;
+            limitKeys[x] = { x, id: row, label: chart.x_axis_use_date ? data.keptValue(keys, i) : String(x) };
+            keptNumerators[x] = data.keptValue(numerators, i);
+            if (keptDenominators !== undefined) {
+                keptDenominators[x] = data.keptValue(denominators, i);
+            }
+            if (keptSds !== undefined) {
+                keptSds[x] = data.keptValue(xbar_sds, i);
+            }
+            const specificationError = settings.orderedPairError("specification_lower", lines.specification_lower, "specification_upper", lines.specification_upper);
+            if (specificationError !== undefined) {
+                return { status: "invalid", error: specificationError };
+            }
+            line_formatting[x] = lines;
+            alt_target[x] = showAltTarget ? lines.alt_target : undefined;
+            speclimits_lower[x] = showSpecification ? lines.specification_lower : undefined;
+            speclimits_upper[x] = showSpecification ? lines.specification_upper : undefined;
             if (groupings !== undefined) {
                 const grouping = powerbi.formatPrimitiveValue(groupings.values[row]);
                 if (x > 0 && grouping !== currentGrouping) {
@@ -2711,40 +2144,31 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 currentGrouping = grouping;
             }
         }
-        const groupName = categories.source.displayName;
-        const removalMessages = powerbi.rowWarnings(groupName, idxs, keys, validation.messages, {
-            messages: validationMessages,
-            messagePositionByRowIndex
-        });
         if (inputSettings.nhs_icons.show_assurance_icons) {
             if (showAltTarget && alt_target.length > 0 && alt_target[alt_target.length - 1] === undefined) {
-                removalMessages.push("NHS Assurance icon requires a valid alt. target at last observation.");
+                warnings.push("NHS Assurance icon requires a valid alt. target at last observation.");
             }
             if (!chart.has_control_limits) {
-                removalMessages.push("NHS Assurance icon requires chart with control limits.");
+                warnings.push("NHS Assurance icon requires chart with control limits.");
             }
         }
-        const annotations = powerbi.readRowAnnotations({
-            categorical: view.categorical,
-            values: view.values,
-            categories,
-            cards: { scatter: settingsModel.scatter, labels: settingsModel.labels },
-            defaults: { scatter: defaultSettings.scatter, labels: defaultSettings.labels }
-        }, idxs, kept);
         return {
             status: "valid",
             data: {
-                ...annotations,
-                limitInputArgs,
-                spcSettings,
-                categories,
+                ...rows,
+                limitInputArgs: {
+                    keys: limitKeys,
+                    numerators: keptNumerators,
+                    denominators: keptDenominators,
+                    xbar_sds: keptSds,
+                    outliers_in_limits: inputSettings.spc.outliers_in_limits
+                },
                 groupingIndexes,
                 line_formatting,
                 alt_target,
                 speclimits_lower,
                 speclimits_upper,
-                warningMessage: removalMessages.join("\n"),
-                validationStatus: validation
+                warningMessage: warnings.join("\n")
             }
         };
     }
@@ -2846,11 +2270,12 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         speclimits_upper: true,
         trend_line: true
     });
-    function copyInto(target, source, offset) {
+    function copyFlags(target, source, offset, flagSettings) {
         for (let i = 0; i < source.length; i++) {
-            target[offset + i] = source[i];
+            target[offset + i] = data.checkFlagDirection(source[i], flagSettings);
         }
     }
+    const truncatedSeries = new Set(settings.limitLineNames);
     function anyIcon(icons, names) {
         for (let i = 0; i < icons.length; i++) {
             if (names.includes(icons[i])) {
@@ -2859,16 +2284,16 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         }
         return false;
     }
-    function lineColumns(settings, hasDenominators, hasControlLimits) {
-        const lines = settings.lines;
+    function lineColumns(settings$1, hasDenominators, hasControlLimits) {
+        const lines = settings$1.lines;
         const columns = new Array();
         if (lines.show_main) {
             columns.push({ name: "value", label: "Value" });
         }
-        if (hasDenominators && settings.spc.ttip_show_numerator) {
+        if (hasDenominators && settings$1.spc.ttip_show_numerator) {
             columns.push({ name: "numerator", label: "Numerator" });
         }
-        if (hasDenominators && settings.spc.ttip_show_denominator) {
+        if (hasDenominators && settings$1.spc.ttip_show_denominator) {
             columns.push({ name: "denominator", label: "Denominator" });
         }
         if (lines.show_trend) {
@@ -2883,175 +2308,124 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 label: `${lines.ttip_label_specification_prefix_lower}${lines.ttip_label_specification}`
             });
         }
-        const levels = ["99", "95", "68"];
-        for (let l = 0; l < levels.length; l++) {
-            const level = levels[l];
-            if (hasControlLimits && lines[`show_${level}`]) {
-                columns.push({ name: `ul${level}`, label: `${lines[`ttip_label_${level}_prefix_upper`]}${lines[`ttip_label_${level}`]}` });
-            }
-        }
-        if (lines.show_target) {
-            columns.push({ name: "target", label: lines.ttip_label_target });
-        }
-        if (lines.show_alt_target) {
-            columns.push({ name: "alt_target", label: lines.ttip_label_alt_target });
-        }
-        for (let l = levels.length - 1; l >= 0; l--) {
-            const level = levels[l];
-            if (hasControlLimits && lines[`show_${level}`]) {
-                columns.push({ name: `ll${level}`, label: `${lines[`ttip_label_${level}_prefix_lower`]}${lines[`ttip_label_${level}`]}` });
-            }
-        }
+        columns.push(...settings.limitColumns(lines, hasControlLimits));
         return columns;
     }
-    class viewModelClass {
+    class viewModelClass extends rendering.PlotViewModelBase {
         get showGrouped() {
-            return this.inputData && this.inputData.length > 1;
+            return this.inputData.length > 1;
         }
-        constructor() {
-            this.inputData = new Array();
-            this.inputSettings = new settingsClass();
-            this.controlLimits = new Array();
-            this.outliers = new Array();
+        get anyLabels() {
+            return this.inputData[0].anyLabels;
+        }
+        constructor(host) {
+            super(host, new settingsClass(), ["numerators"]);
+            this.inputData = [];
+            this.controlLimits = [];
+            this.outliers = [];
             this.plotPoints = [];
             this.groupedRows = [];
             this.groupedLines = [];
-            this.rebaselineEnds = [];
-            this.firstRun = true;
-            this.splitIndexes = new Array();
-            this.groupStartEndIndexes = new Array();
-            this.identities = new Array();
-            this.tableColumns = new Array();
-            this.colourPalette = {};
-            this.headless = false;
-            this.frontend = false;
+            this.periodEnds = [];
             this.tickLabels = [];
-            this.svgWidth = 0;
-            this.svgHeight = 0;
+            this.splitIndexes = [];
+            this.groupStartEndIndexes = [];
+            this.tableColumns = [];
             this.indicatorVarNames = [];
             this.groupNames = [];
+            this.groupLabels = [];
+            this.identities = [];
         }
-        update(options, host) {
-            this.colourPalette = powerbi.readColourPalette(host);
-            const checkView = powerbi.validateDataView(options.dataViews, ["numerators"]);
-            if (checkView.status !== "valid") {
-                return { status: false, error: checkView.error };
-            }
-            const view = checkView.view;
-            this.svgWidth = options.viewport.width;
-            this.svgHeight = options.viewport.height;
-            this.headless = options.headless ?? false;
-            this.frontend = options.frontend ?? false;
+        get hasAxes() {
+            return !this.showGrouped;
+        }
+        axisRanges() {
+            return axisRanges(this);
+        }
+        reset() {
+            this.inputData = [];
+            this.controlLimits = [];
+            this.groupStartEndIndexes = [];
+            this.outliers = [];
+            this.identities = [];
+            this.plotPoints = [];
+            this.groupedRows = [];
+            this.groupedLines = [];
+            this.tickLabels = [];
+        }
+        updateData(view, indicatorGroups, host) {
             const indicator_cols = view.categories.indicator ?? [];
             this.indicatorVarNames = new Array(indicator_cols.length);
             for (let i = 0; i < indicator_cols.length; i++) {
                 this.indicatorVarNames[i] = indicator_cols[i].source.displayName;
             }
-            const indicatorGroups = powerbi.groupCategoryRows(indicator_cols, view.rowCount);
             const idx_per_indicator = indicatorGroups.rows;
             this.groupNames = indicatorGroups.names;
-            const dataChanged = (options.type & (2 | 16)) !== 0 || this.firstRun;
-            if (dataChanged) {
-                this.inputSettings.update(view.category, idx_per_indicator);
-            }
-            const settingsValidation = this.inputSettings.validationStatus;
-            if (settingsValidation.status !== 0) {
-                return { status: false, error: settingsValidation.error, type: "settings" };
-            }
+            this.groupLabels = indicatorGroups.labels;
             const checkDV = validateDataViewColumns(this.inputSettings, view.values);
             if (checkDV !== "valid") {
-                return { status: false, error: checkDV };
+                return { errors: [checkDV], warnings: [] };
             }
-            const inputErrors = [];
-            if (dataChanged) {
-                const hasIndicator = indicator_cols.length > 0;
-                const split_indexes_str = (view.dataView.metadata.objects?.split_indexes_storage?.split_indexes) ?? "[]";
-                const split_indexes = JSON.parse(split_indexes_str);
-                this.splitIndexes = hasIndicator ? [] : split_indexes;
-                this.inputData = new Array();
-                this.groupStartEndIndexes = new Array();
-                this.controlLimits = new Array();
-                this.outliers = new Array();
-                this.identities = new Array();
-                this.tableColumns = new Array();
-                const messagePositionByRowIndex = this.inputSettings.messagePositionByRowIndex;
-                for (let idx = 0; idx < idx_per_indicator.length; idx++) {
-                    const group_idxs = idx_per_indicator[idx];
-                    const settings = this.inputSettings.settings[idx];
-                    const derivedSettings = this.inputSettings.derivedSettings[idx];
-                    const extraction = extractInputData(view, settings, derivedSettings, this.inputSettings.validationStatus.messages, group_idxs, messagePositionByRowIndex);
-                    if (extraction.status !== "valid") {
-                        inputErrors.push(extraction.error);
-                        continue;
-                    }
-                    const inpData = extraction.data;
-                    this.inputData.push(inpData);
-                    const inputGroupStartEnd = this.getGroupingIndexes(inpData, idx === 0 ? this.splitIndexes : undefined);
-                    const limits = this.calculateLimits(inpData, inputGroupStartEnd, settings);
-                    const groupStartEnd = this.getResultGroupIndexes(limits.keys, inputGroupStartEnd);
-                    this.scaleLimits(limits, settings, derivedSettings);
-                    this.truncateLimits(limits, settings);
-                    const outliers = this.flagOutliers(limits, groupStartEnd, settings, derivedSettings);
-                    const keys = inpData.limitInputArgs.keys;
-                    const identities = new Array(keys.length);
-                    for (let i = 0; i < keys.length; i++) {
-                        identities[i] = host.createSelectionIdBuilder().withCategory(inpData.categories, keys[i].id).createSelectionId();
-                    }
-                    this.groupStartEndIndexes.push(groupStartEnd);
-                    this.controlLimits.push(limits);
-                    this.outliers.push(outliers);
-                    this.identities.push(identities);
-                }
-                if (inputErrors.length === 0) {
-                    if (this.showGrouped) {
-                        this.initialisePlotDataGrouped();
-                    }
-                    else {
-                        this.initialisePlotData(host);
-                        this.initialiseGroupedLines();
-                    }
-                }
-            }
-            if (inputErrors.length > 0) {
-                this.inputData = [];
-                this.controlLimits = [];
-                this.groupStartEndIndexes = [];
-                this.outliers = [];
-                this.identities = [];
-                this.plotPoints = [];
-                this.groupedRows = [];
-                this.groupedLines = [];
-                this.tickLabels = [];
-                this.firstRun = true;
-                return { status: false, error: inputErrors.join("\n") };
-            }
-            this.firstRun = false;
+            const hasIndicator = indicator_cols.length > 0;
+            const split_indexes_str = (view.dataView.metadata.objects?.split_indexes_storage?.split_indexes) ?? "[]";
+            const split_indexes = JSON.parse(split_indexes_str);
+            this.splitIndexes = hasIndicator ? [] : split_indexes;
+            this.inputData = new Array();
+            this.groupStartEndIndexes = new Array();
+            this.controlLimits = new Array();
+            this.outliers = new Array();
+            this.identities = new Array();
+            this.tableColumns = new Array();
+            const errors = [];
             const warnings = [];
-            for (let i = 0; i < this.inputData.length; i++) {
-                if (this.inputData[i].warningMessage !== "") {
-                    warnings.push(this.inputData[i].warningMessage);
+            for (let idx = 0; idx < idx_per_indicator.length; idx++) {
+                const group_idxs = idx_per_indicator[idx];
+                const settings = this.inputSettings.settings[idx];
+                const derivedSettings = this.inputSettings.derivedSettings[idx];
+                const extraction = extractInputData(view, this.inputSettings, group_idxs, idx);
+                if (extraction.status !== "valid") {
+                    errors.push(powerbi.labelledMessage(this.groupLabels[idx], extraction.error));
+                    continue;
+                }
+                const inpData = extraction.data;
+                this.inputData.push(inpData);
+                if (inpData.warningMessage !== "") {
+                    warnings.push(powerbi.labelledMessage(this.groupLabels[idx], inpData.warningMessage));
+                }
+                const inputGroupStartEnd = this.getGroupingIndexes(inpData, idx === 0 ? this.splitIndexes : undefined);
+                const limits = this.calculateLimits(inpData, inputGroupStartEnd, settings);
+                const groupStartEnd = this.getResultGroupIndexes(limits.keys, inputGroupStartEnd);
+                this.scaleAndTruncateLimits(limits, settings, derivedSettings);
+                const outliers = this.flagOutliers(limits, groupStartEnd, settings, derivedSettings);
+                const keys = inpData.limitInputArgs.keys;
+                const identities = new Array(keys.length);
+                for (let i = 0; i < keys.length; i++) {
+                    identities[i] = powerbi.rowIdentity(host, inpData.identityColumns, keys[i].id);
+                }
+                this.groupStartEndIndexes.push(groupStartEnd);
+                this.controlLimits.push(limits);
+                this.outliers.push(outliers);
+                this.identities.push(identities);
+            }
+            if (errors.length === 0) {
+                if (this.showGrouped) {
+                    this.initialisePlotDataGrouped();
+                }
+                else {
+                    this.initialisePlotData();
+                    this.initialiseGroupedLines();
                 }
             }
-            if (!this.showGrouped) {
-                const rangeError = rendering.axisRangeError(axisRanges(this));
-                if (rangeError !== undefined) {
-                    return { status: false, type: "settings", error: rangeError };
-                }
-            }
-            return { status: true, warning: warnings.length > 0 ? warnings.join("\n") : undefined };
+            return { errors, warnings };
         }
         getGroupingIndexes(inputData, splitIndexes) {
-            const candidateIndexes = (splitIndexes ?? [])
-                .concat([-1])
-                .concat(inputData.groupingIndexes)
-                .concat([inputData.limitInputArgs.keys.length - 1]);
-            const allIndexes = [];
-            for (let i = 0; i < candidateIndexes.length; i++) {
-                if (candidateIndexes.indexOf(candidateIndexes[i]) === i) {
-                    allIndexes.push(candidateIndexes[i]);
-                }
+            const segmentEnds = new Set(splitIndexes);
+            segmentEnds.add(-1);
+            for (let i = 0; i < inputData.groupingIndexes.length; i++) {
+                segmentEnds.add(inputData.groupingIndexes[i]);
             }
-            allIndexes.sort((a, b) => a - b);
+            segmentEnds.add(inputData.limitInputArgs.keys.length - 1);
+            const allIndexes = Array.from(segmentEnds).sort((a, b) => a - b);
             const groupStartEndIndexes = new Array();
             for (let i = 0; i < allIndexes.length - 1; i++) {
                 groupStartEndIndexes.push([allIndexes[i] + 1, allIndexes[i + 1] + 1]);
@@ -3076,24 +2450,8 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             const subset_points_from = inputSettings.spc.subset_points_from;
             const subset_rebaselines = inputSettings.spc.subset_rebaselines;
             const args = inputData.limitInputArgs;
-            const controlLimits = {
-                keys: [],
-                values: [],
-                numerators: [],
-                denominators: [],
-                target: [],
-                ll99: [],
-                ll95: [],
-                ll68: [],
-                ul68: [],
-                ul95: [],
-                ul99: [],
-                count: [],
-                alt_target: [],
-                speclimits_lower: [],
-                speclimits_upper: [],
-                trend_line: []
-            };
+            const segments = new Array(groupStartEndIndexes.length);
+            let total = 0;
             for (let g = 0; g < groupStartEndIndexes.length; g++) {
                 const start = groupStartEndIndexes[g][0];
                 const end = groupStartEndIndexes[g][1];
@@ -3102,7 +2460,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 const subsetCount = applySubset && !data.isNullOrUndefined(num_points_subset) && math.between(num_points_subset, 1, n)
                     ? num_points_subset : n;
                 const subsetStart = subset_points_from === "Start" ? 0 : n - subsetCount;
-                const group = limitFunction({
+                segments[g] = limitFunction({
                     keys: args.keys.slice(start, end),
                     numerators: args.numerators.slice(start, end),
                     denominators: args.denominators?.slice(start, end),
@@ -3110,27 +2468,46 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                     outliers_in_limits: inputSettings.spc.outliers_in_limits,
                     subset_points: math.sequence(subsetStart, subsetCount, 1)
                 });
-                group.trend_line = math.calculateTrendLine(group.values);
-                controlLimits.keys = controlLimits.keys.concat(group.keys);
-                controlLimits.values = controlLimits.values.concat(group.values);
-                for (let s = 0; s < limitSeries.length; s++) {
-                    const name = limitSeries[s];
-                    controlLimits[name] = controlLimits[name].concat(group[name] ?? math.rep(undefined, group.keys.length));
-                }
+                total += segments[g].keys.length;
             }
-            const positions = new Array(controlLimits.keys.length);
-            for (let i = 0; i < positions.length; i++) {
-                positions[i] = controlLimits.keys[i].x;
-            }
-            controlLimits.alt_target = data.pickRows(inputData.alt_target, positions);
-            controlLimits.speclimits_lower = data.pickRows(inputData.speclimits_lower, positions);
-            controlLimits.speclimits_upper = data.pickRows(inputData.speclimits_upper, positions);
-            for (let s = 0; s < limitSeries.length; s++) {
-                const series = controlLimits[limitSeries[s]];
-                for (let i = 0; i < series.length; i++) {
-                    if (!data.isValidNumber(series[i])) {
-                        series[i] = undefined;
+            const controlLimits = {
+                keys: new Array(total),
+                values: new Array(total),
+                numerators: new Array(total),
+                denominators: new Array(total),
+                target: new Array(total),
+                ll99: new Array(total),
+                ll95: new Array(total),
+                ll68: new Array(total),
+                ul68: new Array(total),
+                ul95: new Array(total),
+                ul99: new Array(total),
+                count: new Array(total),
+                alt_target: new Array(total),
+                speclimits_lower: new Array(total),
+                speclimits_upper: new Array(total),
+                trend_line: new Array(total)
+            };
+            const perRow = {
+                alt_target: inputData.alt_target,
+                speclimits_lower: inputData.speclimits_lower,
+                speclimits_upper: inputData.speclimits_upper
+            };
+            let position = 0;
+            for (let g = 0; g < segments.length; g++) {
+                const group = segments[g];
+                const trend_line = math.calculateTrendLine(group.values);
+                for (let i = 0; i < group.keys.length; i++) {
+                    const key = group.keys[i];
+                    controlLimits.keys[position] = key;
+                    controlLimits.values[position] = group.values[i];
+                    for (let s = 0; s < limitSeries.length; s++) {
+                        const name = limitSeries[s];
+                        const rows = perRow[name];
+                        const value = rows !== undefined ? rows[key.x] : name === "trend_line" ? trend_line[i] : group[name]?.[i];
+                        controlLimits[name][position] = data.isValidNumber(value) ? value : undefined;
                     }
+                    position++;
                 }
             }
             return controlLimits;
@@ -3199,7 +2576,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 }
                 const assIcon = assuranceIconToDraw(limits, this.inputSettings.settings[i], this.inputSettings.derivedSettings[i]);
                 if (assIconFilter !== "all") {
-                    if (assIconFilter === "any" && assIcon === "inconsistent") {
+                    if (assIconFilter === "any" && assIcon !== "consistentPass" && assIcon !== "consistentFail") {
                         continue;
                     }
                     if (assIconFilter === "pass" && assIcon !== "consistentPass") {
@@ -3218,7 +2595,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 }
                 const tooltipColumns = {};
                 if (anyTooltips) {
-                    const rowTooltips = this.inputData[i].tooltips[lastIndex];
+                    const rowTooltips = this.inputData[i].tooltips[limits.keys[lastIndex].x];
                     for (let t = 0; t < rowTooltips.length; t++) {
                         tooltipColumns[rowTooltips[t].displayName] = rowTooltips[t].value;
                     }
@@ -3252,10 +2629,11 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                 });
             }
         }
-        initialisePlotData(host) {
+        initialisePlotData() {
             const inputData = this.inputData[0];
             const controlLimits = this.controlLimits[0];
             const outliers = this.outliers[0];
+            const identities = this.identities[0];
             const settings = this.inputSettings.settings[0];
             const derivedSettings = this.inputSettings.derivedSettings[0];
             this.plotPoints = [];
@@ -3278,7 +2656,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             }
             for (let i = 0; i < controlLimits.keys.length; i++) {
                 const index = controlLimits.keys[i].x;
-                const aesthetics = inputData.scatter_formatting[index];
+                const aesthetics = { ...inputData.scatter_formatting[index] };
                 if (this.colourPalette.isHighContrast) {
                     aesthetics.colour = this.colourPalette.foregroundColour;
                 }
@@ -3312,9 +2690,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                     value: controlLimits.values[i],
                     aesthetics: aesthetics,
                     table_row: table_row,
-                    identity: host.createSelectionIdBuilder()
-                        .withCategory(inputData.categories, controlLimits.keys[i].id)
-                        .createSelectionId(),
+                    identity: identities[index],
                     highlighted: inputData.highlights[index] !== undefined,
                     tooltip: buildTooltip(table_row, inputData.tooltips[index], settings, derivedSettings),
                     label: {
@@ -3359,14 +2735,17 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                     labels.push("ll68", "ul68");
                 }
             }
-            const formattedLines = new Array();
+            const lines = new Array(labels.length);
+            for (let l = 0; l < labels.length; l++) {
+                lines[l] = [labels[l], []];
+            }
             const nLimits = controlLimits.keys.length;
             const groups = this.groupStartEndIndexes[0];
             const isGroupStart = new Array(nLimits).fill(false);
             for (let i = 1; i < groups.length; i++) {
                 isGroupStart[groups[i][0]] = true;
             }
-            this.rebaselineEnds = [];
+            this.periodEnds = [];
             let position = 0;
             for (let i = 0; i < nLimits; i++) {
                 const isRebaselinePoint = isGroupStart[i];
@@ -3375,64 +2754,67 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                     isNewAltTarget = controlLimits.alt_target[i] !== controlLimits.alt_target[i - 1];
                 }
                 if (isRebaselinePoint) {
-                    this.rebaselineEnds.push(position - 1);
+                    this.periodEnds.push(position - 1);
                 }
-                position += (isRebaselinePoint || isNewAltTarget) ? 2 : 1;
+                position += 1 + (isRebaselinePoint ? 1 : 0) + (isNewAltTarget ? 2 : 0);
+                const x = controlLimits.keys[i].x;
+                const aesthetics = inputData.line_formatting[x];
                 for (let l = 0; l < labels.length; l++) {
                     const label = labels[l];
+                    const formattedLines = lines[l][1];
                     const join_rebaselines = settings.lines[`join_rebaselines_${lineKeys[label]}`];
-                    if (isRebaselinePoint || isNewAltTarget) {
-                        const is_alt_target = label === "alt_target" && isNewAltTarget;
-                        const is_rebaseline = label !== "alt_target" && isRebaselinePoint;
+                    const value = controlLimits[label][i];
+                    const is_alt_target = label === "alt_target";
+                    if (isRebaselinePoint) {
                         formattedLines.push({
-                            x: controlLimits.keys[i].x,
-                            line_value: (!join_rebaselines && (is_alt_target || is_rebaseline)) ? undefined : controlLimits[label][i],
+                            x,
+                            line_value: (!join_rebaselines && !is_alt_target) ? undefined : value,
                             group: label,
-                            aesthetics: inputData.line_formatting[controlLimits.keys[i].x]
+                            aesthetics
                         });
                     }
-                    formattedLines.push({
-                        x: controlLimits.keys[i].x,
-                        line_value: controlLimits[label][i],
-                        group: label,
-                        aesthetics: inputData.line_formatting[controlLimits.keys[i].x]
-                    });
-                }
-            }
-            this.rebaselineEnds.push(position - 1);
-            this.groupedLines = data.groupBy(formattedLines, "group");
-        }
-        scaleLimits(controlLimits, inputSettings, derivedSettings) {
-            const multiplier = derivedSettings.multiplier;
-            let lines_to_scale = ["values", "target", "trend_line"];
-            if (derivedSettings.chart_type_props.has_control_limits) {
-                lines_to_scale = lines_to_scale.concat(settings.limitLineNames);
-            }
-            if (inputSettings.lines.show_alt_target && inputSettings.lines.multiplier_alt_target) {
-                lines_to_scale = lines_to_scale.concat(["alt_target"]);
-            }
-            if (inputSettings.lines.show_specification && inputSettings.lines.multiplier_specification) {
-                lines_to_scale = lines_to_scale.concat(["speclimits_lower", "speclimits_upper"]);
-            }
-            for (let l = 0; l < lines_to_scale.length; l++) {
-                const series = controlLimits[lines_to_scale[l]];
-                for (let i = 0; i < series.length; i++) {
-                    const value = series[i];
-                    if (value !== undefined) {
-                        series[i] = value * multiplier;
+                    if (isNewAltTarget) {
+                        formattedLines.push({
+                            x,
+                            line_value: is_alt_target ? controlLimits.alt_target[i - 1] : value,
+                            group: label,
+                            aesthetics
+                        }, {
+                            x,
+                            line_value: (is_alt_target && !join_rebaselines) ? undefined : value,
+                            group: label,
+                            aesthetics
+                        });
                     }
+                    formattedLines.push({ x, line_value: value, group: label, aesthetics });
                 }
             }
+            this.periodEnds.push(position - 1);
+            this.groupedLines = lines;
         }
-        truncateLimits(controlLimits, inputSettings) {
+        scaleAndTruncateLimits(controlLimits, inputSettings, derivedSettings) {
+            const multiplier = derivedSettings.multiplier;
             const ll_truncate = inputSettings.spc.ll_truncate;
             const ul_truncate = inputSettings.spc.ul_truncate;
-            for (let l = 0; l < settings.limitLineNames.length; l++) {
-                const series = controlLimits[settings.limitLineNames[l]];
+            const lines_to_scale = ["values", "target", "trend_line"];
+            if (derivedSettings.chart_type_props.has_control_limits) {
+                lines_to_scale.push(...settings.limitLineNames);
+            }
+            if (inputSettings.lines.show_alt_target && inputSettings.lines.multiplier_alt_target) {
+                lines_to_scale.push("alt_target");
+            }
+            if (inputSettings.lines.show_specification && inputSettings.lines.multiplier_specification) {
+                lines_to_scale.push("speclimits_lower", "speclimits_upper");
+            }
+            for (let l = 0; l < lines_to_scale.length; l++) {
+                const name = lines_to_scale[l];
+                const series = controlLimits[name];
+                const lower = truncatedSeries.has(name) ? ll_truncate : undefined;
+                const upper = truncatedSeries.has(name) ? ul_truncate : undefined;
                 for (let i = 0; i < series.length; i++) {
                     const value = series[i];
                     if (value !== undefined) {
-                        series[i] = math.clamp(value, ll_truncate, ul_truncate);
+                        series[i] = math.clamp(value * multiplier, lower, upper);
                     }
                 }
             }
@@ -3444,6 +2826,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             const shift_n = inputSettings.outliers.shift_n;
             const ast_specification = inputSettings.outliers.astronomical_limit === "Specification";
             const two_in_three_specification = inputSettings.outliers.two_in_three_limit === "Specification";
+            const flagSettings = { process_flag_type, improvement_direction };
             const outliers = {
                 astpoint: math.rep("none", controlLimits.values.length),
                 two_in_three: math.rep("none", controlLimits.values.length),
@@ -3466,59 +2849,36 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
                         const astKeys = limitKeys[inputSettings.outliers.astronomical_limit];
                         const lower_limits = controlLimits[astKeys[0]].slice(start, end);
                         const upper_limits = controlLimits[astKeys[1]].slice(start, end);
-                        copyInto(outliers.astpoint, spc.astronomical(group_values, lower_limits, upper_limits), start);
+                        copyFlags(outliers.astpoint, spc.astronomical(group_values, lower_limits, upper_limits), start, flagSettings);
                     }
                     if (inputSettings.outliers.two_in_three) {
                         const highlight_series = inputSettings.outliers.two_in_three_highlight_series;
                         const warnKeys = limitKeys[inputSettings.outliers.two_in_three_limit];
                         const lower_warn_limits = controlLimits[warnKeys[0]].slice(start, end);
                         const upper_warn_limits = controlLimits[warnKeys[1]].slice(start, end);
-                        copyInto(outliers.two_in_three, spc.twoInThree(group_values, lower_warn_limits, upper_warn_limits, highlight_series), start);
+                        copyFlags(outliers.two_in_three, spc.twoInThree(group_values, lower_warn_limits, upper_warn_limits, highlight_series), start, flagSettings);
                     }
                 }
                 if (inputSettings.outliers.trend) {
-                    copyInto(outliers.trend, spc.trend(group_values, trend_n), start);
+                    copyFlags(outliers.trend, spc.trend(group_values, trend_n), start, flagSettings);
                 }
                 if (inputSettings.outliers.shift) {
-                    copyInto(outliers.shift, spc.shift(group_values, group_targets, shift_n), start);
+                    copyFlags(outliers.shift, spc.shift(group_values, group_targets, shift_n), start, flagSettings);
                 }
             }
-            const flagSettings = { process_flag_type, improvement_direction };
-            const flag = (raw) => {
-                const flagged = new Array(raw.length);
-                for (let i = 0; i < raw.length; i++) {
-                    flagged[i] = data.checkFlagDirection(raw[i], flagSettings);
-                }
-                return flagged;
-            };
-            return {
-                astpoint: flag(outliers.astpoint),
-                two_in_three: flag(outliers.two_in_three),
-                trend: flag(outliers.trend),
-                shift: flag(outliers.shift)
-            };
+            return outliers;
         }
     }
 
+    const lowerLines = new Set(settings.lowerLimitLines).add("speclimits_lower");
     class Visual extends rendering.PlotVisual {
         constructor(options) {
-            super(options, () => new viewModelClass());
+            super(options, host => new viewModelClass(host));
             this.lineKeys = lineKeys;
-            this.tableDiv = rendering.select(this.element).insert("div", "svg")
-                .style("overflow", "auto");
-            const table = this.tableDiv.append("table")
-                .classed("table-group", true)
-                .style("border-collapse", "separate")
-                .style("border-spacing", "0")
-                .style("width", "100%");
-            table.append("thead").append("tr").classed("table-header", true);
-            table.append('tbody').classed("table-body", true);
+            this.tableDiv = rendering.createTableContainer(this.element);
         }
         get settings() {
             return this.viewModel.inputSettings.settings[0];
-        }
-        axisRanges() {
-            return axisRanges(this.viewModel);
         }
         drawAlternate() {
             if (!(this.viewModel.showGrouped || this.settings.summary_table.show_table)) {
@@ -3529,52 +2889,37 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             this.addContextMenu(this.tableDiv.node(), true);
             return true;
         }
-        drawVisual() {
-            const svg = this.svg.node();
-            if (svg === null) {
-                return;
-            }
+        plotOptions() {
             const viewModel = this.viewModel;
-            const settings$1 = this.settings;
-            const context = this.plotContext();
+            const settings = this.settings;
             const tickLabels = viewModel.tickLabels;
-            rendering.drawPlotAxes(svg, context, {
-                x: value => {
-                    for (let i = 0; i < tickLabels.length; i++) {
-                        if (tickLabels[i].x === value) {
-                            return tickLabels[i].label;
+            const derivedSettings = viewModel.inputSettings.derivedSettings[0];
+            const integerTicks = derivedSettings.chart_type_props.integer_values && derivedSettings.multiplier === 1;
+            return {
+                tickFormats: {
+                    x: value => {
+                        for (let i = 0; i < tickLabels.length; i++) {
+                            if (tickLabels[i].x === value) {
+                                return tickLabels[i].label;
+                            }
                         }
-                    }
-                    return "";
+                        return "";
+                    },
+                    y: rendering.valueTickFormat(settings.y_axis.ylimit_sig_figs ?? (integerTicks ? 0 : settings.spc.sig_figs), derivedSettings.percentLabels),
+                    yInteger: integerTicks
                 },
-                y: rendering.valueTickFormat(settings$1.y_axis.ylimit_sig_figs ?? settings$1.spc.sig_figs, viewModel.inputSettings.derivedSettings[0].percentLabels)
-            });
-            rendering.drawPlotTooltips(svg, context, false);
-            rendering.drawPlotLines(svg, context, viewModel.groupedLines, (name, points, index) => settings.lineStyle(points[index].aesthetics, lineKeys[name]));
-            rendering.drawPlotLineLabels(svg, context, {
-                lines: viewModel.groupedLines,
-                settings: settings$1.lines,
-                keys: lineKeys,
-                lower: name => settings.lowerLimitLines.has(name) || name === "speclimits_lower",
-                format: viewModel.inputSettings.derivedSettings[0].formatValue,
-                periodEnds: viewModel.rebaselineEnds
-            });
-            rendering.drawPlotDots(svg, context, {
-                show: settings$1.scatter.show_dots,
-                text: undefined,
-                onClick: settings$1.spc.split_on_click ? point => this.toggleSplit(point) : undefined
-            });
-            this.svg.call(drawIcons, this);
-            this.addContextMenu(svg);
-            rendering.drawPlotDownload(svg, context, () => {
-                const points = context.points;
-                const rows = new Array(points.length);
-                for (let i = 0; i < points.length; i++) {
-                    rows[i] = points[i].table_row;
+                verticalCrosshair: false,
+                lineSettings: (points, index) => points[index].aesthetics,
+                lowerLines,
+                dots: {
+                    show: settings.scatter.show_dots,
+                    text: undefined,
+                    onClick: settings.spc.split_on_click ? point => this.toggleSplit(point) : undefined
                 }
-                return rows;
-            });
-            rendering.drawPlotValueLabels(svg, context, viewModel.inputData[0].anyLabels);
+            };
+        }
+        drawMarks() {
+            this.svg.call(drawIcons, this);
         }
         toggleSplit(point) {
             const splitIndexes = this.viewModel.splitIndexes;
@@ -3595,12 +2940,7 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
         }
         resizeCanvas(width, height) {
             super.resizeCanvas(width, height);
-            if (width === 0 && height === 0) {
-                this.tableDiv.style("width", "100%").style("height", "100%");
-            }
-            else {
-                this.tableDiv.style("width", "0%").style("height", "0%");
-            }
+            rendering.showTable(this.tableDiv, width === 0 && height === 0);
         }
         updateHighlighting() {
             const viewModel = this.viewModel;
@@ -3610,18 +2950,112 @@ var spc = (function (exports, settings, rendering, powerbi, math, data, spc) {
             }
             const state = powerbi.selectionState(this.selectionManager, anyHighlights);
             this.highlightPlotPoints(state, point => point.aesthetics);
-            const tableSelection = this.tableDiv.selectAll(".table-body").selectChildren();
-            tableSelection.style("opacity", (d) => rendering.highlightOpacity({
+            rendering.highlightTable(this.tableDiv, state, d => ({
                 opacity: d.aesthetics.table_opacity,
                 opacity_selected: d.aesthetics.table_opacity_selected,
                 opacity_unselected: d.aesthetics.table_opacity_unselected
-            }, state.active, powerbi.identitySelected(d.identity, state.selected) || d.highlighted));
+            }));
         }
     }
+
+    const flagSettings = {
+        astpoint: "astronomical",
+        trend: "trend",
+        shift: "shift",
+        two_in_three: "two_in_three"
+    };
+    function hasValues(column) {
+        for (let i = 0; i < column.length; i++) {
+            if (frontends.limitValue(column[i]) !== null) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function limitRows(limits, outliers, outlierSettings) {
+        const dates = new Array(limits.keys.length);
+        for (let i = 0; i < dates.length; i++) {
+            dates[i] = limits.keys[i].label.trim();
+        }
+        const columns = {
+            date: dates,
+            numerator: limits.numerators,
+            denominator: limits.denominators,
+            value: limits.values,
+            target: limits.target,
+            alt_target: limits.alt_target,
+            ll99: limits.ll99,
+            ll95: limits.ll95,
+            ll68: limits.ll68,
+            ul68: limits.ul68,
+            ul95: limits.ul95,
+            ul99: limits.ul99,
+            speclimits_lower: limits.speclimits_lower,
+            speclimits_upper: limits.speclimits_upper,
+            trend_line: limits.trend_line,
+            astpoint: outliers.astpoint,
+            trend: outliers.trend,
+            shift: outliers.shift,
+            two_in_three: outliers.two_in_three
+        };
+        const columnNames = Object.keys(columns);
+        const names = [];
+        for (let i = 0; i < columnNames.length; i++) {
+            const flagSetting = flagSettings[columnNames[i]];
+            if ((flagSetting === undefined || outlierSettings[flagSetting]) && hasValues(columns[columnNames[i]])) {
+                names.push(columnNames[i]);
+            }
+        }
+        const rows = new Array(dates.length);
+        for (let i = 0; i < rows.length; i++) {
+            const row = {};
+            for (let j = 0; j < names.length; j++) {
+                row[names[j]] = frontends.limitValue(columns[names[j]][i]);
+            }
+            rows[i] = row;
+        }
+        return rows;
+    }
+    function groupLimits(viewModel, index) {
+        return limitRows(viewModel.controlLimits[index], viewModel.outliers[index], viewModel.inputSettings.settings[index].outliers);
+    }
+    function chartLimits(viewModel) {
+        if (viewModel.indicatorVarNames.length === 0) {
+            return groupLimits(viewModel, 0);
+        }
+        const result = {};
+        for (let i = 0; i < viewModel.controlLimits.length; i++) {
+            const groups = viewModel.groupNames[i];
+            let branch = result;
+            for (let j = 0; j < groups.length; j++) {
+                const name = groups[j] === "" ? "<blank>" : groups[j];
+                if (j === groups.length - 1) {
+                    branch[name] = groupLimits(viewModel, i);
+                }
+                else {
+                    const existing = branch[name];
+                    const next = existing !== undefined && !Array.isArray(existing) ? existing : {};
+                    branch[name] = next;
+                    branch = next;
+                }
+            }
+        }
+        return result;
+    }
+    const frontend = {
+        Visual,
+        settingsModel,
+        limits: visual => ({ limits: chartLimits(visual.viewModel), indicatorNames: visual.viewModel.indicatorVarNames }),
+        staticError: visual => visual.viewModel.showGrouped
+            ? "Static plots are not available for SPC charts with multiple indicator groups."
+            : undefined
+    };
+
+    frontends.registerChart('spc', frontend);
 
     exports.Visual = Visual;
     exports.defaultSettings = defaultSettings;
 
     return exports;
 
-})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);
+})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);

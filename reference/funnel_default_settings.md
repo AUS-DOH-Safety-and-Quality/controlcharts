@@ -588,6 +588,122 @@ funnel_default_settings()
 #> [1] 1
 #> 
 #> 
+#> $summary_table
+#> $summary_table$show_table
+#> [1] FALSE
+#> 
+#> $summary_table$table_text_overflow
+#> [1] "none"
+#> 
+#> $summary_table$table_opacity
+#> [1] 1
+#> 
+#> $summary_table$table_opacity_selected
+#> [1] 1
+#> 
+#> $summary_table$table_opacity_unselected
+#> [1] 0.2
+#> 
+#> $summary_table$table_outer_border_style
+#> [1] "none"
+#> 
+#> $summary_table$table_outer_border_width
+#> [1] 1
+#> 
+#> $summary_table$table_outer_border_colour
+#> [1] "#000000"
+#> 
+#> $summary_table$table_outer_border_top
+#> [1] TRUE
+#> 
+#> $summary_table$table_outer_border_bottom
+#> [1] TRUE
+#> 
+#> $summary_table$table_outer_border_left
+#> [1] TRUE
+#> 
+#> $summary_table$table_outer_border_right
+#> [1] TRUE
+#> 
+#> $summary_table$table_header_font
+#> [1] "'Arial', sans-serif"
+#> 
+#> $summary_table$table_header_size
+#> [1] 10
+#> 
+#> $summary_table$table_header_text_align
+#> [1] "auto"
+#> 
+#> $summary_table$table_header_font_weight
+#> [1] "bold"
+#> 
+#> $summary_table$table_header_text_transform
+#> [1] "none"
+#> 
+#> $summary_table$table_header_text_padding
+#> [1] 3
+#> 
+#> $summary_table$table_header_colour
+#> [1] "#000000"
+#> 
+#> $summary_table$table_header_bg_colour
+#> [1] "#FFFFFF"
+#> 
+#> $summary_table$table_header_border_style
+#> [1] "solid"
+#> 
+#> $summary_table$table_header_border_width
+#> [1] 1
+#> 
+#> $summary_table$table_header_border_colour
+#> [1] "#000000"
+#> 
+#> $summary_table$table_header_border_bottom
+#> [1] TRUE
+#> 
+#> $summary_table$table_header_border_inner
+#> [1] FALSE
+#> 
+#> $summary_table$table_body_font
+#> [1] "'Arial', sans-serif"
+#> 
+#> $summary_table$table_body_size
+#> [1] 10
+#> 
+#> $summary_table$table_body_text_align
+#> [1] "auto"
+#> 
+#> $summary_table$table_body_font_weight
+#> [1] "normal"
+#> 
+#> $summary_table$table_body_text_transform
+#> [1] "none"
+#> 
+#> $summary_table$table_body_text_padding
+#> [1] 3
+#> 
+#> $summary_table$table_body_colour
+#> [1] "#000000"
+#> 
+#> $summary_table$table_body_bg_colour
+#> [1] "#FFFFFF"
+#> 
+#> $summary_table$table_body_border_style
+#> [1] "solid"
+#> 
+#> $summary_table$table_body_border_width
+#> [1] 1
+#> 
+#> $summary_table$table_body_border_colour
+#> [1] "#D3D3D3"
+#> 
+#> $summary_table$table_body_border_top_bottom
+#> [1] TRUE
+#> 
+#> $summary_table$table_body_border_left_right
+#> [1] FALSE
+#> 
+#> 
 #> $download_options
 #> $download_options$show_button
 #> [1] FALSE
