@@ -38,9 +38,14 @@ jobs:
 
     - name: Update lib files
       run: |
-        mv inst/bundle/dist/funnel.js inst/htmlwidgets/lib/PBIFUN/PBIFUN.js
-        mv inst/bundle/dist/spc.js inst/htmlwidgets/lib/PBISPC/PBISPC.js
-        mv inst/bundle/dist/ccCore.js inst/htmlwidgets/lib/UTILS/ccCore.js
+        for ext in js min.js; do
+          mv inst/bundle/dist/funnel.$ext inst/htmlwidgets/lib/PBIFUN/PBIFUN.$ext
+          mv inst/bundle/dist/spc.$ext inst/htmlwidgets/lib/PBISPC/PBISPC.$ext
+          mv inst/bundle/dist/ccCore.$ext inst/htmlwidgets/lib/UTILS/ccCore.$ext
+          mv inst/bundle/dist/ccHeadless.$ext inst/htmlwidgets/lib/UTILS/ccHeadless.$ext
+          mv inst/bundle/dist/ccInteractive.$ext inst/htmlwidgets/lib/UTILS/ccInteractive.$ext
+        done
+        mv inst/bundle/dist/minidom.min.js inst/js/minidom.min.js
 
     - name: Commit funnel changes
       run: |
@@ -64,9 +69,9 @@ jobs:
 
     - name: Commit dependency changes
       run: |
-        if [[ -n "$(git status inst/htmlwidgets/lib/UTILS -s)" ]]; then
+        if [[ -n "$(git status inst/htmlwidgets/lib/UTILS inst/js -s)" ]]; then
           echo "PBIDEPS=true" >> $GITHUB_ENV
-          git add inst/htmlwidgets/lib/UTILS
+          git add inst/htmlwidgets/lib/UTILS inst/js
           git commit -m "Update visual dependencies"
         fi
 

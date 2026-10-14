@@ -1,5 +1,5 @@
 HTMLWidgets.widget({
   name: 'funnel',
   type: 'output',
-  factory: makeFactory("funnel")
+  factory: ccInteractive.makeFactory("funnel")
 });

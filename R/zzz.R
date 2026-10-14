@@ -17,9 +17,8 @@ ctx <- NULL
   .load_js_file(ctx, "htmlwidgets/lib/UTILS/ccCore.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBISPC/PBISPC.min.js")
   .load_js_file(ctx, "htmlwidgets/lib/PBIFUN/PBIFUN.min.js")
-  .load_js_file(ctx, "htmlwidgets/lib/UTILS/commonUtils.min.js")
-  .load_js_file(ctx, "htmlwidgets/lib/UTILS/headlessUtils.min.js")
-  ctx$call("initialiseHeadless")
+  .load_js_file(ctx, "htmlwidgets/lib/UTILS/ccHeadless.min.js")
+  ctx$source(code = "ccHeadless.initialiseHeadless(minidom.dummyDOM())")
 
   # Extract default settings from each chart type and store in R
   for (type in c("spc", "funnel")) {

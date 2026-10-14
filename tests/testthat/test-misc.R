@@ -205,13 +205,13 @@ test_that("MISC uses native Funnel rate tooltip formatting", {
     return_objs = "limits"
   )
 
-  tooltips <- controlcharts:::ctx$get("funnelVisual.viewModel.miscPoints")[[1]]$tooltip
+  tooltips <- controlcharts:::ctx$get("ccHeadless.visuals.funnel.viewModel.miscPoints")[[1]]$tooltip
   funnel(
     dat, keys = organisation, numerators = numerator, denominators = denominator,
     funnel_settings = list(chart_type = "PR", multiplier = 1000, perc_labels = "No"),
     return_objs = "limits"
   )
-  expected <- controlcharts:::ctx$get("funnelVisual.viewModel.plotPoints")[[1]]$tooltip
+  expected <- controlcharts:::ctx$get("ccHeadless.visuals.funnel.viewModel.plotPoints")[[1]]$tooltip
   expect_equal(tooltips[-c(1, 2)], expected)
 })
 
@@ -232,7 +232,7 @@ test_that("MISC applies funnel's automatic percentage rule", {
     return_objs = "limits"
   )
 
-  tooltips <- controlcharts:::ctx$get("funnelVisual.viewModel.miscPoints")[[1]]$tooltip
+  tooltips <- controlcharts:::ctx$get("ccHeadless.visuals.funnel.viewModel.miscPoints")[[1]]$tooltip
   values <- vapply(tooltips, function(item) item$value, character(1))
   expect_contains(values, "80.00%")
 })

@@ -13,6 +13,8 @@
     "files": [
         "ccCore.ts",
         "spc.ts",
-        "funnel.ts"
+        "funnel.ts",
+        "ccHeadless.ts",
+        "ccInteractive.ts"
     ]
 }

@@ -47,7 +47,7 @@ test_that("Crosstalk raw data follows numeric key ordering", {
     chart <- chart_fun(shared, keys = key, numerators = numerator,
                        denominators = denominator, return_objs = "html_plot")
     x <- chart$html_plot$x
-    values <- controlcharts:::ctx$call("makeUpdateValues", x$data_raw,
+    values <- controlcharts:::ctx$call("ccCore.makeUpdateValues", x$data_raw,
                                        x$input_settings, x$aggregations)
     categorical <- values$dataViews[[1]]$categorical
 

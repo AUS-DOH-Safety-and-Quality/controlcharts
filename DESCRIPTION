@@ -1,6 +1,6 @@
 Package: controlcharts
 Title: Interactive Plotting for Funnel, Sigma, and Statistical Process Control Charts
-Version: 0.0.24
+Version: 0.0.25
 Authors@R: c(
   person(c("Andrew", "R."), "Johnson", , "andrew.johnson@arjohnsonau.com",
           role = c("aut", "cre"),
@@ -20,7 +20,6 @@ Imports:
   htmlwidgets,
   crosstalk,
   QuickJSR,
-  jsutils,
   rlang
 Suggests:
   htmltools,

@@ -1,4 +1,5 @@
 export * from './PowerBI-Visuals-Core/src/data';
+export * from './PowerBI-Visuals-Core/src/frontends';
 export * from './PowerBI-Visuals-Core/src/math';
 export * from './PowerBI-Visuals-Core/src/powerbi';
 export * from './PowerBI-Visuals-Core/src/rendering';

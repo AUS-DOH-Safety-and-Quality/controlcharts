@@ -3,5 +3,4 @@
 #' @importFrom htmlwidgets createWidget createWidget shinyWidgetOutput shinyRenderWidget saveWidget
 #' @importFrom QuickJSR JSContext
 #' @importFrom utils modifyList
-#' @importFrom jsutils js_versions
 "_PACKAGE"

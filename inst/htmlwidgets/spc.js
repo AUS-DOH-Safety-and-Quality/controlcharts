@@ -1,5 +1,5 @@
 HTMLWidgets.widget({
   name: 'spc',
   type: 'output',
-  factory: makeFactory("spc")
+  factory: ccInteractive.makeFactory("spc")
 });

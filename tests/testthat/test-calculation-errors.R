@@ -13,7 +13,7 @@ test_that("Funnel calculation errors do not return previous limits", {
   expect_equal(calculate(dat), expected)
 
   result <- controlcharts:::ctx$call(
-    "updateHeadlessVisual", "funnel", list(), list(text = NULL),
+    "ccHeadless.updateHeadlessVisual", "funnel", list(), list(text = NULL),
     640, 400, FALSE, TRUE
   )
   expect_identical(result, list(error = "No data present"))

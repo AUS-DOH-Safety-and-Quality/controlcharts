@@ -116,13 +116,13 @@ test_that("SPC indicators retain grouped Crosstalk identities", {
     return_objs = "html_plot"
   )
   values <- controlcharts:::ctx$call(
-    "makeUpdateValues",
+    "ccCore.makeUpdateValues",
     chart$html_plot$x$data_raw,
     chart$html_plot$x$input_settings,
     chart$html_plot$x$aggregations
   )
   filtered_values <- controlcharts:::ctx$call(
-    "makeUpdateValues",
+    "ccCore.makeUpdateValues",
     chart$html_plot$x$data_raw,
     chart$html_plot$x$input_settings,
     chart$html_plot$x$aggregations,

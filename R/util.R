@@ -142,7 +142,7 @@ create_static <- function(type, data_views, title_settings, width, height,
                          ) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
-  raw_ret <- call_js("updateHeadlessVisual", type, data_views,
+  raw_ret <- call_js("ccHeadless.updateHeadlessVisual", type, data_views,
                      title_settings, width, height,
                      rtn_static, rtn_limits || rtn_limit_lines)
 
@@ -245,7 +245,7 @@ create_save_function <- function(type, rtn, data_views) {
     height <- ifelse(is.null(height), static_plot$height, height)
 
     svg_resized <- ctx$call(
-      "updateHeadlessVisual",
+      "ccHeadless.updateHeadlessVisual",
       type,
       data_views,
       static_plot$title_settings,
@@ -288,10 +288,10 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
     stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
   }
 
-  input_settings <- call_js("chartSettings", type, input_settings,
+  input_settings <- call_js("ccCore.chartSettings", type, input_settings,
                             length(data_raw$categories))$settings
-  aggregations <- call_js("chartAggregations", aggregations)$aggregations
-  title_settings <- call_js("chartTitle", title)$settings
+  aggregations <- call_js("ccCore.chartAggregations", aggregations)$aggregations
+  title_settings <- call_js("ccCore.chartTitle", title)$settings
 
   rtn_html <- "html_plot" %in% return_objs
   rtn_static <- "static_plot" %in% return_objs
@@ -316,7 +316,7 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
       widget_data$input_settings <- input_settings
       widget_data$aggregations <- aggregations
     } else {
-      widget_data$update_values <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations)
+      widget_data$update_values <- ctx$call("ccCore.makeUpdateValues", data_raw, input_settings, aggregations)
       data_views <- widget_data$update_values$dataViews
     }
 
@@ -338,7 +338,7 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
 
   if (rtn_static || rtn_limits || rtn_limit_lines) {
     if (is.null(data_views)) {
-      data_views <- ctx$call("makeUpdateValues", data_raw, input_settings, aggregations)$dataViews
+      data_views <- ctx$call("ccCore.makeUpdateValues", data_raw, input_settings, aggregations)$dataViews
     }
 
     static <- create_static(

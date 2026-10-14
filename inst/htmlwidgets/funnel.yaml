@@ -6,8 +6,7 @@ dependencies:
     stylesheet: interactiveUtils.css
     script:
       - ccCore.min.js
-      - commonUtils.min.js
-      - interactiveUtils.min.js
+      - ccInteractive.min.js
   - name: PBIFUN
     version: 1.8.1.0
     src: htmlwidgets/lib/PBIFUN

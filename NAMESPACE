@@ -27,5 +27,4 @@ importFrom(htmlwidgets,
   shinyRenderWidget,
   shinyWidgetOutput
 )
-importFrom(jsutils,js_versions)
 importFrom(utils,modifyList)
