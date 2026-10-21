@@ -29,12 +29,14 @@ jobs:
 
     - name: Bundle Visuals
       run: |
+        specs=()
         for dependency in powerbi-visuals-core:PowerBI-Visuals-Core powerbi-spc:PowerBI-SPC powerbi-funnels:PowerBI-Funnels; do
           repo=AUS-DOH-Safety-and-Quality/${dependency#*:}
           sha=$(git ls-remote https://github.com/$repo refs/heads/main | cut -c1-7)
-          npm pkg set "dependencies.${dependency%%:*}=github:$repo#$sha"
+          specs+=("${dependency%%:*}@github:$repo#$sha")
         done
-        npm install
+        # Naming the specs re-resolves them; npm 10 keeps a git dependency's locked commit when only package.json changes
+        npm install "${specs[@]}"
         npm run bundle
       working-directory: 'inst/bundle'
 
