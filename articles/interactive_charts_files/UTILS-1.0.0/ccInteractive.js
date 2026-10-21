@@ -15,6 +15,7 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
             const selectionHandle = new crosstalk.SelectionHandle();
             const viewport = { width, height };
             let x;
+            let titleText;
             let updateValues = { dataViews: [], crosstalk_identities: [] };
             let dataViews = [];
             const selectionManager = {
@@ -22,7 +23,7 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                 getSelectionIds: () => {
                     const selectedKeys = selectionHandle.value ?? [];
                     const selected = new Set(selectedKeys);
-                    const groups = Object.values(updateValues.crosstalk_identities);
+                    const groups = updateValues.crosstalk_identities;
                     const identities = new Array(selectedKeys.length);
                     for (let i = 0; i < selectedKeys.length; i++) {
                         identities[i] = frontends.selectionId([selectedKeys[i]]);
@@ -40,14 +41,28 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                 },
                 select: (identity, multiSelect) => {
                     const identities = Array.isArray(identity) ? identity : [identity];
-                    const keys = [];
+                    const selected = new Set(multiSelect === true ? selectionHandle.value ?? [] : []);
                     for (let i = 0; i < identities.length; i++) {
-                        keys.push(...identities[i].keys);
+                        const keys = identities[i].keys;
+                        let anySelected = false;
+                        for (let j = 0; j < keys.length && !anySelected; j++) {
+                            anySelected = selected.has(keys[j]);
+                        }
+                        for (let j = 0; j < keys.length; j++) {
+                            if (anySelected) {
+                                selected.delete(keys[j]);
+                            }
+                            else {
+                                selected.add(keys[j]);
+                            }
+                        }
                     }
-                    if (multiSelect === true && selectionHandle.value !== null) {
-                        keys.push(...selectionHandle.value);
+                    if (selected.size === 0) {
+                        selectionHandle.clear();
                     }
-                    selectionHandle.set(keys);
+                    else {
+                        selectionHandle.set(Array.from(selected));
+                    }
                     return Promise.resolve();
                 },
                 clear: () => {
@@ -68,9 +83,9 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                         visual.svg.select(".chart-tooltip-group").selectChildren().remove();
                     }
                 },
-                rowKeys: (category, index) => {
-                    const identities = updateValues.crosstalk_identities;
-                    return keysOf(frontends.isArray(identities) ? identities[index] : identities[String(category.values[index])]);
+                rowKeys: index => keysOf(updateValues.crosstalk_identities[index]),
+                displayWarningIcon: (hoverText, detailedText) => {
+                    console.log(hoverText, detailedText);
                 }
             }));
             const svg = visual.svg.node();
@@ -118,40 +133,48 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                     .attr("height", 15 * items.length + 5);
                 tooltipGroup.attr("transform", `translate(${left}, ${top})`);
             };
+            function titleSettings(data) {
+                return titleText === undefined ? data.title_settings : { ...data.title_settings, text: titleText };
+            }
             function updateVisual(type) {
                 visual.update({ dataViews: frontends.toDataViews(dataViews), viewport, type });
                 if (x !== undefined) {
-                    frontends.updateChartTitle(visual.svg, x.title_settings);
+                    frontends.updateChartTitle(visual.svg, titleSettings(x));
                 }
                 visual.svg.selectAll(".chart-tooltip-group").data([null]).join("g").classed("chart-tooltip-group", true);
             }
-            function aggregate(data, filters) {
+            function redraw(data) {
                 updateValues = data.is_crosstalk
-                    ? frontends.makeUpdateValues(data.data_raw, data.input_settings, data.aggregations, filters)
+                    ? frontends.makeUpdateValues(data.data_raw, data.input_settings, data.aggregations, filterHandle.filteredKeys ?? undefined)
                     : data.update_values;
-                dataViews = frontends.paddedDataViews(chartType, updateValues.dataViews, data.title_settings, false);
+                dataViews = frontends.paddedDataViews(chartType, updateValues.dataViews, titleSettings(data), false);
+                updateVisual(powerbi.updateType.data);
             }
             selectionHandle.on("change", () => {
                 visual.updateHighlighting();
             });
-            filterHandle.on("change", event => {
+            filterHandle.on("change", () => {
                 if (x?.is_crosstalk === true) {
-                    aggregate(x, event.value ?? undefined);
-                    updateVisual(powerbi.updateType.data);
+                    redraw(x);
                 }
             });
             return {
                 renderValue: value => {
                     x = value;
-                    aggregate(value);
                     selectionHandle.setGroup(value.crosstalk_group);
                     filterHandle.setGroup(value.crosstalk_group);
-                    updateVisual(powerbi.updateType.data);
+                    redraw(value);
                 },
                 resize: (newWidth, newHeight) => {
                     viewport.width = newWidth;
                     viewport.height = newHeight;
                     updateVisual(powerbi.updateType.resize);
+                },
+                setTitle: text => {
+                    titleText = text;
+                    if (x !== undefined) {
+                        redraw(x);
+                    }
                 }
             };
         };

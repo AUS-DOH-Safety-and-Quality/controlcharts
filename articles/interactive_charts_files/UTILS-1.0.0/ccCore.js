@@ -1,14 +1,6 @@
 var ccCore = (function (exports) {
     'use strict';
 
-    function pickRows(values, positions) {
-        const result = new Array(positions.length);
-        for (let i = 0; i < positions.length; i++) {
-            result[i] = values[positions[i]];
-        }
-        return result;
-    }
-
     function formatNumber(value, decimalPlaces, suffix) {
         if (value === undefined || Number.isNaN(value)) {
             return undefined;
@@ -76,8 +68,13 @@ var ccCore = (function (exports) {
         }
     }
 
-    function createValueFormatter(decimalPlaces, integerPlaces, suffix) {
-        return (value, name) => formatNumber(value, name === "integer" ? integerPlaces : decimalPlaces, name === "integer" ? "" : suffix) ?? "";
+    function createValueFormatter(decimalPlaces, suffix) {
+        return (value, name) => {
+            if (name === "value") {
+                return formatNumber(value, decimalPlaces, suffix) ?? "";
+            }
+            return formatNumber(value, Number.isInteger(value) ? 0 : decimalPlaces, "") ?? "";
+        };
     }
 
     function resolvePercentScaling(isProportion, percentSetting, multiplier) {
@@ -157,13 +154,6 @@ var ccCore = (function (exports) {
         }
         return value;
     }
-    function keptValues(values, kept) {
-        const result = new Array(kept.length);
-        for (let i = 0; i < kept.length; i++) {
-            result[i] = keptValue(values, kept[i]);
-        }
-        return result;
-    }
 
     const quantity = {
         numerator: { name: "Numerator", plural: "numerators" },
@@ -207,7 +197,7 @@ var ccCore = (function (exports) {
         return {
             multiplier: scaling.multiplier,
             percentLabels,
-            formatValue: createValueFormatter(settings.sig_figs, options.wholeCounts ? 0 : settings.sig_figs, percentLabels ? "%" : "")
+            formatValue: createValueFormatter(settings.sig_figs, percentLabels ? "%" : "")
         };
     }
 
@@ -460,8 +450,8 @@ var ccCore = (function (exports) {
             createSelectionIdBuilder: () => {
                 let keys = [];
                 const builder = {
-                    withCategory: (category, index) => {
-                        keys = services.rowKeys(category, index);
+                    withCategory: (_category, index) => {
+                        keys = services.rowKeys(index);
                         return builder;
                     },
                     createSelectionId: () => selectionId(keys)
@@ -484,9 +474,7 @@ var ccCore = (function (exports) {
             hostCapabilities: {
                 allowInteractions: true
             },
-            displayWarningIcon: (hoverText, detailedText) => {
-                console.log(hoverText, detailedText);
-            }
+            displayWarningIcon: services.displayWarningIcon
         };
         return { element, host: host };
     }
@@ -508,6 +496,35 @@ var ccCore = (function (exports) {
     }
     function limitValue(value) {
         return value === undefined || Number.isNaN(value) ? null : value;
+    }
+
+    function indicatorColumns(names, limitColumns) {
+        const reserved = new Set(limitColumns);
+        const taken = new Set(limitColumns);
+        for (let i = 0; i < names.length; i++) {
+            taken.add(names[i]);
+        }
+        const columns = new Array(names.length);
+        for (let i = 0; i < names.length; i++) {
+            let column = names[i];
+            if (reserved.has(column)) {
+                do {
+                    column += "_";
+                } while (taken.has(column));
+                taken.add(column);
+            }
+            columns[i] = column;
+        }
+        return columns;
+    }
+    function indicatorFields(indicators, limitColumns) {
+        const names = Object.keys(indicators);
+        const columns = indicatorColumns(names, limitColumns);
+        const fields = {};
+        for (let i = 0; i < names.length; i++) {
+            fields[columns[i]] = indicators[names[i]];
+        }
+        return fields;
     }
 
     const aggregationMethods = ["first", "last", "sum", "mean", "min", "max", "median", "count"];
@@ -532,20 +549,27 @@ var ccCore = (function (exports) {
         return hasOwn(defaultAggregations, name);
     }
     function aggregateColumn(column, aggregation) {
-        if (aggregation === "first") {
-            return column[0];
-        }
-        if (aggregation === "last") {
-            return column[column.length - 1];
-        }
+        let first = null;
+        let last = null;
         const values = [];
         let sum = 0;
         for (let i = 0; i < column.length; i++) {
             const value = column[i];
             if (!isMissing(value)) {
+                first ?? (first = value);
+                last = value;
                 values.push(Number(value));
                 sum += Number(value);
             }
+        }
+        if (aggregation === "first") {
+            return first;
+        }
+        if (aggregation === "last") {
+            return last;
+        }
+        if (aggregation === "count") {
+            return values.length;
         }
         if (values.length === 0) {
             return null;
@@ -555,8 +579,6 @@ var ccCore = (function (exports) {
                 return sum;
             case "mean":
                 return sum / values.length;
-            case "count":
-                return values.length;
             case "min":
                 return Math.min(...values);
             case "max":
@@ -589,15 +611,18 @@ var ccCore = (function (exports) {
         return { aggregations: result };
     }
 
-    function isConstant(card, name) {
-        const groupNames = Object.keys(card.settingsGroups);
-        for (let i = 0; i < groupNames.length; i++) {
-            const group = card.settingsGroups[groupNames[i]];
-            if (hasOwn(group, name)) {
-                return group[name].constant === true;
-            }
+    function asText(value) {
+        if (typeof value === "number") {
+            return String(value);
         }
-        return false;
+        if (!isArray(value)) {
+            return value;
+        }
+        const values = new Array(value.length);
+        for (let i = 0; i < value.length; i++) {
+            values[i] = typeof value[i] === "number" ? String(value[i]) : value[i];
+        }
+        return values;
     }
     function chartSettings(chartType, inputSettings, rowCount) {
         const chart = frontendChart(chartType);
@@ -628,13 +653,10 @@ var ccCore = (function (exports) {
                 if (isArray(value) && value.length === 1) {
                     value = value[0];
                 }
-                if (isArray(value) && isConstant(chart.settingsModel[groupName], names[j])) {
-                    return { error: `Setting '${names[j]}' in group '${groupName}' must have one value.` };
-                }
                 if (isPlainObject(value) || (isArray(value) && value.length !== rowCount)) {
                     return { error: `Setting '${names[j]}' in group '${groupName}' must have one value or ${rowCount} values.` };
                 }
-                groupSettings[names[j]] = value;
+                groupSettings[names[j]] = typeof groupDefaults[names[j]] === "string" ? asText(value) : value;
             }
             settings[groupName] = groupSettings;
         }
@@ -721,81 +743,6 @@ var ccCore = (function (exports) {
         }
     }
 
-    function indexColumnsByRole(columns) {
-        const result = Object.create(null);
-        for (let i = 0; i < columns.length; i++) {
-            const column = columns[i];
-            const roles = column.source.roles;
-            if (roles === undefined) {
-                continue;
-            }
-            const names = Object.keys(roles);
-            for (let j = 0; j < names.length; j++) {
-                const name = names[j];
-                if (!roles[name]) {
-                    continue;
-                }
-                (result[name] ?? (result[name] = [])).push(column);
-            }
-        }
-        return result;
-    }
-    function formatPrimitiveValue(value) {
-        return value == null ? undefined : String(value);
-    }
-    function readNumbers(column, rows) {
-        const numbers = new Array(rows.length);
-        for (let i = 0; i < rows.length; i++) {
-            const value = column.values[rows[i]];
-            numbers[i] = value == null || value === "" ? undefined : Number(value);
-        }
-        return numbers;
-    }
-
-    function pad(value) {
-        return String(value).padStart(2, "0");
-    }
-    function dateName(date) {
-        const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-        if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
-            return day;
-        }
-        return `${day} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-    }
-    function groupCategoryRows(columns, rowCount) {
-        if (columns.length === 0) {
-            const rows = new Array(rowCount);
-            for (let i = 0; i < rowCount; i++) {
-                rows[i] = i;
-            }
-            return { rows: [rows], names: [[]], keys: ["[]"], labels: [""] };
-        }
-        const groups = { rows: [], names: [], keys: [], labels: [] };
-        const indexes = new Map();
-        for (let i = 0; i < rowCount; i++) {
-            const parts = new Array(columns.length);
-            const names = new Array(columns.length);
-            for (let j = 0; j < columns.length; j++) {
-                const value = columns[j].values[i];
-                names[j] = value instanceof Date ? dateName(value) : formatPrimitiveValue(value) ?? "";
-                parts[j] = value == null ? ["undefined", ""]
-                    : value instanceof Date ? ["date", String(value.getTime())] : [typeof value, String(value)];
-            }
-            const key = JSON.stringify(parts);
-            let index = indexes.get(key);
-            if (index === undefined) {
-                index = groups.rows.length;
-                indexes.set(key, index);
-                groups.rows.push([]);
-                groups.names.push(names);
-                groups.keys.push(key);
-                groups.labels.push(names.join(" / "));
-            }
-            groups.rows[index].push(i);
-        }
-        return groups;
-    }
-
     function toDataViews(dataViews) {
         return dataViews;
     }
@@ -822,6 +769,26 @@ var ccCore = (function (exports) {
             values[i] = asArray(columns?.[names[i]] ?? null);
         }
         return { names, columns: values };
+    }
+    function hasDateCategories(categories) {
+        let hasDate = false;
+        for (let i = 0; i < categories.length; i++) {
+            const value = categories[i];
+            if (isMissing(value)) {
+                continue;
+            }
+            if (typeof value !== "string"
+                || !/^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?$/.test(value)
+                || Number.isNaN(Date.parse(value))) {
+                return false;
+            }
+            const datePart = value.slice(0, 10);
+            if (new Date(datePart).toISOString().slice(0, 10) !== datePart) {
+                return false;
+            }
+            hasDate = true;
+        }
+        return hasDate;
     }
     function groupRows(categories, categoryOrder, indicatorColumns, crosstalkIdentities, crosstalkFilters) {
         const filters = crosstalkFilters === undefined ? undefined : new Set(crosstalkFilters);
@@ -899,7 +866,6 @@ var ccCore = (function (exports) {
         }
         const indicators = namedColumns(rawData.indicators);
         const tooltips = namedColumns(rawData.tooltips);
-        const hasIndicators = indicators.names.length > 0;
         const categories = asArray(rawData.categories);
         let crosstalkIdentities;
         if (rawData.crosstalk_identities == null) {
@@ -927,7 +893,7 @@ var ccCore = (function (exports) {
         }
         const groups = groupRows(categories, categoryOrder, indicators.columns, crosstalkIdentities, crosstalkFilters);
         const key = {
-            source: { roles: { key: true }, type: { temporal: {} } },
+            source: { displayName: rawData.category_name, roles: { key: true }, type: hasDateCategories(categories) ? { temporal: {} } : { text: true } },
             values: [],
             objects: []
         };
@@ -937,7 +903,7 @@ var ccCore = (function (exports) {
         }
         const columns = new Array(valueNames.length + tooltips.names.length);
         for (let i = 0; i < valueNames.length; i++) {
-            columns[i] = { source: { roles: { [valueNames[i]]: true } }, values: [] };
+            columns[i] = { source: { displayName: valueNames[i], roles: { [valueNames[i]]: true } }, values: [] };
         }
         for (let i = 0; i < tooltips.names.length; i++) {
             columns[valueNames.length + i] = {
@@ -946,10 +912,11 @@ var ccCore = (function (exports) {
             };
         }
         const rowSettings = groupSettings(inputSettings);
-        const byPosition = [];
-        const byCategory = {};
+        const identities = new Array(groups.length);
+        const sourceRows = {};
         for (let g = 0; g < groups.length; g++) {
             const group = groups[g];
+            sourceRows[String(g)] = group.rows;
             key.values.push(group.category);
             for (let i = 0; i < group.indicators.length; i++) {
                 categoryColumns[i + 1].values.push(group.indicators[i]);
@@ -958,12 +925,7 @@ var ccCore = (function (exports) {
             for (let i = 0; i < group.rows.length; i++) {
                 groupIdentities[i] = String(crosstalkIdentities[group.rows[i]]);
             }
-            if (hasIndicators) {
-                byPosition.push(groupIdentities);
-            }
-            else {
-                byCategory[String(group.category)] = groupIdentities;
-            }
+            identities[g] = groupIdentities;
             key.objects.push(rowSettings(group.rows[0]));
             const groupValues = new Array(group.rows.length);
             for (let i = 0; i < columns.length; i++) {
@@ -979,14 +941,11 @@ var ccCore = (function (exports) {
         for (let i = 0; i < sources.length; i++) {
             sources[i] = i < categoryColumns.length ? categoryColumns[i].source : columns[i - categoryColumns.length].source;
         }
-        const group = inputSettings.misc?.group;
         const dataView = {
             categorical: { categories: categoryColumns, values: columns },
-            metadata: hasIndicators && (typeof group === "string" || typeof group === "number")
-                ? { columns: sources, objects: { misc: { group: groupCategoryRows([{ values: [String(group)] }], 1).keys[0] } } }
-                : { columns: sources }
+            metadata: { columns: sources }
         };
-        return { dataViews: [dataView], crosstalk_identities: hasIndicators ? byPosition : byCategory };
+        return { dataViews: [dataView], crosstalk_identities: identities, source_rows: sourceRows };
     }
 
     function paddedDataViews(chartType, dataViews, titleSettings, staticPlot) {
@@ -1001,12 +960,17 @@ var ccCore = (function (exports) {
             canvas.upper_padding = Number(canvas.upper_padding) + titlePadding;
             if (staticPlot) {
                 const xAxis = { ...defaults.x_axis, ...settings.x_axis };
+                const tickSize = Number(xAxis.xlimit_tick_size);
+                const rotation = Number(xAxis.xlimit_tick_rotation);
+                const radians = rotation * Math.PI / 180;
                 canvas.left_padding = Number(canvas.left_padding) + 50;
-                let lowerPadding = 10 + Number(xAxis.xlimit_tick_size);
-                if (xAxis.xlimit_tick_rotation !== 0) {
-                    lowerPadding += 15;
-                }
+                const lowerPadding = rotation === 0
+                    ? 10 + tickSize
+                    : 5.8 * tickSize * Math.abs(Math.sin(radians)) + (9 + 0.4 * tickSize) * Math.abs(Math.cos(radians));
                 canvas.lower_padding = Number(canvas.lower_padding) + lowerPadding;
+                if (rotation >= 0) {
+                    canvas.right_padding = Number(canvas.right_padding) + (rotation > 0 ? 4 : 2) * tickSize;
+                }
             }
             objects[i] = { ...settings, canvas };
         }
@@ -1069,7 +1033,9 @@ var ccCore = (function (exports) {
 
     function sequence(start, count, step) {
         const result = new Array(count);
-        result[0] = start;
+        if (count > 0) {
+            result[0] = start;
+        }
         for (let i = 1; i < count; i++) {
             result[i] = result[i - 1] + step;
         }
@@ -1157,7 +1123,8 @@ var ccCore = (function (exports) {
             if (d0 === d1) {
                 return [d0];
             }
-            const spec = tickSpec(d0, d1, count);
+            const reverse = d1 < d0;
+            const spec = reverse ? tickSpec(d1, d0, count) : tickSpec(d0, d1, count);
             const i1 = spec[0];
             const i2 = spec[1];
             const inc = spec[2];
@@ -1167,7 +1134,8 @@ var ccCore = (function (exports) {
             const n = i2 - i1 + 1;
             const ticks = new Array(n);
             for (let i = 0; i < n; ++i) {
-                ticks[i] = inc < 0 ? (i1 + i) / -inc : (i1 + i) * inc;
+                const index = reverse ? i2 - i : i1 + i;
+                ticks[i] = inc < 0 ? index / -inc : index * inc;
             }
             return ticks;
         };
@@ -1206,6 +1174,12 @@ var ccCore = (function (exports) {
         }
         if (r === -0.5) {
             return -1;
+        }
+        if (r > 0.5) {
+            r = 1 - r;
+        }
+        else if (r < -0.5) {
+            r = -1 - r;
         }
         return Math.sin(Math.PI * r);
     }
@@ -1624,20 +1598,24 @@ var ccCore = (function (exports) {
         return trendLine;
     }
 
+    function logC4(sampleSize) {
+        const a = (sampleSize - 1) / 2;
+        if (a < 10) {
+            return lgamma(a + 0.5) - lgamma(a) - 0.5 * Math.log(a);
+        }
+        return a * log1pmx(0.5 / a) + lgammaCorrection(a + 0.5) - lgammaCorrection(a);
+    }
     function c4(sampleSize) {
-        const Nminus1 = sampleSize - 1;
-        return Math.sqrt(2.0 / Nminus1)
-            * Math.exp(lgamma(sampleSize / 2.0) - lgamma(Nminus1 / 2.0));
+        return Math.exp(logC4(sampleSize));
     }
     function c5(sampleSize) {
-        return Math.sqrt(1 - Math.pow(c4(sampleSize), 2));
+        return Math.sqrt(-Math.expm1(2 * logC4(sampleSize)));
     }
     function a3(sampleSize) {
         return 3.0 / (c4(sampleSize) * Math.sqrt(sampleSize));
     }
 
     function normalCDFImpl(x, lower_tail, log_p) {
-        const i_tail = lower_tail ? 0 : 1;
         const a = [
             2.2352520354606839287,
             161.02823106855587881,
@@ -1694,8 +1672,8 @@ var ccCore = (function (exports) {
         let xsq;
         let i;
         const eps = Number.EPSILON * 0.5;
-        const lower = i_tail !== 1;
-        const upper = i_tail !== 0;
+        const lower = lower_tail;
+        const upper = !lower_tail;
         let cum = 0;
         let ccum = 0;
         const y = Math.abs(x);
@@ -1800,11 +1778,17 @@ var ccCore = (function (exports) {
     }
 
     function normalCDF(x, mu, sigma, lower_tail = true, log_p = false) {
+        if (Number.isNaN(x) || Number.isNaN(mu) || Number.isNaN(sigma)) {
+            return Number.NaN;
+        }
         if (!Number.isFinite(x) && mu === x) {
             return Number.NaN;
         }
         const zeroBoundLower = (lower_tail ? (log_p ? Number.NEGATIVE_INFINITY : 0) : (log_p ? 0 : 1));
         const zeroBoundUpper = (lower_tail ? (log_p ? 0 : 1) : (log_p ? Number.NEGATIVE_INFINITY : 0));
+        if (sigma < 0) {
+            return Number.NaN;
+        }
         if (sigma === 0) {
             return (x < mu) ? zeroBoundLower : zeroBoundUpper;
         }
@@ -1816,6 +1800,9 @@ var ccCore = (function (exports) {
     }
 
     function normalDensity(x, mu, sigma, log_p = false) {
+        if (Number.isNaN(x) || Number.isNaN(mu) || Number.isNaN(sigma) || sigma < 0) {
+            return Number.NaN;
+        }
         const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
         if (!Number.isFinite(sigma)) {
             return zeroBound;
@@ -1849,6 +1836,31 @@ var ccCore = (function (exports) {
             * (Math.exp(-0.5 * x1 * x1) * Math.exp((-0.5 * x2 - x1) * x2));
     }
 
+    function quantileBoundary(p, lower_tail, log_p, atZero, atOne) {
+        if (log_p) {
+            if (p > 0) {
+                return Number.NaN;
+            }
+            if (p === 0) {
+                return lower_tail ? atOne : atZero;
+            }
+            if (p === Number.NEGATIVE_INFINITY) {
+                return lower_tail ? atZero : atOne;
+            }
+            return undefined;
+        }
+        if (p < 0 || p > 1) {
+            return Number.NaN;
+        }
+        if (p === 0) {
+            return lower_tail ? atZero : atOne;
+        }
+        if (p === 1) {
+            return lower_tail ? atOne : atZero;
+        }
+        return undefined;
+    }
+
     function polyEval(x, q, num_coeffs, den_coeffs) {
         let numerator = num_coeffs[0];
         let denominator = den_coeffs[0];
@@ -1861,27 +1873,15 @@ var ccCore = (function (exports) {
     function normalQuantile(p, mu, sigma, lower_tail, log_p) {
         let r;
         let val;
-        if (log_p) {
-            if (p > 0) {
-                return Number.NaN;
-            }
-            if (p === 0) {
-                return lower_tail ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-            }
-            if (p === Number.NEGATIVE_INFINITY) {
-                return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
-            }
+        if (Number.isNaN(p) || Number.isNaN(mu) || Number.isNaN(sigma)) {
+            return Number.NaN;
         }
-        else {
-            if (p < 0 || p > 1) {
-                return Number.NaN;
-            }
-            if (p === 0) {
-                return lower_tail ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
-            }
-            if (p === 1) {
-                return lower_tail ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-            }
+        const boundary = quantileBoundary(p, lower_tail, log_p, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
+        if (boundary !== undefined) {
+            return boundary;
+        }
+        if (sigma < 0) {
+            return Number.NaN;
         }
         if (sigma === 0) {
             return mu;
@@ -2505,7 +2505,7 @@ var ccCore = (function (exports) {
     }
 
     function gammaCDF(x, alpha, scale, lower_tail = true, log_p = false) {
-        if (scale === 0) {
+        if (Number.isNaN(x) || Number.isNaN(alpha) || Number.isNaN(scale) || alpha < 0 || scale <= 0) {
             return Number.NaN;
         }
         x /= scale;
@@ -2522,7 +2522,7 @@ var ccCore = (function (exports) {
     }
 
     function gammaDensity(x, shape, scale, log_p) {
-        if (scale === 0) {
+        if (Number.isNaN(x) || Number.isNaN(shape) || Number.isNaN(scale) || shape < 0 || scale <= 0) {
             return Number.NaN;
         }
         const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
@@ -2566,37 +2566,35 @@ var ccCore = (function (exports) {
         }
         if (!log_p) {
             p = Math.log(p);
-            log_p = true;
         }
         let p_;
         if (x === 0) {
             const _1_p = 1. + 1e-7;
             const _1_m = 1. - 1e-7;
             x = DBL_MIN;
-            p_ = gammaCDF(x, alpha, scale, lower_tail, log_p);
+            p_ = gammaCDF(x, alpha, scale, lower_tail, true);
             if ((lower_tail && p_ > p * _1_p) || (!lower_tail && p_ < p * _1_m)) {
                 return 0;
             }
         }
         else {
-            p_ = gammaCDF(x, alpha, scale, lower_tail, log_p);
+            p_ = gammaCDF(x, alpha, scale, lower_tail, true);
         }
         if (p_ === Number.NEGATIVE_INFINITY) {
             return 0;
         }
-        const zeroBound = log_p ? Number.NEGATIVE_INFINITY : 0;
         for (let i = 1; i <= max_it_Newton; i++) {
             const p1 = p_ - p;
             if (Math.abs(p1) < Math.abs(EPS_N * p)) {
                 break;
             }
-            const g = gammaDensity(x, alpha, scale, log_p);
-            if (g === zeroBound) {
+            const g = gammaDensity(x, alpha, scale, true);
+            if (g === Number.NEGATIVE_INFINITY) {
                 break;
             }
-            let t = log_p ? p1 * Math.exp(p_ - g) : p1 / g;
+            let t = p1 * Math.exp(p_ - g);
             t = lower_tail ? x - t : x + t;
-            p_ = gammaCDF(t, alpha, scale, lower_tail, log_p);
+            p_ = gammaCDF(t, alpha, scale, lower_tail, true);
             const absDiff = Math.abs(p_ - p);
             const absP1 = Math.abs(p1);
             if (absDiff > absP1 || (i > 1 && absDiff === absP1)) {
@@ -2615,9 +2613,6 @@ var ccCore = (function (exports) {
     }
 
     function chisqQuantileApprox(p, nu, g, lower_tail = true, log_p = false, tol) {
-        if ((log_p && p > 0) || (!log_p && (p < 0 || p > 1))) {
-            return Number.NaN;
-        }
         const alpha = 0.5 * nu;
         let p1 = logP(p, lower_tail, log_p);
         if (nu < -1.24 * p1) {
@@ -2654,29 +2649,14 @@ var ccCore = (function (exports) {
     }
 
     function gammaQuantile(p, alpha, scale, lower_tail = true, log_p = false) {
-        if (log_p) {
-            if (p > 0) {
-                return Number.NaN;
-            }
-            if (p === 0) {
-                return lower_tail ? Number.POSITIVE_INFINITY : 0;
-            }
-            if (p === Number.NEGATIVE_INFINITY) {
-                return lower_tail ? 0 : Number.POSITIVE_INFINITY;
-            }
+        if (Number.isNaN(p) || Number.isNaN(alpha) || Number.isNaN(scale)) {
+            return Number.NaN;
         }
-        else {
-            if (p < 0 || p > 1) {
-                return Number.NaN;
-            }
-            if (p === 0) {
-                return lower_tail ? 0 : Number.POSITIVE_INFINITY;
-            }
-            if (p === 1) {
-                return lower_tail ? Number.POSITIVE_INFINITY : 0;
-            }
+        const boundary = quantileBoundary(p, lower_tail, log_p, 0, Number.POSITIVE_INFINITY);
+        if (boundary !== undefined) {
+            return boundary;
         }
-        if (scale === 0) {
+        if (alpha < 0 || scale <= 0) {
             return Number.NaN;
         }
         if (alpha === 0) {
@@ -2772,11 +2752,9 @@ var ccCore = (function (exports) {
                     const setting = definitions[settingName];
                     descriptors.push({ objectName: name, propertyName: settingName });
                     const descriptor = { objectName: name, propertyName: settingName };
-                    if (!setting.constant) {
-                        descriptor.selector = { data: [{ dataViewWildcard: { matchingOption: 0 } }] };
-                        if (setting.type !== FormattingComponent.ToggleSwitch) {
-                            descriptor.instanceKind = 3;
-                        }
+                    descriptor.selector = { data: [{ dataViewWildcard: { matchingOption: 0 } }] };
+                    if (setting.type !== FormattingComponent.ToggleSwitch) {
+                        descriptor.instanceKind = 3;
                     }
                     const value = values[settingName];
                     const control = { type: setting.type, properties: { descriptor, value } };
@@ -3021,6 +2999,81 @@ var ccCore = (function (exports) {
         }
     }
 
+    function indexColumnsByRole(columns) {
+        const result = Object.create(null);
+        for (let i = 0; i < columns.length; i++) {
+            const column = columns[i];
+            const roles = column.source.roles;
+            if (roles === undefined) {
+                continue;
+            }
+            const names = Object.keys(roles);
+            for (let j = 0; j < names.length; j++) {
+                const name = names[j];
+                if (!roles[name]) {
+                    continue;
+                }
+                (result[name] ?? (result[name] = [])).push(column);
+            }
+        }
+        return result;
+    }
+    function formatPrimitiveValue(value) {
+        return value == null ? undefined : String(value);
+    }
+    function readNumbers(column, rows) {
+        const numbers = new Array(rows.length);
+        for (let i = 0; i < rows.length; i++) {
+            const value = column.values[rows[i]];
+            numbers[i] = value == null || value === "" ? undefined : Number(value);
+        }
+        return numbers;
+    }
+
+    function pad(value) {
+        return String(value).padStart(2, "0");
+    }
+    function dateName(date) {
+        const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+        if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
+            return day;
+        }
+        return `${day} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    }
+    function groupCategoryRows(columns, rowCount) {
+        if (columns.length === 0) {
+            const rows = new Array(rowCount);
+            for (let i = 0; i < rowCount; i++) {
+                rows[i] = i;
+            }
+            return { rows: [rows], names: [[]], keys: ["[]"], labels: [""] };
+        }
+        const groups = { rows: [], names: [], keys: [], labels: [] };
+        const indexes = new Map();
+        for (let i = 0; i < rowCount; i++) {
+            const parts = new Array(columns.length);
+            const names = new Array(columns.length);
+            for (let j = 0; j < columns.length; j++) {
+                const value = columns[j].values[i];
+                names[j] = value instanceof Date ? dateName(value) : formatPrimitiveValue(value) ?? "";
+                parts[j] = value == null ? ["undefined", ""]
+                    : value instanceof Date ? ["date", String(value.getTime())] : [typeof value, String(value)];
+            }
+            const key = JSON.stringify(parts);
+            let index = indexes.get(key);
+            if (index === undefined) {
+                index = groups.rows.length;
+                indexes.set(key, index);
+                groups.rows.push([]);
+                groups.names.push(names);
+                groups.keys.push(key);
+                groups.labels.push(names.join(" / "));
+            }
+            groups.rows[index].push(i);
+        }
+        return groups;
+    }
+
     const updateType = {
         data: 2,
         resize: 4,
@@ -3207,10 +3260,10 @@ var ccCore = (function (exports) {
             });
         }
         if (settings.ttip_show_numerator && !isNullOrUndefined(row.numerator)) {
-            tooltip.push({ displayName: settings.ttip_label_numerator, value: format(row.numerator, "integer") });
+            tooltip.push({ displayName: settings.ttip_label_numerator, value: format(row.numerator, "input") });
         }
         if (settings.ttip_show_denominator && !isNullOrUndefined(row.denominator)) {
-            tooltip.push({ displayName: settings.ttip_label_denominator, value: format(row.denominator, "integer") });
+            tooltip.push({ displayName: settings.ttip_label_denominator, value: format(row.denominator, "input") });
         }
         return tooltip;
     }
@@ -3443,9 +3496,17 @@ var ccCore = (function (exports) {
             }
             const dragMarkerOffset = aesthetics.label_marker_offset + aesthetics.label_size / 2;
             group.style.setProperty("touch-action", "none");
+            let dragged = false;
+            group.addEventListener("click", (event) => {
+                if (dragged) {
+                    event.stopPropagation();
+                }
+            });
             group.addEventListener("pointerdown", (event) => {
                 group.setPointerCapture(event.pointerId);
+                dragged = false;
                 const onMove = (move) => {
+                    dragged = true;
                     const pointer = screenToSvg(svg, move.clientX, move.clientY);
                     const x = pointer.x;
                     const y = pointer.y;
@@ -4480,6 +4541,7 @@ var ccCore = (function (exports) {
         selection.append("text").classed("yaxislabel", true);
         selection.append("g").classed("linesgroup", true);
         selection.append("g").classed("dotsgroup", true);
+        selection.append("g").classed("marksgroup", true);
     }
 
     const preambles = {
@@ -4560,16 +4622,19 @@ var ccCore = (function (exports) {
         }
         return { anchor: "middle", dx: "0em", dy: ".71em" };
     }
-    function axisTitleOffset(side, canvasExtent, axisEdge, labelSize) {
-        if (side === "bottom") {
-            return axisEdge === undefined ? canvasExtent - labelSize / 2 : canvasExtent - (canvasExtent - axisEdge) / 2;
+    function axisTitleOffset(side, canvasExtent, labelSize, measurement) {
+        if (measurement === undefined) {
+            return side === "bottom" ? canvasExtent - labelSize / 2 : labelSize * 1.5;
         }
-        return axisEdge === undefined ? labelSize * 1.5 : axisEdge * 0.7;
+        const gap = labelSize / 2;
+        if (side === "bottom") {
+            return measurement.axisEdge + gap - measurement.top;
+        }
+        return measurement.axisEdge - gap - measurement.height - measurement.top;
     }
-    function measureAxisEdge(svg, axis, side) {
-        const svgRect = svg.getBoundingClientRect();
-        const axisRect = axis.getBoundingClientRect();
-        return side === "bottom" ? axisRect.bottom - svgRect.top : axisRect.left - svgRect.left;
+    function measureAxisEdge(axis, offset, side) {
+        const box = axis.getBBox();
+        return side === "bottom" ? offset + box.y + box.height : offset + box.x;
     }
     function drawAxisTicks(group, options) {
         const bottom = options.side === "bottom";
@@ -4811,7 +4876,7 @@ var ccCore = (function (exports) {
         const scale = isX ? frame.xScale : frame.yScale;
         let values = [];
         if (properties.ticks) {
-            values = properties.tick_count !== 0 ? scale.ticks(properties.tick_count) : scale.ticks();
+            values = scale.ticks(properties.tick_count);
             if (options.integer) {
                 const integers = [];
                 for (let i = 0; i < values.length; i++) {
@@ -4866,12 +4931,13 @@ var ccCore = (function (exports) {
         const placement = isX
             ? axisLabelPlacement(properties.label_align, frame.xAxis.start_padding, frame.width - frame.xAxis.end_padding)
             : axisLabelPlacement(properties.label_align, frame.height - frame.yAxis.start_padding, frame.yAxis.end_padding);
-        const measured = options.measure && groupNode !== null ? measureAxisEdge(svg, groupNode, isX ? "bottom" : "left") : undefined;
-        const offset = axisTitleOffset(isX ? "bottom" : "left", isX ? frame.height : frame.width, measured, options.labelSize);
-        label
+        const side = isX ? "bottom" : "left";
+        const extent = isX ? frame.height : frame.width;
+        const position = (offset) => label
             .attr("x", isX ? placement.position : offset)
             .attr("y", isX ? offset : placement.position)
-            .attr("transform", isX ? null : `rotate(-90, ${offset}, ${placement.position})`)
+            .attr("transform", isX ? null : `rotate(-90, ${offset}, ${placement.position})`);
+        position(axisTitleOffset(side, extent, options.labelSize, undefined))
             .text(properties.label)
             .style("text-anchor", placement.anchor)
             .style("font-size", properties.label_size)
@@ -4879,6 +4945,13 @@ var ccCore = (function (exports) {
             .style("font-family", properties.label_font)
             .style("fill", properties.label_colour)
             .attr("visibility", visibility);
+        const labelNode = label.node();
+        if (options.measure && groupNode !== null && labelNode !== null && svg.getClientRects().length > 0) {
+            label.attr("x", 0).attr("y", 0).attr("transform", null);
+            const box = labelNode.getBBox();
+            const measurement = { axisEdge: measureAxisEdge(groupNode, edge, side), top: box.y, height: box.height };
+            position(axisTitleOffset(side, extent, options.labelSize, measurement));
+        }
     }
 
     function sameStyle(a, b) {
@@ -5306,7 +5379,7 @@ var ccCore = (function (exports) {
         if (kind === "icon") {
             return "center";
         }
-        return kind === "number" || kind === "integer" ? "right" : "left";
+        return kind === "number" || kind === "input" ? "right" : "left";
     }
     function drawTableHeaders(div, options) {
         const tableSettings = options.settings;
@@ -5391,7 +5464,7 @@ var ccCore = (function (exports) {
     }
     function cellText(cell, kind, formatValue) {
         if (typeof cell.value === "number") {
-            return formatValue(cell.value, kind === "integer" ? "integer" : "value");
+            return formatValue(cell.value, kind === "input" ? "input" : "value");
         }
         if (cell.value === undefined) {
             return "";
@@ -5416,9 +5489,7 @@ var ccCore = (function (exports) {
         tableCells.each(function (d) {
             const cell = select(this);
             const kind = kinds[d.column];
-            if (kind !== "icon") {
-                cell.text(cellText(d, kind, options.formatValue)).classed("cell-text", true);
-            }
+            cell.text(kind === "icon" ? "" : cellText(d, kind, options.formatValue));
             const tableSettings = d.settings;
             cell.style("background-color", tableSettings.table_body_bg_colour)
                 .style("font-weight", tableSettings.table_body_font_weight)
@@ -5444,8 +5515,6 @@ var ccCore = (function (exports) {
         });
     }
     function drawSummaryTable(div, options) {
-        div.selectAll(".rowsvg").remove();
-        div.selectAll(".cell-text").remove();
         const rowSettings = options.rowSettings ?? (() => options.settings);
         drawTableHeaders(div, options);
         drawTableRows(div, options, rowSettings);
@@ -5470,7 +5539,11 @@ var ccCore = (function (exports) {
             }
             return this.currentPlotProperties;
         }
+        get showsTable() {
+            return this.tableShown;
+        }
         constructor(options, createViewModel) {
+            this.tableShown = false;
             if (options === undefined) {
                 throw new Error("Visual constructor options are required.");
             }
@@ -5486,9 +5559,9 @@ var ccCore = (function (exports) {
             }
         }
         drawAlternate() {
-            return false;
+            return undefined;
         }
-        drawMarks(_svg) { }
+        drawMarks(_marks) { }
         drawVisual() {
             const svg = this.svg.node();
             if (svg === null) {
@@ -5510,7 +5583,7 @@ var ccCore = (function (exports) {
                 periodEnds: viewModel.periodEnds
             });
             drawPlotDots(svg, context, options.dots);
-            this.drawMarks(svg);
+            this.drawMarks(select(svg).select(".marksgroup"));
             this.addContextMenu(svg);
             drawPlotDownload(svg, context, () => {
                 const points = context.points;
@@ -5526,6 +5599,7 @@ var ccCore = (function (exports) {
             try {
                 this.host.eventService.renderingStarted(options);
                 this.svg.select(".errormessage").remove();
+                this.tableShown = false;
                 const status = this.viewModel.update(options, this.host);
                 if (!status.status) {
                     this.currentPlotProperties = undefined;
@@ -5544,7 +5618,10 @@ var ccCore = (function (exports) {
                     this.host.displayWarningIcon("Invalid inputs or settings ignored.\n", status.warning);
                 }
                 this.resizeCanvas(options.viewport.width, options.viewport.height);
-                if (this.drawAlternate()) {
+                this.svg.on(".plot", null);
+                const alternate = this.drawAlternate();
+                if (alternate !== undefined) {
+                    this.tableShown = alternate === "table";
                     this.currentPlotProperties = undefined;
                     this.updateHighlighting();
                     this.host.eventService.renderingFinished(options);
@@ -5626,11 +5703,13 @@ var ccCore = (function (exports) {
             bindContextMenu(root, {
                 enabled,
                 identity: target => {
-                    const datum = select(target).datum();
-                    if (datum?.identity === undefined) {
-                        return {};
+                    for (let node = target instanceof Element ? target : null; node !== null && node !== root; node = node.parentElement) {
+                        const datum = select(node).datum();
+                        if (datum?.identity !== undefined) {
+                            return Array.isArray(datum.identity) ? datum.identity[0] : datum.identity;
+                        }
                     }
-                    return Array.isArray(datum.identity) ? datum.identity[0] : datum.identity;
+                    return {};
                 },
                 show: (identity, position) => {
                     void this.selectionManager.showContextMenu(identity, position);
@@ -6225,13 +6304,11 @@ var ccCore = (function (exports) {
         let direction = 0;
         let count = 0;
         let unflagged = 0;
-        let repeatStart = 0;
         for (let i = 0; i < length; i++) {
             trend_detected[i] = "none";
             const change = i === 0 ? NaN : Math.sign(val[i] - val[i - 1]);
             if (Number.isNaN(change)) {
                 direction = 0;
-                repeatStart = i;
                 continue;
             }
             if (change === 0) {
@@ -6243,9 +6320,8 @@ var ccCore = (function (exports) {
             else {
                 direction = change;
                 count = 2;
-                unflagged = repeatStart;
+                unflagged = i - 1;
             }
-            repeatStart = i;
             if (count >= n) {
                 for (let j = unflagged; j <= i; j++) {
                     if (trend_detected[j] === "none") {
@@ -6263,9 +6339,8 @@ var ccCore = (function (exports) {
         const outside95 = new Array(length);
         const two_in_three_detected = new Array(length);
         for (let i = 0; i < length; i++) {
-            const lower = ll95[i];
-            const upper = ul95[i];
-            outside95[i] = upper !== undefined && val[i] > upper ? 1 : (lower !== undefined && val[i] < lower ? -1 : 0);
+            const status = limitStatus(val[i], ll95[i], ul95[i]);
+            outside95[i] = status === "upper" ? 1 : (status === "lower" ? -1 : 0);
             two_in_three_detected[i] = "none";
             const start = Math.max(0, i - 2);
             let above = 0;
@@ -6392,12 +6467,13 @@ var ccCore = (function (exports) {
     exports.identitySelected = identitySelected;
     exports.inPlot = inPlot;
     exports.indexColumnsByRole = indexColumnsByRole;
+    exports.indicatorColumns = indicatorColumns;
+    exports.indicatorFields = indicatorFields;
     exports.initialiseSvg = initialiseSvg;
     exports.isArray = isArray;
     exports.isNullOrUndefined = isNullOrUndefined;
     exports.isValidNumber = isValidNumber;
     exports.keptValue = keptValue;
-    exports.keptValues = keptValues;
     exports.labelGeometry = labelGeometry;
     exports.labelledMessage = labelledMessage;
     exports.ldexp = ldexp;
@@ -6438,7 +6514,6 @@ var ccCore = (function (exports) {
     exports.orderedPairError = orderedPairError;
     exports.paddedDataViews = paddedDataViews;
     exports.paddingOption = paddingOption;
-    exports.pickRows = pickRows;
     exports.poissonDensity = poissonDensity;
     exports.quantile = quantile;
     exports.quantity = quantity;

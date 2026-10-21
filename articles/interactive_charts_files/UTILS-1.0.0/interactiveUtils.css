@@ -2,6 +2,11 @@
   position: relative;
 }
 
+/* A fixed-width svg would stop flex and grid containers from shrinking the widget */
+.controlcharts-widget > svg {
+  max-width: 100%;
+}
+
 .controlcharts-export {
   position: absolute;
   top: 6px;

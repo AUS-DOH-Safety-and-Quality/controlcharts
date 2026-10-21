@@ -1,4 +1,4 @@
-var funnel = (function (exports, frontends, rendering, math, settings, powerbi, data, spc) {
+var funnel = (function (exports, frontends, data, spc, rendering, math, settings, powerbi) {
     'use strict';
 
     function drawMisc(svg, visual) {
@@ -35,8 +35,8 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         const scale = math.scaleLinear().domain([misc.lower, misc.upper]).range([left, right]);
         const zero = scale(0);
         const limits = [
-            { value: -3.090232306167813, level: "99" }, { value: 3.090232306167813, level: "99" },
-            { value: -1.959963984540054, level: "95" }, { value: 1.959963984540054, level: "95" },
+            { value: math.normalQuantile(0.001, 0, 1, true, false), level: "99" }, { value: math.normalQuantile(0.999, 0, 1, true, false), level: "99" },
+            { value: math.normalQuantile(0.025, 0, 1, true, false), level: "95" }, { value: math.normalQuantile(0.975, 0, 1, true, false), level: "95" },
             { value: 0, level: "target" }
         ];
         const drawn = { "99": false, "95": false, target: false };
@@ -113,6 +113,12 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
             isTouchEvent: false
         }))
             .on("mouseout", () => visual.host.tooltipService.hide({ immediately: true, isTouchEvent: false }));
+        svg.on("click.plot", () => {
+            if (!visual.host.hostCapabilities.allowInteractions) {
+                return;
+            }
+            visual.selectionManager.clear().then(() => visual.updateHighlighting());
+        });
         visual.addContextMenu(svg.node(), visual.host.hostCapabilities.allowInteractions === true);
     }
 
@@ -147,7 +153,7 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
 
     function getTau2(phi, SE) {
         const N = SE.length;
-        if (N * phi < N - 1) {
+        if (N < 2 || N * phi < N - 1) {
             return 0.0;
         }
         let w_sum = 0;
@@ -237,10 +243,13 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
             if (this.variance === undefined) {
                 throw new Error("Estimate tau2 before choosing whether to adjust for it.");
             }
+            if (this.variance.tau2 === 0) {
+                return false;
+            }
             const N = this.variance.zScores.length;
             switch (this.inputSettings.settings.funnel.od_adjust) {
                 case "yes":
-                    return this.variance.tau2 > 0;
+                    return true;
                 case "auto":
                     return N * this.variance.phi > math.chisqQuantile(0.95, N - 1);
                 case "no":
@@ -253,17 +262,9 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         }
         getIntervals() {
             const probs = [0.001, 0.025, 0.16, 0.84, 0.975, 0.999];
-            const qs = [
-                -3.090232306167813,
-                -1.9599639845400538,
-                -0.9944578832097528,
-                0.99445788320975281316,
-                1.95996398454005360534,
-                3.09023230616781319213
-            ];
-            const result = new Array(qs.length);
-            for (let i = 0; i < qs.length; i++) {
-                result[i] = { prob: probs[i], quantile: qs[i], label: settings.limitLineNames[i] };
+            const result = new Array(probs.length);
+            for (let i = 0; i < probs.length; i++) {
+                result[i] = { prob: probs[i], quantile: math.normalQuantile(probs[i], 0, 1, true, false), label: settings.limitLineNames[i] };
             }
             return result;
         }
@@ -320,14 +321,14 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         }
         constructor(args) {
             this.seFunction = args.seFunction;
-            this.seFunctionOD = args.seFunctionOD;
+            this.seFunctionOD = args.seFunctionOD ?? args.seFunction;
             this.targetFunction = args.targetFunction;
             this.targetFunctionTransformed = args.targetFunctionTransformed;
             this.yFunction = args.yFunction;
             this.zFunction = args.zFunction;
-            this.zFunctionOD = args.zFunctionOD;
+            this.zFunctionOD = args.zFunctionOD ?? args.zFunction;
             this.limitFunction = args.limitFunction;
-            this.limitFunctionOD = args.limitFunctionOD;
+            this.limitFunctionOD = args.limitFunctionOD ?? args.limitFunction;
             this.inputData = args.inputData;
             this.inputSettings = args.inputSettings;
         }
@@ -356,8 +357,9 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         description: "Multi-indicator sigma chart",
         settingsGroups: {
             all: {
-                group: { ...settings.textOption("Group", "Group the multi-indicator chart shows, with a bar per indicator.", ""), type: settings.FormattingComponent.Dropdown, constant: true,
-                    items: [] },
+                group: { ...settings.textOption("Group", "Group the multi-indicator chart shows, with a bar per indicator; blank shows the first. "
+                        + "Conditional formatting gives the group's name, and must give the same one for every row.", ""),
+                    type: settings.FormattingComponent.Dropdown, items: [] },
                 lower: settings.numberOption("Lower Sigma Bound", "Left end of the z-score axis; must be below 0.", -5, { below: 0 }),
                 upper: settings.numberOption("Upper Sigma Bound", "Right end of the z-score axis; must be above 0.", 5, { above: 0 }),
                 bar_height: settings.numberOption("Bar Height Ratio", "Share of each row's height the bar fills.", 0.65, { min: 0, max: 1 }),
@@ -454,7 +456,6 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         const funnel = settings.funnel;
         return data.deriveScaling(funnel, {
             proportion: funnel.chart_type === "PR",
-            wholeCounts: funnel.chart_type !== "SR",
             percentAllowed: funnel.transformation === "none"
         });
     }
@@ -562,6 +563,17 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
                 warningMessage: warnings.join("\n")
             } };
     }
+    function lacksCount(data, chartType) {
+        if (chartType !== "RC") {
+            return false;
+        }
+        for (let i = 0; i < data.numerators.length; i++) {
+            if (data.numerators[i] > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     function axisRanges(viewModel) {
         const inputData = viewModel.inputData;
@@ -648,10 +660,7 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         return result;
     }
 
-    const smrSE = function () {
-        return [];
-    };
-    const smrSEOD = function (inputData, plottingDenominators) {
+    const smrSE = function (inputData, plottingDenominators) {
         const denominators = plottingDenominators ?? inputData.denominators;
         const n = denominators.length;
         const result = new Array(n);
@@ -707,7 +716,6 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         constructor(inputData, inputSettings) {
             super({
                 seFunction: smrSE,
-                seFunctionOD: smrSEOD,
                 targetFunction: smrTarget,
                 targetFunctionTransformed: smrTarget,
                 yFunction: smrY,
@@ -763,14 +771,12 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         constructor(inputData, inputSettings) {
             super({
                 seFunction: prSE,
-                seFunctionOD: prSE,
                 targetFunction: prTarget,
                 targetFunctionTransformed: prTargetTransformed,
                 yFunction: prY,
                 zFunction: prZ,
                 zFunctionOD: adjustZScores,
                 limitFunction: prLimit,
-                limitFunctionOD: prLimit,
                 inputData: inputData,
                 inputSettings: inputSettings
             });
@@ -833,14 +839,11 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         constructor(inputData, inputSettings) {
             super({
                 seFunction: rcSE,
-                seFunctionOD: rcSE,
                 targetFunction: rcTarget,
                 targetFunctionTransformed: rcTargetTransformed,
                 yFunction: rcY,
                 zFunction: rcZ,
-                zFunctionOD: rcZ,
                 limitFunction: rcLimit,
-                limitFunctionOD: rcLimit,
                 inputData: inputData,
                 inputSettings: inputSettings
             });
@@ -880,6 +883,7 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
             this.plotPoints = [];
             this.tableColumns = [];
             this.groupedLines = [];
+            this.funnelResults = [];
             this.showMisc = false;
             this.miscGroups = [];
             this.miscGroup = "";
@@ -912,11 +916,13 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
             this.calculatedLimits = [];
             this.plotPoints = [];
             this.groupedLines = [];
+            this.funnelResults = [];
             this.miscPoints = [];
             this.miscAnyHighlights = false;
         }
         updateData(view, indicatorGroups, host) {
             this.showMisc = (view.categories.indicator ?? []).length > 0;
+            this.funnelResults = [];
             this.miscGroups = [];
             this.miscPoints = [];
             this.miscAnyHighlights = false;
@@ -927,12 +933,16 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
             if (result.status === "invalid") {
                 return { errors: [result.error], warnings: [] };
             }
-            this.inputData = result.data;
             const group = this.inputSettings.group(0);
+            if (lacksCount(result.data, group.settings.funnel.chart_type)) {
+                return { errors: ["All numerators are zero, so RC limits cannot be calculated."], warnings: [] };
+            }
+            this.inputData = result.data;
             this.chartBase = new chartObjects[group.settings.funnel.chart_type](result.data, group);
             this.calculatedLimits = this.chartBase.getLimits();
             this.scaleAndTruncateLimits();
             this.initialisePlotData(host, result.data, this.chartBase);
+            this.funnelResults.push({ indicators: {}, points: this.plotPoints, limits: this.calculatedLimits, settings: group.settings });
             this.initialiseGroupedLines();
             return { errors: [], warnings: result.data.warningMessage === "" ? [] : [result.data.warningMessage] };
         }
@@ -948,10 +958,21 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
                 items.push({ displayName: groups.names[i][0], value: groups.keys[i] });
                 rowsByGroup.set(groups.keys[i], groups.rows[i]);
             }
-            const selectedGroup = view.dataView.metadata.objects?.misc?.group;
-            this.miscGroup = typeof selectedGroup === "string" ? selectedGroup : "";
-            if (this.miscGroup === "" && items.length > 0) {
-                this.miscGroup = items[0].value;
+            const requested = this.inputSettings.settings[0].misc.group;
+            for (let i = 0; i < this.inputSettings.rowSettings.length; i++) {
+                const rows = this.inputSettings.rowSettings[i];
+                for (let j = 0; j < rows.length; j++) {
+                    if (rows[j].misc.group !== requested) {
+                        return { errors: ["The MISC group must be the same for every row."], warnings: [] };
+                    }
+                }
+            }
+            this.miscGroup = requested === "" && items.length > 0 ? items[0].value : requested;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].value === requested || items[i].displayName === requested) {
+                    this.miscGroup = items[i].value;
+                    break;
+                }
             }
             const targetRows = rowsByGroup.get(this.miscGroup);
             if (targetRows === undefined) {
@@ -981,6 +1002,10 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
                     continue;
                 }
                 const data = result.data;
+                if (lacksCount(data, group.settings.funnel.chart_type)) {
+                    warnings.push(powerbi.labelledMessage(indicator, "All numerators are zero, so RC limits cannot be calculated and the indicator is not shown."));
+                    continue;
+                }
                 this.inputData ?? (this.inputData = data);
                 if (data.warningMessage !== "") {
                     warnings.push(powerbi.labelledMessage(indicator, data.warningMessage));
@@ -990,6 +1015,15 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
                 this.calculatedLimits = chart.getLimits();
                 this.scaleAndTruncateLimits(group);
                 this.initialisePlotData(host, data, chart, group, { two_sigma: false, three_sigma: true });
+                const indicatorValues = {};
+                const indicatorColumns = view.categories.indicator ?? [];
+                for (let j = 0; j < indicatorColumns.length; j++) {
+                    const column = indicatorColumns[j];
+                    indicatorValues[column.source.displayName] = powerbi.formatPrimitiveValue(column.values[rows[0]]);
+                }
+                this.funnelResults.push({
+                    indicators: indicatorValues, points: this.plotPoints, limits: this.calculatedLimits, settings: group.settings
+                });
                 for (let j = 0; j < data.id.length; j++) {
                     const row = data.id[j];
                     if (!selectedRows.has(row)) {
@@ -1054,6 +1088,7 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
                     [two_sigma_outlier, "two_sigma_colour"], [three_sigma_outlier, "three_sigma_colour"]
                 ]);
                 this.plotPoints.push({
+                    id: original_index,
                     x: denominator,
                     numerator: numerator,
                     value: value,
@@ -1136,7 +1171,7 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
     const columnKinds = {
         value: "number", target: "number", alt_target: "number",
         ll99: "number", ll95: "number", ll68: "number", ul68: "number", ul95: "number", ul99: "number",
-        numerator: "integer", denominator: "integer",
+        numerator: "input", denominator: "input",
         two_sigma: "flag", three_sigma: "flag"
     };
     class Visual extends rendering.PlotVisual {
@@ -1156,14 +1191,14 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
             const viewModel = this.viewModel;
             if (viewModel.showMisc) {
                 this.svg.call(drawMisc, this);
-                return true;
+                return "svg";
             }
             const svg = this.svg.node();
             if (svg !== null && !this.svg.select(".misc-root").empty()) {
                 rendering.initialiseSvg(svg, true);
             }
             if (!this.settings.summary_table.show_table) {
-                return false;
+                return undefined;
             }
             this.resizeCanvas(0, 0);
             rendering.drawSummaryTable(this.tableDiv, {
@@ -1178,7 +1213,7 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
                 onSelectionChange: () => this.updateHighlighting()
             });
             this.addContextMenu(this.tableDiv.node(), true);
-            return true;
+            return "table";
         }
         updateHighlighting() {
             const viewModel = this.viewModel;
@@ -1225,6 +1260,10 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         }
     }
 
+    const limitColumns = [
+        "denominator", "group", "numerator", "value", "z", "score", "two_sigma", "three_sigma",
+        "target", "alt_target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"
+    ];
     function limitRow(fields, limits, includeAltTarget) {
         const row = {};
         const fieldNames = Object.keys(fields);
@@ -1241,61 +1280,53 @@ var funnel = (function (exports, frontends, rendering, math, settings, powerbi, 
         }
         return row;
     }
-    function funnelLimits(plotPoints, outlierSettings, showAltTarget) {
-        const points = plotPoints.slice().sort((a, b) => a.x - b.x);
-        const rows = new Array(points.length);
+    function appendResults(rows, rowIds, limitLines, result, showScore) {
+        const settings = result.settings;
+        const showAltTarget = settings.lines.alt_target != null;
+        const points = result.points.slice().sort((a, b) => a.x - b.x);
+        const indicators = frontends.indicatorFields(result.indicators, limitColumns);
         for (let i = 0; i < points.length; i++) {
             const point = points[i];
             const fields = {
+                ...indicators,
                 denominator: point.x,
                 group: point.group_text,
                 numerator: point.numerator,
                 value: point.value,
                 z: point.z
             };
-            if (outlierSettings.two_sigma) {
-                fields.two_sigma = point.two_sigma;
+            if (showScore) {
+                fields.score = point.z * (settings.outliers.improvement_direction === "decrease" ? -1 : 1);
             }
-            if (outlierSettings.three_sigma) {
+            if (settings.outliers.two_sigma) {
+                fields.two_sigma = showScore
+                    ? data.checkFlagDirection(spc.limitStatus(point.value, point.limits.ll95, point.limits.ul95), settings.outliers)
+                    : point.two_sigma;
+            }
+            if (settings.outliers.three_sigma || showScore) {
                 fields.three_sigma = point.three_sigma;
             }
-            rows[i] = limitRow(fields, point.limits, showAltTarget);
+            rows.push(limitRow(fields, point.limits, showAltTarget));
+            rowIds.push(point.id);
         }
-        return rows;
-    }
-    function miscLimits(miscPoints) {
-        const rows = new Array(miscPoints.length);
-        for (let i = 0; i < miscPoints.length; i++) {
-            const point = miscPoints[i];
-            rows[i] = limitRow({
-                indicator: point.indicator,
-                group: point.group_text,
-                z: point.z,
-                score: point.score,
-                three_sigma: point.three_sigma,
-                numerator: point.numerator,
-                denominator: point.x,
-                value: point.value
-            }, point.limits, false);
+        for (let i = 0; i < result.limits.length; i++) {
+            const limits = result.limits[i];
+            limitLines.push(limitRow({ ...indicators, denominator: limits.denominators }, limits, showAltTarget));
         }
-        return rows;
     }
     const frontend = {
         Visual,
         settingsModel,
+        limitColumns,
         limits: visual => {
             const viewModel = visual.viewModel;
-            if (viewModel.showMisc) {
-                return { limits: miscLimits(viewModel.miscPoints) };
+            const limits = [];
+            const rowIds = [];
+            const limitLines = [];
+            for (let i = 0; i < viewModel.funnelResults.length; i++) {
+                appendResults(limits, rowIds, limitLines, viewModel.funnelResults[i], viewModel.showMisc);
             }
-            const settings = viewModel.inputSettings.settings[0];
-            const showAltTarget = settings.lines.alt_target != null;
-            const limitLines = new Array(viewModel.calculatedLimits.length);
-            for (let i = 0; i < limitLines.length; i++) {
-                const limits = viewModel.calculatedLimits[i];
-                limitLines[i] = limitRow({ denominator: limits.denominators }, limits, showAltTarget);
-            }
-            return { limits: funnelLimits(viewModel.plotPoints, settings.outliers, showAltTarget), limitLines };
+            return { limits, rowIds, limitLines };
         }
     };
 

@@ -13,8 +13,8 @@ spc(
   groupings,
   indicators = NULL,
   xbar_sds,
-  tooltips,
-  labels,
+  tooltips = NULL,
+  labels = NULL,
   aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
@@ -27,6 +27,7 @@ spc(
   y_axis_settings = NULL,
   date_settings = NULL,
   label_settings = NULL,
+  summary_table_settings = NULL,
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
@@ -54,7 +55,9 @@ spc(
 - denominators:
 
   A numeric vector or column name representing the denominators for each
-  category.
+  category. Optional for `i`, `i_m`, `i_mm`, `run` and `mr` charts,
+  which then plot numerators divided by denominators; an indicator whose
+  denominators are all missing plots its numerators.
 
 - groupings:
 
@@ -74,20 +77,23 @@ spc(
 
   A vector or column name, or a list of them, representing additional
   tooltips for each category. Each is labelled by its name in the list,
-  or else by the expression supplied.
+  or else by the expression supplied. `NULL` for none. Limits include
+  them with their R types, reduced within each key by
+  `aggregations$tooltips`.
 
 - labels:
 
   A vector or column name representing the labels for each category.
+  `NULL` for none.
 
 - aggregations:
 
   A list of aggregation function names for each field if multiple values
   are provided for each key. Valid options are:
 
-  - `"first"`: returns the first value
+  - `"first"`: returns the first non-missing value
 
-  - `"last"`: returns the last value
+  - `"last"`: returns the last non-missing value
 
   - `"sum"`: returns the sum of values
 
@@ -102,9 +108,9 @@ spc(
   - `"count"`: returns the count of non-missing values
 
   Defaults to `"sum"` for numerators and denominators, and `"first"`
-  otherwise. Numeric aggregations ignore missing values and preserve
-  all-missing groups. Numerators and denominators are aggregated
-  independently.
+  otherwise. Every aggregation ignores missing values; an all-missing
+  group has a count of 0 and is otherwise missing. Numerators and
+  denominators are aggregated independently.
 
 - title:
 
@@ -191,6 +197,12 @@ spc(
   Optional list of settings for labels, see
   `spc_default_settings('labels')` for valid options.
 
+- summary_table_settings:
+
+  Optional list of settings for the summary table, see
+  `spc_default_settings('summary_table')` for valid options. A table
+  shown by `show_table` has no static plot.
+
 - tooltip_settings:
 
   Optional list of settings for tooltips, see
@@ -220,10 +232,15 @@ spc(
 
   - `"limits"`: Calculated control limits
 
-  When `indicators` are supplied, `"static_plot"` is omitted by default.
+  When `indicators` are supplied, or `summary_table_settings` sets
+  `show_table`, `"static_plot"` is omitted by default.
 
 ## Value
 
 An object of class `controlchart` containing the interactive plot,
-static plot, limits, and a function to save the plot. When indicators
-are supplied, limits are a named nested list of data frames.
+static plot, limits, and a function to save the plot. Limits are a flat
+data frame. Supplied indicator columns are included by name. `xbar` and
+`s` limits include each group's size as `denominator`. The key column is
+named after the `keys` expression and retains its type. It is duplicated
+as `key` for compatibility. Tooltip columns are included by name. Empty
+input returns empty limits with typed keys and tooltips, without plots.

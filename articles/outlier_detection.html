@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.27</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,24 +131,25 @@ statistical control limits. By default, these are points beyond the
 <p><img src="outlier_detection_files/figure-html/astronomical_chart-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">chart_astro</span><span class="op">$</span><span class="va">limits</span><span class="op">[</span><span class="fl">9</span><span class="op">:</span><span class="fl">14</span>, <span class="op">]</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
 <col width="3%">
-<col width="13%">
+<col width="11%">
+<col width="6%">
 <col width="7%">
-<col width="8%">
 <col width="5%">
 <col width="5%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="13%">
-<col width="14%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="11%">
+<col width="12%">
+<col width="11%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">ll99</th>
@@ -159,11 +160,12 @@ statistical control limits. By default, these are points beyond the
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
 <th align="left">astpoint</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">9</td>
-<td align="left">01/09/2024</td>
+<td align="left">2024-09-01</td>
 <td align="right">8.83</td>
 <td align="right">14.32</td>
 <td align="right">4.01</td>
@@ -174,10 +176,11 @@ statistical control limits. By default, these are points beyond the
 <td align="right">24.63</td>
 <td align="right">14.50</td>
 <td align="left">none</td>
+<td align="left">2024-09-01</td>
 </tr>
 <tr class="even">
 <td align="left">10</td>
-<td align="left">01/10/2024</td>
+<td align="left">2024-10-01</td>
 <td align="right">8.83</td>
 <td align="right">14.32</td>
 <td align="right">4.01</td>
@@ -188,10 +191,11 @@ statistical control limits. By default, these are points beyond the
 <td align="right">24.63</td>
 <td align="right">14.45</td>
 <td align="left">none</td>
+<td align="left">2024-10-01</td>
 </tr>
 <tr class="odd">
 <td align="left">11</td>
-<td align="left">01/11/2024</td>
+<td align="left">2024-11-01</td>
 <td align="right">28.00</td>
 <td align="right">14.32</td>
 <td align="right">4.01</td>
@@ -202,10 +206,11 @@ statistical control limits. By default, these are points beyond the
 <td align="right">24.63</td>
 <td align="right">14.39</td>
 <td align="left">improvement</td>
+<td align="left">2024-11-01</td>
 </tr>
 <tr class="even">
 <td align="left">12</td>
-<td align="left">01/12/2024</td>
+<td align="left">2024-12-01</td>
 <td align="right">14.84</td>
 <td align="right">14.32</td>
 <td align="right">4.01</td>
@@ -216,10 +221,11 @@ statistical control limits. By default, these are points beyond the
 <td align="right">24.63</td>
 <td align="right">14.34</td>
 <td align="left">none</td>
+<td align="left">2024-12-01</td>
 </tr>
 <tr class="odd">
 <td align="left">13</td>
-<td align="left">01/01/2025</td>
+<td align="left">2025-01-01</td>
 <td align="right">12.73</td>
 <td align="right">14.32</td>
 <td align="right">4.01</td>
@@ -230,10 +236,11 @@ statistical control limits. By default, these are points beyond the
 <td align="right">24.63</td>
 <td align="right">14.29</td>
 <td align="left">none</td>
+<td align="left">2025-01-01</td>
 </tr>
 <tr class="even">
 <td align="left">14</td>
-<td align="left">01/02/2025</td>
+<td align="left">2025-02-01</td>
 <td align="right">14.97</td>
 <td align="right">14.32</td>
 <td align="right">4.01</td>
@@ -244,6 +251,7 @@ statistical control limits. By default, these are points beyond the
 <td align="right">24.63</td>
 <td align="right">14.24</td>
 <td align="left">none</td>
+<td align="left">2025-02-01</td>
 </tr>
 </tbody>
 </table>
@@ -291,24 +299,25 @@ shift, which will not be flagged with the default setting:</p>
 <p><img src="outlier_detection_files/figure-html/shift_default-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">chart_shift</span><span class="op">$</span><span class="va">limits</span>, <span class="fl">10</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="3%">
-<col width="13%">
+<col width="12%">
+<col width="6%">
 <col width="7%">
-<col width="8%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="13%">
-<col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="12%">
+<col width="6%">
+<col width="12%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">ll99</th>
@@ -319,11 +328,12 @@ shift, which will not be flagged with the default setting:</p>
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
 <th align="left">shift</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">15</td>
-<td align="left">01/03/2025</td>
+<td align="left">2025-03-01</td>
 <td align="right">78.37</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -334,10 +344,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">79.12</td>
 <td align="left">none</td>
+<td align="left">2025-03-01</td>
 </tr>
 <tr class="even">
 <td align="left">16</td>
-<td align="left">01/04/2025</td>
+<td align="left">2025-04-01</td>
 <td align="right">76.55</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -348,10 +359,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">79.34</td>
 <td align="left">none</td>
+<td align="left">2025-04-01</td>
 </tr>
 <tr class="odd">
 <td align="left">17</td>
-<td align="left">01/05/2025</td>
+<td align="left">2025-05-01</td>
 <td align="right">76.60</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -362,10 +374,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">79.55</td>
 <td align="left">none</td>
+<td align="left">2025-05-01</td>
 </tr>
 <tr class="even">
 <td align="left">18</td>
-<td align="left">01/06/2025</td>
+<td align="left">2025-06-01</td>
 <td align="right">74.81</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -376,10 +389,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">79.77</td>
 <td align="left">none</td>
+<td align="left">2025-06-01</td>
 </tr>
 <tr class="odd">
 <td align="left">19</td>
-<td align="left">01/07/2025</td>
+<td align="left">2025-07-01</td>
 <td align="right">82.33</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -390,10 +404,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">79.98</td>
 <td align="left">none</td>
+<td align="left">2025-07-01</td>
 </tr>
 <tr class="even">
 <td align="left">20</td>
-<td align="left">01/08/2025</td>
+<td align="left">2025-08-01</td>
 <td align="right">83.81</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -404,10 +419,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">80.20</td>
 <td align="left">none</td>
+<td align="left">2025-08-01</td>
 </tr>
 <tr class="odd">
 <td align="left">21</td>
-<td align="left">01/09/2025</td>
+<td align="left">2025-09-01</td>
 <td align="right">85.06</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -418,10 +434,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">80.41</td>
 <td align="left">none</td>
+<td align="left">2025-09-01</td>
 </tr>
 <tr class="even">
 <td align="left">22</td>
-<td align="left">01/10/2025</td>
+<td align="left">2025-10-01</td>
 <td align="right">81.67</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -432,10 +449,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">80.63</td>
 <td align="left">none</td>
+<td align="left">2025-10-01</td>
 </tr>
 <tr class="odd">
 <td align="left">23</td>
-<td align="left">01/11/2025</td>
+<td align="left">2025-11-01</td>
 <td align="right">86.41</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -446,10 +464,11 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">80.84</td>
 <td align="left">none</td>
+<td align="left">2025-11-01</td>
 </tr>
 <tr class="even">
 <td align="left">24</td>
-<td align="left">01/12/2025</td>
+<td align="left">2025-12-01</td>
 <td align="right">80.72</td>
 <td align="right">78.58</td>
 <td align="right">67.68</td>
@@ -460,6 +479,7 @@ shift, which will not be flagged with the default setting:</p>
 <td align="right">89.49</td>
 <td align="right">81.06</td>
 <td align="left">none</td>
+<td align="left">2025-12-01</td>
 </tr>
 </tbody>
 </table>
@@ -506,24 +526,25 @@ consecutive points in a consistent direction. This example shows a
 <p><img src="outlier_detection_files/figure-html/trend_default-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">chart_trend</span><span class="op">$</span><span class="va">limits</span>, <span class="fl">10</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="3%">
-<col width="13%">
-<col width="7%">
-<col width="8%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
+<col width="12%">
+<col width="6%">
 <col width="7%">
 <col width="6%">
-<col width="13%">
-<col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="5%">
+<col width="12%">
+<col width="6%">
+<col width="12%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">ll99</th>
@@ -534,11 +555,12 @@ consecutive points in a consistent direction. This example shows a
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
 <th align="left">trend</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">15</td>
-<td align="left">01/03/2025</td>
+<td align="left">2025-03-01</td>
 <td align="right">32.45</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -549,10 +571,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">31.37</td>
 <td align="left">none</td>
+<td align="left">2025-03-01</td>
 </tr>
 <tr class="even">
 <td align="left">16</td>
-<td align="left">01/04/2025</td>
+<td align="left">2025-04-01</td>
 <td align="right">31.47</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -563,10 +586,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">31.58</td>
 <td align="left">none</td>
+<td align="left">2025-04-01</td>
 </tr>
 <tr class="odd">
 <td align="left">17</td>
-<td align="left">01/05/2025</td>
+<td align="left">2025-05-01</td>
 <td align="right">26.24</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -577,10 +601,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">31.79</td>
 <td align="left">none</td>
+<td align="left">2025-05-01</td>
 </tr>
 <tr class="even">
 <td align="left">18</td>
-<td align="left">01/06/2025</td>
+<td align="left">2025-06-01</td>
 <td align="right">33.65</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -591,10 +616,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">32.01</td>
 <td align="left">none</td>
+<td align="left">2025-06-01</td>
 </tr>
 <tr class="odd">
 <td align="left">19</td>
-<td align="left">01/07/2025</td>
+<td align="left">2025-07-01</td>
 <td align="right">32.02</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -605,10 +631,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">32.22</td>
 <td align="left">none</td>
+<td align="left">2025-07-01</td>
 </tr>
 <tr class="even">
 <td align="left">20</td>
-<td align="left">01/08/2025</td>
+<td align="left">2025-08-01</td>
 <td align="right">32.55</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -619,10 +646,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">32.43</td>
 <td align="left">none</td>
+<td align="left">2025-08-01</td>
 </tr>
 <tr class="odd">
 <td align="left">21</td>
-<td align="left">01/09/2025</td>
+<td align="left">2025-09-01</td>
 <td align="right">31.00</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -633,10 +661,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">32.65</td>
 <td align="left">none</td>
+<td align="left">2025-09-01</td>
 </tr>
 <tr class="even">
 <td align="left">22</td>
-<td align="left">01/10/2025</td>
+<td align="left">2025-10-01</td>
 <td align="right">33.00</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -647,10 +676,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">32.86</td>
 <td align="left">none</td>
+<td align="left">2025-10-01</td>
 </tr>
 <tr class="odd">
 <td align="left">23</td>
-<td align="left">01/11/2025</td>
+<td align="left">2025-11-01</td>
 <td align="right">35.00</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -661,10 +691,11 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">33.07</td>
 <td align="left">none</td>
+<td align="left">2025-11-01</td>
 </tr>
 <tr class="even">
 <td align="left">24</td>
-<td align="left">01/12/2025</td>
+<td align="left">2025-12-01</td>
 <td align="right">37.00</td>
 <td align="right">30.84</td>
 <td align="right">23.38</td>
@@ -675,6 +706,7 @@ consecutive points in a consistent direction. This example shows a
 <td align="right">38.3</td>
 <td align="right">33.29</td>
 <td align="left">none</td>
+<td align="left">2025-12-01</td>
 </tr>
 </tbody>
 </table>
@@ -725,20 +757,21 @@ signs of process change.</p>
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">chart_2in3</span><span class="op">$</span><span class="va">limits</span>, <span class="fl">12</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="12%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
+<col width="10%">
 <col width="6%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="5%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="10%">
 <col width="12%">
-<col width="14%">
+<col width="10%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">ll99</th>
@@ -749,10 +782,11 @@ signs of process change.</p>
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
 <th align="left">two_in_three</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">01/01/2024</td>
+<td align="left">2024-01-01</td>
 <td align="right">122.73</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -763,9 +797,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">125.42</td>
 <td align="left">none</td>
+<td align="left">2024-01-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/02/2024</td>
+<td align="left">2024-02-01</td>
 <td align="right">133.96</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -776,9 +811,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">125.09</td>
 <td align="left">none</td>
+<td align="left">2024-02-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/03/2024</td>
+<td align="left">2024-03-01</td>
 <td align="right">112.85</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -789,9 +825,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">124.76</td>
 <td align="left">none</td>
+<td align="left">2024-03-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/04/2024</td>
+<td align="left">2024-04-01</td>
 <td align="right">122.67</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -802,9 +839,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">124.43</td>
 <td align="left">none</td>
+<td align="left">2024-04-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/05/2024</td>
+<td align="left">2024-05-01</td>
 <td align="right">128.49</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -815,9 +853,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">124.09</td>
 <td align="left">none</td>
+<td align="left">2024-05-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/06/2024</td>
+<td align="left">2024-06-01</td>
 <td align="right">121.09</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -828,9 +867,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">123.76</td>
 <td align="left">none</td>
+<td align="left">2024-06-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/07/2024</td>
+<td align="left">2024-07-01</td>
 <td align="right">120.01</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -841,9 +881,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">123.43</td>
 <td align="left">none</td>
+<td align="left">2024-07-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/08/2024</td>
+<td align="left">2024-08-01</td>
 <td align="right">120.50</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -854,9 +895,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">123.10</td>
 <td align="left">none</td>
+<td align="left">2024-08-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/09/2024</td>
+<td align="left">2024-09-01</td>
 <td align="right">131.00</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -867,9 +909,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">122.77</td>
 <td align="left">improvement</td>
+<td align="left">2024-09-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/10/2024</td>
+<td align="left">2024-10-01</td>
 <td align="right">133.00</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -880,9 +923,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">122.44</td>
 <td align="left">improvement</td>
+<td align="left">2024-10-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/11/2024</td>
+<td align="left">2024-11-01</td>
 <td align="right">121.00</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -893,9 +937,10 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">122.11</td>
 <td align="left">none</td>
+<td align="left">2024-11-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/12/2024</td>
+<td align="left">2024-12-01</td>
 <td align="right">118.99</td>
 <td align="right">121.62</td>
 <td align="right">108.66</td>
@@ -906,6 +951,7 @@ signs of process change.</p>
 <td align="right">134.58</td>
 <td align="right">121.78</td>
 <td align="left">none</td>
+<td align="left">2024-12-01</td>
 </tr>
 </tbody>
 </table>
@@ -1179,24 +1225,25 @@ limit, the process consistently exceeds the target:</p>
 <p><img src="outlier_detection_files/figure-html/assurance_pass-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">chart_assurance_pass</span><span class="op">$</span><span class="va">limits</span>, <span class="fl">6</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="3%">
-<col width="12%">
+<col width="11%">
+<col width="6%">
 <col width="7%">
-<col width="8%">
-<col width="12%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="12%">
+<col width="11%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="11%">
+<col width="11%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">alt_target</th>
@@ -1207,11 +1254,12 @@ limit, the process consistently exceeds the target:</p>
 <th align="right">ul95</th>
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">19</td>
-<td align="left">01/07/2025</td>
+<td align="left">2025-07-01</td>
 <td align="right">93.76</td>
 <td align="right">94.64</td>
 <td align="right">90</td>
@@ -1222,10 +1270,11 @@ limit, the process consistently exceeds the target:</p>
 <td align="right">96.11</td>
 <td align="right">96.84</td>
 <td align="right">94.55</td>
+<td align="left">2025-07-01</td>
 </tr>
 <tr class="even">
 <td align="left">20</td>
-<td align="left">01/08/2025</td>
+<td align="left">2025-08-01</td>
 <td align="right">94.54</td>
 <td align="right">94.64</td>
 <td align="right">90</td>
@@ -1236,10 +1285,11 @@ limit, the process consistently exceeds the target:</p>
 <td align="right">96.11</td>
 <td align="right">96.84</td>
 <td align="right">94.53</td>
+<td align="left">2025-08-01</td>
 </tr>
 <tr class="odd">
 <td align="left">21</td>
-<td align="left">01/09/2025</td>
+<td align="left">2025-09-01</td>
 <td align="right">95.01</td>
 <td align="right">94.64</td>
 <td align="right">90</td>
@@ -1250,10 +1300,11 @@ limit, the process consistently exceeds the target:</p>
 <td align="right">96.11</td>
 <td align="right">96.84</td>
 <td align="right">94.52</td>
+<td align="left">2025-09-01</td>
 </tr>
 <tr class="even">
 <td align="left">22</td>
-<td align="left">01/10/2025</td>
+<td align="left">2025-10-01</td>
 <td align="right">95.00</td>
 <td align="right">94.64</td>
 <td align="right">90</td>
@@ -1264,10 +1315,11 @@ limit, the process consistently exceeds the target:</p>
 <td align="right">96.11</td>
 <td align="right">96.84</td>
 <td align="right">94.50</td>
+<td align="left">2025-10-01</td>
 </tr>
 <tr class="odd">
 <td align="left">23</td>
-<td align="left">01/11/2025</td>
+<td align="left">2025-11-01</td>
 <td align="right">94.81</td>
 <td align="right">94.64</td>
 <td align="right">90</td>
@@ -1278,10 +1330,11 @@ limit, the process consistently exceeds the target:</p>
 <td align="right">96.11</td>
 <td align="right">96.84</td>
 <td align="right">94.49</td>
+<td align="left">2025-11-01</td>
 </tr>
 <tr class="even">
 <td align="left">24</td>
-<td align="left">01/12/2025</td>
+<td align="left">2025-12-01</td>
 <td align="right">95.85</td>
 <td align="right">94.64</td>
 <td align="right">90</td>
@@ -1292,6 +1345,7 @@ limit, the process consistently exceeds the target:</p>
 <td align="right">96.11</td>
 <td align="right">96.84</td>
 <td align="right">94.48</td>
+<td align="left">2025-12-01</td>
 </tr>
 </tbody>
 </table>
@@ -1326,24 +1380,25 @@ limit, the process consistently fails to meet the target:</p>
 <p><img src="outlier_detection_files/figure-html/assurance_fail-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">chart_assurance_fail</span><span class="op">$</span><span class="va">limits</span>, <span class="fl">6</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="3%">
-<col width="12%">
+<col width="11%">
+<col width="6%">
 <col width="7%">
-<col width="8%">
-<col width="12%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="12%">
+<col width="11%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="11%">
+<col width="11%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">alt_target</th>
@@ -1354,11 +1409,12 @@ limit, the process consistently fails to meet the target:</p>
 <th align="right">ul95</th>
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">19</td>
-<td align="left">01/07/2025</td>
+<td align="left">2025-07-01</td>
 <td align="right">82.68</td>
 <td align="right">82.24</td>
 <td align="right">90</td>
@@ -1369,10 +1425,11 @@ limit, the process consistently fails to meet the target:</p>
 <td align="right">85.26</td>
 <td align="right">86.77</td>
 <td align="right">82.12</td>
+<td align="left">2025-07-01</td>
 </tr>
 <tr class="even">
 <td align="left">20</td>
-<td align="left">01/08/2025</td>
+<td align="left">2025-08-01</td>
 <td align="right">81.12</td>
 <td align="right">82.24</td>
 <td align="right">90</td>
@@ -1383,10 +1440,11 @@ limit, the process consistently fails to meet the target:</p>
 <td align="right">85.26</td>
 <td align="right">86.77</td>
 <td align="right">82.10</td>
+<td align="left">2025-08-01</td>
 </tr>
 <tr class="odd">
 <td align="left">21</td>
-<td align="left">01/09/2025</td>
+<td align="left">2025-09-01</td>
 <td align="right">81.70</td>
 <td align="right">82.24</td>
 <td align="right">90</td>
@@ -1397,10 +1455,11 @@ limit, the process consistently fails to meet the target:</p>
 <td align="right">85.26</td>
 <td align="right">86.77</td>
 <td align="right">82.08</td>
+<td align="left">2025-09-01</td>
 </tr>
 <tr class="even">
 <td align="left">22</td>
-<td align="left">01/10/2025</td>
+<td align="left">2025-10-01</td>
 <td align="right">84.68</td>
 <td align="right">82.24</td>
 <td align="right">90</td>
@@ -1411,10 +1470,11 @@ limit, the process consistently fails to meet the target:</p>
 <td align="right">85.26</td>
 <td align="right">86.77</td>
 <td align="right">82.06</td>
+<td align="left">2025-10-01</td>
 </tr>
 <tr class="odd">
 <td align="left">23</td>
-<td align="left">01/11/2025</td>
+<td align="left">2025-11-01</td>
 <td align="right">80.31</td>
 <td align="right">82.24</td>
 <td align="right">90</td>
@@ -1425,10 +1485,11 @@ limit, the process consistently fails to meet the target:</p>
 <td align="right">85.26</td>
 <td align="right">86.77</td>
 <td align="right">82.04</td>
+<td align="left">2025-11-01</td>
 </tr>
 <tr class="even">
 <td align="left">24</td>
-<td align="left">01/12/2025</td>
+<td align="left">2025-12-01</td>
 <td align="right">81.30</td>
 <td align="right">82.24</td>
 <td align="right">90</td>
@@ -1439,6 +1500,7 @@ limit, the process consistently fails to meet the target:</p>
 <td align="right">85.26</td>
 <td align="right">86.77</td>
 <td align="right">82.02</td>
+<td align="left">2025-12-01</td>
 </tr>
 </tbody>
 </table>
@@ -1473,24 +1535,25 @@ performance is variable:</p>
 <p><img src="outlier_detection_files/figure-html/assurance_variable-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">chart_assurance_variable</span><span class="op">$</span><span class="va">limits</span>, <span class="fl">6</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
 <col width="3%">
-<col width="12%">
+<col width="11%">
+<col width="6%">
 <col width="7%">
-<col width="8%">
-<col width="12%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="12%">
+<col width="11%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="11%">
+<col width="11%">
 </colgroup>
 <thead><tr class="header">
 <th align="left"></th>
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">alt_target</th>
@@ -1501,11 +1564,12 @@ performance is variable:</p>
 <th align="right">ul95</th>
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="left">19</td>
-<td align="left">01/07/2025</td>
+<td align="left">2025-07-01</td>
 <td align="right">88.97</td>
 <td align="right">90.13</td>
 <td align="right">90</td>
@@ -1516,10 +1580,11 @@ performance is variable:</p>
 <td align="right">94.33</td>
 <td align="right">96.43</td>
 <td align="right">90.26</td>
+<td align="left">2025-07-01</td>
 </tr>
 <tr class="even">
 <td align="left">20</td>
-<td align="left">01/08/2025</td>
+<td align="left">2025-08-01</td>
 <td align="right">87.33</td>
 <td align="right">90.13</td>
 <td align="right">90</td>
@@ -1530,10 +1595,11 @@ performance is variable:</p>
 <td align="right">94.33</td>
 <td align="right">96.43</td>
 <td align="right">90.28</td>
+<td align="left">2025-08-01</td>
 </tr>
 <tr class="odd">
 <td align="left">21</td>
-<td align="left">01/09/2025</td>
+<td align="left">2025-09-01</td>
 <td align="right">91.77</td>
 <td align="right">90.13</td>
 <td align="right">90</td>
@@ -1544,10 +1610,11 @@ performance is variable:</p>
 <td align="right">94.33</td>
 <td align="right">96.43</td>
 <td align="right">90.30</td>
+<td align="left">2025-09-01</td>
 </tr>
 <tr class="even">
 <td align="left">22</td>
-<td align="left">01/10/2025</td>
+<td align="left">2025-10-01</td>
 <td align="right">91.78</td>
 <td align="right">90.13</td>
 <td align="right">90</td>
@@ -1558,10 +1625,11 @@ performance is variable:</p>
 <td align="right">94.33</td>
 <td align="right">96.43</td>
 <td align="right">90.32</td>
+<td align="left">2025-10-01</td>
 </tr>
 <tr class="odd">
 <td align="left">23</td>
-<td align="left">01/11/2025</td>
+<td align="left">2025-11-01</td>
 <td align="right">89.15</td>
 <td align="right">90.13</td>
 <td align="right">90</td>
@@ -1572,10 +1640,11 @@ performance is variable:</p>
 <td align="right">94.33</td>
 <td align="right">96.43</td>
 <td align="right">90.34</td>
+<td align="left">2025-11-01</td>
 </tr>
 <tr class="even">
 <td align="left">24</td>
-<td align="left">01/12/2025</td>
+<td align="left">2025-12-01</td>
 <td align="right">88.32</td>
 <td align="right">90.13</td>
 <td align="right">90</td>
@@ -1586,6 +1655,7 @@ performance is variable:</p>
 <td align="right">94.33</td>
 <td align="right">96.43</td>
 <td align="right">90.36</td>
+<td align="left">2025-12-01</td>
 </tr>
 </tbody>
 </table>

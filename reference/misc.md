@@ -46,7 +46,8 @@ misc(
 
 - target:
 
-  A single value from `keys` to display.
+  A single value from `keys` to display. Numeric targets match numeric
+  keys by value.
 
 - ...:
 
@@ -62,6 +63,9 @@ misc(
 
 An object of class `controlchart`, as returned by
 [`funnel()`](https://aus-doh-safety-and-quality.github.io/controlcharts/reference/funnel.md).
+The plot displays `target`; limits include every group and separate
+indicator columns. Request `"limit_lines"` in `return_objs` for each
+indicator's curves.
 
 ## Examples
 
@@ -81,10 +85,22 @@ misc(
   target = "A",
   return_objs = "limits"
 )
-#>   indicator group         z     score three_sigma numerator denominator value
-#> 1 Measure A     A  1.558790  1.558790        none         8          10    80
-#> 2 Measure B     A -1.071406 -1.071406        none         2          10    20
-#>   target      ll99     ll95     ll68     ul68     ul95     ul99
-#> 1   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326
-#> 2   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814
+#>   indicator denominator organisation numerator value          z      score
+#> 1 Measure A          10            A         8    80  1.5587905  1.5587905
+#> 2 Measure A          10            B         5    50 -0.4761387 -0.4761387
+#> 3 Measure A          10            C         4    40 -1.1128883 -1.1128883
+#> 4 Measure A          10            D         6    60  0.1606110  0.1606110
+#> 5 Measure B          10            A         2    20 -1.0714064 -1.0714064
+#> 6 Measure B          10            B         4    40  0.3267731  0.3267731
+#> 7 Measure B          10            C         5    50  0.9635228  0.9635228
+#> 8 Measure B          10            D         3    30 -0.3378078 -0.3378078
+#>   three_sigma target      ll99     ll95     ll68     ul68     ul95     ul99 key
+#> 1        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   A
+#> 2        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   B
+#> 3        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   C
+#> 4        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   D
+#> 5        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   A
+#> 6        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   B
+#> 7        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   C
+#> 8        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   D
 ```

@@ -11,8 +11,8 @@ funnel(
   numerators,
   denominators,
   indicators = NULL,
-  tooltips,
-  labels,
+  tooltips = NULL,
+  labels = NULL,
   aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
@@ -24,6 +24,7 @@ funnel(
   x_axis_settings = NULL,
   y_axis_settings = NULL,
   label_settings = NULL,
+  summary_table_settings = NULL,
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
@@ -63,20 +64,23 @@ funnel(
 
   A vector or column name, or a list of them, representing additional
   tooltips for each category. Each is labelled by its name in the list,
-  or else by the expression supplied.
+  or else by the expression supplied. `NULL` for none. Limits include
+  them with their R types, reduced within each key by
+  `aggregations$tooltips`.
 
 - labels:
 
   A vector or column name representing the labels for each category.
+  `NULL` for none.
 
 - aggregations:
 
   A list of aggregation function names for each field if multiple values
   are provided for each key. Valid options are:
 
-  - `"first"`: returns the first value
+  - `"first"`: returns the first non-missing value
 
-  - `"last"`: returns the last value
+  - `"last"`: returns the last non-missing value
 
   - `"sum"`: returns the sum of values
 
@@ -91,9 +95,9 @@ funnel(
   - `"count"`: returns the count of non-missing values
 
   Defaults to `"sum"` for numerators and denominators, and `"first"`
-  otherwise. Numeric aggregations ignore missing values and preserve
-  all-missing groups. Numerators and denominators are aggregated
-  independently.
+  otherwise. Every aggregation ignores missing values; an all-missing
+  group has a count of 0 and is otherwise missing. Numerators and
+  denominators are aggregated independently.
 
 - title:
 
@@ -175,6 +179,13 @@ funnel(
   Optional list of settings for labels, see
   `funnel_default_settings('labels')` for valid options.
 
+- summary_table_settings:
+
+  Optional list of settings for the summary table, see
+  `funnel_default_settings('summary_table')` for valid options. A table
+  shown by `show_table` has no static plot. Indicators show the MISC
+  chart instead of the table.
+
 - tooltip_settings:
 
   Optional list of settings for tooltips, see
@@ -207,10 +218,16 @@ funnel(
   - `"limit_lines"`: Control limits across the full range of
     denominators, for drawing the limit lines (not returned by default)
 
-  `"limit_lines"` is available only when `indicators` is omitted.
+  When `summary_table_settings` sets `show_table` without `indicators`,
+  `"static_plot"` is omitted by default.
 
 ## Value
 
 An object of class `controlchart` containing the interactive plot,
-static plot, limits data frame, raw data, and a function to save the
-plot.
+static plot, limits data frame, and a function to save the plot. Limits
+and limit lines include every group, with supplied indicator columns
+included by name. Multi-indicator limits also include direction-adjusted
+scores. Limits include the typed key, named after the `keys` expression
+and duplicated as `key`, and tooltip columns by name. Limit lines
+describe denominator curves and have no observation keys or tooltips.
+Empty input returns empty limits and limit lines, without plots.

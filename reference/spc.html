@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.27</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -53,8 +53,8 @@
 <span>  <span class="va">groupings</span>,</span>
 <span>  indicators <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">xbar_sds</span>,</span>
-<span>  <span class="va">tooltips</span>,</span>
-<span>  <span class="va">labels</span>,</span>
+<span>  tooltips <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  aggregations <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  title <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  canvas_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -67,6 +67,7 @@
 <span>  y_axis_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  date_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  label_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  summary_table_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tooltip_settings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  width <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  height <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -95,7 +96,9 @@ numerators for each category.</p></dd>
 
 <dt id="arg-denominators">denominators<a class="anchor" aria-label="anchor" href="#arg-denominators"></a></dt>
 <dd><p>A numeric vector or column name representing the
-denominators for each category.</p></dd>
+denominators for each category. Optional for <code>i</code>, <code>i_m</code>, <code>i_mm</code>, <code>run</code> and
+<code>mr</code> charts, which then plot numerators divided by denominators; an indicator
+whose denominators are all missing plots its numerators.</p></dd>
 
 
 <dt id="arg-groupings">groupings<a class="anchor" aria-label="anchor" href="#arg-groupings"></a></dt>
@@ -116,18 +119,19 @@ and standard deviation values for each category.</p></dd>
 <dt id="arg-tooltips">tooltips<a class="anchor" aria-label="anchor" href="#arg-tooltips"></a></dt>
 <dd><p>A vector or column name, or a list of them, representing
 additional tooltips for each category. Each is labelled by its name in the
-list, or else by the expression supplied.</p></dd>
+list, or else by the expression supplied. <code>NULL</code> for none.
+Limits include them with their R types, reduced within each key by <code>aggregations$tooltips</code>.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
 <dd><p>A vector or column name representing the labels for each
-category.</p></dd>
+category. <code>NULL</code> for none.</p></dd>
 
 
 <dt id="arg-aggregations">aggregations<a class="anchor" aria-label="anchor" href="#arg-aggregations"></a></dt>
 <dd><p>A list of aggregation function names for each field
-if multiple values are provided for each key. Valid options are:</p><ul><li><p><code>"first"</code>: returns the first value</p></li>
-<li><p><code>"last"</code>: returns the last value</p></li>
+if multiple values are provided for each key. Valid options are:</p><ul><li><p><code>"first"</code>: returns the first non-missing value</p></li>
+<li><p><code>"last"</code>: returns the last non-missing value</p></li>
 <li><p><code>"sum"</code>: returns the sum of values</p></li>
 <li><p><code>"mean"</code>: returns the mean of values</p></li>
 <li><p><code>"min"</code>: returns the minimum value</p></li>
@@ -136,7 +140,7 @@ if multiple values are provided for each key. Valid options are:</p><ul><li><p><
 <li><p><code>"count"</code>: returns the count of non-missing values</p></li>
 </ul><p>Defaults to <code>"sum"</code> for numerators and denominators, and
 <code>"first"</code> otherwise.
-Numeric aggregations ignore missing values and preserve all-missing groups.
+Every aggregation ignores missing values; an all-missing group has a count of 0 and is otherwise missing.
 Numerators and denominators are aggregated independently.</p></dd>
 
 
@@ -213,6 +217,12 @@ see <code>spc_default_settings('dates')</code> for valid options.</p></dd>
 see <code>spc_default_settings('labels')</code> for valid options.</p></dd>
 
 
+<dt id="arg-summary-table-settings">summary_table_settings<a class="anchor" aria-label="anchor" href="#arg-summary-table-settings"></a></dt>
+<dd><p>Optional list of settings for the summary table,
+see <code>spc_default_settings('summary_table')</code> for valid options.
+A table shown by <code>show_table</code> has no static plot.</p></dd>
+
+
 <dt id="arg-tooltip-settings">tooltip_settings<a class="anchor" aria-label="anchor" href="#arg-tooltip-settings"></a></dt>
 <dd><p>Optional list of settings for tooltips,
 see <code>spc_default_settings('tooltips')</code> for valid options.</p></dd>
@@ -237,14 +247,20 @@ the chart will fill the height of its container.</p></dd>
 Valid values are:</p><ul><li><p><code>"html_plot"</code>: Interactive <code>htmlwidgets</code> plot</p></li>
 <li><p><code>"static_plot"</code>: Non-interactive SVG plot</p></li>
 <li><p><code>"limits"</code>: Calculated control limits</p></li>
-</ul><p>When <code>indicators</code> are supplied, <code>"static_plot"</code> is omitted by default.</p></dd>
+</ul><p>When <code>indicators</code> are supplied, or <code>summary_table_settings</code> sets <code>show_table</code>,
+<code>"static_plot"</code> is omitted by default.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>controlchart</code> containing the
 interactive plot, static plot, limits, and a function to save the plot.
-When indicators are supplied, limits are a named nested list of data frames.</p>
+Limits are a flat data frame. Supplied indicator columns are included by name.
+<code>xbar</code> and <code>s</code> limits include each group's size as <code>denominator</code>.
+The key column is named after the <code>keys</code> expression and retains its type.
+It is duplicated as <code>key</code> for compatibility.
+Tooltip columns are included by name.
+Empty input returns empty limits with typed keys and tooltips, without plots.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

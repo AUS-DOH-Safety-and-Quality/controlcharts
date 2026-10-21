@@ -9,7 +9,7 @@ Calculations, rendering, settings, and interactivity use the native Funnel visua
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.27</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,8 @@ denominators for each category.</p></dd>
 
 
 <dt id="arg-target">target<a class="anchor" aria-label="anchor" href="#arg-target"></a></dt>
-<dd><p>A single value from <code>keys</code> to display.</p></dd>
+<dd><p>A single value from <code>keys</code> to display. Numeric targets match
+numeric keys by value.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -101,7 +102,9 @@ See <code>funnel_default_settings("misc")</code> for valid options.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An object of class <code>controlchart</code>, as returned by <code><a href="funnel.html">funnel()</a></code>.</p>
+    <p>An object of class <code>controlchart</code>, as returned by <code><a href="funnel.html">funnel()</a></code>.
+The plot displays <code>target</code>; limits include every group and separate indicator
+columns. Request <code>"limit_lines"</code> in <code>return_objs</code> for each indicator's curves.</p>
     </div>
 
     <div class="section level2">
@@ -121,12 +124,24 @@ See <code>funnel_default_settings("misc")</code> for valid options.</p></dd>
 <span class="r-in"><span>  target <span class="op">=</span> <span class="st">"A"</span>,</span></span>
 <span class="r-in"><span>  return_objs <span class="op">=</span> <span class="st">"limits"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   indicator group         z     score three_sigma numerator denominator value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Measure A     A  1.558790  1.558790        none         8          10    80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Measure B     A -1.071406 -1.071406        none         2          10    20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   target      ll99     ll95     ll68     ul68     ul95     ul99</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   indicator denominator organisation numerator value          z      score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Measure A          10            A         8    80  1.5587905  1.5587905</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Measure A          10            B         5    50 -0.4761387 -0.4761387</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Measure A          10            C         4    40 -1.1128883 -1.1128883</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Measure A          10            D         6    60  0.1606110  0.1606110</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Measure B          10            A         2    20 -1.0714064 -1.0714064</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Measure B          10            B         4    40  0.3267731  0.3267731</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7 Measure B          10            C         5    50  0.9635228  0.9635228</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8 Measure B          10            D         3    30 -0.3378078 -0.3378078</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   three_sigma target      ll99     ll95     ll68     ul68     ul95     ul99 key</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   B</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        none   57.5 13.216714 27.39016 41.84130 72.42308 84.81980 95.17326   D</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   B</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8        none   35.0  2.071914 10.08438 20.98212 50.48912 65.49569 81.14814   D</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

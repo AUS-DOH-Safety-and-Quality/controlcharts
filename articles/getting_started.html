@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">controlcharts</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.27</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,19 +145,20 @@ limits</li>
 <span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">spc_chart</span><span class="op">$</span><span class="va">limits</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="16%">
-<col width="8%">
-<col width="10%">
-<col width="8%">
-<col width="8%">
+<col width="13%">
+<col width="7%">
 <col width="8%">
 <col width="7%">
 <col width="7%">
 <col width="7%">
-<col width="16%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="13%">
+<col width="13%">
 </colgroup>
 <thead><tr class="header">
-<th align="left">date</th>
+<th align="left">month</th>
 <th align="right">value</th>
 <th align="right">target</th>
 <th align="right">ll99</th>
@@ -167,10 +168,11 @@ limits</li>
 <th align="right">ul95</th>
 <th align="right">ul99</th>
 <th align="right">trend_line</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="left">01/01/2024</td>
+<td align="left">2024-01-01</td>
 <td align="right">0.07</td>
 <td align="right">-0.14</td>
 <td align="right">-2.53</td>
@@ -180,9 +182,10 @@ limits</li>
 <td align="right">1.46</td>
 <td align="right">2.25</td>
 <td align="right">-0.56</td>
+<td align="left">2024-01-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/02/2024</td>
+<td align="left">2024-02-01</td>
 <td align="right">0.79</td>
 <td align="right">-0.14</td>
 <td align="right">-2.53</td>
@@ -192,9 +195,10 @@ limits</li>
 <td align="right">1.46</td>
 <td align="right">2.25</td>
 <td align="right">-0.53</td>
+<td align="left">2024-02-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/03/2024</td>
+<td align="left">2024-03-01</td>
 <td align="right">1.52</td>
 <td align="right">-0.14</td>
 <td align="right">-2.53</td>
@@ -204,9 +208,10 @@ limits</li>
 <td align="right">1.46</td>
 <td align="right">2.25</td>
 <td align="right">-0.49</td>
+<td align="left">2024-03-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/04/2024</td>
+<td align="left">2024-04-01</td>
 <td align="right">-2.16</td>
 <td align="right">-0.14</td>
 <td align="right">-2.53</td>
@@ -216,9 +221,10 @@ limits</li>
 <td align="right">1.46</td>
 <td align="right">2.25</td>
 <td align="right">-0.45</td>
+<td align="left">2024-04-01</td>
 </tr>
 <tr class="odd">
-<td align="left">01/05/2024</td>
+<td align="left">2024-05-01</td>
 <td align="right">-0.21</td>
 <td align="right">-0.14</td>
 <td align="right">-2.53</td>
@@ -228,9 +234,10 @@ limits</li>
 <td align="right">1.46</td>
 <td align="right">2.25</td>
 <td align="right">-0.42</td>
+<td align="left">2024-05-01</td>
 </tr>
 <tr class="even">
-<td align="left">01/06/2024</td>
+<td align="left">2024-06-01</td>
 <td align="right">0.13</td>
 <td align="right">-0.14</td>
 <td align="right">-2.53</td>
@@ -240,6 +247,7 @@ limits</li>
 <td align="right">1.46</td>
 <td align="right">2.25</td>
 <td align="right">-0.38</td>
+<td align="left">2024-06-01</td>
 </tr>
 </tbody>
 </table>
@@ -330,24 +338,25 @@ chart:</p>
 <p><img src="getting_started_files/figure-html/funnel_plot_static-1.svg"><!-- --></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="va">funnel_chart</span><span class="op">$</span><span class="va">limits</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
+<table style="width:100%;" class="table">
 <colgroup>
-<col width="14%">
-<col width="7%">
 <col width="12%">
+<col width="13%">
+<col width="10%">
+<col width="6%">
+<col width="6%">
 <col width="7%">
-<col width="7%">
-<col width="8%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
-<col width="7%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="6%">
+<col width="4%">
 </colgroup>
 <thead><tr class="header">
 <th align="right">denominator</th>
-<th align="left">group</th>
+<th align="left">organisation</th>
 <th align="right">numerator</th>
 <th align="right">value</th>
 <th align="right">z</th>
@@ -358,6 +367,7 @@ chart:</p>
 <th align="right">ul68</th>
 <th align="right">ul95</th>
 <th align="right">ul99</th>
+<th align="left">key</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -373,6 +383,7 @@ chart:</p>
 <td align="right">23.54</td>
 <td align="right">27.65</td>
 <td align="right">32.71</td>
+<td align="left">f</td>
 </tr>
 <tr class="even">
 <td align="right">121</td>
@@ -387,6 +398,7 @@ chart:</p>
 <td align="right">23.26</td>
 <td align="right">27.06</td>
 <td align="right">31.74</td>
+<td align="left">h</td>
 </tr>
 <tr class="odd">
 <td align="right">122</td>
@@ -401,6 +413,7 @@ chart:</p>
 <td align="right">23.24</td>
 <td align="right">27.03</td>
 <td align="right">31.69</td>
+<td align="left">b</td>
 </tr>
 <tr class="even">
 <td align="right">137</td>
@@ -415,6 +428,7 @@ chart:</p>
 <td align="right">23.03</td>
 <td align="right">26.59</td>
 <td align="right">30.96</td>
+<td align="left">i</td>
 </tr>
 <tr class="odd">
 <td align="right">161</td>
@@ -429,6 +443,7 @@ chart:</p>
 <td align="right">22.75</td>
 <td align="right">26.02</td>
 <td align="right">30.02</td>
+<td align="left">e</td>
 </tr>
 <tr class="even">
 <td align="right">170</td>
@@ -443,6 +458,7 @@ chart:</p>
 <td align="right">22.66</td>
 <td align="right">25.84</td>
 <td align="right">29.72</td>
+<td align="left">a</td>
 </tr>
 <tr class="odd">
 <td align="right">178</td>
@@ -457,6 +473,7 @@ chart:</p>
 <td align="right">22.59</td>
 <td align="right">25.69</td>
 <td align="right">29.47</td>
+<td align="left">c</td>
 </tr>
 <tr class="even">
 <td align="right">184</td>
@@ -471,6 +488,7 @@ chart:</p>
 <td align="right">22.54</td>
 <td align="right">25.58</td>
 <td align="right">29.30</td>
+<td align="left">d</td>
 </tr>
 <tr class="odd">
 <td align="right">190</td>
@@ -485,6 +503,7 @@ chart:</p>
 <td align="right">22.49</td>
 <td align="right">25.48</td>
 <td align="right">29.13</td>
+<td align="left">g</td>
 </tr>
 <tr class="even">
 <td align="right">197</td>
@@ -499,6 +518,7 @@ chart:</p>
 <td align="right">22.44</td>
 <td align="right">25.37</td>
 <td align="right">28.95</td>
+<td align="left">j</td>
 </tr>
 </tbody>
 </table>
