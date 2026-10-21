@@ -11,7 +11,7 @@
     "d3-selection": "^3.0.0",
     "powerbi-funnels": "github:AUS-DOH-Safety-and-Quality/PowerBI-Funnels#f3df8b5",
     "powerbi-spc": "github:AUS-DOH-Safety-and-Quality/PowerBI-SPC#693a5b9",
-    "powerbi-visuals-core": "github:AUS-DOH-Safety-and-Quality/PowerBI-Visuals-Core#926d4b9",
+    "powerbi-visuals-core": "github:AUS-DOH-Safety-and-Quality/PowerBI-Visuals-Core#7485f7a",
     "rollup": "^4.61.1",
     "tslib": "^2.8.1"
   },
