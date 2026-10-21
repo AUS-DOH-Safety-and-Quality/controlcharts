@@ -1,12 +1,12 @@
 {
-    "extends": "./PowerBI-Visuals-Core/config/tsconfig.visual.json",
+    "extends": "powerbi-visuals-core/config/tsconfig.visual.json",
     "compilerOptions": {
         "rootDir": "./",
         "outDir": "./dist",
         "declaration": false,
         "paths": {
             "powerbi-visuals-core/*": [
-                "./PowerBI-Visuals-Core/src/*/index.ts"
+                "./node_modules/powerbi-visuals-core/src/*/index.ts"
             ]
         }
     },
@@ -15,6 +15,7 @@
         "spc.ts",
         "funnel.ts",
         "ccHeadless.ts",
-        "ccInteractive.ts"
+        "ccInteractive.ts",
+        "minidom.ts"
     ]
 }

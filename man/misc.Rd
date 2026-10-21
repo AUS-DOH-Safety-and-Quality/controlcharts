@@ -28,7 +28,8 @@ denominators for each category.}
 
 \item{indicators}{A vector or list of vectors identifying indicators.}
 
-\item{target}{A single value from \code{keys} to display.}
+\item{target}{A single value from \code{keys} to display. Numeric targets match
+numeric keys by value.}
 
 \item{...}{Additional arguments passed to \code{\link[=funnel]{funnel()}}.}
 
@@ -37,6 +38,8 @@ See \code{funnel_default_settings("misc")} for valid options.}
 }
 \value{
 An object of class \code{controlchart}, as returned by \code{\link[=funnel]{funnel()}}.
+The plot displays \code{target}; limits include every group and separate indicator
+columns. Request \code{"limit_lines"} in \code{return_objs} for each indicator's curves.
 }
 \description{
 Delegates to \code{\link[=funnel]{funnel()}} with indicator columns and a selected group.

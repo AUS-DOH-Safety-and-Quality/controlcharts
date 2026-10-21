@@ -5,11 +5,14 @@
 #'
 #' @inheritParams funnel
 #' @param indicators A vector or list of vectors identifying indicators.
-#' @param target A single value from `keys` to display.
+#' @param target A single value from `keys` to display. Numeric targets match
+#' numeric keys by value.
 #' @param ... Additional arguments passed to [funnel()].
 #' @param misc_settings Native MISC settings, with `group` supplied by `target`.
 #' See `funnel_default_settings("misc")` for valid options.
 #' @return An object of class `controlchart`, as returned by [funnel()].
+#' The plot displays `target`; limits include every group and separate indicator
+#' columns. Request `"limit_lines"` in `return_objs` for each indicator's curves.
 #' @examples
 #' comparison <- data.frame(
 #'   organisation = rep(LETTERS[1:4], 2),
@@ -35,10 +38,15 @@ misc <- function(data, keys, numerators, denominators, indicators, target,
   if (missing(target) || length(target) != 1 || is.na(target)) {
     stop("target must be a single non-missing value", call. = FALSE)
   }
+  # Numbers stay numeric, as numeric keys do, so the engine names both alike
+  group <- target
+  if (!is.numeric(target)) {
+    group <- as.character(target)
+  }
   funnel(
     data, keys = {{ keys }}, numerators = {{ numerators }},
     denominators = {{ denominators }}, indicators = {{ indicators }},
-    misc_settings = utils::modifyList(as.list({{ misc_settings }}), list(group = as.character(target))),
+    misc_settings = utils::modifyList(as.list({{ misc_settings }}), list(group = group)),
     ...
   )
 }

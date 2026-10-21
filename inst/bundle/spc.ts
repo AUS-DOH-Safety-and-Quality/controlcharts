@@ -1,7 +1,7 @@
 import { registerChart } from 'powerbi-visuals-core/frontends';
-import { frontend } from './PowerBI-SPC/src/frontend';
+import { frontend } from './node_modules/powerbi-spc/src/frontend';
 
 registerChart('spc', frontend);
 
-export { defaultSettings } from './PowerBI-SPC/src/settings';
-export { Visual } from './PowerBI-SPC/src/visual';
+export { defaultSettings } from './node_modules/powerbi-spc/src/settings';
+export { Visual } from './node_modules/powerbi-spc/src/visual';

@@ -77,3 +77,26 @@ test_that("Tooltips must have one value per observation", {
     "Each tooltip"
   )
 })
+
+test_that("NULL tooltips and labels are the same as omitting them", {
+  none <- NULL
+  objects <- c("static_plot", "limits")
+  omitted <- funnel(dat, keys = organisation, numerators = numerator, denominators = denominator, return_objs = objects)
+  nulled <- funnel(dat, keys = organisation, numerators = numerator, denominators = denominator,
+                   tooltips = none, labels = NULL, return_objs = objects)
+  expect_identical(nulled$static_plot$svg, omitted$static_plot$svg)
+  expect_identical(nulled$limits, omitted$limits)
+
+  omitted <- spc(dat, keys = month, numerators = numerator, denominators = denominator, return_objs = objects)
+  nulled <- spc(dat, keys = month, numerators = numerator, denominators = denominator,
+                tooltips = NULL, labels = none, return_objs = objects)
+  expect_identical(nulled$static_plot$svg, omitted$static_plot$svg)
+  expect_identical(nulled$limits, omitted$limits)
+})
+
+test_that("Labels must have one value per observation", {
+  expect_error(
+    funnel(dat, keys = organisation, numerators = numerator, denominators = denominator, labels = character()),
+    "labels must have one value per observation.", fixed = TRUE
+  )
+})

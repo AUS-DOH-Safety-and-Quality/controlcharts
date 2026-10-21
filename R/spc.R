@@ -6,7 +6,9 @@
 #' @param numerators A numeric vector or column name representing the
 #' numerators for each category.
 #' @param denominators A numeric vector or column name representing the
-#' denominators for each category.
+#' denominators for each category. Optional for `i`, `i_m`, `i_mm`, `run` and
+#' `mr` charts, which then plot numerators divided by denominators; an indicator
+#' whose denominators are all missing plots its numerators.
 #' @param groupings A vector or column name representing the grouping for
 #' each category.
 #' @param indicators A vector or list of vectors representing indicator
@@ -15,14 +17,15 @@
 #' and standard deviation values for each category.
 #' @param tooltips A vector or column name, or a list of them, representing
 #' additional tooltips for each category. Each is labelled by its name in the
-#' list, or else by the expression supplied.
+#' list, or else by the expression supplied. `NULL` for none.
+#' Limits include them with their R types, reduced within each key by `aggregations$tooltips`.
 #' @param labels A vector or column name representing the labels for each
-#' category.
+#' category. `NULL` for none.
 #' @param aggregations A list of aggregation function names for each field
 #' if multiple values are provided for each key. Valid options are:
 #'   \itemize{
-#'     \item \code{"first"}: returns the first value
-#'     \item \code{"last"}: returns the last value
+#'     \item \code{"first"}: returns the first non-missing value
+#'     \item \code{"last"}: returns the last non-missing value
 #'     \item \code{"sum"}: returns the sum of values
 #'     \item \code{"mean"}: returns the mean of values
 #'     \item \code{"min"}: returns the minimum value
@@ -32,7 +35,7 @@
 #'   }
 #' Defaults to \code{"sum"} for numerators and denominators, and
 #' \code{"first"} otherwise.
-#' Numeric aggregations ignore missing values and preserve all-missing groups.
+#' Every aggregation ignores missing values; an all-missing group has a count of 0 and is otherwise missing.
 #' Numerators and denominators are aggregated independently.
 #' @param title Optional title to be added to the top of the chart.
 #' It can be a character string for the title text only, or a list with
@@ -76,6 +79,9 @@
 #' see \code{spc_default_settings('dates')} for valid options.
 #' @param label_settings Optional list of settings for labels,
 #' see \code{spc_default_settings('labels')} for valid options.
+#' @param summary_table_settings Optional list of settings for the summary table,
+#' see \code{spc_default_settings('summary_table')} for valid options.
+#' A table shown by `show_table` has no static plot.
 #' @param tooltip_settings Optional list of settings for tooltips,
 #' see \code{spc_default_settings('tooltips')} for valid options.
 #' @param width Optional width of the chart in pixels. If NULL (default),
@@ -90,11 +96,17 @@
 #'  \item \code{"static_plot"}: Non-interactive SVG plot
 #'  \item \code{"limits"}: Calculated control limits
 #' }
-#' When `indicators` are supplied, `"static_plot"` is omitted by default.
+#' When `indicators` are supplied, or `summary_table_settings` sets `show_table`,
+#' `"static_plot"` is omitted by default.
 #'
 #' @return An object of class \code{controlchart} containing the
 #' interactive plot, static plot, limits, and a function to save the plot.
-#' When indicators are supplied, limits are a named nested list of data frames.
+#' Limits are a flat data frame. Supplied indicator columns are included by name.
+#' `xbar` and `s` limits include each group's size as `denominator`.
+#' The key column is named after the `keys` expression and retains its type.
+#' It is duplicated as `key` for compatibility.
+#' Tooltip columns are included by name.
+#' Empty input returns empty limits with typed keys and tooltips, without plots.
 #'
 #' @export
 spc <- function(data,
@@ -104,8 +116,8 @@ spc <- function(data,
                 groupings,
                 indicators = NULL,
                 xbar_sds,
-                tooltips,
-                labels,
+                tooltips = NULL,
+                labels = NULL,
                 aggregations = NULL,
                 title = NULL,
                 canvas_settings = NULL,
@@ -118,6 +130,7 @@ spc <- function(data,
                 y_axis_settings = NULL,
                 date_settings = NULL,
                 label_settings = NULL,
+                summary_table_settings = NULL,
                 tooltip_settings = NULL,
                 width = NULL,
                 height = NULL,
@@ -146,17 +159,26 @@ spc <- function(data,
   }
 
   # Numeric keys stay numeric, and factor keys send their levels, so the engine can order them
-  categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
+  keys_quo <- rlang::enquo(keys)
+  key_values <- rlang::eval_tidy(keys_quo, input_data)
+  key_name <- paste(deparse(rlang::quo_get_expr(keys_quo)), collapse = "")
+  categories <- key_values
   category_levels <- levels(categories)
   if (!is.numeric(categories)) {
     categories <- as.character(categories)
   }
   data_raw <- list(
     categories = categories,
+    category_name = key_name,
     numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data)
   )
   data_raw$category_levels <- category_levels
   data_raw$crosstalk_identities <- crosstalk_identities
+  result_data <- list(
+    key = key_values,
+    key_name = key_name,
+    key_label = "date"
+  )
 
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
@@ -176,8 +198,12 @@ spc <- function(data,
     x_axis = rlang::eval_tidy(rlang::enquo(x_axis_settings), input_data),
     y_axis = rlang::eval_tidy(rlang::enquo(y_axis_settings), input_data),
     dates = rlang::eval_tidy(rlang::enquo(date_settings), input_data),
-    labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
+    labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data),
+    summary_table = rlang::eval_tidy(rlang::enquo(summary_table_settings), input_data)
   )
+  if (missing(return_objs) && isTRUE(input_settings$summary_table$show_table)) {
+    return_objs <- setdiff(return_objs, "static_plot")
+  }
 
   if (!missing(denominators)) {
     data_raw$denominators <- as.numeric(rlang::eval_tidy(rlang::enquo(denominators), input_data))
@@ -191,17 +217,22 @@ spc <- function(data,
     data_raw$xbar_sds <- as.numeric(rlang::eval_tidy(rlang::enquo(xbar_sds), input_data))
   }
 
-  if (!missing(tooltips)) {
-    data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip")
+  tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip", as_character = FALSE)
+  result_data$tooltips <- tooltips
+  if (!is.null(tooltips)) {
+    data_raw$tooltips <- lapply(tooltips, as.character)
   }
-
-  if (!missing(labels)) {
-    data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))
+  labels <- rlang::eval_tidy(rlang::enquo(labels), input_data)
+  if (!is.null(labels)) {
+    if (length(labels) != nrow(input_data)) {
+      stop("labels must have one value per observation.", call. = FALSE)
+    }
+    data_raw$labels <- as.character(labels)
   }
 
   create_controlchart("spc", data_raw, is_crosstalk, crosstalk_group,
                       input_settings, aggregations, title, tooltip_settings,
-                      width, height, elementId, return_objs)
+                      width, height, elementId, return_objs, result_data)
 }
 
 #' Shiny bindings for wrapper

@@ -1,7 +1,7 @@
 import { registerChart } from 'powerbi-visuals-core/frontends';
-import { frontend } from './PowerBI-Funnels/src/frontend';
+import { frontend } from './node_modules/powerbi-funnels/src/frontend';
 
 registerChart('funnel', frontend);
 
-export { defaultSettings } from './PowerBI-Funnels/src/settings';
-export { Visual } from './PowerBI-Funnels/src/visual';
+export { defaultSettings } from './node_modules/powerbi-funnels/src/settings';
+export { Visual } from './node_modules/powerbi-funnels/src/visual';

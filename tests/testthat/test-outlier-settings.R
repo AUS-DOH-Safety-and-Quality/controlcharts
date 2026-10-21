@@ -88,8 +88,12 @@ testthat::test_that("SPC indicators have independent outlier columns", {
       outlier_settings = list(astronomical = enabled, shift = !enabled),
       return_objs = "limits"
     )
-    testthat::expect_equal(chart$limits[[indicator]], expected$limits)
+    actual <- chart$limits[chart$limits$indicator == indicator, names(expected$limits)]
+    rownames(actual) <- NULL
+    testthat::expect_equal(actual, expected$limits)
   }
+  testthat::expect_true(all(is.na(chart$limits$astpoint[chart$limits$indicator == "A"])))
+  testthat::expect_true(all(is.na(chart$limits$shift[chart$limits$indicator == "B"])))
 })
 
 testthat::test_that("SPC limit columns include values missing from the first row", {
@@ -100,6 +104,6 @@ testthat::test_that("SPC limit columns include values missing from the first row
                                     alt_target = c(NA, 7, 7, 7, 7, 7)),
                return_objs = "limits")
   testthat::expect_identical(names(chart$limits)[1:4],
-                             c("date", "value", "target", "alt_target"))
+                             c("key", "value", "target", "alt_target"))
   testthat::expect_identical(chart$limits$alt_target, c(NA, 7, 7, 7, 7, 7))
 })

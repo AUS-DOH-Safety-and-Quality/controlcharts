@@ -11,15 +11,16 @@
 #' Funnel visual. Each indicator is calculated against its comparison population.
 #' @param tooltips A vector or column name, or a list of them, representing
 #' additional tooltips for each category. Each is labelled by its name in the
-#' list, or else by the expression supplied.
+#' list, or else by the expression supplied. `NULL` for none.
+#' Limits include them with their R types, reduced within each key by `aggregations$tooltips`.
 #' @param labels A vector or column name representing the labels
-#' for each category.
+#' for each category. `NULL` for none.
 #' @param aggregations A list of aggregation function names
 #' for each field if multiple values are provided for each key.
 #' Valid options are:
 #'   \itemize{
-#'     \item \code{"first"}: returns the first value
-#'     \item \code{"last"}: returns the last value
+#'     \item \code{"first"}: returns the first non-missing value
+#'     \item \code{"last"}: returns the last non-missing value
 #'     \item \code{"sum"}: returns the sum of values
 #'     \item \code{"mean"}: returns the mean of values
 #'     \item \code{"min"}: returns the minimum value
@@ -29,7 +30,7 @@
 #'   }
 #' Defaults to \code{"sum"} for numerators and denominators, and
 #' \code{"first"} otherwise.
-#' Numeric aggregations ignore missing values and preserve all-missing groups.
+#' Every aggregation ignores missing values; an all-missing group has a count of 0 and is otherwise missing.
 #' Numerators and denominators are aggregated independently.
 #' @param title Optional title to be added to the top of the chart.
 #' It can be a character string for the title text only,
@@ -73,6 +74,10 @@
 #' see \code{funnel_default_settings('y_axis')} for valid options.
 #' @param label_settings Optional list of settings for labels,
 #' see \code{funnel_default_settings('labels')} for valid options.
+#' @param summary_table_settings Optional list of settings for the summary table,
+#' see \code{funnel_default_settings('summary_table')} for valid options.
+#' A table shown by `show_table` has no static plot. Indicators show the MISC
+#' chart instead of the table.
 #' @param tooltip_settings Optional list of settings for tooltips,
 #' see \code{funnel_default_settings('tooltips')} for valid options.
 #' @param width Optional width of the chart in pixels. If NULL (default),
@@ -89,11 +94,17 @@
 #'  \item \code{"limit_lines"}: Control limits across the full range of
 #'  denominators, for drawing the limit lines (not returned by default)
 #' }
-#' `"limit_lines"` is available only when `indicators` is omitted.
+#' When `summary_table_settings` sets `show_table` without `indicators`,
+#' `"static_plot"` is omitted by default.
 #'
 #' @return An object of class \code{controlchart} containing the
-#' interactive plot, static plot, limits data frame, raw data,
-#' and a function to save the plot.
+#' interactive plot, static plot, limits data frame, and a function to save the plot.
+#' Limits and limit lines include every group, with supplied indicator columns
+#' included by name. Multi-indicator limits also include direction-adjusted scores.
+#' Limits include the typed key, named after the `keys` expression and duplicated as `key`,
+#' and tooltip columns by name.
+#' Limit lines describe denominator curves and have no observation keys or tooltips.
+#' Empty input returns empty limits and limit lines, without plots.
 #'
 #' @export
 funnel <- function(data,
@@ -101,8 +112,8 @@ funnel <- function(data,
                    numerators,
                    denominators,
                    indicators = NULL,
-                   tooltips,
-                   labels,
+                   tooltips = NULL,
+                   labels = NULL,
                    aggregations = NULL,
                    title = NULL,
                    canvas_settings = NULL,
@@ -114,6 +125,7 @@ funnel <- function(data,
                    x_axis_settings = NULL,
                    y_axis_settings = NULL,
                    label_settings = NULL,
+                   summary_table_settings = NULL,
                    tooltip_settings = NULL,
                    width = NULL,
                    height = NULL,
@@ -145,18 +157,27 @@ funnel <- function(data,
   }
 
   # Numeric keys stay numeric, and factor keys send their levels, so the engine can order them
-  categories <- rlang::eval_tidy(rlang::enquo(keys), input_data)
+  keys_quo <- rlang::enquo(keys)
+  key_values <- rlang::eval_tidy(keys_quo, input_data)
+  key_name <- paste(deparse(rlang::quo_get_expr(keys_quo)), collapse = "")
+  categories <- key_values
   category_levels <- levels(categories)
   if (!is.numeric(categories)) {
     categories <- as.character(categories)
   }
   data_raw <- list(
     categories = categories,
+    category_name = key_name,
     numerators = rlang::eval_tidy(rlang::enquo(numerators), input_data),
     denominators = rlang::eval_tidy(rlang::enquo(denominators), input_data)
   )
   data_raw$category_levels <- category_levels
   data_raw$crosstalk_identities <- crosstalk_identities
+  result_data <- list(
+    key = key_values,
+    key_name = key_name,
+    key_label = "group"
+  )
 
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
@@ -172,20 +193,29 @@ funnel <- function(data,
     lines = rlang::eval_tidy(rlang::enquo(line_settings), input_data),
     x_axis = rlang::eval_tidy(rlang::enquo(x_axis_settings), input_data),
     y_axis = rlang::eval_tidy(rlang::enquo(y_axis_settings), input_data),
-    labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data)
+    labels = rlang::eval_tidy(rlang::enquo(label_settings), input_data),
+    summary_table = rlang::eval_tidy(rlang::enquo(summary_table_settings), input_data)
   )
-
-  if (!missing(tooltips)) {
-    data_raw$tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip")
+  if (missing(return_objs) && is.null(data_raw$indicators) && isTRUE(input_settings$summary_table$show_table)) {
+    return_objs <- setdiff(return_objs, "static_plot")
   }
 
-  if (!missing(labels)) {
-    data_raw$labels <- as.character(rlang::eval_tidy(rlang::enquo(labels), input_data))
+  tooltips <- normalise_columns(rlang::enquo(tooltips), input_data, "tooltips", "tooltip", as_character = FALSE)
+  result_data$tooltips <- tooltips
+  if (!is.null(tooltips)) {
+    data_raw$tooltips <- lapply(tooltips, as.character)
+  }
+  labels <- rlang::eval_tidy(rlang::enquo(labels), input_data)
+  if (!is.null(labels)) {
+    if (length(labels) != nrow(input_data)) {
+      stop("labels must have one value per observation.", call. = FALSE)
+    }
+    data_raw$labels <- as.character(labels)
   }
 
   create_controlchart("funnel", data_raw, is_crosstalk, crosstalk_group,
                       input_settings, aggregations, title, tooltip_settings,
-                      width, height, elementId, return_objs)
+                      width, height, elementId, return_objs, result_data)
 }
 
 #' Shiny bindings for wrapper

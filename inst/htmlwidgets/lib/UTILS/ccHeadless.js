@@ -14,7 +14,8 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
             show: () => { },
             hide: () => { }
         },
-        rowKeys: (_category, index) => [String(index)]
+        rowKeys: index => [String(index)],
+        displayWarningIcon: () => { }
     };
     function initialiseHeadless(dom) {
         globalThis.document = dom.document;
@@ -45,21 +46,45 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
             + body
             + "</svg>";
     }
+    function limitIndicatorColumns(chartType, names) {
+        const columns = frontends.indicatorColumns(names, frontends.frontendChart(chartType).limitColumns);
+        const renamed = [];
+        for (let i = 0; i < names.length; i++) {
+            if (columns[i] !== names[i]) {
+                renamed.push(`${names[i]} to ${columns[i]}`);
+            }
+        }
+        const warnings = renamed.length === 0
+            ? []
+            : [`Indicators renamed in the limits, as their names are limit columns: ${renamed.join(", ")}.`];
+        return { columns, warnings };
+    }
+    function indicatorNames(dataViews) {
+        const names = [];
+        const categories = dataViews[0]?.categorical.categories ?? [];
+        for (let i = 0; i < categories.length; i++) {
+            const source = categories[i].source;
+            if (source.roles?.indicator) {
+                names.push(source.displayName);
+            }
+        }
+        return names;
+    }
     function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height, staticPlot, limits) {
         const chart = frontends.frontendChart(chartType);
         const visual = visuals[chartType];
         visual.update(updateOptions([], width, height));
         let result = {};
+        let status;
         if (staticPlot) {
-            visual.update(updateOptions(frontends.paddedDataViews(chartType, dataViews, titleSettings, true), width, height));
+            status = visual.update(updateOptions(frontends.paddedDataViews(chartType, dataViews, titleSettings, true), width, height));
             frontends.updateChartTitle(visual.svg, titleSettings);
             const errorMessage = visual.svg.select(".errormessage");
             if (errorMessage.size() > 0) {
                 return { error: errorMessage.text() };
             }
-            const staticError = chart.staticError?.(visual);
-            if (staticError !== undefined) {
-                return { error: staticError };
+            if (visual.showsTable) {
+                return { error: "Static plots are not available for summary tables." };
             }
             const svg = visual.svg.node();
             if (svg === null) {
@@ -68,15 +93,17 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
             result.svg = svgDocument(svg.innerHTML, width, height);
         }
         else {
-            const status = visual.viewModel.update(updateOptions(dataViews, width, height), visual.host);
+            status = visual.viewModel.update(updateOptions(dataViews, width, height), visual.host);
             if (!status.status) {
                 return { error: status.error };
             }
         }
+        const warnings = status.status && status.warning !== undefined ? [status.warning] : [];
         if (limits) {
             result = { ...result, ...chart.limits(visual) };
+            warnings.push(...limitIndicatorColumns(chartType, indicatorNames(dataViews)).warnings);
         }
-        return result;
+        return { ...result, warnings };
     }
     function headlessChart(chartType, rawData, inputSettings, aggregations, title, width, height, staticPlot, limits) {
         const settings = frontends.chartSettings(chartType, inputSettings, frontends.asArray(rawData.categories).length);
@@ -91,12 +118,17 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
         if ("error" in titleSettings) {
             return titleSettings;
         }
-        const dataViews = frontends.makeUpdateValues(rawData, settings.settings, chartAggs.aggregations).dataViews;
-        return updateHeadlessVisual(chartType, dataViews, titleSettings.settings, width, height, staticPlot, limits);
+        const updateValues = frontends.makeUpdateValues(rawData, settings.settings, chartAggs.aggregations);
+        const result = updateHeadlessVisual(chartType, updateValues.dataViews, titleSettings.settings, width, height, staticPlot, limits);
+        if (!limits || "error" in result) {
+            return result;
+        }
+        return { ...result, source_rows: updateValues.source_rows };
     }
 
     exports.headlessChart = headlessChart;
     exports.initialiseHeadless = initialiseHeadless;
+    exports.limitIndicatorColumns = limitIndicatorColumns;
     exports.updateHeadlessVisual = updateHeadlessVisual;
     exports.visuals = visuals;
 

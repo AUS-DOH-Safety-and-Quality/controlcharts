@@ -17,6 +17,8 @@ misc_data <- function() {
 
 test_that("MISC delegates raw indicator data to funnel calculations", {
   dat <- misc_data()
+  dat$chart_type <- ifelse(dat$indicator == "Higher is better", "PR", "RC")
+  dat$multiplier <- ifelse(dat$indicator == "Higher is better", 1, 1000)
   chart <- misc(
     dat,
     keys = organisation,
@@ -24,39 +26,44 @@ test_that("MISC delegates raw indicator data to funnel calculations", {
     denominators = denominator,
     indicators = indicator,
     target = "A",
-    outlier_settings = list(improvement_direction = direction),
-    return_objs = "limits"
+    funnel_settings = list(chart_type = chart_type, multiplier = multiplier),
+    outlier_settings = list(improvement_direction = direction, two_sigma = TRUE),
+    return_objs = c("limits", "limit_lines")
   )
   expect_identical(names(chart$limits), c(
-    "indicator", "group", "z", "score", "three_sigma", "numerator", "denominator",
-    "value", "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99"
+    "indicator", "denominator", "organisation", "numerator", "value", "z", "score", "two_sigma", "three_sigma",
+    "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99", "key"
   ))
+  expect_equal(nrow(chart$limits), 8)
 
   for (indicator_name in unique(dat$indicator)) {
     rows <- dat$indicator == indicator_name
     direction <- unique(dat$direction[rows])
-    funnel_limits <- funnel(
+    standalone <- funnel(
       dat[rows, ],
       keys = organisation,
       numerators = numerator,
       denominators = denominator,
+      funnel_settings = list(chart_type = chart_type, multiplier = multiplier),
       outlier_settings = list(
         improvement_direction = direction,
+        two_sigma = TRUE,
         three_sigma = TRUE
       ),
-      return_objs = "limits"
-    )$limits
-    expected <- funnel_limits[funnel_limits$group == "A", ]
+      return_objs = c("limits", "limit_lines")
+    )
+    expected <- standalone$limits
     actual <- chart$limits[chart$limits$indicator == indicator_name, ]
-
-    expect_equal(actual$numerator, expected$numerator)
-    expect_equal(actual$denominator, expected$denominator)
-    expect_equal(actual$z, expected$z)
+    actual_limits <- actual[names(expected)]
+    rownames(actual_limits) <- NULL
+    expect_equal(actual_limits, expected)
     expect_equal(
       actual$score,
       expected$z * ifelse(direction == "decrease", -1, 1)
     )
-    expect_equal(actual$three_sigma, expected$three_sigma)
+    actual_lines <- chart$limit_lines[chart$limit_lines$indicator == indicator_name, names(standalone$limit_lines)]
+    rownames(actual_lines) <- NULL
+    expect_equal(actual_lines, standalone$limit_lines)
   }
 })
 
@@ -74,8 +81,11 @@ test_that("MISC renders and saves a single indicator", {
 
   expect_s3_class(chart, "controlchart")
   expect_s3_class(chart$html_plot, "funnel")
-  expect_equal(chart$limits$indicator, "Higher is better")
+  expect_equal(unique(chart$limits$indicator), "Higher is better")
+  expect_equal(nrow(chart$limits), 4)
   expect_match(chart$static_plot$svg, "misc-bar", fixed = TRUE)
+  bars <- xml2::xml_find_all(xml2::read_xml(chart$static_plot$svg), "//*[local-name()='rect' and @class='misc-bar']")
+  expect_length(bars, 1)
 
   outfile <- tempfile(fileext = ".svg")
   chart$save_plot(outfile, width = 720, height = 480)
@@ -255,9 +265,78 @@ test_that("MISC forwards multiple indicator columns and native settings to Funne
   )
   expect_equal(wrapped$limits, native$limits)
   expect_equal(wrapped$html_plot$x, native$html_plot$x)
-  expect_equal(wrapped$limits$group, c("B", "B"))
-  expect_equal(wrapped$limits$indicator,
-               c("Effectiveness / Higher is better", "Safety / Lower is better"))
+  expect_equal(wrapped$limits$organisation, rep(LETTERS[1:4], 2))
+  expect_equal(wrapped$limits$grouping, rep(c("Effectiveness", "Safety"), each = 4))
+  expect_equal(wrapped$limits$indicator, rep(c("Higher is better", "Lower is better"), each = 4))
   expect_identical(misc_default_settings(), funnel_default_settings())
   expect_identical(as.character(miscOutput("chart")), as.character(funnelOutput("chart")))
+})
+
+test_that("RC indicators without counts are left out with a warning", {
+  dat <- data.frame(
+    site = rep(c("A", "B", "C"), 2),
+    indicator = rep(c("Higher", "Lower"), each = 3),
+    numerator = c(3, 5, 4, 0, 0, 0),
+    denominator = 10
+  )
+  expect_warning(
+    chart <- funnel(dat, keys = site, numerators = numerator, denominators = denominator,
+                    indicators = indicator, funnel_settings = list(chart_type = "RC"), return_objs = "limits"),
+    "Lower: All numerators are zero, so RC limits cannot be calculated and the indicator is not shown.", fixed = TRUE
+  )
+  expect_equal(unique(chart$limits$indicator), "Higher")
+})
+
+test_that("chart warnings are raised once, whatever is returned", {
+  dat <- data.frame(site = c("A", "B", "C", "D"), numerator = c(3, 5, -4, 2), denominator = 10)
+  for (return_objs in list("limits", "static_plot", c("static_plot", "limits"))) {
+    messages <- character()
+    output <- capture.output(withCallingHandlers(
+      invisible(funnel(dat, keys = site, numerators = numerator, denominators = denominator, return_objs = return_objs)),
+      warning = function(w) {
+        messages <<- c(messages, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }
+    ))
+    expect_identical(messages, "site C removed due to: Numerator negative.")
+    expect_length(output, 0)
+  }
+})
+
+test_that("the default empty MISC group shows the first group", {
+  dat <- data.frame(site = rep(c("A", "B", "C"), 2), indicator = rep(c("Higher", "Lower"), each = 3),
+                    numerator = c(3, 5, 4, 6, 2, 7), denominator = 10)
+  defaults <- funnel(dat, keys = site, numerators = numerator, denominators = denominator, indicators = indicator,
+                     misc_settings = funnel_default_settings("misc"), return_objs = "limits")
+  first <- misc(dat, keys = site, numerators = numerator, denominators = denominator, indicators = indicator,
+                target = "A", return_objs = "limits")
+  expect_identical(defaults$limits, first$limits)
+})
+
+test_that("numeric MISC targets select numeric keys by value", {
+  dat <- data.frame(site = rep(c(2, 100000, 0.1 + 0.2), 2), indicator = rep(c("Higher", "Lower"), each = 3),
+                    numerator = c(3, 5, 4, 6, 2, 7), denominator = 10)
+  svg <- function(target) {
+    misc(dat, keys = site, numerators = numerator, denominators = denominator, indicators = indicator,
+         target = target, return_objs = "static_plot")$static_plot$svg
+  }
+  expect_identical(svg(100000), svg("100000"))
+  expect_false(identical(svg(100000), svg(2)))
+  expect_false(identical(svg(0.1 + 0.2), svg(2)))
+  expect_identical(svg(2L), svg(2))
+})
+
+test_that("a MISC group given per row must name one group", {
+  dat <- data.frame(site = rep(c("A", "B", "C"), 2), indicator = rep(c("Higher", "Lower"), each = 3),
+                    numerator = c(3, 5, 4, 6, 2, 7), denominator = 10)
+  expect_error(
+    funnel(dat, keys = site, numerators = numerator, denominators = denominator, indicators = indicator,
+           misc_settings = list(group = site), return_objs = "limits"),
+    "The MISC group must be the same for every row.", fixed = TRUE
+  )
+  same <- funnel(dat, keys = site, numerators = numerator, denominators = denominator, indicators = indicator,
+                 misc_settings = list(group = rep("B", 6)), return_objs = "static_plot")
+  chosen <- misc(dat, keys = site, numerators = numerator, denominators = denominator, indicators = indicator,
+                 target = "B", return_objs = "static_plot")
+  expect_identical(same$static_plot$svg, chosen$static_plot$svg)
 })

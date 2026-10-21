@@ -12,8 +12,8 @@ spc(
   groupings,
   indicators = NULL,
   xbar_sds,
-  tooltips,
-  labels,
+  tooltips = NULL,
+  labels = NULL,
   aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
@@ -26,6 +26,7 @@ spc(
   y_axis_settings = NULL,
   date_settings = NULL,
   label_settings = NULL,
+  summary_table_settings = NULL,
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
@@ -43,7 +44,9 @@ spc(
 numerators for each category.}
 
 \item{denominators}{A numeric vector or column name representing the
-denominators for each category.}
+denominators for each category. Optional for \code{i}, \code{i_m}, \code{i_mm}, \code{run} and
+\code{mr} charts, which then plot numerators divided by denominators; an indicator
+whose denominators are all missing plots its numerators.}
 
 \item{groupings}{A vector or column name representing the grouping for
 each category.}
@@ -56,16 +59,17 @@ and standard deviation values for each category.}
 
 \item{tooltips}{A vector or column name, or a list of them, representing
 additional tooltips for each category. Each is labelled by its name in the
-list, or else by the expression supplied.}
+list, or else by the expression supplied. \code{NULL} for none.
+Limits include them with their R types, reduced within each key by \code{aggregations$tooltips}.}
 
 \item{labels}{A vector or column name representing the labels for each
-category.}
+category. \code{NULL} for none.}
 
 \item{aggregations}{A list of aggregation function names for each field
 if multiple values are provided for each key. Valid options are:
 \itemize{
-\item \code{"first"}: returns the first value
-\item \code{"last"}: returns the last value
+\item \code{"first"}: returns the first non-missing value
+\item \code{"last"}: returns the last non-missing value
 \item \code{"sum"}: returns the sum of values
 \item \code{"mean"}: returns the mean of values
 \item \code{"min"}: returns the minimum value
@@ -75,7 +79,7 @@ if multiple values are provided for each key. Valid options are:
 }
 Defaults to \code{"sum"} for numerators and denominators, and
 \code{"first"} otherwise.
-Numeric aggregations ignore missing values and preserve all-missing groups.
+Every aggregation ignores missing values; an all-missing group has a count of 0 and is otherwise missing.
 Numerators and denominators are aggregated independently.}
 
 \item{title}{Optional title to be added to the top of the chart.
@@ -131,6 +135,10 @@ see \code{spc_default_settings('dates')} for valid options.}
 \item{label_settings}{Optional list of settings for labels,
 see \code{spc_default_settings('labels')} for valid options.}
 
+\item{summary_table_settings}{Optional list of settings for the summary table,
+see \code{spc_default_settings('summary_table')} for valid options.
+A table shown by \code{show_table} has no static plot.}
+
 \item{tooltip_settings}{Optional list of settings for tooltips,
 see \code{spc_default_settings('tooltips')} for valid options.}
 
@@ -149,12 +157,18 @@ Valid values are:
 \item \code{"static_plot"}: Non-interactive SVG plot
 \item \code{"limits"}: Calculated control limits
 }
-When \code{indicators} are supplied, \code{"static_plot"} is omitted by default.}
+When \code{indicators} are supplied, or \code{summary_table_settings} sets \code{show_table},
+\code{"static_plot"} is omitted by default.}
 }
 \value{
 An object of class \code{controlchart} containing the
 interactive plot, static plot, limits, and a function to save the plot.
-When indicators are supplied, limits are a named nested list of data frames.
+Limits are a flat data frame. Supplied indicator columns are included by name.
+\code{xbar} and \code{s} limits include each group's size as \code{denominator}.
+The key column is named after the \code{keys} expression and retains its type.
+It is duplicated as \code{key} for compatibility.
+Tooltip columns are included by name.
+Empty input returns empty limits with typed keys and tooltips, without plots.
 }
 \description{
 Generate interactive SPC chart

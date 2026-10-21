@@ -7,7 +7,7 @@ import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 
 const terserOptions = JSON.parse(fs.readFileSync('terser.json', 'utf8'));
-const coreSource = path.resolve('PowerBI-Visuals-Core/src') + path.sep;
+const coreSource = path.resolve('node_modules/powerbi-visuals-core/src') + path.sep;
 
 // The visuals import Core by package name; Core's frontends import its other modules by relative path
 const visualImports = source => /^powerbi-visuals-core\//.test(source);
@@ -46,5 +46,6 @@ export default [
   bundle('spc', visualImports),
   bundle('funnel', visualImports),
   bundle('ccHeadless', coreImports),
-  bundle('ccInteractive', coreImports)
+  bundle('ccInteractive', coreImports),
+  bundle('minidom')
 ];

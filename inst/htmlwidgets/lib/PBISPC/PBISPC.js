@@ -1,4 +1,4 @@
-var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings, data) {
+var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings, data) {
     'use strict';
 
     function commonCause(selection) {
@@ -606,7 +606,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         selection.append("path")
             .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
             .attr("stroke", "#7F7F7F")
-            .attr("stroke-width", "10.66667")
+            .attr("stroke-width", "10.6667")
             .attr("stroke-miterlimit", "8")
             .attr("fill", "none")
             .attr("fill-rule", "evenodd");
@@ -653,21 +653,35 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         selection.append("path")
             .attr("d", "M72.5001 238.762C89.0456 218.168 107.725 200.801 129.638 200.507 152.134 201.459 176.57 238.689 192.563 241.313 206.31 244.118 205.897 217.733 212.814 216.659 217.563 215.414 220.151 238.182 233.066 240.463 248.557 243.786 291.62 234.385 302.5 236.212")
             .attr("stroke", "#7F7F7F")
-            .attr("stroke-width", "10.66667")
+            .attr("stroke-width", "10.6667")
             .attr("stroke-miterlimit", "8")
             .attr("fill", "none")
             .attr("fill-rule", "evenodd");
     }
 
     function inconsistent(selection) {
+        const defs = selection.append("defs");
+        defs.append("clipPath")
+            .attr("id", "inconsistentClip2")
+            .append("path")
+            .attr("d", "M189 38C105.605 38 38 105.829 38 189.5 38 273.171 105.605 341 189 341 272.395 341 340 273.171 340 189.5 340 105.829 272.395 38 189 38ZM5.63264e-06 5.63264e-06 378 5.63264e-06 378 378 5.63264e-06 378Z")
+            .attr("fill-rule", "evenodd")
+            .attr("clip-rule", "evenodd");
+        defs.append("clipPath")
+            .attr("id", "inconsistentClip4")
+            .append("rect")
+            .attr("x", "0")
+            .attr("y", "0")
+            .attr("width", "346")
+            .attr("height", "347");
         selection.append("g")
-            .attr("clip-path", "url(#clip2)")
+            .attr("clip-path", "url(#inconsistentClip2)")
             .append("g")
             .attr("clip-path", "url(#clip3)")
             .attr("filter", "url(#fx0)")
             .attr("transform", "translate(16 25)")
             .append("g")
-            .attr("clip-path", "url(#clip4)")
+            .attr("clip-path", "url(#inconsistentClip4)")
             .append("path")
             .attr("d", "M17.47 173.345C17.47 87.1637 87.1031 17.3 173 17.3 258.897 17.3 328.53 87.1637 328.53 173.345 328.53 259.526 258.897 329.39 173 329.39 87.1031 329.39 17.47 259.526 17.47 173.345Z")
             .attr("stroke", "#A6A6A6")
@@ -700,7 +714,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         selection.append("path")
             .attr("d", "M72.5001 239.762C89.0456 219.168 107.725 201.801 129.638 201.507 152.134 202.459 176.57 239.689 192.563 242.313 206.31 245.118 205.897 218.733 212.814 217.659 217.563 216.414 220.151 239.182 233.066 241.463 248.557 244.786 291.62 235.385 302.5 237.212")
             .attr("stroke", "#7F7F7F")
-            .attr("stroke-width", "10.66667")
+            .attr("stroke-width", "10.6667")
             .attr("stroke-miterlimit", "8")
             .attr("fill", "none")
             .attr("fill-rule", "evenodd");
@@ -723,12 +737,8 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         const scaling_factor = (0.08 * (svg_height / 378)) * scaling;
         const icon_x = location.includes("Right")
             ? (svg_width / scaling_factor) - (378 + (count * 378))
-            : location.includes("Centre") ? (svg_width / scaling_factor) / 2 - 189
-                : (count * 378);
-        const icon_y = location.includes("Bottom")
-            ? (svg_height / scaling_factor) - 378
-            : location.includes("Centre") ? (svg_height / scaling_factor) / 2 - 189
-                : 0;
+            : (count * 378);
+        const icon_y = location.includes("Bottom") ? (svg_height / scaling_factor) - 378 : 0;
         return `scale(${scaling_factor}) translate(${icon_x}, ${icon_y})`;
     }
     function initialiseIconSVG(selection, icon_name, transform_spec) {
@@ -745,7 +755,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             .attr("width", "120%")
             .attr("height", "120%")
             .attr("filterUnits", "userSpaceOnUse")
-            .attr("userSpaceOnUse", "userSpaceOnUse");
+            .attr("primitiveUnits", "userSpaceOnUse");
         const icon_comptrans = icon_defs_filter.append("feComponentTransfer")
             .attr("color-interpolation-filters", "sRGB");
         icon_comptrans.append("feFuncR")
@@ -781,17 +791,18 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             .append("rect")
             .attr("x", "-2")
             .attr("y", "-2")
+            .attr("width", "349")
+            .attr("height", "349");
+        icon_defs.append("clipPath")
+            .attr("id", "clip4")
+            .append("rect")
+            .attr("x", "0")
+            .attr("y", "0")
             .attr("width", "346")
             .attr("height", "346");
         icon_group.append("g")
             .classed(icon_name, true)
-            .attr("clip-path", "url(#clip1)")
-            .append("rect")
-            .attr("x", "0")
-            .attr("y", "0")
-            .attr("width", "378")
-            .attr("height", "378")
-            .attr("fill", "#FFFFFF");
+            .attr("clip-path", "url(#clip1)");
     }
 
     function assuranceIconToDraw(controlLimits, inputSettings, derivedSettings) {
@@ -921,7 +932,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
     const columnKinds = {
         value: "number", target: "number", alt_target: "number", trend_line: "number", speclimits_lower: "number", speclimits_upper: "number",
         ll99: "number", ll95: "number", ll68: "number", ul68: "number", ul95: "number", ul99: "number",
-        numerator: "integer", denominator: "integer",
+        numerator: "input", denominator: "input",
         date: "date", latest_date: "date",
         astpoint: "flag", trend: "flag", shift: "flag", two_in_three: "flag"
     };
@@ -929,6 +940,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
     function drawsIcons(inputSettings, showGrouped) {
         return showGrouped && (inputSettings.nhs_icons.show_variation_icons || inputSettings.nhs_icons.show_assurance_icons);
     }
+    const iconRowHeightRatio = 2.1875;
     function isIconColumn(column) {
         return column === "variation" || column === "assurance";
     }
@@ -970,7 +982,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
         const widthCap = (columnWidths.variation + columnWidths.assurance)
             / Math.max(1, maxIcons.variation + maxIcons.assurance);
-        const baseSize = Math.min(rowHeight, widthCap);
+        const baseSize = Math.min(rowHeight * iconRowHeightRatio, widthCap);
         for (let i = 0; i < cells.length; i++) {
             const variation = data[i].column === "variation";
             const scaling = variation ? nhsIconSettings.variation_icons_scaling : nhsIconSettings.assurance_icons_scaling;
@@ -1106,18 +1118,22 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         };
     }
 
+    function subsetMovingRanges(values, subset_points) {
+        const n_sub = subset_points.length;
+        const subset = new Array(n_sub);
+        const ranges = new Array(n_sub - 1);
+        subset[0] = values[subset_points[0]];
+        for (let i = 1; i < n_sub; i++) {
+            subset[i] = values[subset_points[i]];
+            ranges[i - 1] = Math.abs(subset[i] - subset[i - 1]);
+        }
+        return { subset, ranges };
+    }
+
     function imLimits(args) {
         const plotted = plottedValues(args);
-        const n_sub = args.subset_points.length;
-        const subset_points = args.subset_points;
-        const ratio_subset = new Array(n_sub);
-        const consec_diff = new Array(n_sub - 1);
-        ratio_subset[0] = plotted.values[subset_points[0]];
-        for (let i = 1; i < n_sub; i++) {
-            ratio_subset[i] = plotted.values[subset_points[i]];
-            consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
-        }
-        const cl = math.median(ratio_subset);
+        const { subset, ranges: consec_diff } = subsetMovingRanges(plotted.values, args.subset_points);
+        const cl = math.median(subset);
         const sigma = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
         return {
             keys: args.keys,
@@ -1128,16 +1144,8 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
 
     function immLimits(args) {
         const plotted = plottedValues(args);
-        const n_sub = args.subset_points.length;
-        const subset_points = args.subset_points;
-        const ratio_subset = new Array(n_sub);
-        const consec_diff = new Array(n_sub - 1);
-        ratio_subset[0] = plotted.values[subset_points[0]];
-        for (let i = 1; i < n_sub; i++) {
-            ratio_subset[i] = plotted.values[subset_points[i]];
-            consec_diff[i - 1] = Math.abs(ratio_subset[i] - ratio_subset[i - 1]);
-        }
-        const cl = math.median(ratio_subset);
+        const { subset, ranges: consec_diff } = subsetMovingRanges(plotted.values, args.subset_points);
+        const cl = math.median(subset);
         let mmr = math.median(consec_diff);
         if (!args.outliers_in_limits) {
             const consec_diff_ulim = mmr * 3.865;
@@ -1223,6 +1231,17 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         };
     }
 
+    function laneySigmaMultiplier(values, cl, sd, subset_points, outliers_in_limits) {
+        const consec_diff = new Array(subset_points.length - 1);
+        let prevZ = (values[subset_points[0]] - cl) / sd[subset_points[0]];
+        for (let i = 1; i < subset_points.length; i++) {
+            const currZ = (values[subset_points[i]] - cl) / sd[subset_points[i]];
+            consec_diff[i - 1] = Math.abs(currZ - prevZ);
+            prevZ = currZ;
+        }
+        return averageMovingRange(consec_diff, outliers_in_limits) / 1.128;
+    }
+
     function pprimeLimits(args) {
         const n = args.keys.length;
         const denominators = args.denominators;
@@ -1233,38 +1252,15 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             return { keys: args.keys, ...plotted, ...spc.sigmaLimits(n, cl, { sigma: 0, floor: 0, ceiling: 1 }) };
         }
         const cl_mult = cl * (1 - cl);
-        const val = plotted.values;
         const sd = new Array(n);
         for (let i = 0; i < n; i++) {
             sd[i] = Math.sqrt(cl_mult / denominators[i]);
         }
-        const consec_diff = new Array(subset_points.length - 1);
-        let prevZ = (val[subset_points[0]] - cl) / sd[subset_points[0]];
-        for (let i = 1; i < subset_points.length; i++) {
-            const currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
-            consec_diff[i - 1] = Math.abs(currZ - prevZ);
-            prevZ = currZ;
-        }
-        const sigma_multiplier = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
+        const sigma_multiplier = laneySigmaMultiplier(plotted.values, cl, sd, subset_points, args.outliers_in_limits);
         return {
             keys: args.keys,
             ...plotted,
             ...spc.sigmaLimits(n, cl, { sigma: i => sd[i] * sigma_multiplier, floor: 0, ceiling: 1 })
-        };
-    }
-
-    function runLimits(args) {
-        const plotted = plottedValues(args);
-        const n_sub = args.subset_points.length;
-        const subset_points = args.subset_points;
-        const ratio_subset = new Array(n_sub);
-        for (let i = 0; i < n_sub; i++) {
-            ratio_subset[i] = plotted.values[subset_points[i]];
-        }
-        return {
-            keys: args.keys,
-            ...plotted,
-            target: math.rep(math.median(ratio_subset), args.keys.length)
         };
     }
 
@@ -1301,6 +1297,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         return {
             keys: args.keys,
             values: args.numerators,
+            denominators: args.denominators,
             ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => cl * (math.c5(count_per_group[i]) / math.c4(count_per_group[i])), floor: 0 })
         };
     }
@@ -1361,19 +1358,11 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         if (cl === 0) {
             return { keys: args.keys, ...plotted, ...spc.sigmaLimits(n, cl, { sigma: 0, floor: 0 }) };
         }
-        const val = plotted.values;
         const sd = new Array(n);
         for (let i = 0; i < n; i++) {
             sd[i] = Math.sqrt(cl / denominators[i]);
         }
-        const consec_diff = new Array(subset_points.length - 1);
-        let prevZ = (val[subset_points[0]] - cl) / sd[subset_points[0]];
-        for (let i = 1; i < subset_points.length; i++) {
-            const currZ = (val[subset_points[i]] - cl) / sd[subset_points[i]];
-            consec_diff[i - 1] = Math.abs(currZ - prevZ);
-            prevZ = currZ;
-        }
-        const sigma_multiplier = averageMovingRange(consec_diff, args.outliers_in_limits) / 1.128;
+        const sigma_multiplier = laneySigmaMultiplier(plotted.values, cl, sd, subset_points, args.outliers_in_limits);
         return {
             keys: args.keys,
             ...plotted,
@@ -1400,7 +1389,23 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             keys: args.keys,
             values: args.numerators,
             ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => (math.a3(count_per_group[i]) * sd) / 3 }),
-            count: args.denominators
+            denominators: args.denominators,
+            xbar_sds: args.xbar_sds
+        };
+    }
+
+    function runLimits(args) {
+        const plotted = plottedValues(args);
+        const n_sub = args.subset_points.length;
+        const subset_points = args.subset_points;
+        const ratio_subset = new Array(n_sub);
+        for (let i = 0; i < n_sub; i++) {
+            ratio_subset[i] = plotted.values[subset_points[i]];
+        }
+        return {
+            keys: args.keys,
+            ...plotted,
+            target: math.rep(math.median(ratio_subset), args.keys.length)
         };
     }
 
@@ -1414,7 +1419,6 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         mr: mrLimits,
         p: pLimits,
         pp: pprimeLimits,
-        r: runLimits,
         run: runLimits,
         s: sLimits,
         t: tLimits,
@@ -1698,7 +1702,6 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 numerator_leq_denominator: ["p", "pp"].includes(chartType),
                 has_control_limits: !(["run"].includes(chartType)),
                 needs_sd: ["xbar"].includes(chartType),
-                integer_num_den: ["c", "p", "pp"].includes(chartType),
                 integer_values: ["c", "g"].includes(chartType),
                 value_name: valueNames[chartType],
                 x_axis_use_date: !(["g", "t"].includes(chartType)),
@@ -1707,7 +1710,6 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             };
             const scaling = data.deriveScaling(inputSettingsSpc, {
                 proportion: this.chart_type_props.numerator_leq_denominator,
-                wholeCounts: this.chart_type_props.integer_num_den,
                 percentAllowed: true
             });
             this.multiplier = scaling.multiplier;
@@ -1716,6 +1718,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
     }
 
+    const movingRangeCharts = new Set(["i", "i_m", "i_mm", "mr", "t", "pp", "up"]);
     const rules = [
         settings => {
             const patterns = settings.outliers;
@@ -1733,7 +1736,13 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             }
             return undefined;
         },
-        settings$1 => settings.orderedBoundsError(settings$1, settings$1.spc)
+        settings$1 => settings.orderedBoundsError(settings$1, settings$1.spc),
+        settings => {
+            if (settings.spc.num_points_subset === 1 && movingRangeCharts.has(settings.spc.chart_type)) {
+                return "Moving range limits require a subset of at least 2 points";
+            }
+            return undefined;
+        }
     ];
     class settingsClass extends powerbi.SettingsStore {
         constructor() {
@@ -1754,6 +1763,9 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             });
         }
         tooltip.push(...powerbi.valueTooltips(inputSettings.spc, table_row, derivedSettings.chart_type_props.value_name, formatValues));
+        if (!data.isNullOrUndefined(table_row.xbar_sd)) {
+            tooltip.push({ displayName: "SD", value: formatValues(table_row.xbar_sd, "input") });
+        }
         if (inputSettings.lines.ttip_show_trend && inputSettings.lines.show_trend) {
             tooltip.push({
                 displayName: inputSettings.lines.ttip_label_trend,
@@ -1865,7 +1877,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         "December": 11
     };
     function readDatePart(parts, inputType, inputValue) {
-        if (inputType?.temporal == null) {
+        if (inputType?.temporal == null || data.isNullOrUndefined(inputValue)) {
             return;
         }
         if (inputType.category === "DayOfMonth") {
@@ -1888,10 +1900,12 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
         return new Date(value);
     }
+    const allParts = { day: true, month: true, year: true };
     function parseInputDates(inputs, idxs) {
         const n_keys = idxs.length;
         const inputDates = [];
         const inputQuarters = new Array(n_keys);
+        const present = new Array(n_keys);
         if (inputs.length > 1) {
             for (let i = 0; i < n_keys; i++) {
                 const datePartsObj = {};
@@ -1899,16 +1913,19 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                     readDatePart(datePartsObj, inputs[j].source.type, inputs[j].values[idxs[i]]);
                 }
                 inputQuarters[i] = datePartsObj.quarter;
-                inputDates[i] = new Date(datePartsObj.year ?? 1970, datePartsObj.month ?? 0, datePartsObj.day ?? 1);
+                present[i] = { day: datePartsObj.day !== undefined, month: datePartsObj.month !== undefined, year: datePartsObj.year !== undefined };
+                const anyPart = present[i].day || present[i].month || present[i].year || datePartsObj.quarter !== undefined;
+                inputDates[i] = anyPart ? new Date(datePartsObj.year ?? 1970, datePartsObj.month ?? 0, datePartsObj.day ?? 1) : undefined;
             }
         }
         else {
             for (let i = 0; i < n_keys; i++) {
                 const value = inputs[0].values[idxs[i]];
                 inputDates[i] = data.isNullOrUndefined(value) ? undefined : parseDate(value);
+                present[i] = allParts;
             }
         }
-        return { dates: inputDates, quarters: inputQuarters };
+        return { dates: inputDates, quarters: inputQuarters, present };
     }
 
     const weekdayShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -1991,7 +2008,13 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 ret[i] = undefined;
             }
             else {
-                const datePartsRecord = formatDateParts(date, formatOptions);
+                const present = inputDates.present[i];
+                const datePartsRecord = formatDateParts(date, {
+                    weekday: present.day && present.month && present.year ? formatOptions.weekday : undefined,
+                    day: present.day ? formatOptions.day : undefined,
+                    month: present.month ? formatOptions.month : undefined,
+                    year: present.year ? formatOptions.year : undefined
+                });
                 const datePartStrings = [(datePartsRecord.weekday + " " + datePartsRecord[day_elem]).trim(),
                     datePartsRecord[month_elem],
                     inputDates.quarters[i] ?? "",
@@ -2085,10 +2108,15 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         const denominatorColumn = view.values.denominators?.[0];
         const sdColumn = view.values.xbar_sds?.[0];
         const chart = derivedSettings.chart_type_props;
-        const useDenominators = chart.needs_denominator || (chart.denominator_optional && denominatorColumn !== undefined);
         const keys = extractKeys(view.categories.key, inputSettings, idxs);
         const numerators = powerbi.readNumbers(view.values.numerators[0], idxs);
-        const denominators = useDenominators && denominatorColumn !== undefined ? powerbi.readNumbers(denominatorColumn, idxs) : undefined;
+        const groupDenominators = (chart.needs_denominator || chart.denominator_optional) && denominatorColumn !== undefined
+            ? powerbi.readNumbers(denominatorColumn, idxs) : undefined;
+        let anyDenominator = false;
+        for (let i = 0; !anyDenominator && groupDenominators !== undefined && i < groupDenominators.length; i++) {
+            anyDenominator = groupDenominators[i] !== undefined;
+        }
+        const denominators = chart.needs_denominator || anyDenominator ? groupDenominators : undefined;
         const xbar_sds = chart.needs_sd && sdColumn !== undefined ? powerbi.readNumbers(sdColumn, idxs) : undefined;
         const extracted = powerbi.extractRows(view, idxs, {
             keys,
@@ -2128,7 +2156,9 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             if (keptSds !== undefined) {
                 keptSds[x] = data.keptValue(xbar_sds, i);
             }
-            const specificationError = settings.orderedPairError("specification_lower", lines.specification_lower, "specification_upper", lines.specification_upper);
+            const specificationError = showSpecification
+                ? settings.orderedPairError("specification_lower", lines.specification_lower, "specification_upper", lines.specification_upper)
+                : undefined;
             if (specificationError !== undefined) {
                 return { status: "invalid", error: specificationError };
             }
@@ -2264,7 +2294,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         ul68: true,
         ul95: true,
         ul99: true,
-        count: true,
+        xbar_sds: true,
         alt_target: true,
         speclimits_lower: true,
         speclimits_upper: true,
@@ -2284,13 +2314,21 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
         return false;
     }
-    function lineColumns(settings$1, hasDenominators, hasControlLimits) {
+    function anyDefined(values) {
+        for (let i = 0; i < values.length; i++) {
+            if (values[i] !== undefined) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function lineColumns(settings$1, hasNumerators, hasDenominators, hasControlLimits) {
         const lines = settings$1.lines;
         const columns = new Array();
         if (lines.show_main) {
             columns.push({ name: "value", label: "Value" });
         }
-        if (hasDenominators && settings$1.spc.ttip_show_numerator) {
+        if (hasNumerators && settings$1.spc.ttip_show_numerator) {
             columns.push({ name: "numerator", label: "Numerator" });
         }
         if (hasDenominators && settings$1.spc.ttip_show_denominator) {
@@ -2411,6 +2449,9 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 if (this.showGrouped) {
                     this.initialisePlotDataGrouped();
                 }
+                else if (this.controlLimits[0].keys.length === 0) {
+                    errors.push("Moving range charts need at least two observations in the same rebaseline group!");
+                }
                 else {
                     this.initialisePlotData();
                     this.initialiseGroupedLines();
@@ -2419,12 +2460,19 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             return { errors, warnings };
         }
         getGroupingIndexes(inputData, splitIndexes) {
-            const segmentEnds = new Set(splitIndexes);
-            segmentEnds.add(-1);
+            const lastIndex = inputData.limitInputArgs.keys.length - 1;
+            const segmentEnds = new Set([-1, lastIndex]);
+            if (splitIndexes !== undefined) {
+                for (let i = 0; i < splitIndexes.length; i++) {
+                    const index = splitIndexes[i];
+                    if (index >= 0 && index < lastIndex) {
+                        segmentEnds.add(index);
+                    }
+                }
+            }
             for (let i = 0; i < inputData.groupingIndexes.length; i++) {
                 segmentEnds.add(inputData.groupingIndexes[i]);
             }
-            segmentEnds.add(inputData.limitInputArgs.keys.length - 1);
             const allIndexes = Array.from(segmentEnds).sort((a, b) => a - b);
             const groupStartEndIndexes = new Array();
             for (let i = 0; i < allIndexes.length - 1; i++) {
@@ -2482,7 +2530,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 ul68: new Array(total),
                 ul95: new Array(total),
                 ul99: new Array(total),
-                count: new Array(total),
+                xbar_sds: new Array(total),
                 alt_target: new Array(total),
                 speclimits_lower: new Array(total),
                 speclimits_upper: new Array(total),
@@ -2518,16 +2566,18 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             this.tableColumns = new Array();
             const tableColumnsDef = new Array();
             for (let i = 0; i < this.indicatorVarNames.length; i++) {
-                tableColumnsDef.push({ name: this.indicatorVarNames[i], label: this.indicatorVarNames[i] });
+                tableColumnsDef.push({ name: `indicator_${i}`, label: this.indicatorVarNames[i] });
             }
             tableColumnsDef.push({ name: "latest_date", label: "Latest Date" });
+            let anyNumerators = false;
             let anyDenominators = false;
             let anyControlLimits = false;
-            for (let i = 0; i < this.inputData.length; i++) {
-                anyDenominators = anyDenominators || this.inputData[i].limitInputArgs.denominators !== undefined;
+            for (let i = 0; i < this.controlLimits.length; i++) {
+                anyNumerators = anyNumerators || anyDefined(this.controlLimits[i].numerators);
+                anyDenominators = anyDenominators || anyDefined(this.controlLimits[i].denominators);
                 anyControlLimits = anyControlLimits || this.inputSettings.derivedSettings[i].chart_type_props.has_control_limits;
             }
-            tableColumnsDef.push(...lineColumns(this.inputSettings.settings[0], anyDenominators, anyControlLimits));
+            tableColumnsDef.push(...lineColumns(this.inputSettings.settings[0], anyNumerators, anyDenominators, anyControlLimits));
             const nhsIconSettings = this.inputSettings.settings[0].nhs_icons;
             if (nhsIconSettings.show_variation_icons) {
                 tableColumnsDef.push({ name: "variation", label: "Variation" });
@@ -2545,7 +2595,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             if (anyTooltips) {
                 const firstTooltips = this.inputData[0].tooltips[0];
                 for (let i = 0; i < firstTooltips.length; i++) {
-                    tableColumnsDef.push({ name: firstTooltips[i].displayName, label: firstTooltips[i].displayName });
+                    tableColumnsDef.push({ name: `tooltip_${i}`, label: firstTooltips[i].displayName });
                 }
             }
             this.tableColumns[0] = tableColumnsDef;
@@ -2556,7 +2606,8 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 const limits = this.controlLimits[i];
                 const outliers = this.outliers[i];
                 const lastIndex = limits.keys.length - 1;
-                const varIcons = variationIconsToDraw(outliers, this.inputSettings.settings[i]);
+                const lastKey = limits.keys[lastIndex];
+                const varIcons = lastKey === undefined ? [] : variationIconsToDraw(outliers, this.inputSettings.settings[i]);
                 if (varIconFilter !== "all") {
                     if (varIconFilter === "improvement" && !anyIcon(varIcons, ["improvementHigh", "improvementLow"])) {
                         continue;
@@ -2591,21 +2642,21 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 }
                 const indicatorColumns = {};
                 for (let idx = 0; idx < this.indicatorVarNames.length; idx++) {
-                    indicatorColumns[this.indicatorVarNames[idx]] = this.groupNames[i][idx];
+                    indicatorColumns[`indicator_${idx}`] = this.groupNames[i][idx];
                 }
                 const tooltipColumns = {};
                 if (anyTooltips) {
-                    const rowTooltips = this.inputData[i].tooltips[limits.keys[lastIndex].x];
+                    const rowTooltips = this.inputData[i].tooltips[lastKey?.x ?? 0];
                     for (let t = 0; t < rowTooltips.length; t++) {
-                        tooltipColumns[rowTooltips[t].displayName] = rowTooltips[t].value;
+                        tooltipColumns[`tooltip_${t}`] = lastKey === undefined ? "" : rowTooltips[t].value;
                     }
                 }
                 const table_row = {
                     ...indicatorColumns,
-                    latest_date: limits.keys[lastIndex].label,
+                    latest_date: lastKey?.label ?? "",
                     value: formatValues(limits.values[lastIndex], "value"),
-                    numerator: formatValues(limits.numerators[lastIndex], "integer"),
-                    denominator: formatValues(limits.denominators[lastIndex], "integer"),
+                    numerator: formatValues(limits.numerators[lastIndex], "input"),
+                    denominator: formatValues(limits.denominators[lastIndex], "input"),
                     target: formatValues(limits.target[lastIndex], "value"),
                     alt_target: formatValues(limits.alt_target[lastIndex], "value"),
                     ul99: formatValues(limits.ul99[lastIndex], "value"),
@@ -2641,7 +2692,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             this.tickLabels = new Array();
             this.tableColumns[0] = new Array();
             this.tableColumns[0].push({ name: "date", label: "Date" });
-            this.tableColumns[0].push(...lineColumns(settings, inputData.limitInputArgs.denominators !== undefined, derivedSettings.chart_type_props.has_control_limits));
+            this.tableColumns[0].push(...lineColumns(settings, anyDefined(controlLimits.numerators), anyDefined(controlLimits.denominators), derivedSettings.chart_type_props.has_control_limits));
             if (settings.outliers.astronomical) {
                 this.tableColumns[0].push({ name: "astpoint", label: "Ast. Point" });
             }
@@ -2668,6 +2719,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                     date: controlLimits.keys[i].label,
                     numerator: controlLimits.numerators[i],
                     denominator: controlLimits.denominators[i],
+                    xbar_sd: controlLimits.xbar_sds[i],
                     value: controlLimits.values[i],
                     target: controlLimits.target[i],
                     alt_target: controlLimits.alt_target[i],
@@ -2796,7 +2848,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             const multiplier = derivedSettings.multiplier;
             const ll_truncate = inputSettings.spc.ll_truncate;
             const ul_truncate = inputSettings.spc.ul_truncate;
-            const lines_to_scale = ["values", "target", "trend_line"];
+            const lines_to_scale = ["values", "target", "trend_line", "xbar_sds"];
             if (derivedSettings.chart_type_props.has_control_limits) {
                 lines_to_scale.push(...settings.limitLineNames);
             }
@@ -2882,12 +2934,12 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
         drawAlternate() {
             if (!(this.viewModel.showGrouped || this.settings.summary_table.show_table)) {
-                return false;
+                return undefined;
             }
             this.resizeCanvas(0, 0);
             this.tableDiv.call(drawSummaryTable, this);
             this.addContextMenu(this.tableDiv.node(), true);
-            return true;
+            return "table";
         }
         plotOptions() {
             const viewModel = this.viewModel;
@@ -2918,8 +2970,8 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
                 }
             };
         }
-        drawMarks() {
-            this.svg.call(drawIcons, this);
+        drawMarks(marks) {
+            marks.call(drawIcons, this);
         }
         toggleSplit(point) {
             const splitIndexes = this.viewModel.splitIndexes;
@@ -2958,6 +3010,10 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
     }
 
+    const limitColumns = [
+        "date", "numerator", "denominator", "value", "target", "alt_target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99",
+        "speclimits_lower", "speclimits_upper", "trend_line", "astpoint", "trend", "shift", "two_in_three"
+    ];
     const flagSettings = {
         astpoint: "astronomical",
         trend: "trend",
@@ -2972,7 +3028,7 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
         }
         return false;
     }
-    function limitRows(limits, outliers, outlierSettings) {
+    function appendLimitRows(rows, rowIds, limits, outliers, outlierSettings, indicators) {
         const dates = new Array(limits.keys.length);
         for (let i = 0; i < dates.length; i++) {
             dates[i] = limits.keys[i].label.trim();
@@ -2998,57 +3054,47 @@ var spc = (function (exports, frontends, rendering, powerbi, spc, math, settings
             shift: outliers.shift,
             two_in_three: outliers.two_in_three
         };
-        const columnNames = Object.keys(columns);
         const names = [];
-        for (let i = 0; i < columnNames.length; i++) {
-            const flagSetting = flagSettings[columnNames[i]];
-            if ((flagSetting === undefined || outlierSettings[flagSetting]) && hasValues(columns[columnNames[i]])) {
-                names.push(columnNames[i]);
+        for (let i = 0; i < limitColumns.length; i++) {
+            const flagSetting = flagSettings[limitColumns[i]];
+            if ((flagSetting === undefined || outlierSettings[flagSetting]) && hasValues(columns[limitColumns[i]])) {
+                names.push(limitColumns[i]);
             }
         }
-        const rows = new Array(dates.length);
-        for (let i = 0; i < rows.length; i++) {
-            const row = {};
+        for (let i = 0; i < dates.length; i++) {
+            const row = { ...indicators };
             for (let j = 0; j < names.length; j++) {
                 row[names[j]] = frontends.limitValue(columns[names[j]][i]);
             }
-            rows[i] = row;
+            rows.push(row);
+            rowIds.push(limits.keys[i].id);
         }
-        return rows;
-    }
-    function groupLimits(viewModel, index) {
-        return limitRows(viewModel.controlLimits[index], viewModel.outliers[index], viewModel.inputSettings.settings[index].outliers);
     }
     function chartLimits(viewModel) {
-        if (viewModel.indicatorVarNames.length === 0) {
-            return groupLimits(viewModel, 0);
-        }
-        const result = {};
+        const result = [];
+        const rowIds = [];
         for (let i = 0; i < viewModel.controlLimits.length; i++) {
-            const groups = viewModel.groupNames[i];
-            let branch = result;
-            for (let j = 0; j < groups.length; j++) {
-                const name = groups[j] === "" ? "<blank>" : groups[j];
-                if (j === groups.length - 1) {
-                    branch[name] = groupLimits(viewModel, i);
-                }
-                else {
-                    const existing = branch[name];
-                    const next = existing !== undefined && !Array.isArray(existing) ? existing : {};
-                    branch[name] = next;
-                    branch = next;
+            const limits = viewModel.controlLimits[i];
+            if (limits.keys.length === 0) {
+                continue;
+            }
+            const indicators = {};
+            const columns = viewModel.inputData[i].identityColumns;
+            for (let j = 0; j < columns.length; j++) {
+                const column = columns[j];
+                if (column.source.roles?.indicator) {
+                    indicators[column.source.displayName] = frontends.limitValue(powerbi.formatPrimitiveValue(column.values[limits.keys[0].id]));
                 }
             }
+            appendLimitRows(result, rowIds, limits, viewModel.outliers[i], viewModel.inputSettings.settings[i].outliers, frontends.indicatorFields(indicators, limitColumns));
         }
-        return result;
+        return { limits: result, rowIds };
     }
     const frontend = {
         Visual,
         settingsModel,
-        limits: visual => ({ limits: chartLimits(visual.viewModel), indicatorNames: visual.viewModel.indicatorVarNames }),
-        staticError: visual => visual.viewModel.showGrouped
-            ? "Static plots are not available for SPC charts with multiple indicator groups."
-            : undefined
+        limitColumns,
+        limits: visual => chartLimits(visual.viewModel)
     };
 
     frontends.registerChart('spc', frontend);

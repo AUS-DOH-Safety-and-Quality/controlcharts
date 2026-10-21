@@ -92,10 +92,12 @@ call_js <- function(name, ...) {
   result
 }
 
-# Named list of character vectors from an argument given as a vector or list of
-# vectors, named by the list names or the expressions supplied
-normalise_columns <- function(columns_quo, input_data, arg, item) {
+# Vectors named by their list names or the expressions supplied.
+normalise_columns <- function(columns_quo, input_data, arg, item, as_character = TRUE) {
   column_values <- rlang::eval_tidy(columns_quo, input_data)
+  if (is.null(column_values)) {
+    return(NULL)
+  }
   columns_expr <- rlang::quo_get_expr(columns_quo)
   if (is.data.frame(column_values)) {
     stop(arg, " must be a vector or list of vectors.", call. = FALSE)
@@ -130,21 +132,139 @@ normalise_columns <- function(columns_quo, input_data, arg, item) {
         column_names[i] <- paste0(tools::toTitleCase(item), " ", i)
       }
     }
-    column_values[[i]] <- as.character(column_values[[i]])
+    if (as_character) {
+      column_values[[i]] <- as.character(column_values[[i]])
+    }
   }
   names(column_values) <- make.unique(column_names)
   column_values
 }
 
-create_static <- function(type, data_views, title_settings, width, height,
+warn_all <- function(messages) {
+  for (message in messages) {
+    warning(message, call. = FALSE)
+  }
+}
+
+# Mirrors the engine's tooltip aggregation, keeping R types.
+reduce_tooltip <- function(values, aggregation) {
+  values <- values[!is.na(values)]
+  if (aggregation == "count") {
+    return(length(values))
+  }
+  if (length(values) == 0) {
+    return(values[NA_integer_])
+  }
+  switch(
+    aggregation,
+    first = values[1],
+    last = values[length(values)],
+    sum = sum(values),
+    mean = mean(values),
+    min = min(values),
+    max = max(values),
+    median = stats::median(values)
+  )
+}
+
+# The typed key replaces the engine's string label for it, named after the `keys` expression.
+# It is also kept as `key` for compatibility.
+result_frame <- function(frame, row_ids, source_rows, result_data) {
+  tooltips <- result_data$tooltips
+  key_name <- result_data$key_name
+  frame_names <- setdiff(names(frame), result_data$key_label)
+  conflicting <- unique(c(
+    intersect(c(key_name, "key"), frame_names),
+    intersect(names(tooltips), c(key_name, "key", frame_names))
+  ))
+  if (length(conflicting) > 0) {
+    stop("Result column names conflict: ", paste(conflicting, collapse = ", "), ".", call. = FALSE)
+  }
+  rows <- unname(source_rows[sprintf("%.0f", row_ids)])
+  first_rows <- vapply(rows, function(indices) indices[1] + 1L, numeric(1))
+  frame[[result_data$key_label]] <- result_data$key[first_rows]
+  names(frame)[names(frame) == result_data$key_label] <- key_name
+  frame$key <- frame[[key_name]]
+  for (name in names(tooltips)) {
+    values <- tooltips[[name]]
+    if (length(rows) == 0) {
+      frame[[name]] <- values[0]
+      next
+    }
+    reduced <- lapply(rows, function(indices) {
+      reduce_tooltip(values[indices + 1L], result_data$tooltip_aggregation)
+    })
+    frame[[name]] <- do.call(c, reduced)
+  }
+  frame
+}
+
+# QuickJS and htmlwidgets otherwise unbox single-value columns.
+js_data_views <- function(data_views) {
+  for (i in seq_along(data_views)) {
+    for (role in c("categories", "values")) {
+      columns <- data_views[[i]]$categorical[[role]]
+      for (j in seq_along(columns)) {
+        if (length(columns[[j]]$values) <= 1) {
+          columns[[j]]$values <- I(columns[[j]]$values)
+        }
+      }
+      data_views[[i]]$categorical[[role]] <- columns
+    }
+  }
+  data_views
+}
+
+empty_results <- function(type, data_raw, result_data, return_objs) {
+  limits <- as.list(data_raw$indicators)
+  if (length(limits) > 0 && any(c("limits", "limit_lines") %in% return_objs)) {
+    indicator_columns <- ctx$call("ccHeadless.limitIndicatorColumns", type, I(names(limits)))
+    names(limits) <- indicator_columns$columns
+    warn_all(indicator_columns$warnings)
+  }
+  limit_lines <- limits
+  numeric_columns <- c("numerator", "denominator", "value", "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99")
+  if (type == "spc") {
+    limits$date <- character()
+    numeric_columns <- c(numeric_columns, "trend_line")
+    flag_columns <- c("astpoint", "trend", "shift", "two_in_three")
+  } else {
+    limits$group <- character()
+    numeric_columns <- c(numeric_columns, "z")
+    if (length(data_raw$indicators) > 0) {
+      numeric_columns <- c(numeric_columns, "score")
+    }
+    flag_columns <- c("two_sigma", "three_sigma")
+  }
+  for (name in numeric_columns) {
+    limits[[name]] <- numeric()
+  }
+  for (name in flag_columns) {
+    limits[[name]] <- character()
+  }
+  rtn <- list()
+  if ("limits" %in% return_objs) {
+    rtn$limits <- result_frame(list2DF(limits), numeric(), list(), result_data)
+  }
+  if ("limit_lines" %in% return_objs) {
+    for (name in c("denominator", "target", "ll99", "ll95", "ll68", "ul68", "ul95", "ul99")) {
+      limit_lines[[name]] <- numeric()
+    }
+    rtn$limit_lines <- list2DF(limit_lines)
+  }
+  rtn
+}
+
+create_static <- function(type, data_views, source_rows, result_data, title_settings, width, height,
                           rtn_static = TRUE, rtn_limits = TRUE,
                           rtn_limit_lines = FALSE
                          ) {
   width <- ifelse(is.null(width), 640, width)
   height <- ifelse(is.null(height), 400, height)
-  raw_ret <- call_js("ccHeadless.updateHeadlessVisual", type, data_views,
+  raw_ret <- call_js("ccHeadless.updateHeadlessVisual", type, js_data_views(data_views),
                      title_settings, width, height,
                      rtn_static, rtn_limits || rtn_limit_lines)
+  warn_all(raw_ret$warnings)
 
   rtn <- list()
   if (rtn_static) {
@@ -166,25 +286,21 @@ create_static <- function(type, data_views, title_settings, width, height,
     rtn$limit_lines <- limits_frame(raw_ret$limitLines)
   }
   if (rtn_limits) {
-    rtn$limits <- limits_frame(raw_ret$limits)
-    if (length(raw_ret$indicatorNames) > 0) {
-      attr(rtn$limits, "indicator_names") <- raw_ret$indicatorNames
-    }
+    rtn$limits <- result_frame(limits_frame(raw_ret$limits), raw_ret$rowIds, source_rows, result_data)
   }
   rtn
 }
 
-# Rows arrive as unnamed lists, nested within named lists for grouped SPC charts.
-# Assemble column-wise, as binding a data frame per row is orders of magnitude slower
+# Indicator groups can return different enabled flag and limit columns.
 limits_frame <- function(limits) {
-  if (!is.null(names(limits))) {
-    return(lapply(limits, limits_frame))
-  }
-  columns <- names(limits[[1]])
+  columns <- unique(unlist(lapply(limits, names), use.names = FALSE))
   cols <- lapply(columns, function(name) {
     unlist(lapply(limits, function(row) {
       value <- row[[name]]
-      if (is.null(value)) NA_real_ else value
+      if (is.null(value)) {
+        return(NA)
+      }
+      value
     }), use.names = FALSE)
   })
   names(cols) <- columns
@@ -247,7 +363,7 @@ create_save_function <- function(type, rtn, data_views) {
     svg_resized <- ctx$call(
       "ccHeadless.updateHeadlessVisual",
       type,
-      data_views,
+      js_data_views(data_views),
       static_plot$title_settings,
       width,
       height,
@@ -277,10 +393,10 @@ create_save_function <- function(type, rtn, data_views) {
 
 create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
                                 input_settings, aggregations, title, tooltip_settings,
-                                width, height, elementId, return_objs) {
+                                width, height, elementId, return_objs, result_data) {
   return_objs <- unique(return_objs)
   valid_objs <- c("html_plot", "static_plot", "limits")
-  if (type == "funnel" && is.null(data_raw$indicators)) {
+  if (type == "funnel") {
     valid_objs <- c(valid_objs, "limit_lines")
   }
   invalid_objs <- return_objs[!(return_objs %in% valid_objs)]
@@ -288,9 +404,16 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
     stop("Invalid arguments for 'return_obj': '", paste(invalid_objs, collapse = "', '"), "'. ")
   }
 
+  if (length(data_raw$categories) == 0) {
+    rtn <- empty_results(type, data_raw, result_data, return_objs)
+    rtn$save_plot <- create_save_function(type, rtn, NULL)
+    return(structure(rtn, class = "controlchart"))
+  }
+
   input_settings <- call_js("ccCore.chartSettings", type, input_settings,
                             length(data_raw$categories))$settings
   aggregations <- call_js("ccCore.chartAggregations", aggregations)$aggregations
+  result_data$tooltip_aggregation <- aggregations$tooltips
   title_settings <- call_js("ccCore.chartTitle", title)$settings
 
   rtn_html <- "html_plot" %in% return_objs
@@ -299,6 +422,7 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
   rtn_limit_lines <- "limit_lines" %in% return_objs
   rtn <- list()
   data_views <- NULL
+  source_rows <- NULL
 
   if (rtn_html) {
     widget_data <- list(
@@ -317,7 +441,10 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
       widget_data$aggregations <- aggregations
     } else {
       widget_data$update_values <- ctx$call("ccCore.makeUpdateValues", data_raw, input_settings, aggregations)
+      widget_data$update_values$dataViews <- js_data_views(widget_data$update_values$dataViews)
       data_views <- widget_data$update_values$dataViews
+      source_rows <- widget_data$update_values$source_rows
+      widget_data$update_values$source_rows <- NULL
     }
 
     # Create interactive plot
@@ -338,12 +465,16 @@ create_controlchart <- function(type, data_raw, is_crosstalk, crosstalk_group,
 
   if (rtn_static || rtn_limits || rtn_limit_lines) {
     if (is.null(data_views)) {
-      data_views <- ctx$call("ccCore.makeUpdateValues", data_raw, input_settings, aggregations)$dataViews
+      update_values <- ctx$call("ccCore.makeUpdateValues", data_raw, input_settings, aggregations)
+      data_views <- update_values$dataViews
+      source_rows <- update_values$source_rows
     }
 
     static <- create_static(
       type = type,
       data_views = data_views,
+      source_rows = source_rows,
+      result_data = result_data,
       title_settings = title_settings,
       width = width,
       height = height,

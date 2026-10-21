@@ -69,10 +69,27 @@ test_that("core identities link aggregated points and grouped rows through Cross
   expect_equal(unlist(evaluate("chartState().spc")), c(0.25, 1, 0.25))
   expect_equal(unlist(evaluate("chartState().misc")), c(1, 1))
 
+  ctrl_click_funnel_dot <- r"(
+    document.querySelectorAll('#funnel-chart .dotsgroup > *')[1]
+      .dispatchEvent(new MouseEvent('click', {bubbles: true, ctrlKey: true}));
+  )"
+  evaluate(ctrl_click_funnel_dot)
+  expect_null(evaluate("selection.value"))
+  expect_equal(unlist(evaluate("chartState().spc")), rep(1, 3))
+  evaluate(ctrl_click_funnel_dot)
+  expect_setequal(unlist(evaluate("selection.value")), c("r3", "r4", "r9", "r10"))
+
   evaluate("filter.set(['r1', 'r2', 'r3', 'r4', 'r5', 'r6']);")
   expect_equal(unlist(evaluate("chartState().spc")), c(0.25, 1, 0.25))
   expect_equal(unlist(evaluate("chartState().misc")), 1)
   expect_equal(evaluate("document.querySelector('#misc-chart .chart-title').textContent"), "Native MISC")
+  # A re-render, as Shiny does, keeps the active filter
+  evaluate(r"(
+    var miscWidget = document.querySelector('#misc-chart .html-widget');
+    var miscData = JSON.parse(document.querySelector('script[data-for="' + miscWidget.id + '"]').textContent).x;
+    HTMLWidgets.getInstance(miscWidget).renderValue(miscData);
+  )")
+  expect_equal(unlist(evaluate("chartState().misc")), 1)
   evaluate(r"(
     document.querySelector('#misc-chart .misc-bar')
       .dispatchEvent(new MouseEvent('click', {bubbles: true}));

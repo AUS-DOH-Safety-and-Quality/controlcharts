@@ -10,8 +10,8 @@ funnel(
   numerators,
   denominators,
   indicators = NULL,
-  tooltips,
-  labels,
+  tooltips = NULL,
+  labels = NULL,
   aggregations = NULL,
   title = NULL,
   canvas_settings = NULL,
@@ -23,6 +23,7 @@ funnel(
   x_axis_settings = NULL,
   y_axis_settings = NULL,
   label_settings = NULL,
+  summary_table_settings = NULL,
   tooltip_settings = NULL,
   width = NULL,
   height = NULL,
@@ -47,17 +48,18 @@ Funnel visual. Each indicator is calculated against its comparison population.}
 
 \item{tooltips}{A vector or column name, or a list of them, representing
 additional tooltips for each category. Each is labelled by its name in the
-list, or else by the expression supplied.}
+list, or else by the expression supplied. \code{NULL} for none.
+Limits include them with their R types, reduced within each key by \code{aggregations$tooltips}.}
 
 \item{labels}{A vector or column name representing the labels
-for each category.}
+for each category. \code{NULL} for none.}
 
 \item{aggregations}{A list of aggregation function names
 for each field if multiple values are provided for each key.
 Valid options are:
 \itemize{
-\item \code{"first"}: returns the first value
-\item \code{"last"}: returns the last value
+\item \code{"first"}: returns the first non-missing value
+\item \code{"last"}: returns the last non-missing value
 \item \code{"sum"}: returns the sum of values
 \item \code{"mean"}: returns the mean of values
 \item \code{"min"}: returns the minimum value
@@ -67,7 +69,7 @@ Valid options are:
 }
 Defaults to \code{"sum"} for numerators and denominators, and
 \code{"first"} otherwise.
-Numeric aggregations ignore missing values and preserve all-missing groups.
+Every aggregation ignores missing values; an all-missing group has a count of 0 and is otherwise missing.
 Numerators and denominators are aggregated independently.}
 
 \item{title}{Optional title to be added to the top of the chart.
@@ -122,6 +124,11 @@ see \code{funnel_default_settings('y_axis')} for valid options.}
 \item{label_settings}{Optional list of settings for labels,
 see \code{funnel_default_settings('labels')} for valid options.}
 
+\item{summary_table_settings}{Optional list of settings for the summary table,
+see \code{funnel_default_settings('summary_table')} for valid options.
+A table shown by \code{show_table} has no static plot. Indicators show the MISC
+chart instead of the table.}
+
 \item{tooltip_settings}{Optional list of settings for tooltips,
 see \code{funnel_default_settings('tooltips')} for valid options.}
 
@@ -142,12 +149,18 @@ Valid values are:
 \item \code{"limit_lines"}: Control limits across the full range of
 denominators, for drawing the limit lines (not returned by default)
 }
-\code{"limit_lines"} is available only when \code{indicators} is omitted.}
+When \code{summary_table_settings} sets \code{show_table} without \code{indicators},
+\code{"static_plot"} is omitted by default.}
 }
 \value{
 An object of class \code{controlchart} containing the
-interactive plot, static plot, limits data frame, raw data,
-and a function to save the plot.
+interactive plot, static plot, limits data frame, and a function to save the plot.
+Limits and limit lines include every group, with supplied indicator columns
+included by name. Multi-indicator limits also include direction-adjusted scores.
+Limits include the typed key, named after the \code{keys} expression and duplicated as \code{key},
+and tooltip columns by name.
+Limit lines describe denominator curves and have no observation keys or tooltips.
+Empty input returns empty limits and limit lines, without plots.
 }
 \description{
 Generate interactive Funnel chart

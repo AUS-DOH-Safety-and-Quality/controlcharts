@@ -6,14 +6,14 @@ testthat::test_that("Indicators are ordered by code point, independent of locale
   )
   limits <- spc(dat, keys = key, numerators = numerator, indicators = indicator,
                 return_objs = "limits")$limits
-  testthat::expect_identical(names(limits), c("Alpha", "Beta", "alpha", "beta"))
+  testthat::expect_identical(unique(limits$indicator), c("Alpha", "Beta", "alpha", "beta"))
 })
 
 testthat::test_that("Numeric keys are ordered by value", {
   dat <- data.frame(key = c(10, 2, 1, 100000), numerator = c(5, 6, 7, 9), denominator = 20)
   limits <- funnel(dat, keys = key, numerators = numerator, denominators = denominator,
                    return_objs = "limits")$limits
-  testthat::expect_identical(limits$group, c("1", "2", "10", "100000"))
+  testthat::expect_identical(limits$key, c(1, 2, 10, 100000))
   testthat::expect_identical(limits$numerator, c(7, 6, 5, 9))
 })
 

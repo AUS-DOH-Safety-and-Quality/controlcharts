@@ -29,10 +29,12 @@ jobs:
 
     - name: Bundle Visuals
       run: |
-        git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-SPC PowerBI-SPC
-        git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Funnels PowerBI-Funnels
-        git clone https://github.com/AUS-DOH-Safety-and-Quality/PowerBI-Visuals-Core PowerBI-Visuals-Core
-        npm ci
+        for dependency in powerbi-visuals-core:PowerBI-Visuals-Core powerbi-spc:PowerBI-SPC powerbi-funnels:PowerBI-Funnels; do
+          repo=AUS-DOH-Safety-and-Quality/${dependency#*:}
+          sha=$(git ls-remote https://github.com/$repo refs/heads/main | cut -c1-7)
+          npm pkg set "dependencies.${dependency%%:*}=github:$repo#$sha"
+        done
+        npm install
         npm run bundle
       working-directory: 'inst/bundle'
 
@@ -44,13 +46,13 @@ jobs:
           mv inst/bundle/dist/ccCore.$ext inst/htmlwidgets/lib/UTILS/ccCore.$ext
           mv inst/bundle/dist/ccHeadless.$ext inst/htmlwidgets/lib/UTILS/ccHeadless.$ext
           mv inst/bundle/dist/ccInteractive.$ext inst/htmlwidgets/lib/UTILS/ccInteractive.$ext
+          mv inst/bundle/dist/minidom.$ext inst/js/minidom.$ext
         done
-        mv inst/bundle/dist/minidom.min.js inst/js/minidom.min.js
 
     - name: Commit funnel changes
       run: |
         if [[ -n "$(git status inst/htmlwidgets/lib/PBIFUN -s)" ]]; then
-          PBIFUNVER=$(jq '.visual.version' inst/bundle/PowerBI-Funnels/pbiviz.json | sed 's/"//g')
+          PBIFUNVER=$(jq '.visual.version' inst/bundle/node_modules/powerbi-funnels/pbiviz.json | sed 's/"//g')
           echo "PBIFUNVER=$PBIFUNVER" >> $GITHUB_ENV
           sed -i "/- name: PBIFUN/{n;s/version: .*/version: $PBIFUNVER/;}" inst/htmlwidgets/funnel.yaml
           git add inst/htmlwidgets/lib/PBIFUN inst/htmlwidgets/funnel.yaml
@@ -60,7 +62,7 @@ jobs:
     - name: Commit SPC changes
       run: |
         if [[ -n "$(git status inst/htmlwidgets/lib/PBISPC -s)" ]]; then
-          PBISPCVER=$(jq '.visual.version' inst/bundle/PowerBI-SPC/pbiviz.json | sed 's/"//g')
+          PBISPCVER=$(jq '.visual.version' inst/bundle/node_modules/powerbi-spc/pbiviz.json | sed 's/"//g')
           echo "PBISPCVER=$PBISPCVER" >> $GITHUB_ENV
           sed -i "/- name: PBISPC/{n;s/version: .*/version: $PBISPCVER/;}" inst/htmlwidgets/spc.yaml
           git add inst/htmlwidgets/lib/PBISPC inst/htmlwidgets/spc.yaml
@@ -73,6 +75,13 @@ jobs:
           echo "PBIDEPS=true" >> $GITHUB_ENV
           git add inst/htmlwidgets/lib/UTILS inst/js
           git commit -m "Update visual dependencies"
+        fi
+
+    - name: Commit bundle pins
+      run: |
+        if [[ -n "$(git status inst/bundle/package.json inst/bundle/package-lock.json -s)" ]]; then
+          git add inst/bundle/package.json inst/bundle/package-lock.json
+          git commit -m "Pin bundled repos"
         fi
 
     - name: Generate PR

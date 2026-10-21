@@ -18,7 +18,7 @@ test_that("Chart keys use their native ordering and keep rows aligned", {
       chart <- chart_fun(
         dat, keys = key, numerators = numerator, denominators = denominator,
         labels = label, tooltips = label,
-        scatter_settings = list(colour = colour), return_objs = "html_plot"
+        scatter_settings = list(colour = colour), return_objs = c("html_plot", "limits")
       )
       values <- chart$html_plot$x$update_values
       categorical <- values$dataViews[[1]]$categorical
@@ -32,8 +32,8 @@ test_that("Chart keys use their native ordering and keep rows aligned", {
                function(x) x$scatter$colour, character(1)),
         c("#111111", "#222222", "#333333")
       )
-      expect_equal(unname(unlist(values$crosstalk_identities[expected_keys])),
-                   c("2", "3", "1"))
+      expect_equal(unlist(values$crosstalk_identities), c("2", "3", "1"))
+      expect_identical(chart$limits$key, keys[c(2, 3, 1)])
     }
   }
 })
