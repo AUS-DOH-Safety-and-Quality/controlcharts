@@ -15,9 +15,16 @@ jobs:
       PBIFUNVER: ""
       PBISPCVER: ""
       PBIDEPS: ""
+      PBIPINS: ""
 
     steps:
     - uses: actions/checkout@v7
+
+    # npm before 11.12 rewrites the lockfile, dropping its libc fields
+    - name: Setup Node 24
+      uses: actions/setup-node@v7
+      with:
+        node-version: 24
 
     - name: Configure Git
       run: |
@@ -82,6 +89,7 @@ jobs:
     - name: Commit bundle pins
       run: |
         if [[ -n "$(git status inst/bundle/package.json inst/bundle/package-lock.json -s)" ]]; then
+          echo "PBIPINS=true" >> $GITHUB_ENV
           git add inst/bundle/package.json inst/bundle/package-lock.json
           git commit -m "Pin bundled repos"
         fi
@@ -89,30 +97,33 @@ jobs:
     - name: Generate PR
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      if: env.PBIFUNVER != '' || env.PBISPCVER != '' || env.PBIDEPS != ''
+      if: env.PBIFUNVER != '' || env.PBISPCVER != '' || env.PBIDEPS != '' || env.PBIPINS != ''
       run: |
         # Generate PR Title
-        TITLE="Update Bundled Lib(s): "
+        PARTS=()
         if [[ -n "${{ env.PBISPCVER }}" ]]; then
-          TITLE+="PBISPC to ${{ env.PBISPCVER }}"
+          PARTS+=("PBISPC to ${{ env.PBISPCVER }}")
         fi
         if [[ -n "${{ env.PBIFUNVER }}" ]]; then
-          if [[ -n "${{ env.PBISPCVER }}" ]]; then
-            TITLE+=", "
-          fi
-          TITLE+="PBIFUN to ${{ env.PBIFUNVER }}"
+          PARTS+=("PBIFUN to ${{ env.PBIFUNVER }}")
         fi
         if [[ -n "${{ env.PBIDEPS }}" ]]; then
-          if [[ -n "${{ env.PBIFUNVER }}" ]]; then
-            TITLE+=", "
-          fi
-          TITLE+="Visual dependencies"
+          PARTS+=("Visual dependencies")
         fi
+        if [[ -n "${{ env.PBIPINS }}" ]]; then
+          PARTS+=("Bundle pins")
+        fi
+        TITLE="Update Bundled Lib(s): ${PARTS[0]}"
+        for part in "${PARTS[@]:1}"; do
+          TITLE+=", $part"
+        done
 
-        # Increment package version
-        perl -i -pe 's/^Version:\s*(\d+)\.(\d+)\.(\d+)/"Version: $1.$2.".($3+1)/e' DESCRIPTION
-        git add DESCRIPTION
-        git commit -m "Increment package version"
+        # Increment package version when the bundled libs change
+        if [[ -n "${{ env.PBISPCVER }}${{ env.PBIFUNVER }}${{ env.PBIDEPS }}" ]]; then
+          perl -i -pe 's/^Version:\s*(\d+)\.(\d+)\.(\d+)/"Version: $1.$2.".($3+1)/e' DESCRIPTION
+          git add DESCRIPTION
+          git commit -m "Increment package version"
+        fi
 
         git push --set-upstream origin ${{ env.BRANCH }}
         gh pr create \
