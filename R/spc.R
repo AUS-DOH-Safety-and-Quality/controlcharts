@@ -12,7 +12,8 @@
 #' @param groupings A vector or column name representing the grouping for
 #' each category.
 #' @param indicators A vector or list of vectors representing indicator
-#' categories for the summary table.
+#' categories for the summary table. Factor indicators are ordered by their levels,
+#' and others by value.
 #' @param xbar_sds A numeric vector or column name representing the x-bar
 #' and standard deviation values for each category.
 #' @param tooltips A vector or column name, or a list of them, representing
@@ -182,7 +183,9 @@ spc <- function(data,
 
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
-    data_raw$indicators <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
+    indicators <- indicator_data(indicators_quo, input_data)
+    data_raw$indicators <- indicators$values
+    data_raw$indicator_levels <- indicators$levels
     if (missing(return_objs)) {
       return_objs <- c("html_plot", "limits")
     }

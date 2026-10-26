@@ -1,10 +1,10 @@
-var funnel = (function (exports, frontends, data, spc, rendering, math, settings, powerbi) {
+var funnel = (function (exports, frontends, util, data, spc, rendering, math, settings, powerbi) {
     'use strict';
 
     function drawMisc(svg, visual) {
         svg.selectChildren().remove();
         const model = visual.viewModel;
-        const settings = model.inputSettings.settings[0];
+        const settings = model.inputSettings.group(0).settings;
         const canvas = settings.canvas;
         const misc = settings.misc;
         const xAxis = settings.x_axis;
@@ -26,7 +26,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         if (!model.headless) {
             const nodes = labels.nodes();
             for (let i = 0; i < nodes.length; i++) {
-                labelWidth = Math.max(labelWidth, nodes[i].getBBox().width);
+                labelWidth = Math.max(labelWidth, util.at(nodes, i).getBBox().width);
             }
         }
         const left = canvas.left_padding + labelWidth + 10;
@@ -41,8 +41,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         ];
         const drawn = { "99": false, "95": false, target: false };
         for (let i = 0; i < limits.length; i++) {
-            const value = limits[i].value;
-            const level = limits[i].level;
+            const { value, level } = util.at(limits, i);
             if (!lines[`show_${level}`] || value < misc.lower || value > misc.upper) {
                 continue;
             }
@@ -57,7 +56,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         if (xAxis.xlimit_ticks) {
             const ticks = scale.ticks(xAxis.xlimit_tick_count);
             for (let i = 0; i < ticks.length; i++) {
-                const tick = ticks[i];
+                const tick = util.at(ticks, i);
                 root.append("text").classed("misc-x-tick", true).attr("x", scale(tick)).attr("y", bottom + xAxis.xlimit_tick_size + 5)
                     .attr("text-anchor", "middle").style("font-family", xAxis.xlimit_tick_font)
                     .style("font-size", `${xAxis.xlimit_tick_size}px`).attr("fill", colour(xAxis.xlimit_tick_colour))
@@ -74,15 +73,14 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             { text: misc.favourable_label, x: (zero + right) / 2, colour: settings.outliers.three_sigma_colour_improvement }
         ];
         for (let i = 0; i < directions.length; i++) {
-            const direction = directions[i];
+            const direction = util.at(directions, i);
             root.append("text").classed("misc-direction", true).attr("x", direction.x).attr("y", top - 10)
                 .attr("text-anchor", "middle").style("font-family", xAxis.xlimit_tick_font).style("font-size", "12px")
                 .style("font-weight", "bold").attr("fill", colour(direction.colour)).text(direction.text);
         }
         const legends = [{ level: "95", text: "95% Control Limits" }, { level: "99", text: "99% Control Limits" }];
         for (let i = 0; i < legends.length; i++) {
-            const level = legends[i].level;
-            const text = legends[i].text;
+            const { level, text } = util.at(legends, i);
             if (!drawn[level]) {
                 continue;
             }
@@ -126,7 +124,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = y.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = (y[i] - target) / SE[i];
+            result[i] = (util.at(y, i) - target) / util.at(SE, i);
         }
         return result;
     }
@@ -138,7 +136,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = z.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = math.clamp(z[i], lower_z, upper_z);
+            result[i] = math.clamp(util.at(z, i), lower_z, upper_z);
         }
         return result;
     }
@@ -146,7 +144,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
     function getPhi(z_adj) {
         let total = 0;
         for (let i = 0; i < z_adj.length; i++) {
-            total += Math.pow(z_adj[i], 2);
+            total += Math.pow(util.at(z_adj, i), 2);
         }
         return total / z_adj.length;
     }
@@ -159,7 +157,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         let w_sum = 0;
         let w_sq_sum = 0;
         for (let i = 0; i < N; i++) {
-            const w = 1.0 / Math.pow(SE[i], 2);
+            const w = 1.0 / Math.pow(util.at(SE, i), 2);
             w_sum += w;
             w_sq_sum += Math.pow(w, 2);
         }
@@ -171,8 +169,9 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
     const levels = ["99", "95", "68"];
     function pruneCrossing(inner, next) {
         for (let i = 0; i < levels.length; i++) {
-            const lower = `ll${levels[i]}`;
-            const upper = `ul${levels[i]}`;
+            const level = util.at(levels, i);
+            const lower = `ll${level}`;
+            const upper = `ul${level}`;
             const nextLower = next[lower];
             const nextUpper = next[upper];
             let low = inner[lower];
@@ -192,6 +191,19 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         }
     }
     class chartClass {
+        inputData;
+        inputSettings;
+        seFunction;
+        seFunctionOD;
+        targetFunction;
+        targetFunctionTransformed;
+        yFunction;
+        zFunction;
+        zFunctionOD;
+        limitFunction;
+        limitFunctionOD;
+        odAdjust;
+        variance;
         getPlottingDenominators() {
             const plotDenomLower = 1;
             const plotDenomUpper = Math.max(math.max(this.inputData.denominators) * 1.1, this.inputSettings.settings.x_axis.xlimit_u ?? -Infinity);
@@ -264,7 +276,8 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             const probs = [0.001, 0.025, 0.16, 0.84, 0.975, 0.999];
             const result = new Array(probs.length);
             for (let i = 0; i < probs.length; i++) {
-                result[i] = { prob: probs[i], quantile: math.normalQuantile(probs[i], 0, 1, true, false), label: settings.limitLineNames[i] };
+                const prob = util.at(probs, i);
+                result[i] = { prob, quantile: math.normalQuantile(prob, 0, 1, true, false), label: util.at(settings.limitLineNames, i) };
             }
             return result;
         }
@@ -280,7 +293,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             const plottingDenominators = this.getPlottingDenominators();
             const nextDenominators = new Array(plottingDenominators.length);
             for (let idx = 0; idx < plottingDenominators.length; idx++) {
-                nextDenominators[idx] = plottingDenominators[idx] * (1 + 1e-3);
+                nextDenominators[idx] = util.at(plottingDenominators, idx) * (1 + 1e-3);
             }
             const plottingSE = this.getSE({
                 odAdjust: odAdjust,
@@ -294,7 +307,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
                 const row = { denominators: denom, target, alt_target,
                     ll99: undefined, ll95: undefined, ll68: undefined, ul68: undefined, ul95: undefined, ul99: undefined };
                 for (let i = 0; i < intervals.length; i++) {
-                    const interval = intervals[i];
+                    const interval = util.at(intervals, i);
                     const functionArgs = {
                         p: interval.prob,
                         q: interval.quantile,
@@ -313,8 +326,8 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             };
             const calcLimits = new Array(plottingDenominators.length);
             for (let idx = 0; idx < plottingDenominators.length; idx++) {
-                const row = limitRow(plottingDenominators[idx], plottingSE[idx]);
-                pruneCrossing(row, limitRow(nextDenominators[idx], nextSE[idx]));
+                const row = limitRow(util.at(plottingDenominators, idx), util.at(plottingSE, idx));
+                pruneCrossing(row, limitRow(util.at(nextDenominators, idx), util.at(nextSE, idx)));
                 calcLimits[idx] = row;
             }
             return calcLimits;
@@ -477,7 +490,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const properties = ["show", "width", "type", "colour", "opacity", "ttip_show", "ttip_label"];
         for (let i = 0; i < levels.length; i++) {
             for (let j = 0; j < properties.length; j++) {
-                const name = `${properties[j]}_${levels[i]}`;
+                const name = `${util.at(properties, j)}_${util.at(levels, i)}`;
                 lineSettings[name] = lines[name];
             }
         }
@@ -530,17 +543,17 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
     }
 
     function extractInputData(view, inputSettingsClass, rows, group = 0) {
-        const keyColumn = view.categories.key[0];
+        const keyColumn = util.at(view.categories.key, 0);
         const keys = new Array(rows.length);
         for (let i = 0; i < rows.length; i++) {
-            keys[i] = powerbi.formatPrimitiveValue(keyColumn.values[rows[i]]);
+            keys[i] = powerbi.formatPrimitiveValue(keyColumn.values[util.at(rows, i)]);
         }
-        const numerators = powerbi.readNumbers(view.values.numerators[0], rows);
-        const denominators = powerbi.readNumbers(view.values.denominators[0], rows);
+        const numerators = powerbi.readNumbers(util.at(view.values.numerators, 0), rows);
+        const denominators = powerbi.readNumbers(util.at(view.values.denominators, 0), rows);
         const extracted = powerbi.extractRows(view, rows, {
             keys,
-            validation: validateInputData(keys, numerators, denominators, inputSettingsClass.settings[group].funnel.chart_type),
-            rowSettings: inputSettingsClass.rowSettings[group],
+            validation: validateInputData(keys, numerators, denominators, inputSettingsClass.group(group).settings.funnel.chart_type),
+            rowSettings: util.at(inputSettingsClass.rowSettings, group),
             settings: { messages: inputSettingsClass.validationStatus.messages, messagePositionByRowIndex: inputSettingsClass.messagePositionByRowIndex }
         });
         if (extracted.status === "invalid") {
@@ -552,9 +565,10 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const keptNumerators = new Array(kept.length);
         const keptDenominators = new Array(kept.length);
         for (let x = 0; x < kept.length; x++) {
-            const i = kept[x];
-            id[x] = rows[i];
-            keyRows[x] = { x, id: rows[i], label: data.keptValue(keys, i) };
+            const i = util.at(kept, x);
+            const row = util.at(rows, i);
+            id[x] = row;
+            keyRows[x] = { x, id: row, label: data.keptValue(keys, i) };
             keptNumerators[x] = data.keptValue(numerators, i);
             keptDenominators[x] = data.keptValue(denominators, i);
         }
@@ -568,7 +582,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             return false;
         }
         for (let i = 0; i < data.numerators.length; i++) {
-            if (data.numerators[i] > 0) {
+            if (util.at(data.numerators, i) > 0) {
                 return false;
             }
         }
@@ -580,12 +594,12 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         if (inputData === undefined) {
             throw new Error("Axis ranges require validated data.");
         }
-        const settings = viewModel.inputSettings.settings[0];
+        const settings = viewModel.inputSettings.group(0).settings;
         let yUpperLimit = settings.y_axis.ylimit_u;
         if (yUpperLimit === undefined) {
             yUpperLimit = -Infinity;
             for (let i = 0; i < viewModel.plotPoints.length; i++) {
-                yUpperLimit = Math.max(yUpperLimit, viewModel.plotPoints[i].value);
+                yUpperLimit = Math.max(yUpperLimit, util.at(viewModel.plotPoints, i).value);
             }
         }
         return {
@@ -614,9 +628,9 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const multiplier = derivedSettings.multiplier;
         const transform_text = inputSettings.funnel.transformation;
         const transform = getTransformation(transform_text);
-        const group = inputData.keys[index].label;
-        const numerator = inputData.numerators[index];
-        const denominator = inputData.denominators[index];
+        const group = util.at(inputData.keys, index).label;
+        const numerator = util.at(inputData.numerators, index);
+        const denominator = util.at(inputData.denominators, index);
         const ratio = transform((numerator / denominator) * multiplier);
         const formatValues = derivedSettings.formatValue;
         const tooltip = new Array();
@@ -631,10 +645,11 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         if (transform_text !== "none") {
             const transformations = settingsModel.funnel.settingsGroups.all.transformation.items;
             for (let i = 0; i < transformations.length; i++) {
-                if (transformations[i].value === transform_text) {
+                const transformation = util.at(transformations, i);
+                if (transformation.value === transform_text) {
                     tooltip.push({
                         displayName: "Plot Scaling",
-                        value: transformations[i].displayName
+                        value: transformation.displayName
                     });
                 }
             }
@@ -646,7 +661,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         if (outliers.two_sigma) {
             patterns.push("Two Sigma Outlier");
         }
-        powerbi.appendPatternTooltips(tooltip, patterns, inputData.tooltips[index]);
+        powerbi.appendPatternTooltips(tooltip, patterns, util.at(inputData.tooltips, index));
         return tooltip;
     }
 
@@ -655,7 +670,8 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const SE = args.SE;
         const result = new Array(zScores.length);
         for (let i = 0; i < zScores.length; i++) {
-            result[i] = (zScores[i] * SE[i]) / Math.sqrt(Math.pow(SE[i], 2) + args.tau2);
+            const se = util.at(SE, i);
+            result[i] = (util.at(zScores, i) * se) / Math.sqrt(Math.pow(se, 2) + args.tau2);
         }
         return result;
     }
@@ -665,7 +681,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = denominators.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = 1.0 / (2 * Math.sqrt(denominators[i]));
+            result[i] = 1.0 / (2 * Math.sqrt(util.at(denominators, i)));
         }
         return result;
     };
@@ -678,7 +694,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = numerators.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = Math.sqrt(numerators[i] / denominators[i]);
+            result[i] = Math.sqrt(util.at(numerators, i) / util.at(denominators, i));
         }
         return result;
     };
@@ -688,9 +704,10 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = numerators.length;
         const rtn = new Array(n);
         for (let i = 0; i < n; i++) {
-            const ratio = numerators[i] / denominators[i];
+            const denominator = util.at(denominators, i);
+            const ratio = util.at(numerators, i) / denominator;
             const offset = ratio > 1 ? 1 : 0;
-            const log_p = math.chisqCDF(ratio * 2 * denominators[i], 2 * (denominators[i] + offset), true, true);
+            const log_p = math.chisqCDF(ratio * 2 * denominator, 2 * (denominator + offset), true, true);
             rtn[i] = math.normalQuantile(log_p, 0, 1, true, true);
         }
         return rtn;
@@ -734,7 +751,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = denominators.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = 1.0 / (2 * Math.sqrt(denominators[i]));
+            result[i] = 1.0 / (2 * Math.sqrt(util.at(denominators, i)));
         }
         return result;
     };
@@ -752,7 +769,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = numerators.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = Math.asin(Math.sqrt(numerators[i] / denominators[i]));
+            result[i] = Math.asin(Math.sqrt(util.at(numerators, i) / util.at(denominators, i)));
         }
         return result;
     };
@@ -789,8 +806,8 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const target = plottingDenominators === undefined ? undefined : rcTarget(inputData);
         const result = new Array(denominators.length);
         for (let i = 0; i < denominators.length; i++) {
-            const denominator = denominators[i];
-            const numerator = target === undefined ? numerators[i] : target * denominator;
+            const denominator = util.at(denominators, i);
+            const numerator = target === undefined ? util.at(numerators, i) : target * denominator;
             result[i] = Math.sqrt(numerator / Math.pow(numerator + 0.5, 2) + denominator / Math.pow(denominator + 0.5, 2));
         }
         return result;
@@ -811,7 +828,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const n = numerators.length;
         const result = new Array(n);
         for (let i = 0; i < n; i++) {
-            result[i] = Math.log((numerators[i] + 0.5) / (denominators[i] + 0.5));
+            result[i] = Math.log((util.at(numerators, i) + 0.5) / (util.at(denominators, i) + 0.5));
         }
         return result;
     };
@@ -822,7 +839,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const SE = rcSE(inputData, denominators);
         const result = new Array(numerators.length);
         for (let i = 0; i < numerators.length; i++) {
-            result[i] = (Math.log(numerators[i] / denominators[i]) - target) / Math.sqrt(Math.pow(SE[i], 2) + args.tau2);
+            result[i] = (Math.log(util.at(numerators, i) / util.at(denominators, i)) - target) / Math.sqrt(Math.pow(util.at(SE, i), 2) + args.tau2);
         }
         return result;
     };
@@ -875,20 +892,20 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         return columns;
     }
     class viewModelClass extends rendering.PlotViewModelBase {
+        inputData = undefined;
+        chartBase = undefined;
+        calculatedLimits = [];
+        plotPoints = [];
+        tableColumns = [];
+        groupedLines = [];
+        funnelResults = [];
+        showMisc = false;
+        miscGroups = [];
+        miscGroup = "";
+        miscPoints = [];
+        miscAnyHighlights = false;
         constructor(host) {
             super(host, new settingsClass(), ["numerators", "denominators"]);
-            this.inputData = undefined;
-            this.chartBase = undefined;
-            this.calculatedLimits = [];
-            this.plotPoints = [];
-            this.tableColumns = [];
-            this.groupedLines = [];
-            this.funnelResults = [];
-            this.showMisc = false;
-            this.miscGroups = [];
-            this.miscGroup = "";
-            this.miscPoints = [];
-            this.miscAnyHighlights = false;
         }
         get periodEnds() {
             return [this.calculatedLimits.length - 1];
@@ -897,7 +914,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             return this.inputData?.anyLabels ?? false;
         }
         getFormattingModel() {
-            const settings = this.inputSettings.settings[0];
+            const settings = this.inputSettings.group(0).settings;
             if (this.showMisc) {
                 return powerbi.buildFormattingModel(miscFormattingSchema(this.miscGroups), { ...settings, misc: { ...settings.misc, group: this.miscGroup } });
             }
@@ -929,7 +946,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             if (this.showMisc) {
                 return this.initialiseMisc(view, host, indicatorGroups);
             }
-            const result = extractInputData(view, this.inputSettings, indicatorGroups.rows[0]);
+            const result = extractInputData(view, this.inputSettings, util.at(indicatorGroups.rows, 0));
             if (result.status === "invalid") {
                 return { errors: [result.error], warnings: [] };
             }
@@ -947,30 +964,33 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             return { errors: [], warnings: result.data.warningMessage === "" ? [] : [result.data.warningMessage] };
         }
         initialiseMisc(view, host, indicators) {
-            const keyColumn = view.categories.key[0];
+            const keyColumn = util.at(view.categories.key, 0);
             const groups = powerbi.groupCategoryRows([keyColumn], keyColumn.values.length);
             const items = this.miscGroups;
             const rowsByGroup = new Map();
             for (let i = 0; i < groups.rows.length; i++) {
-                if (keyColumn.values[groups.rows[i][0]] == null) {
+                const rows = util.at(groups.rows, i);
+                const key = util.at(groups.keys, i);
+                if (keyColumn.values[util.at(rows, 0)] == null) {
                     continue;
                 }
-                items.push({ displayName: groups.names[i][0], value: groups.keys[i] });
-                rowsByGroup.set(groups.keys[i], groups.rows[i]);
+                items.push({ displayName: util.at(util.at(groups.names, i), 0), value: key });
+                rowsByGroup.set(key, rows);
             }
-            const requested = this.inputSettings.settings[0].misc.group;
+            const requested = this.inputSettings.group(0).settings.misc.group;
             for (let i = 0; i < this.inputSettings.rowSettings.length; i++) {
-                const rows = this.inputSettings.rowSettings[i];
+                const rows = util.at(this.inputSettings.rowSettings, i);
                 for (let j = 0; j < rows.length; j++) {
-                    if (rows[j].misc.group !== requested) {
+                    if (util.at(rows, j).misc.group !== requested) {
                         return { errors: ["The MISC group must be the same for every row."], warnings: [] };
                     }
                 }
             }
-            this.miscGroup = requested === "" && items.length > 0 ? items[0].value : requested;
+            this.miscGroup = requested === "" ? items[0]?.value ?? requested : requested;
             for (let i = 0; i < items.length; i++) {
-                if (items[i].value === requested || items[i].displayName === requested) {
-                    this.miscGroup = items[i].value;
+                const item = util.at(items, i);
+                if (item.value === requested || item.displayName === requested) {
+                    this.miscGroup = item.value;
                     break;
                 }
             }
@@ -983,14 +1003,14 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             const warnings = [];
             this.inputData = undefined;
             for (let i = 0; i < indicators.rows.length; i++) {
-                const rows = indicators.rows[i];
+                const rows = util.at(indicators.rows, i);
                 const group = this.inputSettings.group(i);
-                const indicator = indicators.labels[i];
-                const rowSettings = this.inputSettings.rowSettings[i];
-                const direction = rowSettings[0].outliers.improvement_direction;
+                const indicator = util.at(indicators.labels, i);
+                const rowSettings = util.at(this.inputSettings.rowSettings, i);
+                const direction = util.at(rowSettings, 0).outliers.improvement_direction;
                 let oneDirection = direction !== "neutral";
                 for (let j = 1; oneDirection && j < rowSettings.length; j++) {
-                    oneDirection = rowSettings[j].outliers.improvement_direction === direction;
+                    oneDirection = util.at(rowSettings, j).outliers.improvement_direction === direction;
                 }
                 if (!oneDirection) {
                     errors.push(powerbi.labelledMessage(indicator, "Each MISC indicator must have one improvement direction: increase or decrease."));
@@ -1006,11 +1026,11 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
                     warnings.push(powerbi.labelledMessage(indicator, "All numerators are zero, so RC limits cannot be calculated and the indicator is not shown."));
                     continue;
                 }
-                this.inputData ?? (this.inputData = data);
+                this.inputData ??= data;
                 if (data.warningMessage !== "") {
                     warnings.push(powerbi.labelledMessage(indicator, data.warningMessage));
                 }
-                this.miscAnyHighlights || (this.miscAnyHighlights = data.anyHighlights);
+                this.miscAnyHighlights ||= data.anyHighlights;
                 const chart = new chartObjects[group.settings.funnel.chart_type](data, group);
                 this.calculatedLimits = chart.getLimits();
                 this.scaleAndTruncateLimits(group);
@@ -1018,18 +1038,18 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
                 const indicatorValues = {};
                 const indicatorColumns = view.categories.indicator ?? [];
                 for (let j = 0; j < indicatorColumns.length; j++) {
-                    const column = indicatorColumns[j];
-                    indicatorValues[column.source.displayName] = powerbi.formatPrimitiveValue(column.values[rows[0]]);
+                    const column = util.at(indicatorColumns, j);
+                    indicatorValues[column.source.displayName] = powerbi.formatPrimitiveValue(column.values[util.at(rows, 0)]);
                 }
                 this.funnelResults.push({
                     indicators: indicatorValues, points: this.plotPoints, limits: this.calculatedLimits, settings: group.settings
                 });
                 for (let j = 0; j < data.id.length; j++) {
-                    const row = data.id[j];
+                    const row = util.at(data.id, j);
                     if (!selectedRows.has(row)) {
                         continue;
                     }
-                    const point = this.plotPoints[j];
+                    const point = util.at(this.plotPoints, j);
                     const score = point.z * (direction === "decrease" ? -1 : 1);
                     this.miscPoints.push({
                         ...point,
@@ -1066,24 +1086,25 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             };
             const limitsByDenominator = new Map();
             for (let i = 0; i < this.calculatedLimits.length; i++) {
-                limitsByDenominator.set(this.calculatedLimits[i].denominators, this.calculatedLimits[i]);
+                const limit = util.at(this.calculatedLimits, i);
+                limitsByDenominator.set(limit.denominators, limit);
             }
             for (let i = 0; i < inputData.id.length; i++) {
-                const original_index = inputData.id[i];
-                const numerator = inputData.numerators[i];
-                const denominator = inputData.denominators[i];
+                const original_index = util.at(inputData.id, i);
+                const numerator = util.at(inputData.numerators, i);
+                const denominator = util.at(inputData.denominators, i);
                 const value = transform((numerator / denominator) * multiplier);
                 const limits = limitsByDenominator.get(denominator);
                 if (limits === undefined) {
                     throw new Error("Missing limits for an observed denominator.");
                 }
-                const aesthetics = { ...inputData.scatter_formatting[i] };
+                const aesthetics = { ...util.at(inputData.scatter_formatting, i) };
                 if (this.colourPalette.isHighContrast) {
                     aesthetics.colour = this.colourPalette.foregroundColour;
                 }
                 const two_sigma_outlier = data.checkFlagDirection(flag_two_sigma ? spc.limitStatus(value, limits.ll95, limits.ul95) : "none", flagSettings);
                 const three_sigma_outlier = data.checkFlagDirection(flag_three_sigma ? spc.limitStatus(value, limits.ll99, limits.ul99) : "none", flagSettings);
-                const category = inputData.keys[i].label;
+                const category = util.at(inputData.keys, i).label;
                 data.applyFlagColours(aesthetics, inputSettings.settings.outliers, [
                     [two_sigma_outlier, "two_sigma_colour"], [three_sigma_outlier, "three_sigma_colour"]
                 ]);
@@ -1092,7 +1113,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
                     x: denominator,
                     numerator: numerator,
                     value: value,
-                    z: zScores[i],
+                    z: util.at(zScores, i),
                     group_text: category,
                     limits,
                     table_row: {
@@ -1107,7 +1128,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
                     tooltip: buildTooltip(i, limits, { two_sigma: two_sigma_outlier !== "none", three_sigma: three_sigma_outlier !== "none" }, inputData, inputSettings.settings, inputSettings.derivedSettings),
                     label: {
                         text_value: inputData.labels[i],
-                        aesthetics: inputData.label_formatting[i],
+                        aesthetics: util.at(inputData.label_formatting, i),
                         angle: undefined,
                         distance: undefined
                     },
@@ -1117,31 +1138,28 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             }
         }
         initialiseGroupedLines() {
-            const labels = [];
-            if (this.inputSettings.settings[0].lines.show_target) {
-                labels.push("target");
+            const lineSettings = this.inputSettings.group(0).settings.lines;
+            const lines = [];
+            if (lineSettings.show_target) {
+                lines.push(["target", []]);
             }
-            if (this.inputSettings.settings[0].lines.show_alt_target) {
-                labels.push("alt_target");
+            if (lineSettings.show_alt_target) {
+                lines.push(["alt_target", []]);
             }
-            if (this.inputSettings.settings[0].lines.show_99) {
-                labels.push("ll99", "ul99");
+            if (lineSettings.show_99) {
+                lines.push(["ll99", []], ["ul99", []]);
             }
-            if (this.inputSettings.settings[0].lines.show_95) {
-                labels.push("ll95", "ul95");
+            if (lineSettings.show_95) {
+                lines.push(["ll95", []], ["ul95", []]);
             }
-            if (this.inputSettings.settings[0].lines.show_68) {
-                labels.push("ll68", "ul68");
-            }
-            const lines = new Array(labels.length);
-            for (let j = 0; j < labels.length; j++) {
-                lines[j] = [labels[j], []];
+            if (lineSettings.show_68) {
+                lines.push(["ll68", []], ["ul68", []]);
             }
             for (let i = 0; i < this.calculatedLimits.length; i++) {
-                const limits = this.calculatedLimits[i];
-                for (let j = 0; j < labels.length; j++) {
-                    const label = labels[j];
-                    lines[j][1].push({ x: limits.denominators, line_value: limits[label], group: label });
+                const limits = util.at(this.calculatedLimits, i);
+                for (let j = 0; j < lines.length; j++) {
+                    const [label, points] = util.at(lines, j);
+                    points.push({ x: limits.denominators, line_value: limits[label], group: label });
                 }
             }
             this.groupedLines = lines;
@@ -1152,10 +1170,10 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             const lower = inputSettings.settings.funnel.ll_truncate;
             const upper = inputSettings.settings.funnel.ul_truncate;
             for (let i = 0; i < this.calculatedLimits.length; i++) {
-                const limit = this.calculatedLimits[i];
+                const limit = util.at(this.calculatedLimits, i);
                 limit.target = transform(limit.target * multiplier);
                 for (let j = 0; j < settings.limitLineNames.length; j++) {
-                    const name = settings.limitLineNames[j];
+                    const name = util.at(settings.limitLineNames, j);
                     const value = limit[name];
                     if (value !== undefined) {
                         limit[name] = math.clamp(transform(value * multiplier), lower, upper);
@@ -1175,9 +1193,10 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         two_sigma: "flag", three_sigma: "flag"
     };
     class Visual extends rendering.PlotVisual {
+        tableDiv;
+        lineKeys = settings.standardLineKeys;
         constructor(options) {
             super(options, host => new viewModelClass(host));
-            this.lineKeys = settings.standardLineKeys;
             this.tableDiv = rendering.createTableContainer(this.element);
         }
         resizeCanvas(width, height) {
@@ -1185,7 +1204,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             rendering.showTable(this.tableDiv, width === 0 && height === 0);
         }
         get settings() {
-            return this.viewModel.inputSettings.settings[0];
+            return this.viewModel.inputSettings.group(0).settings;
         }
         drawAlternate() {
             const viewModel = this.viewModel;
@@ -1206,7 +1225,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
                 rows: viewModel.plotPoints,
                 kinds: columnKinds,
                 settings: this.settings.summary_table,
-                formatValue: viewModel.inputSettings.derivedSettings[0].formatValue,
+                formatValue: viewModel.inputSettings.group(0).derivedSettings.formatValue,
                 width: viewModel.svgWidth,
                 host: this.host,
                 selectionManager: this.selectionManager,
@@ -1241,7 +1260,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             return {
                 tickFormats: {
                     x: undefined,
-                    y: rendering.valueTickFormat(settings$1.y_axis.ylimit_sig_figs ?? settings$1.funnel.sig_figs, this.viewModel.inputSettings.derivedSettings[0].percentLabels)
+                    y: rendering.valueTickFormat(settings$1.y_axis.ylimit_sig_figs ?? settings$1.funnel.sig_figs, this.viewModel.inputSettings.group(0).derivedSettings.percentLabels)
                 },
                 verticalCrosshair: true,
                 lineSettings: () => settings$1.lines,
@@ -1266,16 +1285,16 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
     ];
     function limitRow(fields, limits, includeAltTarget) {
         const row = {};
-        const fieldNames = Object.keys(fields);
-        for (let i = 0; i < fieldNames.length; i++) {
-            row[fieldNames[i]] = frontends.limitValue(fields[fieldNames[i]]);
+        const fieldEntries = Object.entries(fields);
+        for (let i = 0; i < fieldEntries.length; i++) {
+            const [name, value] = util.at(fieldEntries, i);
+            row[name] = frontends.limitValue(value);
         }
-        const limitValues = limits;
-        const limitNames = Object.keys(limitValues);
-        for (let i = 0; i < limitNames.length; i++) {
-            const name = limitNames[i];
+        const limitEntries = Object.entries(limits);
+        for (let i = 0; i < limitEntries.length; i++) {
+            const [name, value] = util.at(limitEntries, i);
             if (name !== "denominators" && (includeAltTarget || name !== "alt_target")) {
-                row[name] = frontends.limitValue(limitValues[name]);
+                row[name] = frontends.limitValue(value);
             }
         }
         return row;
@@ -1286,7 +1305,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
         const points = result.points.slice().sort((a, b) => a.x - b.x);
         const indicators = frontends.indicatorFields(result.indicators, limitColumns);
         for (let i = 0; i < points.length; i++) {
-            const point = points[i];
+            const point = util.at(points, i);
             const fields = {
                 ...indicators,
                 denominator: point.x,
@@ -1310,7 +1329,7 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             rowIds.push(point.id);
         }
         for (let i = 0; i < result.limits.length; i++) {
-            const limits = result.limits[i];
+            const limits = util.at(result.limits, i);
             limitLines.push(limitRow({ ...indicators, denominator: limits.denominators }, limits, showAltTarget));
         }
     }
@@ -1324,17 +1343,17 @@ var funnel = (function (exports, frontends, data, spc, rendering, math, settings
             const rowIds = [];
             const limitLines = [];
             for (let i = 0; i < viewModel.funnelResults.length; i++) {
-                appendResults(limits, rowIds, limitLines, viewModel.funnelResults[i], viewModel.showMisc);
+                appendResults(limits, rowIds, limitLines, util.at(viewModel.funnelResults, i), viewModel.showMisc);
             }
             return { limits, rowIds, limitLines };
         }
     };
 
-    frontends.registerChart('funnel', frontend);
+    frontends.registerChart("funnel", frontend);
 
     exports.Visual = Visual;
     exports.defaultSettings = defaultSettings;
 
     return exports;
 
-})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);
+})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);

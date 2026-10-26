@@ -44,7 +44,8 @@ denominators for each category.}
 
 \item{indicators}{Optional vector or list of vectors identifying indicators.
 Supplying indicators displays a multi-indicator sigma chart using the native
-Funnel visual. Each indicator is calculated against its comparison population.}
+Funnel visual. Each indicator is calculated against its comparison population.
+Factor indicators are ordered by their levels, and others by value.}
 
 \item{tooltips}{A vector or column name, or a list of them, representing
 additional tooltips for each category. Each is labelled by its name in the

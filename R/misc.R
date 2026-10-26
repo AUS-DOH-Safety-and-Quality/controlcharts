@@ -5,6 +5,7 @@
 #'
 #' @inheritParams funnel
 #' @param indicators A vector or list of vectors identifying indicators.
+#' Factor indicators are ordered by their levels, and others by value.
 #' @param target A single value from `keys` to display. Numeric targets match
 #' numeric keys by value.
 #' @param ... Additional arguments passed to [funnel()].

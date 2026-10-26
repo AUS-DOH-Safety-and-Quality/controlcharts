@@ -1,6 +1,14 @@
 var minidom = (function (exports) {
     'use strict';
 
+    function at(values, i) {
+        const value = values[i];
+        if (value === undefined) {
+            throw new RangeError(`Index ${i} out of bounds for length ${values.length}.`);
+        }
+        return value;
+    }
+
     const XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
     const XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/";
     const XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
@@ -23,12 +31,13 @@ var minidom = (function (exports) {
         return value ? value.split(/\s+/) : [];
     }
     class ClassList {
+        element;
         constructor(element) {
             this.element = element;
         }
         add(className) {
             const classes = classNames(this.element);
-            if (classes.indexOf(className) === -1) {
+            if (!classes.includes(className)) {
                 classes.push(className);
                 this.element.setAttribute("class", classes.join(" "));
             }
@@ -42,12 +51,13 @@ var minidom = (function (exports) {
             }
         }
         contains(className) {
-            return classNames(this.element).indexOf(className) !== -1;
+            return classNames(this.element).includes(className);
         }
     }
     class MiniStyle {
+        element;
+        styles = new Map();
         constructor(element) {
-            this.styles = new Map();
             this.element = element;
         }
         setProperty(name, value, priority) {
@@ -148,11 +158,11 @@ var minidom = (function (exports) {
             const styles = Array.from(this.styles);
             let text = "";
             for (let i = 0; i < styles.length; i++) {
-                const style = styles[i][1];
+                const [name, style] = at(styles, i);
                 if (i > 0) {
                     text += ";";
                 }
-                text += styles[i][0] + ":" + style.value;
+                text += name + ":" + style.value;
                 if (style.priority) {
                     text += " !important";
                 }
@@ -166,7 +176,7 @@ var minidom = (function (exports) {
     }
     function clearChildren(element) {
         for (let i = 0; i < element.childNodes.length; i++) {
-            const child = element.childNodes[i];
+            const child = at(element.childNodes, i);
             child.parentNode = null;
             child.nextSibling = null;
             child.previousSibling = null;
@@ -179,10 +189,10 @@ var minidom = (function (exports) {
         const groups = selector.trim().split(/\s*,\s*/);
         const selectors = new Array(groups.length);
         for (let i = 0; i < groups.length; i++) {
-            const parts = groups[i].split(/\s+/);
+            const parts = at(groups, i).split(/\s+/);
             const compounds = new Array(parts.length);
             for (let j = 0; j < parts.length; j++) {
-                compounds[j] = parts[j].split(/(?=[.#])/);
+                compounds[j] = at(parts, j).split(/(?=[.#])/);
             }
             selectors[i] = compounds;
         }
@@ -190,13 +200,13 @@ var minidom = (function (exports) {
     }
     function matchesSimple(element, parts) {
         for (let i = 0; i < parts.length; i++) {
-            const part = parts[i];
-            if (part.charAt(0) === ".") {
+            const part = at(parts, i);
+            if (part.startsWith(".")) {
                 if (!element.classList.contains(part.slice(1))) {
                     return false;
                 }
             }
-            else if (part.charAt(0) === "#") {
+            else if (part.startsWith("#")) {
                 if (element.getAttribute("id") !== part.slice(1)) {
                     return false;
                 }
@@ -209,14 +219,14 @@ var minidom = (function (exports) {
     }
     function matches(element, selectors) {
         for (let i = 0; i < selectors.length; i++) {
-            const parts = selectors[i];
-            if (!matchesSimple(element, parts[parts.length - 1])) {
+            const parts = at(selectors, i);
+            if (!matchesSimple(element, at(parts, parts.length - 1))) {
                 continue;
             }
             let node = element.parentNode;
             let j = parts.length - 2;
             while (j >= 0 && node !== null && node.nodeType === 1) {
-                if (matchesSimple(node, parts[j])) {
+                if (matchesSimple(node, at(parts, j))) {
                     j--;
                 }
                 node = node.parentNode;
@@ -238,31 +248,36 @@ var minidom = (function (exports) {
                 }
             }
             for (let i = 0; i < node.childNodes.length; i++) {
-                if (traverse(node.childNodes[i])) {
+                if (traverse(at(node.childNodes, i))) {
                     return true;
                 }
             }
             return false;
         }
         for (let i = 0; i < element.childNodes.length; i++) {
-            if (traverse(element.childNodes[i])) {
+            if (traverse(at(element.childNodes, i))) {
                 break;
             }
         }
         return results;
     }
     class MiniElement {
+        serial = nextNodeId++;
+        nodeType = 1;
+        tagName;
+        nodeName;
+        namespaceURI;
+        ownerDocument;
+        parentNode = null;
+        childNodes = [];
+        nextSibling = null;
+        previousSibling = null;
+        firstChild = null;
+        lastChild = null;
+        attributeMap = new Map();
+        style;
+        classes = null;
         constructor(tagName, namespaceURI, ownerDocument) {
-            this.serial = nextNodeId++;
-            this.nodeType = 1;
-            this.parentNode = null;
-            this.childNodes = [];
-            this.nextSibling = null;
-            this.previousSibling = null;
-            this.firstChild = null;
-            this.lastChild = null;
-            this.attributeMap = new Map();
-            this.classes = null;
             this.tagName = tagName;
             this.nodeName = tagName;
             this.namespaceURI = namespaceURI;
@@ -270,7 +285,7 @@ var minidom = (function (exports) {
             this.style = new MiniStyle(this);
         }
         get classList() {
-            this.classes ?? (this.classes = new ClassList(this));
+            this.classes ??= new ClassList(this);
             return this.classes;
         }
         get className() {
@@ -285,7 +300,7 @@ var minidom = (function (exports) {
         get children() {
             const children = [];
             for (let i = 0; i < this.childNodes.length; i++) {
-                const child = this.childNodes[i];
+                const child = at(this.childNodes, i);
                 if (child.nodeType === 1) {
                     children.push(child);
                 }
@@ -294,7 +309,7 @@ var minidom = (function (exports) {
         }
         get firstElementChild() {
             for (let i = 0; i < this.childNodes.length; i++) {
-                const child = this.childNodes[i];
+                const child = at(this.childNodes, i);
                 if (child.nodeType === 1) {
                     return child;
                 }
@@ -304,7 +319,7 @@ var minidom = (function (exports) {
         get innerHTML() {
             let html = "";
             for (let i = 0; i < this.childNodes.length; i++) {
-                const child = this.childNodes[i];
+                const child = at(this.childNodes, i);
                 if (child.nodeType === 3) {
                     html += escapeText(child.nodeValue);
                 }
@@ -313,8 +328,9 @@ var minidom = (function (exports) {
                     const attributes = Array.from(child.attributeMap);
                     const declared = new Set();
                     for (let j = 0; j < attributes.length; j++) {
-                        let name = attributes[j][0];
-                        const attribute = attributes[j][1];
+                        const entry = at(attributes, j);
+                        let name = entry[0];
+                        const attribute = entry[1];
                         if (attribute.namespaceURI !== null && attribute.namespaceURI !== XMLNS_NAMESPACE) {
                             const colon = name.indexOf(":");
                             let prefix = name.slice(0, colon);
@@ -354,7 +370,7 @@ var minidom = (function (exports) {
         get textContent() {
             let text = "";
             for (let i = 0; i < this.childNodes.length; i++) {
-                const child = this.childNodes[i];
+                const child = at(this.childNodes, i);
                 if (child.nodeType === 3) {
                     text += child.nodeValue;
                 }
@@ -389,14 +405,14 @@ var minidom = (function (exports) {
                 this.lastChild.nextSibling = child;
             }
             this.lastChild = child;
-            this.firstChild ?? (this.firstChild = child);
+            this.firstChild ??= child;
             this.childNodes.push(child);
             return child;
         }
         replaceChildren(...nodes) {
             clearChildren(this);
             for (let i = 0; i < nodes.length; i++) {
-                const node = nodes[i];
+                const node = at(nodes, i);
                 this.appendChild(typeof node === "string" ? new MiniText(node, this.ownerDocument) : node);
             }
         }
@@ -481,7 +497,7 @@ var minidom = (function (exports) {
         }
         querySelector(selector) {
             const found = query(this, selector, true);
-            return found.length > 0 ? found[0] : null;
+            return found[0] ?? null;
         }
         querySelectorAll(selector) {
             return query(this, selector, false);
@@ -493,11 +509,12 @@ var minidom = (function (exports) {
             const clone = new MiniElement(this.tagName, this.namespaceURI, this.ownerDocument);
             const attributes = Array.from(this.attributeMap);
             for (let i = 0; i < attributes.length; i++) {
-                clone.setAttributeNS(attributes[i][1].namespaceURI, attributes[i][0], attributes[i][1].value);
+                const [name, attribute] = at(attributes, i);
+                clone.setAttributeNS(attribute.namespaceURI, name, attribute.value);
             }
             if (deep === true) {
                 for (let i = 0; i < this.childNodes.length; i++) {
-                    clone.appendChild(this.childNodes[i].cloneNode(true));
+                    clone.appendChild(at(this.childNodes, i).cloneNode(true));
                 }
             }
             return clone;
@@ -539,8 +556,8 @@ var minidom = (function (exports) {
             if (j < 0) {
                 return CONTAINS | PRECEDING;
             }
-            const siblings = ancestors[i + 1].childNodes;
-            return siblings.indexOf(ancestors[i]) < siblings.indexOf(otherAncestors[j]) ? FOLLOWING : PRECEDING;
+            const siblings = at(ancestors, i + 1).childNodes;
+            return siblings.indexOf(at(ancestors, i)) < siblings.indexOf(at(otherAncestors, j)) ? FOLLOWING : PRECEDING;
         }
         contains(other) {
             let node = other;
@@ -581,23 +598,25 @@ var minidom = (function (exports) {
         attributeNameNS(namespaceURI, localName) {
             const attributes = Array.from(this.attributeMap);
             for (let i = 0; i < attributes.length; i++) {
-                const attribute = attributes[i][1];
+                const [name, attribute] = at(attributes, i);
                 if (attribute.namespaceURI === (namespaceURI || null) && attribute.localName === localName) {
-                    return attributes[i][0];
+                    return name;
                 }
             }
             return null;
         }
     }
     class MiniText {
+        serial = nextNodeId++;
+        nodeType = 3;
+        nodeName = "#text";
+        nodeValue;
+        ownerDocument;
+        parentNode = null;
+        nextSibling = null;
+        previousSibling = null;
+        childNodes = [];
         constructor(text, ownerDocument) {
-            this.serial = nextNodeId++;
-            this.nodeType = 3;
-            this.nodeName = "#text";
-            this.parentNode = null;
-            this.nextSibling = null;
-            this.previousSibling = null;
-            this.childNodes = [];
             this.nodeValue = text;
             this.ownerDocument = ownerDocument;
         }
@@ -606,10 +625,13 @@ var minidom = (function (exports) {
         }
     }
     class MiniDocument extends MiniElement {
+        nodeType = 9;
+        documentElement;
+        head;
+        body;
+        view = null;
         constructor() {
             super("#document", null, null);
-            this.nodeType = 9;
-            this.view = null;
             this.ownerDocument = this;
             this.documentElement = this.createElement("html");
             this.appendChild(this.documentElement);
@@ -632,8 +654,9 @@ var minidom = (function (exports) {
         }
     }
     class MiniWindow {
+        document;
+        defaultView = this;
         constructor(document) {
-            this.defaultView = this;
             this.document = document;
             document.view = this;
         }

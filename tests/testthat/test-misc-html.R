@@ -38,7 +38,8 @@ test_that("MISC HTML tooltips render above bars with funnel formatting", {
       "bar.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));",
       "const group = document.querySelector('.funnel .chart-tooltip-group');",
       "({",
-      "  lines: Array.from(group.querySelectorAll('text'), node => node.textContent),",
+      "  lines: Array.from(group.querySelectorAll('.chart-tooltip-name'),",
+      "                    (node, i) => `${node.textContent}: ${group.querySelectorAll('.chart-tooltip-value')[i].textContent}`),",
       "  raised: group === group.parentElement.lastElementChild",
       "})"
     ),

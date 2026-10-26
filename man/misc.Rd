@@ -26,7 +26,8 @@ for each category.}
 \item{denominators}{A numeric vector or column name representing the
 denominators for each category.}
 
-\item{indicators}{A vector or list of vectors identifying indicators.}
+\item{indicators}{A vector or list of vectors identifying indicators.
+Factor indicators are ordered by their levels, and others by value.}
 
 \item{target}{A single value from \code{keys} to display. Numeric targets match
 numeric keys by value.}
