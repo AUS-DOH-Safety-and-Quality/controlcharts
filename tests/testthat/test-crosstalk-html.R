@@ -104,3 +104,25 @@ test_that("core identities link aggregated points and grouped rows through Cross
   expect_equal(unlist(evaluate("chartState().funnel")), rep(1, 3))
   expect_equal(evaluate("document.querySelectorAll('.errormessage').length"), 0)
 })
+
+test_that("Crosstalk MISC rows follow factor indicator levels", {
+  dat <- data.frame(
+    organisation = rep(LETTERS[1:4], 3),
+    indicator = factor(rep(c("Safety", "HSPR", "Access"), each = 4), levels = c("Safety", "Access", "HSPR")),
+    numerator = c(20, 25, 30, 22, 40, 35, 45, 38, 10, 12, 8, 15),
+    denominator = 100
+  )
+  shared <- crosstalk::SharedData$new(dat, key = paste0("r", seq_len(nrow(dat))), group = "misc-levels")
+  misc_plot <- misc(shared, keys = organisation, numerators = numerator, denominators = denominator,
+                    indicators = indicator, target = "A", return_objs = "html_plot")$html_plot
+  outfile <- tempfile(fileext = ".html")
+  htmltools::save_html(htmltools::div(id = "misc-chart", misc_plot), outfile)
+  browser <- chromote::ChromoteSession$new()
+  on.exit(browser$close(), add = TRUE)
+  browser$go_to(paste0("file://", outfile))
+  rows <- browser$Runtime$evaluate(
+    "Array.from(document.querySelectorAll('#misc-chart .misc-y-tick'), node => node.textContent)",
+    returnByValue = TRUE
+  )$result$value
+  expect_identical(unlist(rows), c("Safety", "Access", "HSPR"))
+})

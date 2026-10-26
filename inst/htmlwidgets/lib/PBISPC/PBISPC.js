@@ -1,4 +1,4 @@
-var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings, data) {
+var spc = (function (exports, frontends, util, powerbi, rendering, spc, math, settings, data) {
     'use strict';
 
     function commonCause(selection) {
@@ -848,7 +848,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         let neutralHighPresent = false;
         for (let i = startIndex; i < outliers.astpoint.length; i++) {
             for (let p = 0; p < patterns.length; p++) {
-                switch (patterns[p][i]) {
+                switch (util.at(util.at(patterns, p), i)) {
                     case "improvement":
                         improvementPresent = true;
                         break;
@@ -891,7 +891,8 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         if (!(visualObj.plotProperties.displayPlot)) {
             return;
         }
-        const nhsIconSettings = visualObj.viewModel.inputSettings.settings[0].nhs_icons;
+        const { settings, derivedSettings } = visualObj.viewModel.inputSettings.group(0);
+        const nhsIconSettings = settings.nhs_icons;
         const draw_variation = nhsIconSettings.show_variation_icons;
         const variation_location = nhsIconSettings.variation_icons_locations;
         const svg_width = visualObj.viewModel.svgWidth;
@@ -899,9 +900,9 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         let numVariationIcons = 0;
         if (draw_variation) {
             const variation_scaling = nhsIconSettings.variation_icons_scaling;
-            const variationIconsPresent = variationIconsToDraw(visualObj.viewModel.outliers[0], visualObj.viewModel.inputSettings.settings[0]);
+            const variationIconsPresent = variationIconsToDraw(util.at(visualObj.viewModel.outliers, 0), settings);
             for (let idx = 0; idx < variationIconsPresent.length; idx++) {
-                const icon = variationIconsPresent[idx];
+                const icon = util.at(variationIconsPresent, idx);
                 selection
                     .call(initialiseIconSVG, icon, iconTransformSpec(svg_width, svg_height, variation_location, variation_scaling, idx))
                     .selectAll(`.${icon}`)
@@ -913,9 +914,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         if (draw_assurance) {
             const assurance_location = nhsIconSettings.assurance_icons_locations;
             const assurance_scaling = nhsIconSettings.assurance_icons_scaling;
-            const settings = visualObj.viewModel.inputSettings.settings[0];
-            const derivedSettings = visualObj.viewModel.inputSettings.derivedSettings[0];
-            const assuranceIconPresent = assuranceIconToDraw(visualObj.viewModel.controlLimits[0], settings, derivedSettings);
+            const assuranceIconPresent = assuranceIconToDraw(util.at(visualObj.viewModel.controlLimits, 0), settings, derivedSettings);
             if (assuranceIconPresent === "none") {
                 return;
             }
@@ -956,9 +955,10 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const cells = [];
         const data = [];
         for (let i = 0; i < allNodes.length; i++) {
-            if (isIconColumn(allData[i].column)) {
-                cells.push(allNodes[i]);
-                data.push(allData[i]);
+            const column = util.at(allData, i).column;
+            if (isIconColumn(column)) {
+                cells.push(util.at(allNodes, i));
+                data.push({ column });
             }
         }
         const icons = new Array(cells.length);
@@ -966,13 +966,21 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const columnWidths = { variation: 0, assurance: 0 };
         const maxIcons = { variation: 0, assurance: 0 };
         for (let i = 0; i < cells.length; i++) {
-            const column = data[i].column;
-            const row = rendering.select(cells[i].parentElement).datum();
+            const column = util.at(data, i).column;
+            const cell = util.at(cells, i);
+            const row = rendering.select(cell.parentElement).datum();
             const assurance = row.table_row.assurance;
-            icons[i] = column === "variation" ? row.variation_icons : (assurance === "none" ? [] : [assurance]);
-            maxIcons[column] = Math.max(maxIcons[column], icons[i].length);
-            const style = getComputedStyle(cells[i]);
-            const rect = cells[i].getBoundingClientRect();
+            let cellIcons = [];
+            if (column === "variation") {
+                cellIcons = row.variation_icons;
+            }
+            else if (assurance !== "none") {
+                cellIcons = [assurance];
+            }
+            icons[i] = cellIcons;
+            maxIcons[column] = Math.max(maxIcons[column], cellIcons.length);
+            const style = getComputedStyle(cell);
+            const rect = cell.getBoundingClientRect();
             rowHeight = Math.min(rowHeight, rect.height
                 - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)
                 - parseFloat(style.borderTopWidth) - parseFloat(style.borderBottomWidth));
@@ -984,12 +992,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             / Math.max(1, maxIcons.variation + maxIcons.assurance);
         const baseSize = Math.min(rowHeight * iconRowHeightRatio, widthCap);
         for (let i = 0; i < cells.length; i++) {
-            const variation = data[i].column === "variation";
+            const variation = util.at(data, i).column === "variation";
             const scaling = variation ? nhsIconSettings.variation_icons_scaling : nhsIconSettings.assurance_icons_scaling;
             const size = baseSize * scaling;
-            const cell = rendering.select(cells[i]);
-            for (let j = 0; j < icons[i].length; j++) {
-                const icon = icons[i][j];
+            const cell = rendering.select(util.at(cells, i));
+            const cellIcons = util.at(icons, i);
+            for (let j = 0; j < cellIcons.length; j++) {
+                const icon = util.at(cellIcons, j);
                 cell.append("svg")
                     .attr("width", `${size}px`)
                     .attr("height", `${size}px`)
@@ -1006,16 +1015,16 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     function drawSummaryTable(selection, visualObj) {
         const viewModel = visualObj.viewModel;
         const plotPoints = viewModel.showGrouped ? viewModel.groupedRows : viewModel.plotPoints;
-        const inputSettings = viewModel.inputSettings.settings[0];
+        const { settings: inputSettings, derivedSettings } = viewModel.inputSettings.group(0);
         const tableSettings = inputSettings.summary_table;
         const draw_icons = drawsIcons(inputSettings, viewModel.showGrouped);
         rendering.drawSummaryTable(selection, {
-            columns: viewModel.tableColumns[0],
+            columns: util.at(viewModel.tableColumns, 0),
             rows: plotPoints,
             kinds: draw_icons ? iconKinds : columnKinds,
             settings: tableSettings,
             rowSettings: row => rowTableSettings(row, tableSettings),
-            formatValue: viewModel.inputSettings.derivedSettings[0].formatValue,
+            formatValue: derivedSettings.formatValue,
             width: viewModel.svgWidth,
             host: visualObj.host,
             selectionManager: visualObj.selectionManager,
@@ -1032,7 +1041,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const subset_points = args.subset_points;
         let cl = 0;
         for (let i = 0; i < n_sub; i++) {
-            cl += numerators[subset_points[i]];
+            cl += util.at(numerators, util.at(subset_points, i));
         }
         cl = cl / n_sub;
         return {
@@ -1049,7 +1058,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const numerator_subset = new Array(n_sub);
         let cl = 0;
         for (let i = 0; i < n_sub; i++) {
-            const curr_numerator = numerators[subset_points[i]];
+            const curr_numerator = util.at(numerators, util.at(subset_points, i));
             numerator_subset[i] = curr_numerator;
             cl += curr_numerator;
         }
@@ -1064,7 +1073,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     function averageMovingRange(consec_diff, outliers_in_limits) {
         let amr = 0;
         for (let i = 0; i < consec_diff.length; i++) {
-            amr += consec_diff[i];
+            amr += util.at(consec_diff, i);
         }
         amr /= consec_diff.length;
         if (!outliers_in_limits && amr > 0) {
@@ -1072,8 +1081,9 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             let screened_amr = 0;
             let screened_count = 0;
             for (let i = 0; i < consec_diff.length; i++) {
-                if (consec_diff[i] < consec_diff_ulim) {
-                    screened_amr += consec_diff[i];
+                const diff = util.at(consec_diff, i);
+                if (diff < consec_diff_ulim) {
+                    screened_amr += diff;
                     screened_count += 1;
                 }
             }
@@ -1090,18 +1100,18 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         }
         const values = new Array(numerators.length);
         for (let i = 0; i < values.length; i++) {
-            values[i] = numerators[i] / denominators[i];
+            values[i] = util.at(numerators, i) / util.at(denominators, i);
         }
         return { values, numerators, denominators };
     }
 
     function iCentreAndSigma(values, subset_points, outliers_in_limits) {
         const n_sub = subset_points.length;
-        let prevVal = values[subset_points[0]];
+        let prevVal = util.at(values, util.at(subset_points, 0));
         let cl = prevVal;
         const consec_diff = new Array(n_sub - 1);
         for (let i = 1; i < n_sub; i++) {
-            const currVal = values[subset_points[i]];
+            const currVal = util.at(values, util.at(subset_points, i));
             consec_diff[i - 1] = Math.abs(currVal - prevVal);
             cl += currVal;
             prevVal = currVal;
@@ -1122,10 +1132,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const n_sub = subset_points.length;
         const subset = new Array(n_sub);
         const ranges = new Array(n_sub - 1);
-        subset[0] = values[subset_points[0]];
+        let previous = util.at(values, util.at(subset_points, 0));
+        subset[0] = previous;
         for (let i = 1; i < n_sub; i++) {
-            subset[i] = values[subset_points[i]];
-            ranges[i - 1] = Math.abs(subset[i] - subset[i - 1]);
+            const current = util.at(values, util.at(subset_points, i));
+            subset[i] = current;
+            ranges[i - 1] = Math.abs(current - previous);
+            previous = current;
         }
         return { subset, ranges };
     }
@@ -1151,8 +1164,9 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const consec_diff_ulim = mmr * 3.865;
             const valid_diffs = [];
             for (let i = 0; i < consec_diff.length; i++) {
-                if (consec_diff[i] < consec_diff_ulim) {
-                    valid_diffs.push(consec_diff[i]);
+                const diff = util.at(consec_diff, i);
+                if (diff < consec_diff_ulim) {
+                    valid_diffs.push(diff);
                 }
             }
             if (valid_diffs.length > 0) {
@@ -1174,7 +1188,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const subset_points = args.subset_points;
         let cl = 0;
         for (let i = 1; i < n_sub; i++) {
-            cl += Math.abs(values[subset_points[i]] - values[subset_points[i - 1]]);
+            cl += Math.abs(util.at(values, util.at(subset_points, i)) - util.at(values, util.at(subset_points, i - 1)));
         }
         cl /= (n_sub - 1);
         const sigma = 3.267 / 3;
@@ -1192,7 +1206,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             ul99: new Array(n_mr)
         };
         for (let i = 0; i < n_mr; i++) {
-            ranges[i] = Math.abs(values[i + 1] - values[i]);
+            ranges[i] = Math.abs(util.at(values, i + 1) - util.at(values, i));
             limits.target[i] = cl;
             limits.ll99[i] = 0;
             limits.ll95[i] = 0;
@@ -1214,8 +1228,9 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         let sum_numerators = 0;
         let sum_denominators = 0;
         for (let i = 0; i < subset_points.length; i++) {
-            sum_numerators += numerators[subset_points[i]];
-            sum_denominators += denominators[subset_points[i]];
+            const point = util.at(subset_points, i);
+            sum_numerators += util.at(numerators, point);
+            sum_denominators += util.at(denominators, point);
         }
         return sum_numerators / sum_denominators;
     }
@@ -1227,15 +1242,17 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         return {
             keys: args.keys,
             ...plottedValues(args),
-            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => Math.sqrt(cl_mult / denominators[i]), floor: 0, ceiling: 1 })
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => Math.sqrt(cl_mult / util.at(denominators, i)), floor: 0, ceiling: 1 })
         };
     }
 
     function laneySigmaMultiplier(values, cl, sd, subset_points, outliers_in_limits) {
         const consec_diff = new Array(subset_points.length - 1);
-        let prevZ = (values[subset_points[0]] - cl) / sd[subset_points[0]];
+        const first = util.at(subset_points, 0);
+        let prevZ = (util.at(values, first) - cl) / util.at(sd, first);
         for (let i = 1; i < subset_points.length; i++) {
-            const currZ = (values[subset_points[i]] - cl) / sd[subset_points[i]];
+            const point = util.at(subset_points, i);
+            const currZ = (util.at(values, point) - cl) / util.at(sd, point);
             consec_diff[i - 1] = Math.abs(currZ - prevZ);
             prevZ = currZ;
         }
@@ -1254,13 +1271,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const cl_mult = cl * (1 - cl);
         const sd = new Array(n);
         for (let i = 0; i < n; i++) {
-            sd[i] = Math.sqrt(cl_mult / denominators[i]);
+            sd[i] = Math.sqrt(cl_mult / util.at(denominators, i));
         }
         const sigma_multiplier = laneySigmaMultiplier(plotted.values, cl, sd, subset_points, args.outliers_in_limits);
         return {
             keys: args.keys,
             ...plotted,
-            ...spc.sigmaLimits(n, cl, { sigma: i => sd[i] * sigma_multiplier, floor: 0, ceiling: 1 })
+            ...spc.sigmaLimits(n, cl, { sigma: i => util.at(sd, i) * sigma_multiplier, floor: 0, ceiling: 1 })
         };
     }
 
@@ -1276,9 +1293,10 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         let sd_sum = 0;
         let weight_sum = 0;
         for (let i = 0; i < n_sub; i++) {
-            const curr_sd = group_sd[subset_points[i]];
+            const point = util.at(subset_points, i);
+            const curr_sd = util.at(group_sd, point);
             if (varying) {
-                const Nm1 = count_per_group[subset_points[i]] - 1;
+                const Nm1 = util.at(count_per_group, point) - 1;
                 sd_sum += Nm1 * curr_sd * curr_sd;
                 weight_sum += Nm1;
             }
@@ -1298,7 +1316,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             keys: args.keys,
             values: args.numerators,
             denominators: args.denominators,
-            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => cl * (math.c5(count_per_group[i]) / math.c4(count_per_group[i])), floor: 0 })
+            ...spc.sigmaLimits(args.keys.length, cl, {
+                sigma: i => {
+                    const count = util.at(count_per_group, i);
+                    return cl * (math.c5(count) / math.c4(count));
+                },
+                floor: 0
+            })
         };
     }
 
@@ -1306,7 +1330,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const n = args.keys.length;
         const transformed = new Array(n);
         for (let i = 0; i < n; i++) {
-            transformed[i] = Math.pow(args.numerators[i], 1 / 3.6);
+            transformed[i] = Math.pow(util.at(args.numerators, i), 1 / 3.6);
         }
         const { cl, sigma } = iCentreAndSigma(transformed, args.subset_points, args.outliers_in_limits);
         const back = (value) => Math.pow(value, 3.6);
@@ -1345,7 +1369,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         return {
             keys: args.keys,
             ...plottedValues(args),
-            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => Math.sqrt(cl / denominators[i]), floor: 0 })
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => Math.sqrt(cl / util.at(denominators, i)), floor: 0 })
         };
     }
 
@@ -1360,13 +1384,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         }
         const sd = new Array(n);
         for (let i = 0; i < n; i++) {
-            sd[i] = Math.sqrt(cl / denominators[i]);
+            sd[i] = Math.sqrt(cl / util.at(denominators, i));
         }
         const sigma_multiplier = laneySigmaMultiplier(plotted.values, cl, sd, subset_points, args.outliers_in_limits);
         return {
             keys: args.keys,
             ...plotted,
-            ...spc.sigmaLimits(n, cl, { sigma: i => sd[i] * sigma_multiplier, floor: 0 })
+            ...spc.sigmaLimits(n, cl, { sigma: i => util.at(sd, i) * sigma_multiplier, floor: 0 })
         };
     }
 
@@ -1379,8 +1403,9 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         let weighted_mean_sum = 0;
         let total_count = 0;
         for (let i = 0; i < n_sub; i++) {
-            const curr_count = count_per_group[subset_points[i]];
-            weighted_mean_sum += curr_count * group_means[subset_points[i]];
+            const point = util.at(subset_points, i);
+            const curr_count = util.at(count_per_group, point);
+            weighted_mean_sum += curr_count * util.at(group_means, point);
             total_count += curr_count;
         }
         const sd = withinGroupSd(group_sd, count_per_group, subset_points);
@@ -1388,7 +1413,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         return {
             keys: args.keys,
             values: args.numerators,
-            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => (math.a3(count_per_group[i]) * sd) / 3 }),
+            ...spc.sigmaLimits(args.keys.length, cl, { sigma: i => (math.a3(util.at(count_per_group, i)) * sd) / 3 }),
             denominators: args.denominators,
             xbar_sds: args.xbar_sds
         };
@@ -1400,7 +1425,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const subset_points = args.subset_points;
         const ratio_subset = new Array(n_sub);
         for (let i = 0; i < n_sub; i++) {
-            ratio_subset[i] = plotted.values[subset_points[i]];
+            ratio_subset[i] = util.at(plotted.values, util.at(subset_points, i));
         }
         return {
             keys: args.keys,
@@ -1692,6 +1717,10 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         "up": "Rate"
     };
     class derivedSettingsClass {
+        multiplier;
+        percentLabels;
+        formatValue;
+        chart_type_props;
         constructor(inputSettingsSpc) {
             const chartType = inputSettingsSpc.chart_type;
             this.chart_type_props = {
@@ -1845,7 +1874,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const formatOpts = new Array();
         const keys = Object.keys(date_settings);
         for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
+            const key = util.at(keys, i);
             if (key !== "date_format_locale" && key !== "date_format_delim") {
                 const formattedKey = key.replace("date_format_", "");
                 const lookup = dateOptionsLookup[formattedKey];
@@ -1881,16 +1910,19 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             return;
         }
         if (inputType.category === "DayOfMonth") {
-            parts.day = (inputValue);
+            parts.day = inputValue;
         }
         else if (inputType.category === "Months") {
-            parts.month = monthNameToNumber[(inputValue)];
+            const month = monthNameToNumber[inputValue];
+            if (month !== undefined) {
+                parts.month = month;
+            }
         }
         else if (inputType.category === "Quarters") {
             parts.quarter = inputValue;
         }
         else if (inputType.category === "Years") {
-            parts.year = (inputValue);
+            parts.year = inputValue;
         }
     }
     function parseDate(value) {
@@ -1900,27 +1932,35 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         }
         return new Date(value);
     }
+    function isDatePart(input) {
+        const type = input.source.type;
+        return type?.category !== undefined;
+    }
     const allParts = { day: true, month: true, year: true };
     function parseInputDates(inputs, idxs) {
         const n_keys = idxs.length;
         const inputDates = [];
         const inputQuarters = new Array(n_keys);
         const present = new Array(n_keys);
-        if (inputs.length > 1) {
+        if (inputs.length > 1 || isDatePart(util.at(inputs, 0))) {
             for (let i = 0; i < n_keys; i++) {
+                const row = util.at(idxs, i);
                 const datePartsObj = {};
                 for (let j = 0; j < inputs.length; j++) {
-                    readDatePart(datePartsObj, inputs[j].source.type, inputs[j].values[idxs[i]]);
+                    const input = util.at(inputs, j);
+                    readDatePart(datePartsObj, input.source.type, input.values[row]);
                 }
                 inputQuarters[i] = datePartsObj.quarter;
-                present[i] = { day: datePartsObj.day !== undefined, month: datePartsObj.month !== undefined, year: datePartsObj.year !== undefined };
-                const anyPart = present[i].day || present[i].month || present[i].year || datePartsObj.quarter !== undefined;
+                const partsPresent = { day: datePartsObj.day !== undefined, month: datePartsObj.month !== undefined, year: datePartsObj.year !== undefined };
+                present[i] = partsPresent;
+                const anyPart = partsPresent.day || partsPresent.month || partsPresent.year || datePartsObj.quarter !== undefined;
                 inputDates[i] = anyPart ? new Date(datePartsObj.year ?? 1970, datePartsObj.month ?? 0, datePartsObj.day ?? 1) : undefined;
             }
         }
         else {
+            const input = util.at(inputs, 0);
             for (let i = 0; i < n_keys; i++) {
-                const value = inputs[0].values[idxs[i]];
+                const value = input.values[util.at(idxs, i)];
                 inputDates[i] = data.isNullOrUndefined(value) ? undefined : parseDate(value);
                 present[i] = allParts;
             }
@@ -1941,10 +1981,10 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             year: ""
         };
         if (options.weekday === "short") {
-            result.weekday = weekdayShort[date.getDay()];
+            result.weekday = util.at(weekdayShort, date.getDay());
         }
         else if (options.weekday === "long") {
-            result.weekday = weekdayLong[date.getDay()];
+            result.weekday = util.at(weekdayLong, date.getDay());
         }
         if (options.day === "2-digit") {
             result.day = String(date.getDate()).padStart(2, "0");
@@ -1953,10 +1993,10 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             result.month = String(date.getMonth() + 1).padStart(2, "0");
         }
         else if (options.month === "short") {
-            result.month = monthShort[date.getMonth()];
+            result.month = util.at(monthShort, date.getMonth());
         }
         else if (options.month === "long") {
-            result.month = monthLong[date.getMonth()];
+            result.month = util.at(monthLong, date.getMonth());
         }
         if (options.year === "numeric") {
             result.year = String(date.getFullYear());
@@ -1970,28 +2010,30 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     function formatKeys(col, inputSettings, idxs) {
         const n_keys = idxs.length;
         const ret = new Array(n_keys);
-        if (col.length === 1 && !(col[0].source.type?.temporal)) {
+        const only = col.length === 1 ? util.at(col, 0) : undefined;
+        if (only !== undefined && !only.source.type?.temporal) {
             for (let i = 0; i < n_keys; i++) {
-                ret[i] = powerbi.formatPrimitiveValue(col[0].values[idxs[i]]);
+                ret[i] = powerbi.formatPrimitiveValue(only.values[util.at(idxs, i)]);
             }
             return ret;
         }
         const delim = inputSettings.dates.date_format_delim;
         let allTemporal = true;
         for (let i = 0; i < col.length; i++) {
-            if (!col[i].source.type?.temporal) {
+            if (!util.at(col, i).source.type?.temporal) {
                 allTemporal = false;
             }
         }
         if (!allTemporal) {
             const blankKey = delim.repeat(col.length - 1);
             for (let i = 0; i < n_keys; i++) {
+                const row = util.at(idxs, i);
                 let key = "";
                 for (let j = 0; j < col.length; j++) {
                     if (j > 0) {
                         key += delim;
                     }
-                    key += powerbi.formatPrimitiveValue(col[j].values[idxs[i]]) ?? "";
+                    key += powerbi.formatPrimitiveValue(util.at(col, j).values[row]) ?? "";
                 }
                 ret[i] = key === blankKey ? undefined : key;
             }
@@ -2008,7 +2050,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 ret[i] = undefined;
             }
             else {
-                const present = inputDates.present[i];
+                const present = util.at(inputDates.present, i);
                 const datePartsRecord = formatDateParts(date, {
                     weekday: present.day && present.month && present.year ? formatOptions.weekday : undefined,
                     day: present.day ? formatOptions.day : undefined,
@@ -2022,13 +2064,14 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 let key = "";
                 let partCount = 0;
                 for (let j = 0; j < datePartStrings.length; j++) {
-                    if (!datePartStrings[j].trim()) {
+                    const part = util.at(datePartStrings, j);
+                    if (!part.trim()) {
                         continue;
                     }
                     if (partCount++ > 0) {
                         key += delim;
                     }
-                    key += datePartStrings[j];
+                    key += part;
                 }
                 ret[i] = key;
             }
@@ -2038,22 +2081,23 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     function extractKeys(col, inputSettings, idxs) {
         const groupedCols = Object.create(null);
         for (let i = 0; i < col.length; i++) {
-            let queryName = col[i].source.queryName ?? "";
+            const column = util.at(col, i);
+            let queryName = column.source.queryName ?? "";
             if (queryName.includes("Date Hierarchy")) {
                 const lastDot = queryName.lastIndexOf(".");
                 if (lastDot !== -1) {
                     queryName = queryName.substring(0, lastDot);
                 }
             }
-            (groupedCols[queryName] ?? (groupedCols[queryName] = [])).push(col[i]);
+            (groupedCols[queryName] ??= []).push(column);
         }
-        const queryNames = Object.keys(groupedCols);
-        if (queryNames.length === 1) {
-            return formatKeys(groupedCols[queryNames[0]], inputSettings, idxs);
+        const groups = Object.values(groupedCols);
+        if (groups.length === 1) {
+            return formatKeys(util.at(groups, 0), inputSettings, idxs);
         }
         const combinedKeys = new Array(idxs.length);
-        for (let i = 0; i < queryNames.length; i++) {
-            const groupKeys = formatKeys(groupedCols[queryNames[i]], inputSettings, idxs);
+        for (let i = 0; i < groups.length; i++) {
+            const groupKeys = formatKeys(util.at(groups, i), inputSettings, idxs);
             for (let j = 0; j < idxs.length; j++) {
                 const key = groupKeys[j];
                 const combined = combinedKeys[j];
@@ -2102,14 +2146,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     }
 
     function extractInputData(view, inputSettingsClass, idxs, group = 0) {
-        const inputSettings = inputSettingsClass.settings[group];
-        const derivedSettings = inputSettingsClass.derivedSettings[group];
-        const rowSettings = inputSettingsClass.rowSettings[group];
+        const { settings: inputSettings, derivedSettings } = inputSettingsClass.group(group);
+        const rowSettings = util.at(inputSettingsClass.rowSettings, group);
         const denominatorColumn = view.values.denominators?.[0];
         const sdColumn = view.values.xbar_sds?.[0];
         const chart = derivedSettings.chart_type_props;
         const keys = extractKeys(view.categories.key, inputSettings, idxs);
-        const numerators = powerbi.readNumbers(view.values.numerators[0], idxs);
+        const numerators = powerbi.readNumbers(util.at(view.values.numerators, 0), idxs);
         const groupDenominators = (chart.needs_denominator || chart.denominator_optional) && denominatorColumn !== undefined
             ? powerbi.readNumbers(denominatorColumn, idxs) : undefined;
         let anyDenominator = false;
@@ -2145,9 +2188,9 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         const groupingIndexes = [];
         let currentGrouping;
         for (let x = 0; x < kept.length; x++) {
-            const i = kept[x];
-            const row = idxs[i];
-            const lines = rowSettings[i].lines;
+            const i = util.at(kept, x);
+            const row = util.at(idxs, i);
+            const lines = util.at(rowSettings, i).lines;
             limitKeys[x] = { x, id: row, label: chart.x_axis_use_date ? data.keptValue(keys, i) : String(x) };
             keptNumerators[x] = data.keptValue(numerators, i);
             if (keptDenominators !== undefined) {
@@ -2205,7 +2248,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
 
     function validateDataViewColumns(inputSettingsClass, valueColumns) {
         for (let i = 0; i < inputSettingsClass.derivedSettings.length; i++) {
-            const props = inputSettingsClass.derivedSettings[i].chart_type_props;
+            const props = util.at(inputSettingsClass.derivedSettings, i).chart_type_props;
             if (props.needs_denominator && valueColumns.denominators === undefined) {
                 return `Chart type '${props.name}' requires denominators!`;
             }
@@ -2223,9 +2266,8 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         return data.isValidNumber(value) ? Math.max(current, value) : current;
     }
     function axisRanges(viewModel) {
-        const controlLimits = viewModel.controlLimits[0];
-        const inputSettings = viewModel.inputSettings.settings[0];
-        const derivedSettings = viewModel.inputSettings.derivedSettings[0];
+        const controlLimits = util.at(viewModel.controlLimits, 0);
+        const { settings: inputSettings, derivedSettings } = viewModel.inputSettings.group(0);
         const limitMultiplier = inputSettings.y_axis.limit_multiplier;
         let maxValue = Number.NEGATIVE_INFINITY;
         let minValue = Number.POSITIVE_INFINITY;
@@ -2236,7 +2278,8 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         let minKey = Number.POSITIVE_INFINITY;
         let maxKey = Number.NEGATIVE_INFINITY;
         for (let i = 0; i < controlLimits.keys.length; i++) {
-            const value = controlLimits.values[i];
+            const key = util.at(controlLimits.keys, i);
+            const value = util.at(controlLimits.values, i);
             const altTarget = controlLimits.alt_target[i];
             const target = controlLimits.target[i];
             maxValue = finiteMax(maxValue, value);
@@ -2251,8 +2294,8 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             minValueOrLimit = finiteMin(minValueOrLimit, altTarget);
             maxTarget = finiteMax(maxTarget, target);
             minTarget = finiteMin(minTarget, target);
-            minKey = Math.min(minKey, controlLimits.keys[i].x);
-            maxKey = Math.max(maxKey, controlLimits.keys[i].x);
+            minKey = Math.min(minKey, key.x);
+            maxKey = Math.max(maxKey, key.x);
         }
         if (!data.isValidNumber(maxTarget)) {
             maxTarget = (maxValueOrLimit - minValueOrLimit) / 2 + minValueOrLimit;
@@ -2302,13 +2345,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     });
     function copyFlags(target, source, offset, flagSettings) {
         for (let i = 0; i < source.length; i++) {
-            target[offset + i] = data.checkFlagDirection(source[i], flagSettings);
+            target[offset + i] = data.checkFlagDirection(util.at(source, i), flagSettings);
         }
     }
     const truncatedSeries = new Set(settings.limitLineNames);
     function anyIcon(icons, names) {
         for (let i = 0; i < icons.length; i++) {
-            if (names.includes(icons[i])) {
+            if (names.includes(util.at(icons, i))) {
                 return true;
             }
         }
@@ -2350,29 +2393,29 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         return columns;
     }
     class viewModelClass extends rendering.PlotViewModelBase {
+        inputData = [];
+        controlLimits = [];
+        outliers = [];
+        plotPoints = [];
+        groupedRows = [];
+        groupedLines = [];
+        periodEnds = [];
+        tickLabels = [];
+        splitIndexes = [];
+        groupStartEndIndexes = [];
+        tableColumns = [];
+        indicatorVarNames = [];
+        groupNames = [];
+        groupLabels = [];
+        identities = [];
         get showGrouped() {
             return this.inputData.length > 1;
         }
         get anyLabels() {
-            return this.inputData[0].anyLabels;
+            return this.inputData[0]?.anyLabels ?? false;
         }
         constructor(host) {
             super(host, new settingsClass(), ["numerators"]);
-            this.inputData = [];
-            this.controlLimits = [];
-            this.outliers = [];
-            this.plotPoints = [];
-            this.groupedRows = [];
-            this.groupedLines = [];
-            this.periodEnds = [];
-            this.tickLabels = [];
-            this.splitIndexes = [];
-            this.groupStartEndIndexes = [];
-            this.tableColumns = [];
-            this.indicatorVarNames = [];
-            this.groupNames = [];
-            this.groupLabels = [];
-            this.identities = [];
         }
         get hasAxes() {
             return !this.showGrouped;
@@ -2395,7 +2438,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const indicator_cols = view.categories.indicator ?? [];
             this.indicatorVarNames = new Array(indicator_cols.length);
             for (let i = 0; i < indicator_cols.length; i++) {
-                this.indicatorVarNames[i] = indicator_cols[i].source.displayName;
+                this.indicatorVarNames[i] = util.at(indicator_cols, i).source.displayName;
             }
             const idx_per_indicator = indicatorGroups.rows;
             this.groupNames = indicatorGroups.names;
@@ -2405,11 +2448,11 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 return { errors: [checkDV], warnings: [] };
             }
             const hasIndicator = indicator_cols.length > 0;
-            const split_indexes_str = (view.dataView.metadata.objects?.split_indexes_storage?.split_indexes) ?? "[]";
-            const split_indexes = JSON.parse(split_indexes_str);
+            const stored = view.dataView.metadata.objects?.split_indexes_storage?.split_indexes;
+            const split_indexes = JSON.parse(typeof stored === "string" ? stored : "[]");
             this.splitIndexes = hasIndicator ? [] : split_indexes;
             this.inputData = new Array();
-            this.groupStartEndIndexes = new Array();
+            this.groupStartEndIndexes = [];
             this.controlLimits = new Array();
             this.outliers = new Array();
             this.identities = new Array();
@@ -2417,18 +2460,17 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const errors = [];
             const warnings = [];
             for (let idx = 0; idx < idx_per_indicator.length; idx++) {
-                const group_idxs = idx_per_indicator[idx];
-                const settings = this.inputSettings.settings[idx];
-                const derivedSettings = this.inputSettings.derivedSettings[idx];
+                const group_idxs = util.at(idx_per_indicator, idx);
+                const { settings, derivedSettings } = this.inputSettings.group(idx);
                 const extraction = extractInputData(view, this.inputSettings, group_idxs, idx);
                 if (extraction.status !== "valid") {
-                    errors.push(powerbi.labelledMessage(this.groupLabels[idx], extraction.error));
+                    errors.push(powerbi.labelledMessage(util.at(this.groupLabels, idx), extraction.error));
                     continue;
                 }
                 const inpData = extraction.data;
                 this.inputData.push(inpData);
                 if (inpData.warningMessage !== "") {
-                    warnings.push(powerbi.labelledMessage(this.groupLabels[idx], inpData.warningMessage));
+                    warnings.push(powerbi.labelledMessage(util.at(this.groupLabels, idx), inpData.warningMessage));
                 }
                 const inputGroupStartEnd = this.getGroupingIndexes(inpData, idx === 0 ? this.splitIndexes : undefined);
                 const limits = this.calculateLimits(inpData, inputGroupStartEnd, settings);
@@ -2438,7 +2480,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 const keys = inpData.limitInputArgs.keys;
                 const identities = new Array(keys.length);
                 for (let i = 0; i < keys.length; i++) {
-                    identities[i] = powerbi.rowIdentity(host, inpData.identityColumns, keys[i].id);
+                    identities[i] = powerbi.rowIdentity(host, inpData.identityColumns, util.at(keys, i).id);
                 }
                 this.groupStartEndIndexes.push(groupStartEnd);
                 this.controlLimits.push(limits);
@@ -2449,7 +2491,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 if (this.showGrouped) {
                     this.initialisePlotDataGrouped();
                 }
-                else if (this.controlLimits[0].keys.length === 0) {
+                else if (util.at(this.controlLimits, 0).keys.length === 0) {
                     errors.push("Moving range charts need at least two observations in the same rebaseline group!");
                 }
                 else {
@@ -2464,19 +2506,19 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const segmentEnds = new Set([-1, lastIndex]);
             if (splitIndexes !== undefined) {
                 for (let i = 0; i < splitIndexes.length; i++) {
-                    const index = splitIndexes[i];
+                    const index = util.at(splitIndexes, i);
                     if (index >= 0 && index < lastIndex) {
                         segmentEnds.add(index);
                     }
                 }
             }
             for (let i = 0; i < inputData.groupingIndexes.length; i++) {
-                segmentEnds.add(inputData.groupingIndexes[i]);
+                segmentEnds.add(util.at(inputData.groupingIndexes, i));
             }
             const allIndexes = Array.from(segmentEnds).sort((a, b) => a - b);
-            const groupStartEndIndexes = new Array();
+            const groupStartEndIndexes = [];
             for (let i = 0; i < allIndexes.length - 1; i++) {
-                groupStartEndIndexes.push([allIndexes[i] + 1, allIndexes[i + 1] + 1]);
+                groupStartEndIndexes.push([util.at(allIndexes, i) + 1, util.at(allIndexes, i + 1) + 1]);
             }
             return groupStartEndIndexes;
         }
@@ -2485,7 +2527,8 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             let position = 0;
             for (let i = 0; i < inputGroupStartEnd.length; i++) {
                 const start = position;
-                while (position < keys.length && keys[position].x < inputGroupStartEnd[i][1]) {
+                const end = util.at(inputGroupStartEnd, i)[1];
+                while (position < keys.length && util.at(keys, position).x < end) {
                     position++;
                 }
                 result[i] = [start, position];
@@ -2501,14 +2544,13 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const segments = new Array(groupStartEndIndexes.length);
             let total = 0;
             for (let g = 0; g < groupStartEndIndexes.length; g++) {
-                const start = groupStartEndIndexes[g][0];
-                const end = groupStartEndIndexes[g][1];
+                const [start, end] = util.at(groupStartEndIndexes, g);
                 const n = end - start;
                 const applySubset = g === 0 || subset_rebaselines;
                 const subsetCount = applySubset && !data.isNullOrUndefined(num_points_subset) && math.between(num_points_subset, 1, n)
                     ? num_points_subset : n;
                 const subsetStart = subset_points_from === "Start" ? 0 : n - subsetCount;
-                segments[g] = limitFunction({
+                const segment = limitFunction({
                     keys: args.keys.slice(start, end),
                     numerators: args.numerators.slice(start, end),
                     denominators: args.denominators?.slice(start, end),
@@ -2516,7 +2558,8 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                     outliers_in_limits: inputSettings.spc.outliers_in_limits,
                     subset_points: math.sequence(subsetStart, subsetCount, 1)
                 });
-                total += segments[g].keys.length;
+                segments[g] = segment;
+                total += segment.keys.length;
             }
             const controlLimits = {
                 keys: new Array(total),
@@ -2543,16 +2586,22 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             };
             let position = 0;
             for (let g = 0; g < segments.length; g++) {
-                const group = segments[g];
+                const group = util.at(segments, g);
                 const trend_line = math.calculateTrendLine(group.values);
                 for (let i = 0; i < group.keys.length; i++) {
-                    const key = group.keys[i];
+                    const key = util.at(group.keys, i);
                     controlLimits.keys[position] = key;
-                    controlLimits.values[position] = group.values[i];
+                    controlLimits.values[position] = util.at(group.values, i);
                     for (let s = 0; s < limitSeries.length; s++) {
-                        const name = limitSeries[s];
+                        const name = util.at(limitSeries, s);
                         const rows = perRow[name];
-                        const value = rows !== undefined ? rows[key.x] : name === "trend_line" ? trend_line[i] : group[name]?.[i];
+                        let value = group[name]?.[i];
+                        if (rows !== undefined) {
+                            value = rows[key.x];
+                        }
+                        else if (name === "trend_line") {
+                            value = trend_line[i];
+                        }
                         controlLimits[name][position] = data.isValidNumber(value) ? value : undefined;
                     }
                     position++;
@@ -2566,19 +2615,21 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             this.tableColumns = new Array();
             const tableColumnsDef = new Array();
             for (let i = 0; i < this.indicatorVarNames.length; i++) {
-                tableColumnsDef.push({ name: `indicator_${i}`, label: this.indicatorVarNames[i] });
+                tableColumnsDef.push({ name: `indicator_${i}`, label: util.at(this.indicatorVarNames, i) });
             }
             tableColumnsDef.push({ name: "latest_date", label: "Latest Date" });
             let anyNumerators = false;
             let anyDenominators = false;
             let anyControlLimits = false;
             for (let i = 0; i < this.controlLimits.length; i++) {
-                anyNumerators = anyNumerators || anyDefined(this.controlLimits[i].numerators);
-                anyDenominators = anyDenominators || anyDefined(this.controlLimits[i].denominators);
-                anyControlLimits = anyControlLimits || this.inputSettings.derivedSettings[i].chart_type_props.has_control_limits;
+                const limits = util.at(this.controlLimits, i);
+                anyNumerators = anyNumerators || anyDefined(limits.numerators);
+                anyDenominators = anyDenominators || anyDefined(limits.denominators);
+                anyControlLimits = anyControlLimits || this.inputSettings.group(i).derivedSettings.chart_type_props.has_control_limits;
             }
-            tableColumnsDef.push(...lineColumns(this.inputSettings.settings[0], anyNumerators, anyDenominators, anyControlLimits));
-            const nhsIconSettings = this.inputSettings.settings[0].nhs_icons;
+            const firstSettings = this.inputSettings.group(0).settings;
+            tableColumnsDef.push(...lineColumns(firstSettings, anyNumerators, anyDenominators, anyControlLimits));
+            const nhsIconSettings = firstSettings.nhs_icons;
             if (nhsIconSettings.show_variation_icons) {
                 tableColumnsDef.push({ name: "variation", label: "Variation" });
             }
@@ -2587,27 +2638,28 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             }
             let anyTooltips = false;
             for (let i = 0; i < this.inputData.length && !anyTooltips; i++) {
-                const rowTooltips = this.inputData[i].tooltips;
+                const rowTooltips = util.at(this.inputData, i).tooltips;
                 for (let j = 0; j < rowTooltips.length && !anyTooltips; j++) {
-                    anyTooltips = rowTooltips[j].length > 0;
+                    anyTooltips = util.at(rowTooltips, j).length > 0;
                 }
             }
             if (anyTooltips) {
-                const firstTooltips = this.inputData[0].tooltips[0];
+                const firstTooltips = util.at(util.at(this.inputData, 0).tooltips, 0);
                 for (let i = 0; i < firstTooltips.length; i++) {
-                    tableColumnsDef.push({ name: `tooltip_${i}`, label: firstTooltips[i].displayName });
+                    tableColumnsDef.push({ name: `tooltip_${i}`, label: util.at(firstTooltips, i).displayName });
                 }
             }
             this.tableColumns[0] = tableColumnsDef;
             for (let i = 0; i < this.groupNames.length; i++) {
-                const formatValues = this.inputSettings.derivedSettings[i].formatValue;
-                const varIconFilter = this.inputSettings.settings[i].summary_table.table_variation_filter;
-                const assIconFilter = this.inputSettings.settings[i].summary_table.table_assurance_filter;
-                const limits = this.controlLimits[i];
-                const outliers = this.outliers[i];
+                const { settings, derivedSettings } = this.inputSettings.group(i);
+                const formatValues = derivedSettings.formatValue;
+                const varIconFilter = settings.summary_table.table_variation_filter;
+                const assIconFilter = settings.summary_table.table_assurance_filter;
+                const limits = util.at(this.controlLimits, i);
+                const outliers = util.at(this.outliers, i);
                 const lastIndex = limits.keys.length - 1;
                 const lastKey = limits.keys[lastIndex];
-                const varIcons = lastKey === undefined ? [] : variationIconsToDraw(outliers, this.inputSettings.settings[i]);
+                const varIcons = lastKey === undefined ? [] : variationIconsToDraw(outliers, settings);
                 if (varIconFilter !== "all") {
                     if (varIconFilter === "improvement" && !anyIcon(varIcons, ["improvementHigh", "improvementLow"])) {
                         continue;
@@ -2625,7 +2677,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                         continue;
                     }
                 }
-                const assIcon = assuranceIconToDraw(limits, this.inputSettings.settings[i], this.inputSettings.derivedSettings[i]);
+                const assIcon = assuranceIconToDraw(limits, settings, derivedSettings);
                 if (assIconFilter !== "all") {
                     if (assIconFilter === "any" && assIcon !== "consistentPass" && assIcon !== "consistentFail") {
                         continue;
@@ -2641,14 +2693,15 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                     }
                 }
                 const indicatorColumns = {};
+                const groupNames = util.at(this.groupNames, i);
                 for (let idx = 0; idx < this.indicatorVarNames.length; idx++) {
-                    indicatorColumns[`indicator_${idx}`] = this.groupNames[i][idx];
+                    indicatorColumns[`indicator_${idx}`] = util.at(groupNames, idx);
                 }
                 const tooltipColumns = {};
                 if (anyTooltips) {
-                    const rowTooltips = this.inputData[i].tooltips[lastKey?.x ?? 0];
+                    const rowTooltips = util.at(util.at(this.inputData, i).tooltips, lastKey?.x ?? 0);
                     for (let t = 0; t < rowTooltips.length; t++) {
-                        tooltipColumns[`tooltip_${t}`] = lastKey === undefined ? "" : rowTooltips[t].value;
+                        tooltipColumns[`tooltip_${t}`] = lastKey === undefined ? "" : util.at(rowTooltips, t).value;
                     }
                 }
                 const table_row = {
@@ -2674,53 +2727,58 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 this.groupedRows.push({
                     table_row,
                     variation_icons: varIcons,
-                    identity: this.identities[i],
-                    aesthetics: this.inputSettings.settings[i].summary_table,
-                    highlighted: this.inputData[i].anyHighlights
+                    identity: util.at(this.identities, i),
+                    aesthetics: settings.summary_table,
+                    highlighted: util.at(this.inputData, i).anyHighlights
                 });
             }
         }
         initialisePlotData() {
-            const inputData = this.inputData[0];
-            const controlLimits = this.controlLimits[0];
-            const outliers = this.outliers[0];
-            const identities = this.identities[0];
-            const settings = this.inputSettings.settings[0];
-            const derivedSettings = this.inputSettings.derivedSettings[0];
+            const inputData = util.at(this.inputData, 0);
+            const controlLimits = util.at(this.controlLimits, 0);
+            const outliers = util.at(this.outliers, 0);
+            const identities = util.at(this.identities, 0);
+            const { settings, derivedSettings } = this.inputSettings.group(0);
             this.plotPoints = [];
             this.groupedRows = [];
             this.tickLabels = new Array();
-            this.tableColumns[0] = new Array();
-            this.tableColumns[0].push({ name: "date", label: "Date" });
-            this.tableColumns[0].push(...lineColumns(settings, anyDefined(controlLimits.numerators), anyDefined(controlLimits.denominators), derivedSettings.chart_type_props.has_control_limits));
+            const tableColumns = [];
+            this.tableColumns[0] = tableColumns;
+            tableColumns.push({ name: "date", label: "Date" });
+            tableColumns.push(...lineColumns(settings, anyDefined(controlLimits.numerators), anyDefined(controlLimits.denominators), derivedSettings.chart_type_props.has_control_limits));
             if (settings.outliers.astronomical) {
-                this.tableColumns[0].push({ name: "astpoint", label: "Ast. Point" });
+                tableColumns.push({ name: "astpoint", label: "Ast. Point" });
             }
             if (settings.outliers.trend) {
-                this.tableColumns[0].push({ name: "trend", label: "Trend" });
+                tableColumns.push({ name: "trend", label: "Trend" });
             }
             if (settings.outliers.shift) {
-                this.tableColumns[0].push({ name: "shift", label: "Shift" });
+                tableColumns.push({ name: "shift", label: "Shift" });
             }
             if (settings.outliers.two_in_three) {
-                this.tableColumns[0].push({ name: "two_in_three", label: "Two-in-Three" });
+                tableColumns.push({ name: "two_in_three", label: "Two-in-Three" });
             }
             for (let i = 0; i < controlLimits.keys.length; i++) {
-                const index = controlLimits.keys[i].x;
-                const aesthetics = { ...inputData.scatter_formatting[index] };
+                const key = util.at(controlLimits.keys, i);
+                const index = key.x;
+                const aesthetics = { ...util.at(inputData.scatter_formatting, index) };
                 if (this.colourPalette.isHighContrast) {
                     aesthetics.colour = this.colourPalette.foregroundColour;
                 }
+                const shift = util.at(outliers.shift, i);
+                const trend = util.at(outliers.trend, i);
+                const two_in_three = util.at(outliers.two_in_three, i);
+                const astpoint = util.at(outliers.astpoint, i);
                 data.applyFlagColours(aesthetics, settings.outliers, [
-                    [outliers.shift[i], "shift_colour"], [outliers.trend[i], "trend_colour"],
-                    [outliers.two_in_three[i], "twointhree_colour"], [outliers.astpoint[i], "ast_colour"]
+                    [shift, "shift_colour"], [trend, "trend_colour"], [two_in_three, "twointhree_colour"], [astpoint, "ast_colour"]
                 ]);
+                const value = util.at(controlLimits.values, i);
                 const table_row = {
-                    date: controlLimits.keys[i].label,
+                    date: key.label,
                     numerator: controlLimits.numerators[i],
                     denominator: controlLimits.denominators[i],
                     xbar_sd: controlLimits.xbar_sds[i],
-                    value: controlLimits.values[i],
+                    value,
                     target: controlLimits.target[i],
                     alt_target: controlLimits.alt_target[i],
                     ll99: controlLimits.ll99[i],
@@ -2732,75 +2790,70 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                     speclimits_lower: controlLimits.speclimits_lower[i],
                     speclimits_upper: controlLimits.speclimits_upper[i],
                     trend_line: controlLimits.trend_line[i],
-                    astpoint: outliers.astpoint[i],
-                    trend: outliers.trend[i],
-                    shift: outliers.shift[i],
-                    two_in_three: outliers.two_in_three[i]
+                    astpoint,
+                    trend,
+                    shift,
+                    two_in_three
                 };
                 this.plotPoints.push({
                     x: index,
-                    value: controlLimits.values[i],
+                    value,
                     aesthetics: aesthetics,
                     table_row: table_row,
-                    identity: identities[index],
+                    identity: util.at(identities, index),
                     highlighted: inputData.highlights[index] !== undefined,
-                    tooltip: buildTooltip(table_row, inputData.tooltips[index], settings, derivedSettings),
+                    tooltip: buildTooltip(table_row, util.at(inputData.tooltips, index), settings, derivedSettings),
                     label: {
                         text_value: inputData.labels[index],
-                        aesthetics: inputData.label_formatting[index],
+                        aesthetics: util.at(inputData.label_formatting, index),
                         angle: undefined,
                         distance: undefined
                     }
                 });
-                this.tickLabels.push({ x: index, label: controlLimits.keys[i].label });
+                this.tickLabels.push({ x: index, label: key.label });
             }
         }
         initialiseGroupedLines() {
-            const settings = this.inputSettings.settings[0];
-            const derivedSettings = this.inputSettings.derivedSettings[0];
-            const controlLimits = this.controlLimits[0];
-            const inputData = this.inputData[0];
-            const labels = [];
+            const { settings, derivedSettings } = this.inputSettings.group(0);
+            const controlLimits = util.at(this.controlLimits, 0);
+            const inputData = util.at(this.inputData, 0);
+            const lines = [];
             if (settings.lines.show_main) {
-                labels.push("values");
+                lines.push(["values", []]);
             }
             if (settings.lines.show_target) {
-                labels.push("target");
+                lines.push(["target", []]);
             }
             if (settings.lines.show_alt_target) {
-                labels.push("alt_target");
+                lines.push(["alt_target", []]);
             }
             if (settings.lines.show_specification) {
-                labels.push("speclimits_lower", "speclimits_upper");
+                lines.push(["speclimits_lower", []], ["speclimits_upper", []]);
             }
             if (settings.lines.show_trend) {
-                labels.push("trend_line");
+                lines.push(["trend_line", []]);
             }
             if (derivedSettings.chart_type_props.has_control_limits) {
                 if (settings.lines.show_99) {
-                    labels.push("ll99", "ul99");
+                    lines.push(["ll99", []], ["ul99", []]);
                 }
                 if (settings.lines.show_95) {
-                    labels.push("ll95", "ul95");
+                    lines.push(["ll95", []], ["ul95", []]);
                 }
                 if (settings.lines.show_68) {
-                    labels.push("ll68", "ul68");
+                    lines.push(["ll68", []], ["ul68", []]);
                 }
             }
-            const lines = new Array(labels.length);
-            for (let l = 0; l < labels.length; l++) {
-                lines[l] = [labels[l], []];
-            }
             const nLimits = controlLimits.keys.length;
-            const groups = this.groupStartEndIndexes[0];
+            const groups = util.at(this.groupStartEndIndexes, 0);
             const isGroupStart = new Array(nLimits).fill(false);
             for (let i = 1; i < groups.length; i++) {
-                isGroupStart[groups[i][0]] = true;
+                isGroupStart[util.at(groups, i)[0]] = true;
             }
             this.periodEnds = [];
             let position = 0;
             for (let i = 0; i < nLimits; i++) {
-                const isRebaselinePoint = isGroupStart[i];
+                const isRebaselinePoint = util.at(isGroupStart, i);
                 let isNewAltTarget = false;
                 if (i > 0 && settings.lines.show_alt_target) {
                     isNewAltTarget = controlLimits.alt_target[i] !== controlLimits.alt_target[i - 1];
@@ -2809,11 +2862,10 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                     this.periodEnds.push(position - 1);
                 }
                 position += 1 + (isRebaselinePoint ? 1 : 0) + (isNewAltTarget ? 2 : 0);
-                const x = controlLimits.keys[i].x;
-                const aesthetics = inputData.line_formatting[x];
-                for (let l = 0; l < labels.length; l++) {
-                    const label = labels[l];
-                    const formattedLines = lines[l][1];
+                const x = util.at(controlLimits.keys, i).x;
+                const aesthetics = util.at(inputData.line_formatting, x);
+                for (let l = 0; l < lines.length; l++) {
+                    const [label, formattedLines] = util.at(lines, l);
                     const join_rebaselines = settings.lines[`join_rebaselines_${lineKeys[label]}`];
                     const value = controlLimits[label][i];
                     const is_alt_target = label === "alt_target";
@@ -2859,7 +2911,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 lines_to_scale.push("speclimits_lower", "speclimits_upper");
             }
             for (let l = 0; l < lines_to_scale.length; l++) {
-                const name = lines_to_scale[l];
+                const name = util.at(lines_to_scale, l);
                 const series = controlLimits[name];
                 const lower = truncatedSeries.has(name) ? ll_truncate : undefined;
                 const upper = truncatedSeries.has(name) ? ul_truncate : undefined;
@@ -2886,8 +2938,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                 shift: math.rep("none", controlLimits.values.length)
             };
             for (let i = 0; i < groupStartEndIndexes.length; i++) {
-                const start = groupStartEndIndexes[i][0];
-                const end = groupStartEndIndexes[i][1];
+                const [start, end] = util.at(groupStartEndIndexes, i);
                 const group_values = controlLimits.values.slice(start, end);
                 const group_targets = controlLimits.target.slice(start, end);
                 if (derivedSettings.chart_type_props.has_control_limits || ast_specification || two_in_three_specification) {
@@ -2924,13 +2975,14 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
 
     const lowerLines = new Set(settings.lowerLimitLines).add("speclimits_lower");
     class Visual extends rendering.PlotVisual {
+        tableDiv;
+        lineKeys = lineKeys;
         constructor(options) {
             super(options, host => new viewModelClass(host));
-            this.lineKeys = lineKeys;
             this.tableDiv = rendering.createTableContainer(this.element);
         }
         get settings() {
-            return this.viewModel.inputSettings.settings[0];
+            return this.viewModel.inputSettings.group(0).settings;
         }
         drawAlternate() {
             if (!(this.viewModel.showGrouped || this.settings.summary_table.show_table)) {
@@ -2945,14 +2997,15 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const viewModel = this.viewModel;
             const settings = this.settings;
             const tickLabels = viewModel.tickLabels;
-            const derivedSettings = viewModel.inputSettings.derivedSettings[0];
+            const derivedSettings = viewModel.inputSettings.group(0).derivedSettings;
             const integerTicks = derivedSettings.chart_type_props.integer_values && derivedSettings.multiplier === 1;
             return {
                 tickFormats: {
                     x: value => {
                         for (let i = 0; i < tickLabels.length; i++) {
-                            if (tickLabels[i].x === value) {
-                                return tickLabels[i].label;
+                            const tickLabel = util.at(tickLabels, i);
+                            if (tickLabel.x === value) {
+                                return tickLabel.label;
                             }
                         }
                         return "";
@@ -2961,7 +3014,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
                     yInteger: integerTicks
                 },
                 verticalCrosshair: false,
-                lineSettings: (points, index) => points[index].aesthetics,
+                lineSettings: (points, index) => util.at(points, index).aesthetics,
                 lowerLines,
                 dots: {
                     show: settings.scatter.show_dots,
@@ -2998,7 +3051,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
             const viewModel = this.viewModel;
             let anyHighlights = false;
             for (let i = 0; i < viewModel.inputData.length && !anyHighlights; i++) {
-                anyHighlights = viewModel.inputData[i].anyHighlights;
+                anyHighlights = util.at(viewModel.inputData, i).anyHighlights;
             }
             const state = powerbi.selectionState(this.selectionManager, anyHighlights);
             this.highlightPlotPoints(state, point => point.aesthetics);
@@ -3031,7 +3084,7 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
     function appendLimitRows(rows, rowIds, limits, outliers, outlierSettings, indicators) {
         const dates = new Array(limits.keys.length);
         for (let i = 0; i < dates.length; i++) {
-            dates[i] = limits.keys[i].label.trim();
+            dates[i] = util.at(limits.keys, i).label.trim();
         }
         const columns = {
             date: dates,
@@ -3056,37 +3109,40 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         };
         const names = [];
         for (let i = 0; i < limitColumns.length; i++) {
-            const flagSetting = flagSettings[limitColumns[i]];
-            if ((flagSetting === undefined || outlierSettings[flagSetting]) && hasValues(columns[limitColumns[i]])) {
-                names.push(limitColumns[i]);
+            const column = util.at(limitColumns, i);
+            const flagSetting = flagSettings[column];
+            if ((flagSetting === undefined || outlierSettings[flagSetting]) && hasValues(columns[column])) {
+                names.push(column);
             }
         }
         for (let i = 0; i < dates.length; i++) {
             const row = { ...indicators };
             for (let j = 0; j < names.length; j++) {
-                row[names[j]] = frontends.limitValue(columns[names[j]][i]);
+                const name = util.at(names, j);
+                row[name] = frontends.limitValue(columns[name][i]);
             }
             rows.push(row);
-            rowIds.push(limits.keys[i].id);
+            rowIds.push(util.at(limits.keys, i).id);
         }
     }
     function chartLimits(viewModel) {
         const result = [];
         const rowIds = [];
         for (let i = 0; i < viewModel.controlLimits.length; i++) {
-            const limits = viewModel.controlLimits[i];
+            const limits = util.at(viewModel.controlLimits, i);
             if (limits.keys.length === 0) {
                 continue;
             }
+            const firstRow = util.at(limits.keys, 0).id;
             const indicators = {};
-            const columns = viewModel.inputData[i].identityColumns;
+            const columns = util.at(viewModel.inputData, i).identityColumns;
             for (let j = 0; j < columns.length; j++) {
-                const column = columns[j];
+                const column = util.at(columns, j);
                 if (column.source.roles?.indicator) {
-                    indicators[column.source.displayName] = frontends.limitValue(powerbi.formatPrimitiveValue(column.values[limits.keys[0].id]));
+                    indicators[column.source.displayName] = frontends.limitValue(powerbi.formatPrimitiveValue(column.values[firstRow]));
                 }
             }
-            appendLimitRows(result, rowIds, limits, viewModel.outliers[i], viewModel.inputSettings.settings[i].outliers, frontends.indicatorFields(indicators, limitColumns));
+            appendLimitRows(result, rowIds, limits, util.at(viewModel.outliers, i), viewModel.inputSettings.group(i).settings.outliers, frontends.indicatorFields(indicators, limitColumns));
         }
         return { limits: result, rowIds };
     }
@@ -3097,11 +3153,11 @@ var spc = (function (exports, frontends, powerbi, rendering, spc, math, settings
         limits: visual => chartLimits(visual.viewModel)
     };
 
-    frontends.registerChart('spc', frontend);
+    frontends.registerChart("spc", frontend);
 
     exports.Visual = Visual;
     exports.defaultSettings = defaultSettings;
 
     return exports;
 
-})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);
+})({}, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore, ccCore);

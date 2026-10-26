@@ -52,7 +52,8 @@ whose denominators are all missing plots its numerators.}
 each category.}
 
 \item{indicators}{A vector or list of vectors representing indicator
-categories for the summary table.}
+categories for the summary table. Factor indicators are ordered by their levels,
+and others by value.}
 
 \item{xbar_sds}{A numeric vector or column name representing the x-bar
 and standard deviation values for each category.}

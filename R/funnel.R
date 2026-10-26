@@ -9,6 +9,7 @@
 #' @param indicators Optional vector or list of vectors identifying indicators.
 #' Supplying indicators displays a multi-indicator sigma chart using the native
 #' Funnel visual. Each indicator is calculated against its comparison population.
+#' Factor indicators are ordered by their levels, and others by value.
 #' @param tooltips A vector or column name, or a list of them, representing
 #' additional tooltips for each category. Each is labelled by its name in the
 #' list, or else by the expression supplied. `NULL` for none.
@@ -181,7 +182,9 @@ funnel <- function(data,
 
   indicators_quo <- rlang::enquo(indicators)
   if (!rlang::quo_is_null(indicators_quo)) {
-    data_raw$indicators <- normalise_columns(indicators_quo, input_data, "indicators", "indicator")
+    indicators <- indicator_data(indicators_quo, input_data)
+    data_raw$indicators <- indicators$values
+    data_raw$indicator_levels <- indicators$levels
   }
 
   input_settings <- list(

@@ -8,7 +8,7 @@ dependencies:
       - ccCore.min.js
       - ccInteractive.min.js
   - name: PBISPC
-    version: 1.8.1.0
+    version: 1.9.1.3
     src: htmlwidgets/lib/PBISPC
     script:
       - PBISPC.min.js

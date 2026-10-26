@@ -55,7 +55,8 @@ test_that("all widgets export the displayed chart as standalone SVG and PNG", {
     dimensions <- evaluate(sprintf(paste(
       "(() => { const svg = document.querySelector('#%s-export-test > svg');",
       "const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');",
-      "text.textContent = 'Transient tooltip'; svg.querySelector('.chart-tooltip-group').appendChild(text);",
+      "const group = document.createElementNS('http://www.w3.org/2000/svg', 'g'); group.setAttribute('class', 'chart-tooltip-group');",
+      "text.textContent = 'Transient tooltip'; group.appendChild(text); svg.appendChild(group);",
       "return [svg.width.baseVal.value, svg.height.baseVal.value]; })()"
     ), type))
     for (format in c("svg", "png")) {

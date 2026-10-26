@@ -47,17 +47,6 @@ jobs:
         npm run bundle
       working-directory: 'inst/bundle'
 
-    - name: Update lib files
-      run: |
-        for ext in js min.js; do
-          mv inst/bundle/dist/funnel.$ext inst/htmlwidgets/lib/PBIFUN/PBIFUN.$ext
-          mv inst/bundle/dist/spc.$ext inst/htmlwidgets/lib/PBISPC/PBISPC.$ext
-          mv inst/bundle/dist/ccCore.$ext inst/htmlwidgets/lib/UTILS/ccCore.$ext
-          mv inst/bundle/dist/ccHeadless.$ext inst/htmlwidgets/lib/UTILS/ccHeadless.$ext
-          mv inst/bundle/dist/ccInteractive.$ext inst/htmlwidgets/lib/UTILS/ccInteractive.$ext
-          mv inst/bundle/dist/minidom.$ext inst/js/minidom.$ext
-        done
-
     - name: Commit funnel changes
       run: |
         if [[ -n "$(git status inst/htmlwidgets/lib/PBIFUN -s)" ]]; then

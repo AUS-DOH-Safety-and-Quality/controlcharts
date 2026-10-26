@@ -140,6 +140,16 @@ normalise_columns <- function(columns_quo, input_data, arg, item, as_character =
   column_values
 }
 
+# Factor indicators send their levels, so the engine orders them by level rather than value
+indicator_data <- function(indicators_quo, input_data) {
+  indicators <- normalise_columns(indicators_quo, input_data, "indicators", "indicator", as_character = FALSE)
+  indicator_levels <- Filter(Negate(is.null), lapply(indicators, levels))
+  if (length(indicator_levels) == 0) {
+    indicator_levels <- NULL
+  }
+  list(values = lapply(indicators, as.character), levels = indicator_levels)
+}
+
 warn_all <- function(messages) {
   for (message in messages) {
     warning(message, call. = FALSE)
