@@ -58,7 +58,8 @@ funnel(
   Optional vector or list of vectors identifying indicators. Supplying
   indicators displays a multi-indicator sigma chart using the native
   Funnel visual. Each indicator is calculated against its comparison
-  population.
+  population. Factor indicators are ordered by their levels, and others
+  by value.
 
 - tooltips:
 

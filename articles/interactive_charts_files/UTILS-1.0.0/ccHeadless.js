@@ -1,19 +1,10 @@
-var ccHeadless = (function (exports, powerbi, rendering, frontends) {
+var ccHeadless = (function (exports, util, powerbi, rendering, frontends) {
     'use strict';
 
     const visuals = {};
     const services = {
-        selectionManager: {
-            registerOnSelectCallback: () => { },
-            getSelectionIds: () => [],
-            select: () => Promise.resolve(),
-            clear: () => Promise.resolve(),
-            showContextMenu: () => Promise.resolve()
-        },
-        tooltipService: {
-            show: () => { },
-            hide: () => { }
-        },
+        selectionManager: frontends.noSelection,
+        tooltipSettings: () => undefined,
         rowKeys: index => [String(index)],
         displayWarningIcon: () => { }
     };
@@ -22,10 +13,11 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
         globalThis.window = dom.window;
         const names = frontends.chartNames();
         for (let i = 0; i < names.length; i++) {
+            const name = util.at(names, i);
             const container = dom.document.createElement("div");
-            container.classList.add(`${names[i]}-container`);
+            container.classList.add(`${name}-container`);
             dom.document.body.appendChild(container);
-            visuals[names[i]] = new (frontends.frontendChart(names[i]).Visual)(frontends.constructorOptions(container, services));
+            visuals[name] = frontends.createVisual(name, container, services);
         }
     }
     function updateOptions(dataViews, width, height) {
@@ -63,7 +55,7 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
         const names = [];
         const categories = dataViews[0]?.categorical.categories ?? [];
         for (let i = 0; i < categories.length; i++) {
-            const source = categories[i].source;
+            const source = util.at(categories, i).source;
             if (source.roles?.indicator) {
                 names.push(source.displayName);
             }
@@ -73,6 +65,9 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
     function updateHeadlessVisual(chartType, dataViews, titleSettings, width, height, staticPlot, limits) {
         const chart = frontends.frontendChart(chartType);
         const visual = visuals[chartType];
+        if (visual === undefined) {
+            throw new Error(`No visual initialised for ${chartType}.`);
+        }
         visual.update(updateOptions([], width, height));
         let result = {};
         let status;
@@ -134,4 +129,4 @@ var ccHeadless = (function (exports, powerbi, rendering, frontends) {
 
     return exports;
 
-})({}, ccCore, ccCore, ccCore);
+})({}, ccCore, ccCore, ccCore, ccCore);

@@ -42,7 +42,8 @@ misc(
 
 - indicators:
 
-  A vector or list of vectors identifying indicators.
+  A vector or list of vectors identifying indicators. Factor indicators
+  are ordered by their levels, and others by value.
 
 - target:
 

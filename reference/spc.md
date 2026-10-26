@@ -66,7 +66,8 @@ spc(
 - indicators:
 
   A vector or list of vectors representing indicator categories for the
-  summary table.
+  summary table. Factor indicators are ordered by their levels, and
+  others by value.
 
 - xbar_sds:
 

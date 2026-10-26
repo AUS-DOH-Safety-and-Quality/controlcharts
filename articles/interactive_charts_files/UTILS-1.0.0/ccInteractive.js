@@ -1,4 +1,4 @@
-var ccInteractive = (function (exports, powerbi, rendering, frontends) {
+var ccInteractive = (function (exports, util, powerbi, rendering, frontends) {
     'use strict';
 
     function keysOf(column) {
@@ -26,12 +26,12 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                     const groups = updateValues.crosstalk_identities;
                     const identities = new Array(selectedKeys.length);
                     for (let i = 0; i < selectedKeys.length; i++) {
-                        identities[i] = frontends.selectionId([selectedKeys[i]]);
+                        identities[i] = frontends.selectionId([util.at(selectedKeys, i)]);
                     }
                     for (let i = 0; i < groups.length; i++) {
-                        const keys = keysOf(groups[i]);
+                        const keys = keysOf(util.at(groups, i));
                         for (let j = 0; j < keys.length; j++) {
-                            if (selected.has(keys[j])) {
+                            if (selected.has(util.at(keys, j))) {
                                 identities.push(frontends.selectionId(keys));
                                 break;
                             }
@@ -43,17 +43,18 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                     const identities = Array.isArray(identity) ? identity : [identity];
                     const selected = new Set(multiSelect === true ? selectionHandle.value ?? [] : []);
                     for (let i = 0; i < identities.length; i++) {
-                        const keys = identities[i].keys;
+                        const keys = util.at(identities, i).keys;
                         let anySelected = false;
                         for (let j = 0; j < keys.length && !anySelected; j++) {
-                            anySelected = selected.has(keys[j]);
+                            anySelected = selected.has(util.at(keys, j));
                         }
                         for (let j = 0; j < keys.length; j++) {
+                            const key = util.at(keys, j);
                             if (anySelected) {
-                                selected.delete(keys[j]);
+                                selected.delete(key);
                             }
                             else {
-                                selected.add(keys[j]);
+                                selected.add(key);
                             }
                         }
                     }
@@ -71,68 +72,19 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                 },
                 showContextMenu: () => Promise.resolve()
             };
-            const visual = new (frontends.frontendChart(chartType).Visual)(frontends.constructorOptions(el, {
+            const visual = frontends.createVisual(chartType, el, {
                 selectionManager,
-                tooltipService: {
-                    show: options => {
-                        if (x !== undefined && options.dataItems !== undefined) {
-                            showTooltip(x.tooltip_settings, options.dataItems, options.coordinates);
-                        }
-                    },
-                    hide: () => {
-                        visual.svg.select(".chart-tooltip-group").selectChildren().remove();
-                    }
-                },
-                rowKeys: index => keysOf(updateValues.crosstalk_identities[index]),
+                tooltipSettings: () => x?.tooltip_settings,
+                rowKeys: index => keysOf(util.at(updateValues.crosstalk_identities, index)),
                 displayWarningIcon: (hoverText, detailedText) => {
-                    console.log(hoverText, detailedText);
+                    console.warn(hoverText, detailedText);
                 }
-            }));
+            });
             const svg = visual.svg.node();
             if (svg === null) {
                 throw new Error("The visual has no SVG.");
             }
             addExportControl(el, svg, chartType);
-            const showTooltip = (settings, items, coordinates) => {
-                const bounds = svg.getBoundingClientRect();
-                const tooltipGroup = visual.svg.select(".chart-tooltip-group");
-                tooltipGroup.raise();
-                const rect = tooltipGroup.selectAll("rect").data([0]).join("rect");
-                const texts = tooltipGroup.selectAll("text")
-                    .data(items)
-                    .join("text")
-                    .attr("x", 5)
-                    .attr("y", (_, i) => 15 + 15 * i)
-                    .text(d => `${d.displayName}: ${d.value}`)
-                    .style("text-anchor", "left")
-                    .style("font-size", `${settings.ttip_font_size}px`)
-                    .style("font-family", settings.ttip_font)
-                    .style("fill", settings.ttip_font_color)
-                    .nodes();
-                let maxTextLength = 0;
-                for (let i = 0; i < texts.length; i++) {
-                    maxTextLength = Math.max(maxTextLength, texts[i].getComputedTextLength());
-                }
-                let left = coordinates[0];
-                let top = coordinates[1];
-                if (left + maxTextLength > bounds.width) {
-                    left = left - maxTextLength - 10;
-                }
-                if (top + 15 * items.length > bounds.height) {
-                    top = top - 15 * items.length - 5;
-                }
-                rect.attr("fill", settings.ttip_background_color)
-                    .attr("stroke", settings.ttip_border_color)
-                    .attr("stroke-width", settings.ttip_border_width)
-                    .attr("opacity", settings.ttip_opacity)
-                    .attr("rx", settings.ttip_border_radius)
-                    .attr("ry", settings.ttip_border_radius)
-                    .attr("x", 0)
-                    .attr("y", 0)
-                    .attr("width", maxTextLength + 10)
-                    .attr("height", 15 * items.length + 5);
-                tooltipGroup.attr("transform", `translate(${left}, ${top})`);
-            };
             function titleSettings(data) {
                 return titleText === undefined ? data.title_settings : { ...data.title_settings, text: titleText };
             }
@@ -141,7 +93,6 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
                 if (x !== undefined) {
                     frontends.updateChartTitle(visual.svg, titleSettings(x));
                 }
-                visual.svg.selectAll(".chart-tooltip-group").data([null]).join("g").classed("chart-tooltip-group", true);
             }
             function redraw(data) {
                 updateValues = data.is_crosstalk
@@ -179,74 +130,6 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
             };
         };
     }
-    const exportedStyles = [
-        "fill", "fill-opacity", "stroke", "stroke-width", "stroke-opacity", "stroke-dasharray",
-        "font-family", "font-size", "font-weight", "font-style", "text-anchor",
-        "dominant-baseline", "opacity", "visibility", "display"
-    ];
-    function inlineStyles(from, to) {
-        const style = getComputedStyle(from);
-        for (let i = 0; i < exportedStyles.length; i++) {
-            to.style.setProperty(exportedStyles[i], style.getPropertyValue(exportedStyles[i]));
-        }
-    }
-    function chartSvgBlob(svg) {
-        const copy = document.importNode(svg, true);
-        const width = svg.width.baseVal.value;
-        const height = svg.height.baseVal.value;
-        inlineStyles(svg, copy);
-        const originals = svg.querySelectorAll("*");
-        const copies = copy.querySelectorAll("*");
-        for (let i = 0; i < originals.length; i++) {
-            inlineStyles(originals[i], copies[i]);
-        }
-        const tooltips = copy.querySelectorAll(".chart-tooltip-group");
-        for (let i = 0; i < tooltips.length; i++) {
-            tooltips[i].remove();
-        }
-        copy.setAttribute("xmlns", rendering.SVG_NS);
-        copy.setAttribute("width", String(width));
-        copy.setAttribute("height", String(height));
-        if (!copy.hasAttribute("viewBox")) {
-            copy.setAttribute("viewBox", `0 0 ${width} ${height}`);
-        }
-        const backgroundColour = getComputedStyle(svg).backgroundColor;
-        copy.prepend(svgElement("rect", {
-            width: "100%",
-            height: "100%",
-            fill: backgroundColour === "rgba(0, 0, 0, 0)" ? "white" : backgroundColour
-        }));
-        return new Blob([new XMLSerializer().serializeToString(copy)], { type: "image/svg+xml;charset=utf-8" });
-    }
-    async function chartPngBlob(svgBlob, width, height) {
-        const url = URL.createObjectURL(svgBlob);
-        try {
-            const image = new Image();
-            image.src = url;
-            await image.decode();
-            const canvas = document.createElement("canvas");
-            canvas.width = Math.ceil(width * 2);
-            canvas.height = Math.ceil(height * 2);
-            const context = canvas.getContext("2d");
-            if (context === null) {
-                throw new Error("PNG export failed");
-            }
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            return await new Promise((resolve, reject) => {
-                canvas.toBlob(blob => {
-                    if (blob === null) {
-                        reject(new Error("PNG export failed"));
-                    }
-                    else {
-                        resolve(blob);
-                    }
-                }, "image/png");
-            });
-        }
-        finally {
-            URL.revokeObjectURL(url);
-        }
-    }
     function fileName(svg, chartType) {
         const title = svg.querySelector(".chart-title")?.textContent || chartType;
         const name = title.replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").trim().replace(/[. ]+$/, "");
@@ -254,9 +137,10 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
     }
     function svgElement(name, attributes) {
         const element = document.createElementNS(rendering.SVG_NS, name);
-        const names = Object.keys(attributes);
-        for (let i = 0; i < names.length; i++) {
-            element.setAttribute(names[i], attributes[names[i]]);
+        const entries = Object.entries(attributes);
+        for (let i = 0; i < entries.length; i++) {
+            const [name, value] = util.at(entries, i);
+            element.setAttribute(name, value);
         }
         return element;
     }
@@ -292,10 +176,12 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
         const formats = ["svg", "png"];
         const buttons = new Array(formats.length);
         for (let i = 0; i < formats.length; i++) {
-            buttons[i] = document.createElement("button");
-            buttons[i].type = "button";
-            buttons[i].dataset.format = formats[i];
-            buttons[i].textContent = formats[i].toUpperCase();
+            const format = util.at(formats, i);
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.format = format;
+            button.textContent = format.toUpperCase();
+            buttons[i] = button;
         }
         const status = document.createElement("span");
         status.className = "controlcharts-export-status";
@@ -305,7 +191,7 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
         el.appendChild(control);
         function setBusy(busy) {
             for (let i = 0; i < buttons.length; i++) {
-                buttons[i].disabled = busy;
+                util.at(buttons, i).disabled = busy;
             }
             if (busy) {
                 control.setAttribute("aria-busy", "true");
@@ -318,10 +204,7 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
             status.textContent = "";
             setBusy(true);
             try {
-                let blob = chartSvgBlob(svg);
-                if (format === "png") {
-                    blob = await chartPngBlob(blob, svg.width.baseVal.value, svg.height.baseVal.value);
-                }
+                const blob = format === "png" ? await frontends.chartPngBlob(svg) : frontends.chartSvgBlob(svg);
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");
                 link.href = url;
@@ -358,8 +241,8 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
             }
         });
         for (let i = 0; i < buttons.length; i++) {
-            const format = formats[i];
-            buttons[i].addEventListener("click", () => {
+            const format = util.at(formats, i);
+            util.at(buttons, i).addEventListener("click", () => {
                 void exportChart(format);
             });
         }
@@ -369,4 +252,4 @@ var ccInteractive = (function (exports, powerbi, rendering, frontends) {
 
     return exports;
 
-})({}, ccCore, ccCore, ccCore);
+})({}, ccCore, ccCore, ccCore, ccCore);
