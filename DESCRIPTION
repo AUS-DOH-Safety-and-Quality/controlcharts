@@ -30,6 +30,6 @@ Suggests:
   chromote,
   xml2
 VignetteBuilder: knitr
-URL: https://aus-doh-safety-and-quality.github.io/controlcharts/
+URL: https://github.com/AUS-DOH-Safety-and-Quality/controlcharts, https://aus-doh-safety-and-quality.github.io/controlcharts/
 Config/roxygen2/version: 8.1.0
 Config/testthat/edition: 3

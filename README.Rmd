@@ -27,18 +27,18 @@ The package is implemented as a wrapper around the existing code for the Power B
 
 ## Installation
 
-You can install the development version of controlcharts from [GitHub](https://github.com/) with:
+`controlcharts` can be installed from [CRAN](https://cran.r-project.org/web/packages/controlcharts/):
+
+```{r, eval=FALSE}
+install.packages("controlcharts", repos = "https://cran.r-project.org")
+```
+
+
+You can also install the development version of controlcharts from [GitHub](https://github.com/) with:
 
 ```{r, eval=FALSE}
 # install.packages("remotes")
 remotes::install_github("AUS-DOH-Safety-and-Quality/controlcharts")
-```
-
-Or you can install pre-built binaries from R-Universe:
-
-```{r, eval=FALSE}
-install.packages("controlcharts", repos = c("https://AUS-DOH-Safety-and-Quality.r-universe.dev",
-                                            "https://cran.r-project.org"))
 ```
 
 
